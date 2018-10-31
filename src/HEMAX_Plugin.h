@@ -83,17 +83,8 @@ public:
 
     std::string GetNodeName(ULONG Node);
 
-    void SetAutoSelectRootMHANode(bool Enabled);
-    bool GetAutoSelectRootMHANode();
-
-    void SetAutoStartWindowOption(bool Enabled);
-    bool GetAutoStartWindowOption();
-
     void SetAutoLoadHDADirectory(std::string Directory);
-    std::string GetAutoLoadHDADirectory();
-
     void SetHdaRepoDirectory(std::string Directory);
-    std::string GetHdaRepoDirectory();
 
     HEMAX_Store* GetPluginStore();
 
@@ -167,4 +158,6 @@ private:
     void CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode);
 
     void TraverseHdaLoadPaths();
+
+    void InitializeLogPrintLevels();
 };

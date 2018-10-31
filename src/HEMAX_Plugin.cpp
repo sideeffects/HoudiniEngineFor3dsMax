@@ -114,7 +114,12 @@ HEMAX_Plugin::HEMAX_Plugin(Interface* Interface, HEMAX_UI* UserInterface, HMODUL
 
             PluginUserInterface->AttachPlugin(this);
 
-            if (GetAutoStartWindowOption())
+            InitializeLogPrintLevels();
+
+            bool AutoStartWindow;
+            UserPreferences->GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, AutoStartWindow);
+
+            if (AutoStartWindow)
             {
                 PluginUserInterface->ShowHEMAXWindow();
             }
@@ -123,9 +128,17 @@ HEMAX_Plugin::HEMAX_Plugin(Interface* Interface, HEMAX_UI* UserInterface, HMODUL
                 PluginUserInterface->UnshowHEMAXWindow();
             }
 
-            PluginUserInterface->TriggerOutOfProcessSession();
+            bool AutoStartSession;
+            UserPreferences->GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, AutoStartSession);
 
-            PluginStore->UserHdaRepository = GetHdaRepoDirectory();
+            if (AutoStartSession)
+            {
+                PluginUserInterface->TriggerOutOfProcessSession();
+            }
+
+            std::string HdaRepoDir;
+            UserPreferences->GetStringSetting(HEMAX_SETTING_AUTO_START_SESSION, HdaRepoDir);
+            PluginStore->UserHdaRepository = HdaRepoDir;
 
             ToolShelf->LoadShelvesFromJson(UserPreferences->GetPluginConfigFolder());
             ToolShelf->AddShelfDirectory(HapiToolsDir, "Default", true);
@@ -1082,36 +1095,6 @@ HEMAX_Plugin::GetNodeName(ULONG Node)
 }
 
 void
-HEMAX_Plugin::SetAutoSelectRootMHANode(bool Enabled)
-{
-    UserPreferences->SetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Enabled);
-}
-
-bool
-HEMAX_Plugin::GetAutoSelectRootMHANode()
-{
-    bool Option;
-    UserPreferences->GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Option);
-
-    return Option;
-}
-
-void
-HEMAX_Plugin::SetAutoStartWindowOption(bool Enabled)
-{
-    UserPreferences->SetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Enabled);
-}
-
-bool
-HEMAX_Plugin::GetAutoStartWindowOption()
-{
-    bool Option;
-    UserPreferences->GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Option);
-
-    return Option;
-}
-
-void
 HEMAX_Plugin::SetAutoLoadHDADirectory(std::string Directory)
 {
     UserPreferences->SetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, Directory);
@@ -1126,29 +1109,11 @@ HEMAX_Plugin::SetAutoLoadHDADirectory(std::string Directory)
     }
 }
 
-std::string
-HEMAX_Plugin::GetAutoLoadHDADirectory()
-{
-    std::string Directory;
-    UserPreferences->GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, Directory);
-
-    return Directory;
-}
-
 void
 HEMAX_Plugin::SetHdaRepoDirectory(std::string Directory)
 {
     UserPreferences->SetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, Directory);
     PluginStore->UserHdaRepository = Directory;
-}
-
-std::string
-HEMAX_Plugin::GetHdaRepoDirectory()
-{
-    std::string Directory;
-    UserPreferences->GetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, Directory);
-
-    return Directory;
 }
 
 HEMAX_Store*
@@ -1976,7 +1941,9 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
 void
 HEMAX_Plugin::TraverseHdaLoadPaths()
 {
-    HEMAX_SessionManager::GetSessionManager().LoadAllAssetsInDirectory(GetAutoLoadHDADirectory(), PluginStore);
+    std::string AutoLoadHdaDir;
+    GetUserPrefs()->GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, AutoLoadHdaDir);
+    HEMAX_SessionManager::GetSessionManager().LoadAllAssetsInDirectory(AutoLoadHdaDir, PluginStore);
 
     std::string HdaLoadPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
 
@@ -1984,4 +1951,19 @@ HEMAX_Plugin::TraverseHdaLoadPaths()
     {
         HEMAX_SessionManager::GetSessionManager().LoadAllAssetsInDirectory(HdaLoadPath, PluginStore);
     }
+}
+
+void
+HEMAX_Plugin::InitializeLogPrintLevels()
+{
+    bool Setting;
+
+    GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Setting);
+    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_ERROR, Setting);
+
+    GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Setting);
+    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_WARN, Setting);
+
+    GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Setting);
+    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_INFO, Setting);
 }

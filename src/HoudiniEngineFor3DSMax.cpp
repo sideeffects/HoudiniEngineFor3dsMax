@@ -139,20 +139,36 @@ HEMAXLauncher::FindHoudiniEngineLibs()
     
     if (Result == ERROR_SUCCESS)
     {
-        WCHAR StringValue[1024];
+        WCHAR StringValue[2048];
         DWORD BufferSize = sizeof(StringValue);
         Result = RegQueryValueEx(Key, _T(HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME), nullptr, nullptr, (LPBYTE)(StringValue), &BufferSize);
 
         if (Result == ERROR_SUCCESS)
         {
-            std::wstring HAPIToolsDir = std::wstring(StringValue) + L"\\" + _T(HEMAX_HOUDINI_TOOLS_SUBDIRECTORY);
-            HAPIToolsDirectory = std::string(HAPIToolsDir.begin(), HAPIToolsDir.end());
+            SetHoudiniSubDirectores(std::wstring(StringValue));
 
-            std::wstring LibHAPILPath = std::wstring(StringValue) + L"\\" + _T(HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY);
-            LibHAPILDirectory = std::string(LibHAPILPath.begin(), LibHAPILPath.end());
-            
-            std::wstring WStrValue = std::wstring(StringValue);
-            HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = std::string(WStrValue.begin(), WStrValue.end());
+            HMODULE libHAPILModule = LoadLibHAPIL();
+
+            if (libHAPILModule)
+            {
+                return libHAPILModule;
+            }
+        }
+    }
+
+    std::string HoudiniSteamRegPath = HEMAX_Utilities::GetHoudiniSteamRegistryPath(HoudiniVersionString);
+
+    Result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, HoudiniSteamRegPath.c_str(), 0, KEY_READ, &Key);
+
+    if (Result == ERROR_SUCCESS)
+    {
+        WCHAR StringValue[2048];
+        DWORD BufferSize = sizeof(StringValue);
+        Result = RegQueryValueEx(Key, _T(HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME), nullptr, nullptr, (LPBYTE)(StringValue), &BufferSize);
+
+        if (Result == ERROR_SUCCESS)
+        {
+            SetHoudiniSubDirectores(std::wstring(StringValue));
 
             HMODULE libHAPILModule = LoadLibHAPIL();
 
@@ -209,6 +225,19 @@ HEMAXLauncher::FindHoudiniEngineLibs()
         HEMAX_LOG_LEVEL_ERROR);
 
     return nullptr;
+}
+
+void
+HEMAXLauncher::SetHoudiniSubDirectores(std::wstring HoudiniDir)
+{
+    std::wstring HAPIToolsDir = HoudiniDir + L"\\" + _T(HEMAX_HOUDINI_TOOLS_SUBDIRECTORY);
+    HAPIToolsDirectory = std::string(HAPIToolsDir.begin(), HAPIToolsDir.end());
+
+    std::wstring LibHAPILPath = HoudiniDir + L"\\" + _T(HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY);
+    LibHAPILDirectory = std::string(LibHAPILPath.begin(), LibHAPILPath.end());
+
+    std::wstring WStrValue = HoudiniDir;
+    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = std::string(WStrValue.begin(), WStrValue.end());
 }
 
 void
@@ -343,6 +372,10 @@ HEMAXLauncher::InstallMenu()
             HideSub->SetUseCustomTitle(true);
             HideSub->SetTitle(HIDE_HEMAX_MENU_STRING);
             HEMAXMenu->AddItem(HideSub);
+
+            IMenuItem* Separator = GetIMenuItem();
+            Separator->ActAsSeparator();
+            HEMAXMenu->AddItem(Separator);
 
             IMenuItem* VersionSub = GetIMenuItem();
             ActionItem* VersionAction = HEMAXActionTable->GetAction(VERSION_HEMAX_ACTION);

@@ -557,7 +557,7 @@ HEMAX_Mesh::GetPointUVAtIndex(int Index, float* UVVals)
 {
     for (int i = 0; i < UVTupleSize; ++i)
     {
-        UVVals[i] = UVPointArray[(Index * PointTupleSize) + i];
+        UVVals[i] = UVPointArray[(Index * UVTupleSize) + i];
     }
 }
 
@@ -566,7 +566,7 @@ HEMAX_Mesh::GetVertexUVAtIndex(int Index, float* UVVals)
 {
     for (int i = 0; i < UVTupleSize; ++i)
     {
-        UVVals[i] = UVVertArray[(Index * PointTupleSize) + i];
+        UVVals[i] = UVVertArray[(Index * UVTupleSize) + i];
     }
 }
 
@@ -703,7 +703,10 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMesh(Mesh& MaxMesh)
     }
 
     float* Point = new float[GetPointTupleSize()];
-    float* UVVals = new float[GetUVTupleSize()];
+    float UVVals[3];
+    UVVals[0] = 0;
+    UVVals[1] = 0;
+    UVVals[2] = 0;
 
     float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
 
@@ -1023,7 +1026,6 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMesh(Mesh& MaxMesh)
     MaxMesh.InvalidateTopologyCache();
 
     delete[] Point;
-    delete[] UVVals;
 }
 
 void
@@ -1246,6 +1248,10 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     }
 
     float UVVals[3];
+    UVVals[0] = 0;
+    UVVals[1] = 0;
+    UVVals[2] = 0;
+
     float CdVals[3];
     float AlphaVal;
     float IlluminationVals[3];

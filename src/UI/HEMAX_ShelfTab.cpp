@@ -16,10 +16,10 @@
 #include <QtGui/qinputdialog.h>
 #endif
 
-HEMAX_ShelfTab::HEMAX_ShelfTab()
+HEMAX_ShelfTab::HEMAX_ShelfTab(bool Active)
 {
     Shelf = nullptr;
-    
+
     MainLayout = new QGridLayout;
     ConfigurationButton = new QPushButton("Open Shelf Configuration");
     AddShelfDirButton = new QPushButton("Add Shelf Directory");
@@ -45,15 +45,23 @@ HEMAX_ShelfTab::HEMAX_ShelfTab()
     CreateModifiersButton = new QPushButton("Create Modifier HDA On Selected Objects");
     CreateModifiersButton->setMinimumHeight(HEMAX_ShelfTab_CreateHdaButtonMinWidth);
 
+    WarningWidget = new QWidget;
+    WarningLayout = new QVBoxLayout;
+    WarningLayout->setAlignment(Qt::AlignCenter);
+    NoActiveSessionWarning = new QLabel("<b>No active Houdini session</b>");
+    WarningLayout->addWidget(NoActiveSessionWarning);
+    WarningWidget->setLayout(WarningLayout);
+
     MainLayout->setAlignment(Qt::AlignTop);
-    MainLayout->addWidget(ConfigurationButton, 0, 2);
-    MainLayout->addWidget(AddShelfDirButton, 1, 0);
-    MainLayout->addWidget(RemoveShelfDirButton, 1, 1);
-    MainLayout->addWidget(ReloadShelfDirButton, 1, 2);
-    MainLayout->addWidget(ShelfSelectionWidget, 2, 0, 1, 3, Qt::AlignLeft);
-    MainLayout->addWidget(ShelfWidgetContainer, 3, 0, 1, 3, Qt::AlignCenter);
-    MainLayout->addWidget(CreateObjectButton, 4, 0, 1, 3);
-    MainLayout->addWidget(CreateModifiersButton, 5, 0, 1, 3);
+    MainLayout->addWidget(WarningWidget, 0, 0, 1, 3, Qt::AlignCenter);
+    MainLayout->addWidget(ConfigurationButton, 1, 2);
+    MainLayout->addWidget(AddShelfDirButton, 2, 0);
+    MainLayout->addWidget(RemoveShelfDirButton, 2, 1);
+    MainLayout->addWidget(ReloadShelfDirButton, 2, 2);
+    MainLayout->addWidget(ShelfSelectionWidget, 3, 0, 1, 3, Qt::AlignLeft);
+    MainLayout->addWidget(ShelfWidgetContainer, 4, 0, 1, 3, Qt::AlignCenter);
+    MainLayout->addWidget(CreateObjectButton, 5, 0, 1, 3);
+    MainLayout->addWidget(CreateModifiersButton, 6, 0, 1, 3);
 
     ShelfWidgetContainer->setLayout(ShelfWidgetLayout);
 
@@ -72,10 +80,19 @@ HEMAX_ShelfTab::HEMAX_ShelfTab()
     QObject::connect(CreateModifiersButton, SIGNAL(clicked()), this, SLOT(Slot_CreateModifiersButton_Clicked()));
 
     QObject::connect(ShelfComboBox, SIGNAL(activated(int)), this, SLOT(Slot_ShelfComboBox_Activated(int)));
+
+    if (Active)
+    {
+        EnableShelf();
+    }
+    else
+    {
+        DisableShelf();
+    }
 }
 
-HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf)
-    : HEMAX_ShelfTab()
+HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf, bool Active)
+    : HEMAX_ShelfTab(Active)
 {
     Shelf = ToolShelf;
 }
@@ -83,6 +100,10 @@ HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf)
 HEMAX_ShelfTab::~HEMAX_ShelfTab()
 {
     DeleteShelfWidgets();
+
+    delete NoActiveSessionWarning;
+    delete WarningLayout;
+    delete WarningWidget;
 
     delete ShelfWidgetLayout;
     delete ShelfWidgetContainer;
@@ -144,6 +165,24 @@ HEMAX_ShelfTab::Update()
             ShelfWidgetLayout->addWidget(ShelfGroup, ShelfWidgetLayout->rowCount(), Qt::AlignCenter);
         }
     }
+}
+
+void
+HEMAX_ShelfTab::DisableShelf()
+{
+    WarningWidget->setHidden(false);
+    ShelfWidgetContainer->setDisabled(true);
+    CreateObjectButton->setDisabled(true);
+    CreateModifiersButton->setDisabled(true);
+}
+
+void
+HEMAX_ShelfTab::EnableShelf()
+{
+    WarningWidget->setHidden(true);
+    ShelfWidgetContainer->setEnabled(true);
+    CreateObjectButton->setEnabled(true);
+    CreateModifiersButton->setEnabled(true);
 }
 
 void

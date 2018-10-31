@@ -26,7 +26,7 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow)
     ScrollArea = new QScrollArea;
     TabContainer = new QTabWidget;
 
-    ShelfToolsWidget = new HEMAX_ShelfTab;
+    ShelfToolsWidget = new HEMAX_ShelfTab(false);
     SessionWidget = new HEMAX_SessionWidget;
     HDAWidget = new HEMAX_HDAWidget();
     MHAWidget = new HEMAX_MaxHoudiniAssetWidget;
@@ -77,6 +77,7 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow)
     QObject::connect(MHAWidget, SIGNAL(Signal_SubnetworkInputSelection(HEMAX_Node*, int, bool)), this, SLOT(HandleSubnetworkInputSelection(HEMAX_Node*, int, bool)));
 
     QObject::connect(OptionsWidget, SIGNAL(Signal_SelectHDARootOption(int)), this, SLOT(Slot_Options_AutoSelectRoot(int)));
+    QObject::connect(OptionsWidget, SIGNAL(Signal_SelectAutoStartSessionOption(int)), this, SLOT(Slot_Options_AutoStartSession(int)));
     QObject::connect(OptionsWidget, SIGNAL(Signal_SelectAutoStartWindowOption(int)), this, SLOT(Slot_Options_AutoStartWindow(int)));
     QObject::connect(OptionsWidget, SIGNAL(Signal_AutoLoadHDADir_EditingFinished(std::string)), this, SLOT(Slot_Options_AutoLoadHDADirectory(std::string)));
     QObject::connect(OptionsWidget, SIGNAL(Signal_HdaRepoDir_EditingFinished(std::string)), this, SLOT(Slot_Options_HdaRepoDir_EditingFinished(std::string)));
@@ -192,10 +193,25 @@ HEMAX_UI::AttachPlugin(HEMAX_Plugin* Plugin)
 void
 HEMAX_UI::SetPluginOptions()
 {
-    OptionsWidget->SetAutoSelectOption(ActivePlugin->GetAutoSelectRootMHANode());
-    OptionsWidget->SetAutoStartWindowOption(ActivePlugin->GetAutoStartWindowOption());
-    OptionsWidget->SetAutoLoadHDADirectory(ActivePlugin->GetAutoLoadHDADirectory());
-    OptionsWidget->SetHdaRepoDirectory(ActivePlugin->GetHdaRepoDirectory());
+    bool AutoSelectOption;
+    ActivePlugin->GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, AutoSelectOption);
+    OptionsWidget->SetAutoSelectOption(AutoSelectOption);
+
+    bool AutoStartSession;
+    ActivePlugin->GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, AutoStartSession);
+    OptionsWidget->SetAutoStartSessionOption(AutoStartSession);
+
+    bool AutoStartWindow;
+    ActivePlugin->GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, AutoStartWindow);
+    OptionsWidget->SetAutoStartWindowOption(AutoStartWindow);
+
+    std::string AutoLoadHDADir;
+    ActivePlugin->GetUserPrefs()->GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, AutoLoadHDADir);
+    OptionsWidget->SetAutoLoadHDADirectory(AutoLoadHDADir);
+
+    std::string HdaRepoDir;
+    ActivePlugin->GetUserPrefs()->GetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, HdaRepoDir);
+    OptionsWidget->SetHdaRepoDirectory(HdaRepoDir);
 
     std::string TempDirectory;
     ActivePlugin->GetUserPrefs()->GetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR, TempDirectory);
@@ -229,12 +245,14 @@ void
 HEMAX_UI::HandleSessionStopped()
 {
     ActivePlugin->CurrentSessionStopped();
+    ShelfToolsWidget->DisableShelf();
 }
 
 void
 HEMAX_UI::HandleSessionStarted()
 {
     ActivePlugin->NewSessionStarted();
+    ShelfToolsWidget->EnableShelf();
 }
 
 void
@@ -368,13 +386,19 @@ HEMAX_UI::Slot_HandleUpdateMultiParameterList(HEMAX_Node* Node, HEMAX_Parameter 
 void
 HEMAX_UI::Slot_Options_AutoSelectRoot(int Checked)
 {
-    ActivePlugin->SetAutoSelectRootMHANode(Checked);
+    ActivePlugin->GetUserPrefs()->SetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Checked);
+}
+
+void
+HEMAX_UI::Slot_Options_AutoStartSession(int Checked)
+{
+    ActivePlugin->GetUserPrefs()->SetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, Checked);
 }
 
 void
 HEMAX_UI::Slot_Options_AutoStartWindow(int Checked)
 {
-    ActivePlugin->SetAutoStartWindowOption(Checked);
+    ActivePlugin->GetUserPrefs()->SetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Checked);
 }
 
 void

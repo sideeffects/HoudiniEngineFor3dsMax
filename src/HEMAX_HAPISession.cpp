@@ -2,6 +2,7 @@
 
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Node.h"
+#include "HEMAX_Logger.h"
 
 HEMAX_HAPISession::HEMAX_HAPISession() : SeparateCookingThread( true ),
         CookingThreadStackSize( -1 )
@@ -29,6 +30,8 @@ HEMAX_HAPISession::HandleStatusResult( HAPI_Result Result )
 {
     if ( Result != HAPI_RESULT_SUCCESS )
     {
+        std::string HAPIError = GetHAPIErrorStatusString();
+        HEMAX_Logger::Instance().AddEntry(HAPIError, HEMAX_LOG_LEVEL_ERROR);
         return false;
     }
 
@@ -408,29 +411,6 @@ HEMAX_HAPISession::GetComposedObjectTransforms( HEMAX_NodeId Node, HAPI_RSTOrder
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedObjectTransforms( this, Node, RSTOrder, TransformArray, Start, Length );
     
     return HandleStatusResult( Result );
-}
-
-std::string
-HEMAX_HAPISession::GetHAPIString( HEMAX_StringHandle Handle )
-{
-    int StringBufferLength;
-    this->GetStringBufferLength( Handle, &StringBufferLength );
-
-    if (StringBufferLength > 0)
-    {
-        char* StringResult = new char[StringBufferLength];
-        this->GetString(Handle, StringResult, StringBufferLength);
-
-        std::string ReturnString(StringResult);
-
-        delete[] StringResult;
-
-        return ReturnString;
-    }
-    else
-    {
-        return std::string("");
-    }
 }
 
 void
@@ -850,4 +830,62 @@ HEMAX_HAPISession::GetServerEnvString(const char * VarName, HAPI_StringHandle * 
     HAPI_Result Result = HEMAX_HoudiniApi::GetServerEnvString(this, VarName, Value);
 
     return HandleStatusResult(Result);
+}
+
+void
+HEMAX_HAPISession::GetStatusStringBufLength(HAPI_StatusType StatusType, HAPI_StatusVerbosity Verbosity, int *BufferLength)
+{
+    HEMAX_HoudiniApi::GetStatusStringBufLength(this, StatusType, Verbosity, BufferLength);
+}
+
+void
+HEMAX_HAPISession::GetStatusString(HAPI_StatusType StatusType, char* StringValue, int Length)
+{
+    HEMAX_HoudiniApi::GetStatusString(this, StatusType, StringValue, Length);
+}
+
+std::string
+HEMAX_HAPISession::GetHAPIString(HEMAX_StringHandle Handle)
+{
+    int StringBufferLength;
+    this->GetStringBufferLength(Handle, &StringBufferLength);
+
+    if (StringBufferLength > 0)
+    {
+        char* StringResult = new char[StringBufferLength];
+        this->GetString(Handle, StringResult, StringBufferLength);
+
+        std::string ReturnString(StringResult);
+
+        delete[] StringResult;
+
+        return ReturnString;
+    }
+    else
+    {
+        return std::string("");
+    }
+}
+
+std::string
+HEMAX_HAPISession::GetHAPIErrorStatusString()
+{
+    int StrBufLen;
+    this->GetStatusStringBufLength(HAPI_STATUS_CALL_RESULT, HAPI_STATUSVERBOSITY_ALL, &StrBufLen);
+
+    if (StrBufLen > 0)
+    {
+        char* StringResult = new char[StrBufLen];
+        this->GetStatusString(HAPI_STATUS_CALL_RESULT, StringResult, StrBufLen);
+
+        std::string ReturnStr(StringResult);
+
+        delete[] StringResult;
+
+        return ReturnStr;
+    }
+    else
+    {
+        return std::string("");
+    }
 }

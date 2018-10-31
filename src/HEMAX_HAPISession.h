@@ -196,7 +196,12 @@ public:
 
     bool GetServerEnvString(const char * VarName, HAPI_StringHandle * Value);
 
+    void GetStatusStringBufLength(HAPI_StatusType StatusType, HAPI_StatusVerbosity Verbosity, int *BufferLength);
+
+    void GetStatusString(HAPI_StatusType StatusType, char* StringValue, int Length);
+
     std::string GetHAPIString( HEMAX_StringHandle Handle );
+    std::string GetHAPIErrorStatusString();
     
 protected:
 

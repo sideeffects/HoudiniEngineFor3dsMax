@@ -15,6 +15,7 @@
 #define HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH "Session\\AudioDsoSearchPath"
 
 #define HEMAX_SETTING_GRAB_ROOT       "Selection\\GrabHDARootNode"
+#define HEMAX_SETTING_AUTO_START_SESSION "OnStart\\AutoStartSession"
 #define HEMAX_SETTING_AUTO_START_WINDOW "OnStart\\AutoStartWindow"
 #define HEMAX_SETTING_HDA_LOAD_PATH   "OnStart\\LoadHDADirectory"
 #define HEMAX_SETTING_HDA_REPO_PATH   "Assets\\HdaRepository"

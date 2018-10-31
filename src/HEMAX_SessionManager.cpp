@@ -36,35 +36,11 @@ HEMAX_SessionManager::StartSession(const char* HoudiniEnvFiles, const char* OtlS
             IsActiveSession = true;
             IsSessionInitialized = true;
 
-            int EnvVarCount;
-            if (Session->GetServerEnvVarCount(&EnvVarCount))
+            auto EnvMap = GetEnvMap();
+
+            if (DoesUseHEngineFlagExist(EnvMap))
             {
-                HEMAX_StringHandle* EnvSH = new HEMAX_StringHandle[EnvVarCount];
-                if (Session->GetServerEnvVarList(EnvSH, 0, EnvVarCount))
-                {
-                    std::unordered_map < std::string, std::string> EnvMap;
-
-                    std::vector<std::string> EnvList(EnvVarCount);
-                    for (int v = 0; v < EnvVarCount; v++)
-                    {
-                        EnvList[v] = Session->GetHAPIString(EnvSH[v]);
-                        for (auto searchIt = EnvList[v].begin(); searchIt != EnvList[v].end(); searchIt++)
-                        {
-                            if ((*searchIt) == '=')
-                            {
-                                auto ValIt = searchIt + 1;
-                                std::string Val = "";
-
-                                if (ValIt != EnvList[v].end())
-                                {
-                                    Val = std::string((searchIt + 1), EnvList[v].end());
-                                }
-
-                                EnvMap.insert({std::string(EnvList[v].begin(), searchIt), Val});
-                            }
-                        }
-                    }
-                }
+                CopyHEngineEnv(EnvMap);
             }
         }
     }
@@ -213,6 +189,66 @@ HEMAX_SessionManager::LoadAllAssetsInDirectory(std::string Directory, HEMAX_Stor
                 }
             }
         }
+    }
+}
+
+std::unordered_map<std::string, std::string>
+HEMAX_SessionManager::GetEnvMap()
+{
+    std::unordered_map<std::string, std::string> EnvMap;
+
+    int EnvVarCount;
+    if (Session->GetServerEnvVarCount(&EnvVarCount))
+    {
+        HEMAX_StringHandle* EnvSH = new HEMAX_StringHandle[EnvVarCount];
+        if (Session->GetServerEnvVarList(EnvSH, 0, EnvVarCount))
+        {
+            std::vector<std::string> EnvList(EnvVarCount);
+            for (int v = 0; v < EnvVarCount; v++)
+            {
+                EnvList[v] = Session->GetHAPIString(EnvSH[v]);
+                for (auto searchIt = EnvList[v].begin(); searchIt != EnvList[v].end(); searchIt++)
+                {
+                    if ((*searchIt) == '=')
+                    {
+                        auto ValIt = searchIt + 1;
+                        std::string Val = "";
+
+                        if (ValIt != EnvList[v].end())
+                        {
+                            Val = std::string((searchIt + 1), EnvList[v].end());
+                        }
+
+                        EnvMap.insert({ std::string(EnvList[v].begin(), searchIt), Val });
+                    }
+                }
+            }
+        }
+    }
+
+    return EnvMap;
+}
+
+bool
+HEMAX_SessionManager::DoesUseHEngineFlagExist(std::unordered_map<std::string, std::string>& EnvMap)
+{
+    auto EnvSearch = EnvMap.find(HEMAX_USE_SESSION_ENV_FLAG);
+    if (EnvSearch != EnvMap.end())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+HEMAX_SessionManager::CopyHEngineEnv(std::unordered_map<std::string, std::string>& EnvMap)
+{
+    for (auto EnvIt = EnvMap.begin(); EnvIt != EnvMap.end(); EnvIt++)
+    {
+        HEMAX_Utilities::SetEnvVar(EnvIt->first, EnvIt->second);
     }
 }
 

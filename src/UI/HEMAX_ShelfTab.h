@@ -37,13 +37,16 @@ class HEMAX_ShelfTab : public QWidget
     Q_OBJECT
 
 public:
-    HEMAX_ShelfTab();
-    HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf);
+    HEMAX_ShelfTab(bool Active);
+    HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf, bool Active);
     ~HEMAX_ShelfTab();
 
     void SetShelf(HEMAX_Shelf* const ToolShelf);
 
     void Update();
+
+    void DisableShelf();
+    void EnableShelf();
 
 private:
     HEMAX_Shelf* Shelf;
@@ -65,6 +68,10 @@ private:
 
     QPushButton* CreateObjectButton;
     QPushButton* CreateModifiersButton;
+    
+    QWidget* WarningWidget;
+    QVBoxLayout* WarningLayout;
+    QLabel* NoActiveSessionWarning;
 
     std::string ActiveShelf;
 

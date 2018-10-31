@@ -19,7 +19,7 @@ HEMAX_Logger::AddEntry(std::string Log, HEMAX_LogLevel LogLevel)
 {
     GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr, ConvertToWideChar(Log));
 
-    if (LogLevel == HEMAX_LOG_LEVEL_WARN || HEMAX_LOG_LEVEL_ERROR)
+    if (ShouldPrint(LogLevel))
     {
         mprintf(ConvertToWideChar(Log + "\n"));
         mflush();
@@ -31,7 +31,7 @@ HEMAX_Logger::AddEntry(const char* Log, HEMAX_LogLevel LogLevel)
 {
     GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr, ConvertToWideChar(Log));
 
-    if (LogLevel == HEMAX_LOG_LEVEL_WARN || HEMAX_LOG_LEVEL_ERROR)
+    if (ShouldPrint(LogLevel))
     {
         std::string MaxscriptListenerString = std::string(Log) + "\n";
         mprintf(ConvertToWideChar(MaxscriptListenerString));
@@ -51,6 +51,25 @@ HEMAX_Logger::ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel 
     GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG, ConvertToWideChar(Title), ConvertToWideChar(Message));
 }
 
+void
+HEMAX_Logger::ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print)
+{
+    switch (LogLevel)
+    {
+        case HEMAX_LOG_LEVEL_ERROR:
+            PrintErrorLogs = Print;
+            break;
+        case HEMAX_LOG_LEVEL_WARN:
+            PrintWarnLogs = Print;
+            break;
+        case HEMAX_LOG_LEVEL_INFO:
+            PrintInfoLogs = Print;
+            break;
+        default:
+            break;
+    }
+}
+
 const wchar_t*
 HEMAX_Logger::ConvertToWideChar(std::string Msg)
 {
@@ -63,4 +82,25 @@ HEMAX_Logger::ConvertToWideChar(const char* Msg)
 {
     std::string AString(Msg);
     return ConvertToWideChar(AString);
+}
+
+bool
+HEMAX_Logger::ShouldPrint(HEMAX_LogLevel Level)
+{
+    if (Level == HEMAX_LOG_LEVEL_ERROR && PrintErrorLogs)
+    {
+        return true;
+    }
+    else if (Level == HEMAX_LOG_LEVEL_WARN && PrintWarnLogs)
+    {
+        return true;
+    }
+    else if (Level == HEMAX_LOG_LEVEL_INFO && PrintInfoLogs)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

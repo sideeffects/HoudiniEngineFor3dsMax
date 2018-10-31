@@ -219,6 +219,7 @@ HEMAX_DebugWidget::SlotErrorLevelToggleStateChanged(int State)
     if (UserPrefs)
     {
         UserPrefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, State);
+        HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_ERROR, State);
     }
 }
 
@@ -228,6 +229,7 @@ HEMAX_DebugWidget::SlotWarnLevelToggleStateChanged(int State)
     if (UserPrefs)
     {
         UserPrefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, State);
+        HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_WARN, State);
     }
 }
 
@@ -237,5 +239,6 @@ HEMAX_DebugWidget::SlotInfoLevelToggleStateChanged(int State)
     if (UserPrefs)
     {
         UserPrefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, State);
+        HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_INFO, State);
     }
 }

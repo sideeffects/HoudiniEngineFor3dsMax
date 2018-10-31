@@ -11,6 +11,7 @@
 #define HEMAX_RAD2DEG 57.2958f
 
 #define HEMAX_HOUDINI_REGISTRY_KEY_PREFIX "SOFTWARE\\Side Effects Software\\"
+#define HEMAX_HOUDINI_STEAM_REGISTRY_KEY_PREFIX "SOFTWARE\\WOW6432Node\\Side Effects Software\\"
 
 struct HEMAX_MaxTransform
 {
@@ -40,8 +41,10 @@ struct HEMAX_Utilities
 
     static std::string CreateHoudiniVersionString(int HoudiniMajorVersion, int HoudiniMinorVersion, int HoudiniBuildVersion, int PatchNumber);
     static std::string GetHoudiniRegistryPath(std::string VersionString);
+    static std::string GetHoudiniSteamRegistryPath(std::string VersionString);
 
 	static std::string GetEnvVar(std::string Var);
+    static void SetEnvVar(std::string Var, std::string Val);
 
     static bool IsLinearSplineClosed(LinearShape* Curve);
 

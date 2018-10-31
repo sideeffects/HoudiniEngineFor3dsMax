@@ -6,6 +6,7 @@
 #include <inode.h>
 
 class HEMAX_Plugin;
+struct HEMAX_3dsmaxHda;
 
 enum HEMAX_MaxScriptArgType
 {
@@ -19,8 +20,8 @@ struct HEMAX_MaxScriptInterface
 {
 	static HEMAX_Plugin* PluginInstance;
 
-	static void CreateGeometryHda(std::string AssetPath, int AssetIndex);
-	static void CreateModifierHda(INode* Node, std::string AssetPath, int AssetIndex);
+	static HEMAX_3dsmaxHda* CreateGeometryHda(std::string AssetPath, int AssetIndex);
+	static HEMAX_3dsmaxHda* CreateModifierHda(INode* Node, std::string AssetPath, int AssetIndex);
 
 	static bool UpdateParameter(HEMAX_Parameter Parm, Value** ArgList, int Count, int StartIndex);
 	static HEMAX_MaxScriptArgType ResolveParameterTypeToMaxScriptType(HEMAX_ParameterType Type);

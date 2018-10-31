@@ -26,16 +26,18 @@ HEMAX_OptionsWidget::HEMAX_OptionsWidget()
     StartupOptionsBox = new QGroupBox("Startup");
     StartupOptionsBoxLayout = new QGridLayout;
     StartupOptionsBoxLayout->setAlignment(Qt::AlignTop);
+    AutoStartSessionToggle = new QCheckBox("Automatically start a session when 3ds Max starts");
     AutoStartWindowToggle = new QCheckBox("Open the plugin pane when 3ds Max starts");
     AutoLoadHDADirLabel = new QLabel("HDA Load Directory:");
     AutoLoadHDADir = new QLineEdit;
     AutoLoadHDADir->setEnabled(false);
     AutoLoadHDADirBrowse = new QPushButton("...");
 
-    StartupOptionsBoxLayout->addWidget(AutoStartWindowToggle, 0, 0);
-    StartupOptionsBoxLayout->addWidget(AutoLoadHDADirLabel, 1, 0);
-    StartupOptionsBoxLayout->addWidget(AutoLoadHDADir, 1, 1);
-    StartupOptionsBoxLayout->addWidget(AutoLoadHDADirBrowse, 1, 2);
+    StartupOptionsBoxLayout->addWidget(AutoStartSessionToggle, 0, 0);
+    StartupOptionsBoxLayout->addWidget(AutoStartWindowToggle, 1, 0);
+    StartupOptionsBoxLayout->addWidget(AutoLoadHDADirLabel, 2, 0);
+    StartupOptionsBoxLayout->addWidget(AutoLoadHDADir, 2, 1);
+    StartupOptionsBoxLayout->addWidget(AutoLoadHDADirBrowse, 2, 2);
     StartupOptionsBox->setLayout(StartupOptionsBoxLayout);
 
     HdaOptionsBox = new QGroupBox("Assets");
@@ -58,6 +60,7 @@ HEMAX_OptionsWidget::HEMAX_OptionsWidget()
     this->setLayout(Layout);
 
     QObject::connect(AutoSelectHDARoot, SIGNAL(stateChanged(int)), this, SLOT(Slot_SelectHDARoot(int)));
+    QObject::connect(AutoStartSessionToggle, SIGNAL(stateChanged(int)), this, SLOT(Slot_AutoStartSession(int)));
     QObject::connect(AutoStartWindowToggle, SIGNAL(stateChanged(int)), this, SLOT(Slot_AutoStartWindow(int)));
     QObject::connect(AutoLoadHDADir, SIGNAL(editingFinished()), this, SLOT(Slot_AutoLoadHDADir()));
     QObject::connect(AutoLoadHDADirBrowse, SIGNAL(clicked()), this, SLOT(Slot_AutoLoadHDADirBrowse()));
@@ -70,6 +73,7 @@ HEMAX_OptionsWidget::~HEMAX_OptionsWidget()
     delete AutoLoadHDADir;
     delete AutoLoadHDADirLabel;
     delete AutoStartWindowToggle;
+    delete AutoStartSessionToggle;
     delete StartupOptionsBoxLayout;
     delete StartupOptionsBox;
 
@@ -84,6 +88,12 @@ void
 HEMAX_OptionsWidget::Slot_SelectHDARoot(int Checked)
 {
     emit Signal_SelectHDARootOption(Checked);
+}
+
+void
+HEMAX_OptionsWidget::Slot_AutoStartSession(int Checked)
+{
+    emit Signal_SelectAutoStartSessionOption(Checked);
 }
 
 void
@@ -102,6 +112,12 @@ void
 HEMAX_OptionsWidget::SetAutoSelectOption(bool Enabled)
 {
     AutoSelectHDARoot->setChecked(Enabled);
+}
+
+void
+HEMAX_OptionsWidget::SetAutoStartSessionOption(bool Enabled)
+{
+    AutoStartSessionToggle->setChecked(Enabled);
 }
 
 void

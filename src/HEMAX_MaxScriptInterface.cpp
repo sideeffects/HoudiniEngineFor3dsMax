@@ -1,5 +1,6 @@
 #include "HEMAX_MaxScriptInterface.h"
 
+#include <maxscript/maxwrapper/mxsobjects.h>
 #include <maxscript/maxscript.h>
 #include <maxscript/macros/define_instantiation_functions.h>
 
@@ -16,12 +17,14 @@ def_visible_primitive(SetModifierHdaParameter, "SetModifierHdaParameter");
 Value*
 CreateGeometryHda_cf(Value** ArgList, int Count)
 {
+    HEMAX_3dsmaxHda* Hda = nullptr;
+
 	if (Count == 1)
 	{
 		std::wstring WAssetPath(ArgList[0]->to_string());
 		std::string AssetPath(WAssetPath.begin(), WAssetPath.end());
 
-		HEMAX_MaxScriptInterface::CreateGeometryHda(AssetPath, 0);
+		Hda = HEMAX_MaxScriptInterface::CreateGeometryHda(AssetPath, 0);
 	}
 	else if (Count == 2)
 	{
@@ -29,22 +32,31 @@ CreateGeometryHda_cf(Value** ArgList, int Count)
 		std::string AssetPath(WAssetPath.begin(), WAssetPath.end());
 
 		int AssetIndex = ArgList[1]->to_int();
-		HEMAX_MaxScriptInterface::CreateGeometryHda(AssetPath, AssetIndex);
+		Hda = HEMAX_MaxScriptInterface::CreateGeometryHda(AssetPath, AssetIndex);
 	}
-
-	return &ok;
+    
+    if (Hda)
+    {
+        return MAXNode::intern(Hda->GeometryHda.ContainerNode);
+    }
+    else
+    {
+        return &false_value;
+    }
 }
 
 Value*
 CreateModifierHda_cf(Value** ArgList, int Count)
 {
+    HEMAX_3dsmaxHda* Hda = nullptr;
+
 	if (Count == 2)
 	{
 		INode* Node = ArgList[0]->to_node();
 		std::wstring WAssetPath(ArgList[1]->to_string());
 		std::string AssetPath(WAssetPath.begin(), WAssetPath.end());
 
-		HEMAX_MaxScriptInterface::CreateModifierHda(Node, AssetPath, 0);
+		Hda = HEMAX_MaxScriptInterface::CreateModifierHda(Node, AssetPath, 0);
 	}
 	else if (Count == 3)
 	{
@@ -53,10 +65,16 @@ CreateModifierHda_cf(Value** ArgList, int Count)
 		std::string AssetPath(WAssetPath.begin(), WAssetPath.end());
 
 		int AssetIndex = ArgList[2]->to_int();
-		HEMAX_MaxScriptInterface::CreateModifierHda(Node, AssetPath, AssetIndex);
+		Hda = HEMAX_MaxScriptInterface::CreateModifierHda(Node, AssetPath, AssetIndex);
 	}
-
-	return &ok;
+    if (Hda)
+    {
+        return MAXModifier::intern(Hda->ModifierHda.DisplayGeometry);
+    }
+    else
+    {
+        return &false_value;
+    }
 }
 
 Value*
@@ -140,16 +158,20 @@ SetModifierHdaParameter_cf(Value** ArgList, int Count)
 	return &ok;
 }
 
-void
+HEMAX_3dsmaxHda*
 HEMAX_MaxScriptInterface::CreateGeometryHda(std::string AssetPath, int AssetIndex)
 {
-	HEMAX_MaxScriptInterface::PluginInstance->CreateGeometryHDA(AssetPath, AssetIndex);
+	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->CreateGeometryHDA(AssetPath, AssetIndex);
+    
+    return Hda;
 }
 
-void
+HEMAX_3dsmaxHda*
 HEMAX_MaxScriptInterface::CreateModifierHda(INode* Node, std::string AssetPath, int AssetIndex)
 {
-	HEMAX_MaxScriptInterface::PluginInstance->CreateModifierHDA(Node, AssetPath, AssetIndex);
+	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->CreateModifierHDA(Node, AssetPath, AssetIndex);
+
+    return Hda;
 }
 
 bool

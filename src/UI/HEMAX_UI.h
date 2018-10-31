@@ -93,6 +93,7 @@ private slots:
     void Slot_HandleUpdateMultiParameterList(HEMAX_Node* Node, HEMAX_Parameter Parameter, HEMAX_MultiParameterChangeInfo ChangeInfo);
 
     void Slot_Options_AutoSelectRoot(int Checked);
+    void Slot_Options_AutoStartSession(int Checked);
     void Slot_Options_AutoStartWindow(int Checked);
     void Slot_Options_AutoLoadHDADirectory(std::string Directory);
     void Slot_Options_HdaRepoDir_EditingFinished(std::string Directory);

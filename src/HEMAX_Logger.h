@@ -22,10 +22,18 @@ public:
     void ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel);
     void ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel);
 
+    void ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print);
+
     ~HEMAX_Logger();
 private:
     HEMAX_Logger();
 
     const wchar_t* ConvertToWideChar(std::string Msg);
     const wchar_t* ConvertToWideChar(const char* Msg);
+
+    bool ShouldPrint(HEMAX_LogLevel Level);
+
+    bool PrintErrorLogs;
+    bool PrintWarnLogs;
+    bool PrintInfoLogs;
 };

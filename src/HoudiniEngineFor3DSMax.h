@@ -79,6 +79,7 @@ private:
     HMODULE LoadLibHAPIL();
 
     HMODULE FindHoudiniEngineLibs();
+    void SetHoudiniSubDirectores(std::wstring HoudiniDir);
 
     bool FoundHAPIDLL;
     static std::string LibHAPILDirectory;

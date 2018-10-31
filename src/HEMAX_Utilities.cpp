@@ -79,7 +79,8 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HE
     TransformEuler.shear[1] = 0.0f;
     TransformEuler.shear[2] = 0.0f;
 
-    TransformEuler.rotationOrder = HAPI_YXZ;
+
+    TransformEuler.rotationOrder = HAPI_ZYX;
     TransformEuler.rstOrder = HAPI_RSTOrder(RSTOrder);
 
     return TransformEuler;
@@ -286,6 +287,12 @@ HEMAX_Utilities::GetHoudiniRegistryPath(std::string VersionString)
 }
 
 std::string
+HEMAX_Utilities::GetHoudiniSteamRegistryPath(std::string VersionString)
+{
+    return std::string(HEMAX_HOUDINI_STEAM_REGISTRY_KEY_PREFIX + VersionString);
+}
+
+std::string
 HEMAX_Utilities::GetEnvVar(std::string Var)
 {
 	char VarBuffer[4096];
@@ -301,6 +308,12 @@ HEMAX_Utilities::GetEnvVar(std::string Var)
 	{
 		return "";
 	}
+}
+
+void
+HEMAX_Utilities::SetEnvVar(std::string Var, std::string Val)
+{
+    SetEnvironmentVariableA(Var.c_str(), Val.c_str());
 }
 
 bool

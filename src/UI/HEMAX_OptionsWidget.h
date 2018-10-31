@@ -31,6 +31,7 @@ public:
     ~HEMAX_OptionsWidget();
 
     void SetAutoSelectOption(bool Enabled);
+    void SetAutoStartSessionOption(bool Enabled);
     void SetAutoStartWindowOption(bool Enabled);
     void SetAutoLoadHDADirectory(std::string Dir);
     void SetHdaRepoDirectory(std::string Dir);
@@ -44,6 +45,7 @@ private:
 
     QGroupBox* StartupOptionsBox;
     QGridLayout* StartupOptionsBoxLayout;
+    QCheckBox* AutoStartSessionToggle;
     QCheckBox* AutoStartWindowToggle;
     QLabel* AutoLoadHDADirLabel;
     QLineEdit* AutoLoadHDADir;
@@ -59,6 +61,7 @@ private slots:
 
     void Slot_SelectHDARoot(int Checked);
 
+    void Slot_AutoStartSession(int Checked);
     void Slot_AutoStartWindow(int Checked);
     void Slot_AutoLoadHDADir();
     void Slot_AutoLoadHDADirBrowse();
@@ -68,6 +71,7 @@ private slots:
 signals:
 
     void Signal_SelectHDARootOption(int Checked);
+    void Signal_SelectAutoStartSessionOption(int Checked);
     void Signal_SelectAutoStartWindowOption(int Checked);
     void Signal_AutoLoadHDADir_EditingFinished(std::string AutoLoadDir);
     void Signal_HdaRepoDir_EditingFinished(std::string HdaRepoDir);
