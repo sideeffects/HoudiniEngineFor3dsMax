@@ -15,38 +15,38 @@ struct HEMAX_InputUsage
 
 class HEMAX_3dsMaxInput : public ReferenceMaker
 {
-public:
-    HEMAX_3dsMaxInput(INode* Node);
-    ~HEMAX_3dsMaxInput();
+    public:
+	HEMAX_3dsMaxInput(INode* Node);
+	~HEMAX_3dsMaxInput();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle HTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle HTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
-    ULONG Get3dsMaxNodeHandle();
-    HEMAX_Input* GetInputNode();
+	ULONG Get3dsMaxNodeHandle();
+	HEMAX_Input* GetInputNode();
 
-    bool IsDirty();
-    void UpdateInputNode();
+	bool IsDirty();
+	void UpdateInputNode();
 
-    int GetInputCount();
-    void IncrementInputCount();
-    void DecrementInputCount();
+	int GetInputCount();
+	void IncrementInputCount();
+	void DecrementInputCount();
 
-    void AddSubnetworkUsage(HEMAX_Node Node, int Subnetwork);
-    void AddParameterUsage(HEMAX_Node Node, std::string Parameter);
+	void AddSubnetworkUsage(HEMAX_Node Node, int Subnetwork);
+	void AddParameterUsage(HEMAX_Node Node, std::string Parameter);
 
-    void RemoveSubnetworkUsage(HEMAX_Node Node, int Subnetwork);
-    void RemoveParameterUsage(HEMAX_Node Node, std::string Parameter);
+	void RemoveSubnetworkUsage(HEMAX_Node Node, int Subnetwork);
+	void RemoveParameterUsage(HEMAX_Node Node, std::string Parameter);
 
-    std::vector<HEMAX_InputUsage>& GetInputUsages();
+	std::vector<HEMAX_InputUsage>& GetInputUsages();
 
-private:
-    INode* MaxNode;
-    HEMAX_Input* InputNode;
-    int InputCount;
-    bool Dirty;
+    private:
+	INode* MaxNode;
+	HEMAX_Input* InputNode;
+	int InputCount;
+	bool Dirty;
 
-    std::vector<HEMAX_InputUsage> Usages;
+	std::vector<HEMAX_InputUsage> Usages;
 
-    void CreateInputNode();
-    void DeleteInputNode();
+	void CreateInputNode();
+	void DeleteInputNode();
 };

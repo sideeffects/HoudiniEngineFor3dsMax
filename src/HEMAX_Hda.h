@@ -5,40 +5,49 @@
 #include "HEMAX_Object.h"
 #include "HEMAX_DisplayGeoNode.h"
 #include "HEMAX_EditableNode.h"
+#include "HEMAX_Parameter.h"
+#include "HEMAX_Types.h"
 
 #include <vector>
+#include <unordered_map>
 
-struct HEMAX_Hda
+class HEMAX_Hda
 {
-    HEMAX_Node MainNode;
-    HEMAX_Object TopLevelObjectNode;
-    HEMAX_DisplayGeoNode TopLevelSopNode;
+    public:
+	HEMAX_Hda();
 
-    bool ObjLevelHda;
-    bool SopLevelHda;
+	void Init(const HEMAX_Asset& Asset, int AssetIndex);
+	void Delete();
+	void Update();
 
-    HEMAX_Asset HdaAsset;
-    int HdaAssetIndex;
-    std::string Name;
+	HEMAX_EditableNode FindEditableNodeFromName(std::string Name,
+						    bool& Success);
 
-    std::unordered_map<HEMAX_NodeId, HEMAX_MaterialNode> ShopNodes;
-    std::vector<HEMAX_EditableNode> EditableNodes;
+	void UpdateShopNodes();
+
+        bool HasTimeDependentNodes();
+
+	std::vector<HEMAX_DisplayGeoNode*> AllDisplayNodes();
+
+	HEMAX_HdaLevel HdaType;
+
+	HEMAX_Node MainNode;
+	HEMAX_Object TopLevelObjectNode;
+	HEMAX_DisplayGeoNode TopLevelSopNode;
+
+	HEMAX_Asset HdaAsset;
+	int HdaAssetIndex;
+	std::string Name;
+
+	std::unordered_map<HEMAX_NodeId, HEMAX_MaterialNode> ShopNodes;
+	std::vector<HEMAX_EditableNode> EditableNodes;
+
+	std::unordered_map<std::string, HEMAX_Parameter> Parameters;
+
+    private:
+	void InitializeMaterialNodes();
+	void GetAllEditableNodes();
+        void CheckForTimeDependentNodes();
+
+        bool MyHasTimeDependentNodes;
 };
-
-void
-InstantiateHda(HEMAX_Asset& Asset, int AssetIndex, HEMAX_Hda& Hda);
-
-void
-DeleteHda(HEMAX_Hda& Hda);
-
-void
-UpdateHda(HEMAX_Hda& Hda);
-
-static void
-GetAllMaterialNodes(HEMAX_Hda& Hda);
-
-static void
-GetAllEditableNodes(HEMAX_Hda& Hda);
-
-HEMAX_EditableNode
-FindEditableNodeFromName(HEMAX_Hda& Hda, std::string Name, bool& Success);

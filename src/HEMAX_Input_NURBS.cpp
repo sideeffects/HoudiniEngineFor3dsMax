@@ -25,33 +25,35 @@ HEMAX_Input_NURBS::HEMAX_Input_NURBS(HEMAX_InputType Type, Object* MaxObject)
 {
     if (MaxObject)
     {
-        NURBSSet CurveSet;
-        BOOL Success = GetNURBSSet(MaxObject, GetCOREInterface()->GetTime(), CurveSet, TRUE);
+	NURBSSet CurveSet;
+	BOOL Success = GetNURBSSet(MaxObject, GetCOREInterface()->GetTime(), CurveSet, TRUE);
 
-        if (Success)
-        {
-            NURBSObject* MaxCurve = CurveSet.GetNURBSObject(0);
-            if (MaxCurve)
-            {
-                if (MaxCurve->GetKind() == kNURBSCurve && CurveSet.GetNumObjects() == 1)
-                {
-                    BuildCurveForInputNode(Node, MaxCurve, "modifier_input");
-                }
-                else if (MaxCurve->GetKind() == kNURBSPoint && CurveSet.GetNumObjects() >= 1)
-                {
-                    std::vector<NURBSPoint*> Points;
-                    for (int n = 0; n < CurveSet.GetNumObjects(); ++n)
-                    {
-                        NURBSObject* AnObject = CurveSet.GetNURBSObject(n);
-                        if (AnObject->GetKind() == kNURBSPoint)
-                        {
-                            Points.push_back((NURBSPoint*)AnObject);
-                        }
-                    }
-                    BuildPointCurveForInputNode(Node, Points, "modifier_input");
-                }
-            }
-        }
+	if (Success)
+	{
+	    NURBSObject* MaxCurve = CurveSet.GetNURBSObject(0);
+	    if (MaxCurve)
+	    {
+		if (MaxCurve->GetKind() == kNURBSCurve && CurveSet.GetNumObjects() == 1)
+		{
+		    BuildCurveForInputNode(Node, MaxCurve, "modifier_input",
+			HEMAX_Utilities::GetIdentityTransform());
+		}
+		else if (MaxCurve->GetKind() == kNURBSPoint && CurveSet.GetNumObjects() >= 1)
+		{
+		    for (int n = 0; n < CurveSet.GetNumObjects(); n++)
+		    {
+			NURBSObject* AnObject = CurveSet.GetNURBSObject(n);
+			NURBSKind Kind = AnObject->GetKind();
+
+			if (Kind == kNURBSCurve)
+			{
+			    BuildPointCurveForInputNode(Node, AnObject, "modifier_input",
+				HEMAX_Utilities::GetIdentityTransform());
+			}
+		    }
+		}
+	    }
+	}
     }
 }
 
@@ -59,12 +61,12 @@ HEMAX_Input_NURBS::~HEMAX_Input_NURBS()
 {
     if (Node)
     {
-        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        if (SM.IsSessionActive())
-        {
-            DeleteNode(*Node);
-        }
+	if (SM.IsSessionActive())
+	{
+	    Node->Delete();
+	}
     }
 }
 
@@ -73,7 +75,7 @@ HEMAX_Input_NURBS::RebuildAfterChange()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    DeleteNode(*Node);
+    Node->Delete();
     BuildInputNode();
 }
 
@@ -84,97 +86,121 @@ HEMAX_Input_NURBS::BuildInputNode()
 
     if (MaxInputNode)
     {
-        ObjectState MaxObjectState = MaxInputNode->EvalWorldState(0);
-        Object* MaxObject = MaxObjectState.obj;
+	ObjectState MaxObjectState = MaxInputNode->EvalWorldState(0);
+	Object* MaxObject = MaxObjectState.obj;
 
-        if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
-        {
-            NURBSSet CurveSet;
-            BOOL Success = GetNURBSSet(MaxObject, 0, CurveSet, TRUE);
+	if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
+	{
+	    NURBSSet CurveSet;
+	    BOOL Success = GetNURBSSet(MaxObject, 0, CurveSet, TRUE);
 
-            if (Success)
-            {
-                NURBSObject* MaxCurve = CurveSet.GetNURBSObject(0);
+	    if (Success)
+	    {
+		NURBSObject* MaxCurve = CurveSet.GetNURBSObject(0);
 
-                if (MaxCurve)
-                {
-                    if (MaxCurve->GetKind() == kNURBSCurve && CurveSet.GetNumObjects() == 1)
-                    {
-                        if (InputNodeType == HEMAX_INPUT_EDITABLENODE)
-                        {
-                            BuildCurveForEditableNode(Node, MaxCurve, GetInputNodeName());
-                        }
-                        else
-                        {
-                            BuildCurveForInputNode(Node, MaxCurve, GetInputNodeName());
-                        }
-                    }
-                    else if (MaxCurve->GetKind() == kNURBSPoint && CurveSet.GetNumObjects() >= 1)
-                    {
-                        std::vector<NURBSPoint*> Points;
-                        for (int n = 0; n < CurveSet.GetNumObjects(); ++n)
-                        {
-                            NURBSObject* AnObject = CurveSet.GetNURBSObject(n);
-                            if (AnObject->GetKind() == kNURBSPoint)
-                            {
-                                Points.push_back((NURBSPoint*)AnObject);
-                            }
-                        }
-                        BuildPointCurveForInputNode(Node, Points, GetInputNodeName());
-                    }
-                }
-            }
-        }
+		if (MaxCurve)
+		{
+		    if (MaxCurve->GetKind() == kNURBSCurve && CurveSet.GetNumObjects() == 1)
+		    {
+			if (InputNodeType == HEMAX_INPUT_EDITABLENODE)
+			{
+			    BuildCurveForEditableNode(Node, MaxCurve, GetInputNodeName());
+			}
+			else
+			{
+			    BuildCurveForInputNode(Node, MaxCurve, GetInputNodeName(),
+				    HEMAX_Utilities::BuildMaxTransformFromINode(MaxInputNode));
+			}
+		    }
+		    else if (MaxCurve->GetKind() == kNURBSPoint && CurveSet.GetNumObjects() >= 1)
+		    {
+			for (int n = 0; n < CurveSet.GetNumObjects(); n++)
+			{
+			    NURBSObject* AnObject = CurveSet.GetNURBSObject(n);
+			    NURBSKind Kind = AnObject->GetKind();
+			    
+			    if (Kind == kNURBSCurve)
+			    {
+				BuildPointCurveForInputNode(Node, AnObject, GetInputNodeName(),
+				    HEMAX_Utilities::BuildMaxTransformFromINode(MaxInputNode));
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
 }
 
 void
-HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, std::vector<NURBSPoint*>& NURBSPoints, std::string InputNodeName)
+HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveObj,
+					       std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
 {
-    CreateInputNode(*Node, InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
-    
-    int PointCount = (int)NURBSPoints.size();
+    CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
 
-    // Add the part to new input node
-    AddNewPart(*Node, HEMAX_PARTTYPE_CURVE, 1, PointCount, PointCount);
+    MarshalNodeNameDetailAttribute();
 
-    HEMAX_CurveInfo CurveInfo;
-    CurveInfo.curveCount = 1;
-    CurveInfo.curveType = HAPI_CURVETYPE_NURBS;
-    CurveInfo.hasKnots = false;
-    CurveInfo.isPeriodic = false;
-    CurveInfo.knotCount = 0;
-    CurveInfo.order = PointCount + 1;
-    CurveInfo.vertexCount = PointCount;
+    NURBSPointCurve* TheCurve = dynamic_cast<NURBSPointCurve*>(CurveObj);
 
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
-    SM.Session->SetCurveInfo(Node->Info.id, 0, &CurveInfo);
-
-    int CountsArray[] = { PointCount };
-    SM.Session->SetCurveCounts(Node->Info.id, 0, CountsArray, 0, 1);
-
-    int OrdersArray[] = { PointCount + 1 };
-    SM.Session->SetCurveOrders(Node->Info.id, 0, OrdersArray, 0, 1);
-
-    float* CVPoints = new float[PointCount * 3];
-
-    float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
-
-    for (int c = 0; c < PointCount; ++c)
+    if (TheCurve)
     {
-        Point3 Pos = NURBSPoints[c]->GetPosition(0);
+	int Degree, NumCVs, NumKnots;
+	NURBSCVTab CVs;
+	NURBSKnotTab Knots;
 
-        CVPoints[c * 3] = Pos.x * ScaleConversion;
-        CVPoints[c * 3 + 1] = Pos.z * ScaleConversion;
-        CVPoints[c * 3 + 2] = -Pos.y * ScaleConversion;
+	TheCurve->GetNURBSData(GetCOREInterface()->GetTime(), Degree, NumCVs,
+			       CVs, NumKnots, Knots);
+
+	AddNewPart(HEMAX_PARTTYPE_CURVE, 1, NumCVs, NumCVs);
+
+	HEMAX_CurveInfo CurveInfo;
+	CurveInfo.curveCount = 1;
+	CurveInfo.curveType = HAPI_CURVETYPE_NURBS;
+	CurveInfo.hasKnots = (NumKnots > 0);
+	CurveInfo.isPeriodic = false;
+	CurveInfo.knotCount = NumKnots;
+	CurveInfo.order = Degree;
+	CurveInfo.vertexCount = NumCVs;
+
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+
+	SM.Session->SetCurveInfo(Node->Info.id, 0, &CurveInfo);
+
+	std::vector<int> CurveCountsArr = { NumCVs };
+	std::vector<int> OrdersArr = { Degree };
+
+	SM.Session->SetCurveCounts(Node->Info.id, 0, &CurveCountsArr.front(), 0, 1);
+	SM.Session->SetCurveOrders(Node->Info.id, 0, &OrdersArr.front(), 0, 1);
+
+	std::vector<float> KnotsArr(NumKnots);
+
+	for (int k = 0; k < NumKnots; k++)
+	{
+	    KnotsArr[k] = (float)Knots[k];
+	}
+
+	SM.Session->SetCurveKnots(Node->Info.id, 0, &KnotsArr.front(), 0, NumKnots);
+
+	std::vector<float> CVArr(NumCVs*3);
+
+	float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
+
+	for (int c = 0; c < NumCVs; c++)
+	{
+	    NURBSControlVertex& CV = CVs[c];
+	    Point3 CVPos = CV.GetPosition(GetCOREInterface()->GetTime());
+
+	    CVArr[c*3] = CVPos.x * ScaleConversion;
+	    CVArr[c*3 + 1] = CVPos.z * ScaleConversion;
+	    CVArr[c*3 + 2] = -CVPos.y * ScaleConversion;
+	}
+
+	HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(NumCVs, 3, HEMAX_POSITION_ATTRIBUTE);
+	SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, &CVArr.front(), NumCVs);
+	FinalizeInputGeometry();
+
+	Node->SetParentTransform(NodeTransform);
     }
-
-    HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(*Node, PointCount, 3, HEMAX_POSITION_ATTRIBUTE);
-    SendFloatAttributeData(*Node, HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, CVPoints, PointCount);
-    FinalizeInputGeometry(*Node);
-
-    delete[] CVPoints;
 }
 
 std::vector<float>&
@@ -184,18 +210,21 @@ HEMAX_Input_NURBS::GetKnotsArray()
 }
 
 void
-HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveObj, std::string InputNodeName)
+HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveObj,
+					  std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
 {
     NURBSCVCurve* TheCurve = (NURBSCVCurve*)CurveObj;
 
-    CreateInputNode(*Node, InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
+    CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
+
+    MarshalNodeNameDetailAttribute();
 
     int CurveOrder = TheCurve->GetOrder();
     int KnotCount = TheCurve->GetNumKnots();
     int CVCount = TheCurve->GetNumCVs();
 
     // Add the part to new input node
-    AddNewPart(*Node, HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
+    AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
     HEMAX_CurveInfo CurveInfo;
@@ -221,7 +250,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 
     for (int k = 0; k < KnotCount; ++k)
     {
-        KnotsArray[k] = (float)TheCurve->GetKnot(k);
+	KnotsArray[k] = (float)TheCurve->GetKnot(k);
     }
 
     SM.Session->SetCurveKnots(Node->Info.id, 0, KnotsArray, 0, KnotCount);
@@ -232,18 +261,20 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 
     for (int c = 0; c < CVCount; ++c)
     {
-        NURBSControlVertex* CV = TheCurve->GetCV(c);
+	NURBSControlVertex* CV = TheCurve->GetCV(c);
 
-        Point3 CVPos = CV->GetPosition(0);
+	Point3 CVPos = CV->GetPosition(0);
 
-        CVPoints[c * 3] = CVPos.x * ScaleConversion;
-        CVPoints[(c * 3) + 1] = CVPos.z * ScaleConversion;
-        CVPoints[(c * 3) + 2] = -CVPos.y * ScaleConversion;
+	CVPoints[c * 3] = CVPos.x * ScaleConversion;
+	CVPoints[(c * 3) + 1] = CVPos.z * ScaleConversion;
+	CVPoints[(c * 3) + 2] = -CVPos.y * ScaleConversion;
     }
 
-    HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(*Node, CVCount, 3, HEMAX_POSITION_ATTRIBUTE);
-    SendFloatAttributeData(*Node, HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, CVPoints, CVCount);
-    FinalizeInputGeometry(*Node);
+    HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(CVCount, 3, HEMAX_POSITION_ATTRIBUTE);
+    SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, CVPoints, CVCount);
+    FinalizeInputGeometry();
+
+    Node->SetParentTransform(NodeTransform);
 
     delete[] KnotsArray;
     delete[] CVPoints;
@@ -252,7 +283,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 void
 HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* CurveObj, std::string InputNodeName)
 {
-    Cook(*Node);
+    Node->Cook();
 
     NURBSCVCurve* TheCurve = (NURBSCVCurve*)CurveObj;
 
@@ -261,7 +292,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
     int CVCount = TheCurve->GetNumCVs();
 
     // Add the part to new input node
-    AddNewPart(*Node, HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
+    AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
     HEMAX_CurveInfo CurveInfo;
@@ -288,8 +319,8 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
 
     for (int k = 0; k < KnotCount; ++k)
     {
-        KnotsArray[k] = (float)TheCurve->GetKnot(k);
-        Knots.push_back(KnotsArray[k]);
+	KnotsArray[k] = (float)TheCurve->GetKnot(k);
+	Knots.push_back(KnotsArray[k]);
     }
 
     SM.Session->SetCurveKnots(Node->Info.id, 0, KnotsArray, 0, KnotCount);
@@ -300,24 +331,24 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
 
     for (int c = 0; c < CVCount; ++c)
     {
-        NURBSControlVertex* CV = TheCurve->GetCV(c);
+	NURBSControlVertex* CV = TheCurve->GetCV(c);
 
-        Point3 CVPos = CV->GetPosition(0);
+	Point3 CVPos = CV->GetPosition(0);
 
-        CVPoints[c * 3] = CVPos.x * ScaleConversion;
-        CVPoints[(c * 3) + 1] = CVPos.z * ScaleConversion;
-        CVPoints[(c * 3) + 2] = -CVPos.y * ScaleConversion;
+	CVPoints[c * 3] = CVPos.x * ScaleConversion;
+	CVPoints[(c * 3) + 1] = CVPos.z * ScaleConversion;
+	CVPoints[(c * 3) + 2] = -CVPos.y * ScaleConversion;
     }
 
     std::string PointString;
     HEMAX_Utilities::ConstructPointString(CVPoints, CVCount, PointString);
 
-    HEMAX_Parameter CoordParam = GetParameter(*Node, "coords");
+    HEMAX_Parameter* CoordParam = Node->GetParameter("coords");
 
-    if (CoordParam.Type != HEMAX_PARAM_INVALID)
+    if (CoordParam->Type != HEMAX_PARAM_INVALID)
     {
-        std::vector<std::string> StringValues = { PointString };
-        UpdateParameterStringValues(CoordParam, StringValues);
+	std::vector<std::string> StringValues = { PointString };
+	CoordParam->UpdateStringVals(StringValues);
     }
 
     delete[] KnotsArray;

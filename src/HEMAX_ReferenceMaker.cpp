@@ -13,33 +13,33 @@ HEMAX_ReferenceMaker::NotifyRefChanged(const Interval& ChangeInt, RefTargetHandl
 {
     if (Message == REFMSG_SHAPE_END_CHANGE)
     {
-        INode* TheNode = (INode*)hTarget;
+	INode* TheNode = (INode*)hTarget;
 
-        if (TheNode)
-        {
-            INode* HoudiniAssetNode = TheNode->GetParentNode();
-            
-            if (HoudiniAssetNode)
-            {
-                ThePlugin->DirtyEditableNodes(HoudiniAssetNode->GetHandle());
-            }
-        }
+	if (TheNode)
+	{
+	    INode* HoudiniAssetNode = TheNode->GetParentNode();
+
+	    if (HoudiniAssetNode)
+	    {
+		ThePlugin->DirtyEditableNodes(HoudiniAssetNode->GetHandle());
+	    }
+	}
     }
     else if (Message == REFMSG_CHANGE)
     {
-        INode* TheNode = (INode*)hTarget;
+	INode* TheNode = (INode*)hTarget;
 
-        if (TheNode)
-        {
-            INode* HoudiniAssetNode = TheNode->GetParentNode();
+	if (TheNode)
+	{
+	    INode* HoudiniAssetNode = TheNode->GetParentNode();
 
-            if (HoudiniAssetNode)
-            {
-                ThePlugin->DirtyEditableNodes(HoudiniAssetNode->GetHandle());
-            }
-        }
+	    if (HoudiniAssetNode)
+	    {
+		ThePlugin->DirtyEditableNodes(HoudiniAssetNode->GetHandle());
+	    }
+	}
     }
-    
+
     return REF_SUCCEED;
 }
 
@@ -48,6 +48,6 @@ HEMAX_ReferenceMaker::AddEditableNodeToWatch(INode* Node)
 {
     if (Node)
     {
-        ReplaceReference(0, Node);
+	ReplaceReference(0, Node);
     }
 }

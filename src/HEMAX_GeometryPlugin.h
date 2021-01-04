@@ -11,31 +11,33 @@
 
 class HEMAX_GeometryPlugin : public SimplePolyObject
 {
-public:
-    HEMAX_GeometryPlugin();
-    ~HEMAX_GeometryPlugin();
+    public:
+	HEMAX_GeometryPlugin() = delete;
+        HEMAX_GeometryPlugin(bool TimeDependent);
+	~HEMAX_GeometryPlugin();
 
-    virtual Class_ID ClassID() override;
-    ReferenceTarget* Clone(RemapDir& Remap) override;
-    CreateMouseCallBack* GetCreateMouseCallBack() override;
-    void BuildMesh(TimeValue Time) override;
+	Class_ID ClassID() override;
+	ReferenceTarget* Clone(RemapDir& Remap) override;
+	CreateMouseCallBack* GetCreateMouseCallBack() override;
+	void BuildMesh(TimeValue Time) override;
 
-    void SetFaceMaterialId(int Face, int MatId);
+	void SetFaceMaterialId(int Face, int MatId);
 
-    INode* MaxNode;
-    HEMAX_Mesh* Mesh;
+	INode* MaxNode;
+	HEMAX_Mesh* Mesh;
 
-    bool IsStranded;
+	bool IsStranded;
+        bool IsTimeDependent;
 };
 
 class HEMAX_GeometryPluginClassDesc : public ClassDesc2
 {
-public:
-    virtual int IsPublic() { return TRUE; }
-    virtual void* Create(BOOL) { return new HEMAX_GeometryPlugin(); }
-    virtual const TCHAR* ClassName() { return L"HDA"; }
-    virtual SClass_ID SuperClassID() { return GEOMOBJECT_CLASS_ID; }
-    virtual Class_ID ClassID() { return HEMAX_GeometryPlugin_CLASS_ID; }
-    virtual const TCHAR* Category() { return L"Houdini Engine"; }
-    virtual const TCHAR* InternalName() { return _T("HEMAX_GEOM"); }
+    public:
+	virtual int IsPublic() { return TRUE; }
+	virtual void* Create(BOOL) { return new HEMAX_GeometryPlugin(false); }
+	virtual const TCHAR* ClassName() { return L"HDA"; }
+	virtual SClass_ID SuperClassID() { return GEOMOBJECT_CLASS_ID; }
+	virtual Class_ID ClassID() { return HEMAX_GeometryPlugin_CLASS_ID; }
+	virtual const TCHAR* Category() { return L"Houdini Engine"; }
+	virtual const TCHAR* InternalName() { return _T("HEMAX_GEOM"); }
 };

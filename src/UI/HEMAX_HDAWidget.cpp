@@ -2,7 +2,13 @@
 
 #include "moc_HEMAX_HDAWidget.cpp"
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#include "../HEMAX_Logger.h"
+#include "../HEMAX_Plugin.h"
+
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets\qapplication.h>
 #include <QtWidgets\qfiledialog.h>
 #include <QtWidgets\qmenu.h>
@@ -16,12 +22,14 @@
 #include <QtGui\qclipboard.h>
 #endif
 
-HEMAX_HDAWidget::HEMAX_HDAWidget()
-    : HEMAX_HDAWidget("Loaded Houdini Digital Assets")
+HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin)
+    : HEMAX_HDAWidget(ActivePlugin, "Loaded Houdini Digital Assets")
 {
 }
 
-HEMAX_HDAWidget::HEMAX_HDAWidget(std::string AssetsBoxTitle)
+HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin,
+                                 std::string AssetsBoxTitle)
+    : Plugin(ActivePlugin)
 {
     MainLayout = new QVBoxLayout;
 
@@ -75,9 +83,20 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(std::string AssetsBoxTitle)
 
     this->setLayout(MainLayout);
 
-    QObject::connect(AssetLoadOptionsPathBrowse, SIGNAL(clicked()), this, SLOT(SlotAssetLoadOptionsPathBrowse()));
-    QObject::connect(LoadedAssetsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SlotLoadedAssetItemClicked(QListWidgetItem*)));
-    QObject::connect(LoadedAssetsList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(SlotShowAssetContextMenu(QPoint)));
+    QObject::connect(AssetLoadButton, SIGNAL(clicked()),
+                     this, SLOT(LoadAssetTriggered()));
+    QObject::connect(LoadSelectedAssetButton, SIGNAL(clicked()),
+                     this, SLOT(CreateGeometryHdaTriggered()));
+    QObject::connect(CreateModifiersButton, SIGNAL(clicked()),
+                     this, SLOT(CreateModifierHdasTriggered()));
+
+    QObject::connect(AssetLoadOptionsPathBrowse, SIGNAL(clicked()),
+                     this, SLOT(SlotAssetLoadOptionsPathBrowse()));
+    QObject::connect(LoadedAssetsList, SIGNAL(itemClicked(QListWidgetItem*)),
+                     this, SLOT(SlotLoadedAssetItemClicked(QListWidgetItem*)));
+    QObject::connect(LoadedAssetsList,
+                     SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(SlotShowAssetContextMenu(QPoint)));
 }
 
 HEMAX_HDAWidget::~HEMAX_HDAWidget()
@@ -100,6 +119,26 @@ HEMAX_HDAWidget::~HEMAX_HDAWidget()
     delete MainBox;
 
     delete MainLayout;
+}
+
+void
+HEMAX_HDAWidget::LoadAssetTriggered()
+{
+    Plugin->LoadNewAsset(GetCurrentAssetLoadPath());
+}
+
+void
+HEMAX_HDAWidget::CreateGeometryHdaTriggered()
+{
+    std::string AssetPath = GetSelectedAssetPath();
+    HEMAX_CurrentAssetSelection = AssetPath;
+    Plugin->CreateGeometryHDA(AssetPath);
+}
+
+void
+HEMAX_HDAWidget::CreateModifierHdasTriggered()
+{
+    Plugin->CreateModifierHDAs(GetSelectedAssetPath()); 
 }
 
 void
@@ -138,10 +177,10 @@ HEMAX_HDAWidget::UpdateLoadedAssetList(std::vector<std::string>* Paths)
 
     for (int i = 0; i < Paths->size(); ++i)
     {
-        QFileInfo HDAFile(Paths->at(i).c_str());
+	QFileInfo HDAFile(Paths->at(i).c_str());
 
-        LoadedAssetsList->addItem(HDAFile.fileName());
-        LoadedAssetsList->item(i)->setToolTip(Paths->at(i).c_str());
+	LoadedAssetsList->addItem(HDAFile.fileName());
+	LoadedAssetsList->item(i)->setToolTip(Paths->at(i).c_str());
     }
 
     LoadedAssetsList->sortItems();
@@ -164,19 +203,26 @@ HEMAX_HDAWidget::SlotShowAssetContextMenu(QPoint Position)
 
     QMenu AssetMenu;
     AssetMenu.addAction("Remove Asset", this, SLOT(SlotRemoveAssetClicked()));
-	AssetMenu.addAction("Copy Asset Path", this, SLOT(SlotCopyAssetPathClicked()));
+    AssetMenu.addAction("Copy Asset Path", this, SLOT(SlotCopyAssetPathClicked()));
     AssetMenu.exec(MenuSpawn);
 }
 
 void
 HEMAX_HDAWidget::SlotRemoveAssetClicked()
 {
-    emit SignalRemoveAssetClicked(CurrentContextMenuSelection);
+    if (!Plugin->RemoveAsset(CurrentContextMenuSelection.toStdString()))
+    {
+        HEMAX_Logger::Instance().ShowDialog(
+                "Cannot remove asset",
+                "Could not remove asset because it is in use "
+                "by HDAs in the scene.",
+                HEMAX_LOG_LEVEL_INFO);
+    }
 }
 
 void
 HEMAX_HDAWidget::SlotCopyAssetPathClicked()
 {
-	QClipboard* Clipboard = QApplication::clipboard();
-	Clipboard->setText(CurrentContextMenuSelection);
+    QClipboard* Clipboard = QApplication::clipboard();
+    Clipboard->setText(CurrentContextMenuSelection);
 }

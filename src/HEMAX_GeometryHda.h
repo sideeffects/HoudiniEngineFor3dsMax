@@ -1,126 +1,135 @@
 #pragma once
 
-#include "HEMAX_Hda.h"
-#include "inode.h"
 #include "dummy.h"
-#include "HEMAX_GeometryPlugin.h"
+#include "inode.h"
+#include "linshape.h"
+
+#include "HEMAX_3dsmaxHda.h"
 #include "HEMAX_CustomAttributeContainer.h"
+#include "HEMAX_Hda.h"
+#include "HEMAX_GeometryPlugin.h"
+#include "HEMAX_UserPrefs.h"
+
 #include <unordered_map>
 #include <vector>
 
-struct HEMAX_GeometryHda
+class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 {
-    DummyObject* Dummy;
-    INode* ContainerNode;
+    public:
+	HEMAX_GeometryHda(HEMAX_UserPrefs* UserPrefs);
 
-    ICustAttribContainer* CustomAttributes;
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*> CustomAttributeMap;
-    int MaxStampIndex;
+	void Init(HEMAX_Asset& Asset, int AssetIndex);
 
-    std::unordered_map<HEMAX_NodeId, std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>> DisplayGeometry;
-    std::unordered_map<HEMAX_NodeId, std::unordered_map<HEMAX_PartId, std::vector<Mtl*>>> MaterialMap;
+	void Create(HEMAX_Asset& Asset, int AssetIndex);
+	void Create(INode* ContainerNode, HEMAX_Asset& Asset, int AssetIndex);
 
-    std::vector<INode*> InstanceClones;
-    std::vector<INode*> PackedPrimClones;
+	void CreateNewGeometryHda(HEMAX_Hda& Hda);
 
-    std::vector<HEMAX_EditableCurve> EditableCurves;
+	void CreateNewGeometryHda(HEMAX_Hda& Hda, INode* ContainerNode);
 
-    void SetPushTransformsOption(bool Option);
-    bool IsPushTransformsOptionEnabled();
+	void CreateGeometryHdaFromContainerNode();
 
-    void SetApplyHAPITransformOption(bool Option);
-    bool ShouldApplyHAPITransform();
+	void ClearAnyInstances();
+
+	std::vector<ULONG> GetListOfAllChildINodes();
+
+	void Update3dsmaxHda();
+
+	void UpdateGeometryHda();
+
+	void PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve);
+
+	std::vector<INode*> BakeGeometryHda(bool BakeDummyObj);
+
+	void SetPushTransformsOption(bool Option);
+	bool IsPushTransformsOptionEnabled();
+
+	void SetApplyHAPITransformOption(bool Option);
+	bool ShouldApplyHAPITransform();
+
+	void SetCustomAttributeContainer(
+                ICustAttribContainer* Container) override;
+
+	void SetContainerNode(INode* Node);
+
+	DummyObject* Dummy;
+	INode* ContainerNode;
+
+	int MaxStampIndex;
+
+	std::vector<INode*> InstanceClones;
+	std::vector<INode*> PackedPrimClones;
+
+	std::vector<HEMAX_EditableCurve> EditableCurves;
+
+    private:
+
+	bool IsINodeADisplayGeometry(INode* Node);
+
+	bool IsINodeAnEditableNode(INode* Node);
+
+	HEMAX_PartId GetPartIdFromCustomAttributes(INode* Node);
+
+	void CreateDisplayGeometry(HEMAX_Hda& Hda,
+                                   HEMAX_DisplayGeoNode& DisplayNode);
+
+	void CreateMeshPluginPart(HEMAX_Hda& Hda,
+                                  HEMAX_DisplayGeoNode& DisplayNode,
+                                  HEMAX_Part& Part);
+	void CreateCurvePart(HEMAX_DisplayGeoNode& DisplayNode,
+                             HEMAX_Part& Part);
+
+	void CreateInstances(HEMAX_Hda& Hda);
+
+	void CreatePackedPrimitives(HEMAX_Part& Part,
+                                    HEMAX_DisplayGeoNode& DisplayNode);
+
+	void CreateEditableCurves(HEMAX_EditableNode& EditableNode);
+
+	void InitGeometryCustAttribContainer();
+
+	void GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda);
+
+	void InitGeometryPluginCustAttribContainer(INode* PluginNode);
+
+	void GenerateBoilerplateGeometryPluginCustomAttributes(
+                INode* PluginNode, HEMAX_PartId Part);
+
+	void UpdateInstances(HEMAX_Hda& Hda);
+
+	void StampInstanceNode(INode* Node);
+
+	void StampPackedPrimitiveNode(INode* Node);
+
+	void StampEditableNode(INode* Node,
+                               std::string EditableNodeName,
+                               HEMAX_PartId PartNum);
+
+	std::string GetEditableNodeName(INode* Node);
+
+	int GetEditablePartNumber(INode* Node);
+
+	void ClearInstances();
+
+	void ClearPackedPrimNodes();
+
+        void AssignMaterials(HEMAX_Hda& Hda,
+                             HEMAX_NodeId DisplayNodeId,
+                             HEMAX_Part& Part,
+                             HEMAX_GeometryPlugin* GeoPlugin);
+
+	void ApplySceneMtlToGeometryPlugin(HEMAX_GeometryPlugin* GeoPlugin);
+
+        void UpdateMaterials(HEMAX_Hda& Hda,
+                             HEMAX_NodeId DisplayNodeId,
+                             HEMAX_Part& Part,
+                             HEMAX_GeometryPlugin* GeoPlugin);
+
+        void SetPluginNodeName(INode* Node,
+                               const HEMAX_DisplayGeoNode& DisplayNode,
+                               const HEMAX_Part& Part,
+                               bool UseUniqueName);
+
+        HEMAX_UserPrefs* Prefs;
 };
 
-void
-CreateNewGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda);
-
-void
-CreateNewGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, INode* ContainerNode);
-
-void
-CreateGeometryHdaFromContainerNode(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, INode* ContainerNode);
-
-static bool
-IsINodeADisplayGeometry(INode* Node);
-
-static bool
-IsINodeAnEditableNode(INode* Node);
-
-static HEMAX_PartId
-GetPartIdFromCustomAttributes(INode* Node);
-
-static void
-CreateDisplayGeometry(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode);
-
-static void
-CreateMeshPart(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part, std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& DisplayGeometries);
-
-static void
-CreateInstances(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda);
-
-static void
-CreatePackedPrimitives(HEMAX_GeometryHda& GeometryHda, HEMAX_Part& Part, std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& DisplayGeometries);
-
-static void
-CreateEditableCurves(HEMAX_GeometryHda& GeometryHda, HEMAX_EditableNode& EditableNode);
-
-static void
-InitGeometryCustAttribContainer(HEMAX_GeometryHda& GeometryHda);
-
-static void
-GenerateBoilerplateGeometryCustomAttributes(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda);
-
-static void
-InitGeometryPluginCustAttribContainer(INode* PluginNode);
-
-static void
-GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HEMAX_PartId Part);
-
-std::vector<ULONG>
-GetListOfAllChildINodes(HEMAX_GeometryHda& Hda);
-
-void
-UpdateGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda);
-
-static void
-UpdateInstances(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda);
-
-void
-PushEditableNodeChanges(HEMAX_GeometryHda& GeometryHda, HEMAX_EditableCurve EditableCurve);
-
-static void
-StampInstanceNode(INode* Node);
-
-static void
-StampPackedPrimitiveNode(INode* Node);
-
-static void
-StampEditableNode(INode* Node, std::string EditableNodeName, HEMAX_PartId PartNum);
-
-static std::string
-GetEditableNodeName(INode* Node);
-
-static int
-GetEditablePartNumber(INode* Node);
-
-static void
-ClearInstances(HEMAX_GeometryHda& GeometryHda);
-
-static void
-ClearPackedPrimNodes(HEMAX_GeometryHda& GeometryHda);
-
-static void
-ApplyMaterialsToDisplayGeometry(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part, HEMAX_GeometryPlugin* GeoPlugin);
-
-static void
-ApplySceneMtlToGeometryPlugin(HEMAX_GeometryPlugin* GeoPlugin, HEMAX_Mesh* Mesh);
-
-static StdMat2*
-CreateMaterialForPart(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId MatNodeId, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part);
-
-static void
-UpdateChangedMaterials(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part, HEMAX_GeometryPlugin* GeoPlugin);
-
-void
-BakeGeometryHda(HEMAX_GeometryHda& GeometryHda);

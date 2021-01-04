@@ -12,7 +12,7 @@ PushTimelineSettings()
     HEMAX_GlobalTimeOptions.fps = (float)GetFrameRate();
 
     Interval TickInterval = GetCOREInterface()->GetAnimRange();
-    
+
     TimeValue Start = TickInterval.Start();
     TimeValue End = TickInterval.End();
 
@@ -53,7 +53,7 @@ GetCurrentHAPITime()
 
     if (OldTime < CurrentHAPITime)
     {
-        HasTimeChanged = true;
+	HasTimeChanged = true;
     }
 }
 

@@ -24,36 +24,57 @@ struct HEMAX_MaterialMapping
     int SubNumber;
 };
 
-struct HEMAX_MaterialNode
+class HEMAX_MaterialNode
 {
-    HEMAX_NodeId NodeId;
-    bool Exists;
-    bool HasChanged;
+    public:
 
-    bool HasTexture;
-    HEMAX_ParameterId TextureParameterId;
-    HEMAX_ImageInfo ImageInfo;
+        HEMAX_NodeId NodeId;
+        HEMAX_MaterialInfo MatInfo;
 
-    int ImageMemoryBufferLength;
-    unsigned char* ImageBuffer;
-    std::string ImagePath;
+        std::string Name;
 
-    int ImageXResolution;
-    int ImageYResolution;
+        bool HasTexture;
+        HEMAX_ParameterId TextureParameterId;
+        HEMAX_ImageInfo ImageInfo;
 
-    float Alpha;
-    float AmbientColor[3];
-    float DiffuseColor[3];
-    float SpecularColor[3];
+        int ImageMemoryBufferLength;
+        unsigned char* ImageBuffer;
+        std::string ImagePath;
 
-    bool HasTextureBeenRendered;
+        int ImageXResolution;
+        int ImageYResolution;
 
-    HEMAX_MaterialNode(HEMAX_NodeId Id);
-    ~HEMAX_MaterialNode();
+        float Alpha;
+        bool HasAlpha;
 
-    bool CheckHasChanged();
-    void GetMaterialInformation();
-    bool RenderTextureToMemory();
+        float AmbientColor[3];
+        bool HasAmbient;
 
-    StdMat2* Build3dsmaxMaterialFromNode();
+        float DiffuseColor[3];
+        bool HasDiffuse;
+
+        float SpecularColor[3];
+        bool HasSpecular;
+
+        bool HasTextureBeenRendered;
+
+        HEMAX_MaterialNode(HEMAX_NodeId Id);
+        ~HEMAX_MaterialNode();
+
+        void UpdateInfo();
+        void GetMaterialInformation();
+        bool RenderTextureToMemory();
+
+        void Build3dsmaxMaterial();
+
+        bool IsDirty();
+
+        StdMat2* Get3dsmaxMaterial();
+
+    private:
+
+        void Update3dsmaxMaterial();
+
+        StdMat2* MaxMaterial;
+        bool Dirty;
 };

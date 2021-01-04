@@ -9,22 +9,605 @@
 
 #include <list>
 
+HEMAX_GeometryHda::HEMAX_GeometryHda(HEMAX_UserPrefs* UserPrefs)
+    : Prefs(UserPrefs)
+{
+    Dummy = nullptr;
+    ContainerNode = nullptr;
+    CustomAttributes = nullptr;
+    Type = HEMAX_GEOMETRY_HDA;
+}
+
+void
+HEMAX_GeometryHda::Init(HEMAX_Asset& Asset, int AssetIndex)
+{
+    Hda.Init(Asset, AssetIndex);
+    InitializeSubnetworks(); 
+}
+
+void
+HEMAX_GeometryHda::Create(HEMAX_Asset& Asset, int AssetIndex)
+{
+    Init(Asset, AssetIndex);
+    CreateNewGeometryHda(Hda);
+    InitializeParameterCustomAttributes();
+}
+
+void
+HEMAX_GeometryHda::Create(INode* ContainerNode, HEMAX_Asset& Asset, int AssetIndex)
+{
+    Init(Asset, AssetIndex);
+    CreateNewGeometryHda(Hda, ContainerNode);
+    InitializeParameterCustomAttributes();
+}
+
+void
+HEMAX_GeometryHda::CreateNewGeometryHda(HEMAX_Hda& Hda)
+{
+    Dummy = new DummyObject;
+    ContainerNode = GetCOREInterface()->CreateObjectNode(Dummy);
+
+    CreateNewGeometryHda(Hda, ContainerNode);
+}
+
+void
+HEMAX_GeometryHda::CreateNewGeometryHda(HEMAX_Hda& Hda, INode* ContainerNode)
+{
+    this->ContainerNode = ContainerNode;
+
+    if (ContainerNode)
+    {
+	std::wstring ContainerNodeLabel = std::wstring(Hda.Name.begin(), Hda.Name.end());
+	ContainerNode->SetName(ContainerNodeLabel.c_str());
+	InitGeometryCustAttribContainer();
+	GenerateBoilerplateGeometryCustomAttributes(Hda);
+
+	if (Hda.HdaType == OBJ_LEVEL_HDA)
+	{
+	    HEMAX_Object& TopNode = Hda.TopLevelObjectNode;
+
+	    for (auto It = TopNode.SopNodes.begin(); It != TopNode.SopNodes.end(); It++)
+	    {
+		if (It->second.Parts.size() > 0)
+		{
+		    CreateDisplayGeometry(Hda, It->second);
+		}
+	    }
+
+	    if (TopNode.Instances.size() > 0)
+	    {
+		CreateInstances(Hda);
+	    }
+	}
+	else if (Hda.HdaType == SOP_LEVEL_HDA)
+	{
+	    HEMAX_DisplayGeoNode& TopNode = Hda.TopLevelSopNode;
+
+	    if (TopNode.Parts.size() > 0)
+	    {
+		CreateDisplayGeometry(Hda, TopNode);
+	    }
+	}
+
+	for (int e = 0; e < Hda.EditableNodes.size(); e++)
+	{
+	    CreateEditableCurves(Hda.EditableNodes[e]);
+	}
+    }
+}
+
+void
+HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
+{
+    if (ContainerNode)
+    {
+	Dummy = (DummyObject*)ContainerNode->GetObjectRef();
+
+	int ChildCount = ContainerNode->NumberOfChildren();
+	if (Hda.HdaType == OBJ_LEVEL_HDA)
+	{
+	    for (int i = 0; i < ChildCount; i++)
+	    {
+		INode* Child = ContainerNode->GetChildNode(i);
+		if (Child)
+		{
+		    if (IsINodeADisplayGeometry(Child))
+		    {
+			HEMAX_Part* Part = nullptr;
+			std::wstring NodeName = Child->GetName();
+			HEMAX_DisplayGeoNode* SopNode = Hda.TopLevelObjectNode.FindSopNodeFromName(std::string(NodeName.begin(), NodeName.end()));
+			if (SopNode)
+			{
+			    HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
+			    if (PartId != -1)
+			    {
+				Part = SopNode->GetPart(PartId);
+			    }
+			}
+
+			if (Part)
+			{
+			    HEMAX_GeometryPlugin* GeoPlugin = dynamic_cast<HEMAX_GeometryPlugin*>(Child->GetObjectRef());
+			    LinearShape* Shape = dynamic_cast<LinearShape*>(Child->GetObjectRef());
+
+			    if (GeoPlugin)
+			    {
+				GeoPlugin->MaxNode = Child;
+				GeoPlugin->IsStranded = false;
+
+				Part->SetMeshPlugin(GeoPlugin);
+			    }
+			    else if (Shape)
+			    {
+				Part->SetCurvePlugin(Shape);
+			    }
+			    else if (Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
+			    {
+				Part->SetCurvePlugin(Child);
+			    }
+			}
+		    }
+		    else if (IsINodeAnEditableNode(Child))
+		    {
+			std::string EditableNodeName = GetEditableNodeName(Child);
+			int PartNum = GetEditablePartNumber(Child);
+			bool Success;
+			HEMAX_EditableNode EditableNode = Hda.FindEditableNodeFromName(EditableNodeName, Success);
+			if (Success)
+			{
+			    HEMAX_EditableCurve EditableCurve;
+			    EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
+			    EditableCurve.PushPartId = PartNum;
+			    EditableCurve.Node = Child;
+			    EditableCurve.Dirty = true;
+			    HEMAX_SessionManager::GetSessionManager().Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, PartNum, &EditableCurve.CurveInfo);
+			    EditableCurves.push_back(EditableCurve);
+			}
+		    }
+		}
+	    }
+	}
+	else if (Hda.HdaType == SOP_LEVEL_HDA)
+	{
+	    for (int i = 0; i < ChildCount; i++)
+	    {
+		INode* Child = ContainerNode->GetChildNode(i);
+		if (Child)
+		{
+		    if (IsINodeADisplayGeometry(Child))
+		    {
+			HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
+			HEMAX_Part* Part = Hda.TopLevelSopNode.GetPart(PartId);
+
+			// Sop level HDAs should only have one relevant child node (and this is the one that we just found)
+			if (Part)
+			{
+			    HEMAX_GeometryPlugin* GeoPlugin = dynamic_cast<HEMAX_GeometryPlugin*>(Child->GetObjectRef());
+			    LinearShape* Shape = dynamic_cast<LinearShape*>(Child->GetObjectRef());
+
+			    if (GeoPlugin)
+			    {
+				GeoPlugin->MaxNode = Child;
+				GeoPlugin->IsStranded = false;
+				
+				Part->SetMeshPlugin(GeoPlugin);
+			    }
+			    else if (Shape)
+			    {
+				Part->SetCurvePlugin(Shape);		
+			    }
+			    else if (Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
+			    {
+				Part->SetCurvePlugin(Child);
+			    }
+			}
+		    }
+		    else if (IsINodeAnEditableNode(Child))
+		    {
+			std::string EditableNodeName = GetEditableNodeName(Child);
+			int PartNum = GetEditablePartNumber(Child);
+			bool Success;
+			HEMAX_EditableNode EditableNode = Hda.FindEditableNodeFromName(EditableNodeName, Success);
+			if (Success)
+			{
+			    HEMAX_EditableCurve EditableCurve;
+			    EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
+			    EditableCurve.PushPartId = PartNum;
+			    EditableCurve.Node = Child;
+			    EditableCurve.Dirty = true;
+			    HEMAX_SessionManager::GetSessionManager().Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, PartNum, &EditableCurve.CurveInfo);
+			    EditableCurves.push_back(EditableCurve);
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
+void
+HEMAX_GeometryHda::ClearAnyInstances()
+{
+    ClearInstances();
+    ClearPackedPrimNodes();
+}
+
+std::vector<ULONG>
+HEMAX_GeometryHda::GetListOfAllChildINodes()
+{
+    std::vector<ULONG> Nodes;
+
+    std::vector<HEMAX_DisplayGeoNode*> DisplayNodes = Hda.AllDisplayNodes();
+
+    for (int i = 0; i < DisplayNodes.size(); i++)
+    {
+	for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
+	{
+	    INode* MaxNode = DisplayNodes[i]->Parts[p].GetINodeOf3dsmaxObject();
+	    if (MaxNode)
+	    {
+		Nodes.push_back(MaxNode->GetHandle());
+	    }
+	}
+    }
+
+    for (int j = 0; j < EditableCurves.size(); j++)
+    {
+	if (EditableCurves[j].Node)
+	{
+	    Nodes.push_back(EditableCurves[j].Node->GetHandle());
+	}
+    }
+
+    return Nodes;
+}
+
+void
+HEMAX_GeometryHda::Update3dsmaxHda()
+{
+    Hda.Update();
+    UpdateGeometryHda();
+}
+
+void
+HEMAX_GeometryHda::UpdateGeometryHda()
+{
+    // Clear any packed primitive nodes
+    ClearPackedPrimNodes();
+
+    if (ContainerNode)
+    {
+	if (Hda.HdaType == OBJ_LEVEL_HDA)
+	{
+	    std::vector<HEMAX_DisplayGeoNode*> DisplayNodes = Hda.AllDisplayNodes();
+
+	    for (int i = 0; i < DisplayNodes.size(); i++)
+	    {
+		for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
+		{
+		    HEMAX_Part& Part = DisplayNodes[i]->Parts[p];
+
+		    if (Part.Info.type == HEMAX_PARTTYPE_MESH)
+		    {
+			HEMAX_GeometryPlugin* GeoPlugin = Part.GetMeshPlugin();
+			if (GeoPlugin)
+			{
+			    Part.Build3dsmaxObject();
+                            
+                            if (GeoPlugin->Mesh &&
+                                GeoPlugin->Mesh->MaterialPath != "")
+                            {
+                                ApplySceneMtlToGeometryPlugin(GeoPlugin);
+                            }
+                            else
+                            {
+                                UpdateMaterials(Hda,
+                                                DisplayNodes[i]->Info.nodeId,
+                                                Part,
+                                                GeoPlugin);
+                            }
+
+                            bool UseUniqueName = false;
+                            Prefs->GetBoolSetting(
+                                        HEMAX_SETTING_NODE_NAMES_UNIQUE,
+                                        UseUniqueName);
+                            SetPluginNodeName(GeoPlugin->MaxNode,
+                                              *DisplayNodes[i],
+                                              Part,
+                                              UseUniqueName);
+			}
+			else
+			{
+			    CreateMeshPluginPart(Hda, *(DisplayNodes[i]), DisplayNodes[i]->Parts[p]);
+			}
+		    }
+		    else if (Part.Info.type == HEMAX_PARTTYPE_CURVE)
+		    {
+			CreateCurvePart(*(DisplayNodes[i]), DisplayNodes[i]->Parts[p]);
+		    }
+		    else if (Part.Info.type == HEMAX_PARTTYPE_INVALID)
+		    {
+			INode* PartINode = nullptr;
+
+			HEMAX_PartType PreviousPartType = Part.GetPartType();
+			if (PreviousPartType == HEMAX_PARTTYPE_MESH)
+			{
+			    HEMAX_GeometryPlugin* GeomPlugin = Part.GetMeshPlugin();
+			    if (GeomPlugin)
+			    {
+				PartINode = GeomPlugin->MaxNode;
+			    }
+			}
+			else if (PreviousPartType == HEMAX_PARTTYPE_CURVE)
+			{
+			    HEMAX_CurvePlugin* CurvePlugin = Part.GetCurvePlugin();
+			    if (CurvePlugin)
+			    {
+				PartINode = CurvePlugin->GetINode();
+			    }
+			}
+
+			if (PartINode)
+			{
+			    GetCOREInterface()->DeleteNode(PartINode);
+			    Part.ClearAnyGeometryRefs();
+			}
+		    }
+
+		    Part.UpdatePartType();
+		}
+
+		for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
+		{
+		    if (DisplayNodes[i]->Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+		    {
+			CreatePackedPrimitives(DisplayNodes[i]->Parts[p], *(DisplayNodes[i])); 
+		    }
+		}
+	    }
+
+	    HEMAX_Object& TopNode = Hda.TopLevelObjectNode;
+
+	    if (TopNode.Instances.size() > 0)
+	    {
+		UpdateInstances(Hda);
+	    }
+	}
+	else if (Hda.HdaType == SOP_LEVEL_HDA)
+	{
+	    HEMAX_DisplayGeoNode& TopNode = Hda.TopLevelSopNode;
+
+	    for (int p = 0; p < TopNode.Parts.size(); p++)
+	    {
+		if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+		{
+		    HEMAX_GeometryPlugin* GeoPlugin = TopNode.Parts[p].GetMeshPlugin();
+
+		    if (GeoPlugin)
+		    {
+			TopNode.Parts[p].Build3dsmaxObject();
+
+                        if (GeoPlugin->Mesh &&
+                            GeoPlugin->Mesh->MaterialPath != "")
+                        {
+                            ApplySceneMtlToGeometryPlugin(GeoPlugin);
+                        }
+                        else
+                        {
+                            UpdateMaterials(Hda,
+                                            TopNode.Info.nodeId,
+                                            TopNode.Parts[p],
+                                            GeoPlugin);
+                        }
+		    }		    
+		    else
+		    {
+			CreateMeshPluginPart(Hda, TopNode, TopNode.Parts[p]);	
+		    }
+		}
+		else if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+		{
+		    CreateCurvePart(TopNode, TopNode.Parts[p]);
+		}
+		else if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_INVALID)
+		{
+		    INode* PartINode = nullptr;
+
+		    HEMAX_PartType PreviousPartType = TopNode.Parts[p].GetPartType();
+		    if (PreviousPartType == HEMAX_PARTTYPE_MESH)
+		    {
+			HEMAX_GeometryPlugin* GeomPlugin = TopNode.Parts[p].GetMeshPlugin();
+			if (GeomPlugin)
+			{
+			    PartINode = GeomPlugin->MaxNode;
+			}
+		    }
+		    else if (PreviousPartType == HEMAX_PARTTYPE_CURVE)
+		    {
+			HEMAX_CurvePlugin* CurvePlugin = TopNode.Parts[p].GetCurvePlugin();
+			if (CurvePlugin)
+			{
+			    PartINode = CurvePlugin->GetINode();
+			}
+		    }
+
+		    if (PartINode)
+		    {
+			GetCOREInterface()->DeleteNode(PartINode);
+			TopNode.Parts[p].ClearAnyGeometryRefs();
+		    }
+		}
+
+		TopNode.Parts[p].UpdatePartType();
+	    }
+
+	    for (int p = 0; p < TopNode.Parts.size(); p++)
+	    {
+		if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+		{
+		    CreatePackedPrimitives(TopNode.Parts[p], TopNode);
+		}
+	    }
+	}
+    }
+}
+
+void
+HEMAX_GeometryHda::PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve)
+{
+    for (int i = 0; i < EditableCurves.size(); i++)
+    {
+	if (EditableCurves[i].Node && (EditableCurves[i].Node == EditableCurve.Node))
+	{
+	    switch (EditableCurve.CurveInfo.curveType)
+	    {
+		case (HEMAX_CURVETYPE_LINEAR):
+		{
+		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
+		    HEMAX_Input_Spline LinearInput(&Node, EditableCurves[i].Node->GetHandle());
+		    EditableCurves[i].Dirty = false;
+		} break;
+		case (HEMAX_CURVETYPE_NURBS):
+		{
+		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
+		    HEMAX_Input_NURBS NURBSInput(&Node, EditableCurves[i].Node->GetHandle());
+		    EditableCurves[i].Dirty = false;
+		} break;
+		default:
+		{
+
+		} break;
+	    }
+	}
+    }
+}
+
+std::vector<INode*>
+HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
+{
+    std::vector<INode*> BakeResults;
+    INode* BakedParent = nullptr;
+
+    if (BakeDummyObj)
+    {
+        INodeTab NodesToClone;
+        NodesToClone.AppendNode(ContainerNode);
+
+        INodeTab ClonedNodeTab;
+        bool CloneResult = GetCOREInterface()->CloneNodes(NodesToClone,
+                                                          Point3(0, 0, 0),
+                                                          false,
+                                                          NODE_COPY,
+                                                          nullptr,
+                                                          &ClonedNodeTab);
+
+        if (CloneResult)
+        {
+            BakedParent = ClonedNodeTab[0];
+            BakeResults.push_back(BakedParent);
+        }
+    }
+
+    int ChildCount = ContainerNode->NumberOfChildren();
+
+    for (int j = 0; j < ChildCount; j++)
+    {
+        INode* ChildNode = ContainerNode->GetChildNode(j);
+        if (ChildNode)
+        {
+            bool IsEditableNode = CheckForCustomAttributeOnNode(
+                                        ChildNode,
+                                        HEMAX_EDITABLE_NODE_STAMP_NAME);
+                                    
+            if (ChildNode->IsHidden() || IsEditableNode)
+                continue;
+
+            Object* ChildNodeObj = ChildNode->GetObjectRef();
+            Object* CopiedChildNodeObj = nullptr;
+
+            HEMAX_GeometryPlugin* Geometry =
+                dynamic_cast<HEMAX_GeometryPlugin*>(ChildNodeObj);
+
+            TimeValue CurrentTime = GetCOREInterface()->GetTime();
+
+            INode* BakedNode = nullptr;
+
+            if (Geometry)
+            {
+                CopiedChildNodeObj = ChildNodeObj->ConvertToType(
+                                                        CurrentTime,
+                                                        polyObjectClassID);
+
+                Object* CollapsedChildNodeObj =
+                    CopiedChildNodeObj->CollapseObject();
+
+                if ((void*)ChildNodeObj != (void*)CopiedChildNodeObj &&
+                    (void*)CopiedChildNodeObj != (void*)CollapsedChildNodeObj)
+                {
+                    delete CopiedChildNodeObj;
+                }
+
+                if (CollapsedChildNodeObj)
+                {
+                    BakedNode = GetCOREInterface()->CreateObjectNode(
+                                                        CollapsedChildNodeObj);
+                }
+            }
+            else
+            {
+                INodeTab NodeToBake;
+                NodeToBake.AppendNode(ChildNode);
+                INodeTab BakedNodeTab;
+
+                bool CloneResult = GetCOREInterface()->CloneNodes(
+                                        NodeToBake,
+                                        Point3(0, 0, 0),
+                                        false,
+                                        NODE_COPY,
+                                        nullptr,
+                                        &BakedNodeTab);
+
+                if (CloneResult)
+                {
+                    BakedNode = BakedNodeTab[0];
+                }
+            }
+
+            if (BakedNode)
+            {
+                BakedNode->SetName(ChildNode->GetName());
+                BakedNode->SetMtl(ChildNode->GetMtl());
+                BakedNode->SetNodeTM(CurrentTime,
+                                     ChildNode->GetNodeTM(CurrentTime));
+                BakeResults.push_back(BakedNode);
+
+                if (BakedParent && BakeDummyObj)
+                {
+                    BakedParent->AttachChild(BakedNode);
+                }
+            }
+        }
+    }
+
+    return BakeResults;
+}
+
 void
 HEMAX_GeometryHda::SetPushTransformsOption(bool Option)
 {
     if (ContainerNode)
     {
-        ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
+	ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
 
-        if (CustAttribs)
-        {
-            CustAttrib* PushTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX);
+	if (CustAttribs)
+	{
+	    CustAttrib* PushTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX);
 
-            if (PushTransformAttrib)
-            {
-                PushTransformAttrib->GetParamBlock(0)->SetValue(0, 0, Option);
-            }
-        }
+	    if (PushTransformAttrib)
+	    {
+		PushTransformAttrib->GetParamBlock(0)->SetValue(0, 0, Option);
+	    }
+	}
     }
 }
 
@@ -35,17 +618,17 @@ HEMAX_GeometryHda::IsPushTransformsOptionEnabled()
 
     if (ContainerNode)
     {
-        ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
+	ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
 
-        if (CustAttribs)
-        {
-            CustAttrib* PushTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX);
+	if (CustAttribs)
+	{
+	    CustAttrib* PushTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX);
 
-            if (PushTransformAttrib)
-            {
-                PushTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
-            }
-        }
+	    if (PushTransformAttrib)
+	    {
+		PushTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
+	    }
+	}
     }
 
     return ((Enabled == 1) ? true : false);
@@ -56,17 +639,17 @@ HEMAX_GeometryHda::SetApplyHAPITransformOption(bool Option)
 {
     if (ContainerNode)
     {
-        ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
+	ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
 
-        if (CustAttribs)
-        {
-            CustAttrib* ApplyTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX);
+	if (CustAttribs)
+	{
+	    CustAttrib* ApplyTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX);
 
-            if (ApplyTransformAttrib)
-            {
-                ApplyTransformAttrib->GetParamBlock(0)->SetValue(0, 0, Option);
-            }
-        }
+	    if (ApplyTransformAttrib)
+	    {
+		ApplyTransformAttrib->GetParamBlock(0)->SetValue(0, 0, Option);
+	    }
+	}
     }
 }
 
@@ -77,590 +660,453 @@ HEMAX_GeometryHda::ShouldApplyHAPITransform()
 
     if (ContainerNode)
     {
-        ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
+	ICustAttribContainer* CustAttribs = ContainerNode->GetCustAttribContainer();
 
-        if (CustAttribs)
-        {
-            CustAttrib* ApplyTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX);
+	if (CustAttribs)
+	{
+	    CustAttrib* ApplyTransformAttrib = CustAttribs->GetCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX);
 
-            if (ApplyTransformAttrib)
-            {
-                ApplyTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
-            }
-        }
+	    if (ApplyTransformAttrib)
+	    {
+		ApplyTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
+	    }
+	}
     }
 
     return ((Enabled == 1) ? true : false);
 }
 
-void
-CreateNewGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda)
-{
-    GeometryHda.Dummy = new DummyObject;
-    GeometryHda.ContainerNode = GetCOREInterface()->CreateObjectNode(GeometryHda.Dummy);
-
-    CreateNewGeometryHda(GeometryHda, Hda, GeometryHda.ContainerNode);
-}
 
 void
-CreateNewGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, INode* ContainerNode)
+HEMAX_GeometryHda::SetCustomAttributeContainer(ICustAttribContainer* Container)
 {
-    GeometryHda.ContainerNode = ContainerNode;
+    CustomAttributes = Container;
 
-    if (GeometryHda.ContainerNode)
+    MaxStampIndex = HEMAX_MAX_HOUDINI_MAX_INDEX;
+
+    for (int i = HEMAX_MAX_GEO_MAX_INDEX; i < CustomAttributes->GetNumCustAttribs(); i++)
     {
-        std::wstring ContainerNodeLabel = std::wstring(Hda.Name.begin(), Hda.Name.end());
-        GeometryHda.ContainerNode->SetName(ContainerNodeLabel.c_str());
-        InitGeometryCustAttribContainer(GeometryHda);
-        GenerateBoilerplateGeometryCustomAttributes(GeometryHda, Hda);
-
-        if (Hda.ObjLevelHda)
-        {
-            HEMAX_Object& TopNode = Hda.TopLevelObjectNode;
-
-            // TODO : investigate transform behaviour
-            //HEMAX_Utilities::SetINodeTransform(GeometryHda.ContainerNode, HEMAX_Utilities::HAPITransformToMaxTransform(TopNode.Transform));
-
-            for (auto It = TopNode.SopNodes.begin(); It != TopNode.SopNodes.end(); It++)
-            {
-                if (It->second.Parts.size() > 0)
-                {
-                    CreateDisplayGeometry(GeometryHda, Hda, It->second);
-                }
-            }
-
-            if (TopNode.Instances.size() > 0)
-            {
-                CreateInstances(GeometryHda, Hda);
-            }
-        }
-        else if (Hda.SopLevelHda)
-        {
-            HEMAX_DisplayGeoNode TopNode = Hda.TopLevelSopNode;
-
-            if (TopNode.Parts.size() > 0)
-            {
-                CreateDisplayGeometry(GeometryHda, Hda, TopNode);
-            }
-        }
-
-        for (int e = 0; e < Hda.EditableNodes.size(); e++)
-        {
-            CreateEditableCurves(GeometryHda, Hda.EditableNodes[e]);
-        }
+	HEMAX_ParameterAttrib* CustAttrib = static_cast<HEMAX_ParameterAttrib*>(CustomAttributes->GetCustAttrib(i));
+	CustomAttributeMap.insert({ CustAttrib->GetParameterName(), CustAttrib });
     }
 }
 
 void
-CreateGeometryHdaFromContainerNode(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, INode* ContainerNode)
+HEMAX_GeometryHda::SetContainerNode(INode* Node)
 {
-    GeometryHda.Dummy = (DummyObject*)ContainerNode->GetObjectRef();
-    GeometryHda.ContainerNode = ContainerNode;
-    GeometryHda.CustomAttributes = ContainerNode->GetCustAttribContainer();
-    GeometryHda.MaxStampIndex = HEMAX_MAX_HOUDINI_MAX_INDEX;
-
-    for (int i = HEMAX_MAX_GEO_MAX_INDEX; i < GeometryHda.CustomAttributes->GetNumCustAttribs(); i++)
-    {
-        HEMAX_ParameterAttrib* CustAttrib = static_cast<HEMAX_ParameterAttrib*>(GeometryHda.CustomAttributes->GetCustAttrib(i));
-        GeometryHda.CustomAttributeMap.insert({ CustAttrib->GetParameterName(), CustAttrib });
-    }
-
-    if (GeometryHda.ContainerNode)
-    {
-        int ChildCount = GeometryHda.ContainerNode->NumberOfChildren();
-        if (Hda.ObjLevelHda)
-        {
-            for (int i = 0; i < ChildCount; i++)
-            {
-                INode* Child = GeometryHda.ContainerNode->GetChildNode(i);
-                if (Child)
-                {
-                    if (IsINodeADisplayGeometry(Child))
-                    {
-                        HEMAX_GeometryPlugin* GeoPlugin = dynamic_cast<HEMAX_GeometryPlugin*>(Child->GetObjectRef());
-                        GeoPlugin->MaxNode = Child;
-                        GeoPlugin->IsStranded = false;
-                        std::wstring NodeName = Child->GetName();
-
-                        HEMAX_DisplayGeoNode SopNode = FindSopNodeFromName(Hda.TopLevelObjectNode, std::string(NodeName.begin(), NodeName.end()));
-                        if (SopNode.NodeName != "Invalid")
-                        {
-                            std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*> DisplayGeometries;
-                            HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
-
-                            if (PartId != -1)
-                            {
-                                auto Lookup = GeometryHda.DisplayGeometry.find({ SopNode.DisplayGeoInfo.nodeId });
-                                if (Lookup != GeometryHda.DisplayGeometry.end())
-                                {
-                                    Lookup->second.insert({ PartId, GeoPlugin });
-                                }
-                                else
-                                {
-                                    DisplayGeometries.insert({ PartId, GeoPlugin });
-                                    GeometryHda.DisplayGeometry.insert({ SopNode.DisplayGeoInfo.nodeId, DisplayGeometries });
-                                }
-                            }
-                        }
-                    }
-                    else if (IsINodeAnEditableNode(Child))
-                    {
-                        std::string EditableNodeName = GetEditableNodeName(Child);
-                        int PartNum = GetEditablePartNumber(Child);
-                        bool Success;
-                        HEMAX_EditableNode EditableNode = FindEditableNodeFromName(Hda, EditableNodeName, Success);
-                        if (Success)
-                        {
-                            HEMAX_EditableCurve EditableCurve;
-                            EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
-                            EditableCurve.PushPartId = PartNum;
-                            EditableCurve.Node = Child;
-                            EditableCurve.Dirty = true;
-                            HEMAX_SessionManager::GetSessionManager().Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, PartNum, &EditableCurve.CurveInfo);
-                            GeometryHda.EditableCurves.push_back(EditableCurve);
-                        }
-                    }
-                }
-            }
-        }
-        else if (Hda.SopLevelHda)
-        {
-            for (int i = 0; i < ChildCount; i++)
-            {
-                INode* Child = GeometryHda.ContainerNode->GetChildNode(i);
-                if (Child)
-                {
-                    if (IsINodeADisplayGeometry(Child))
-                    {
-                        // Sop level HDAs should only have one relevant child node (and this is the one that we just found)
-                        HEMAX_GeometryPlugin* GeoPlugin = dynamic_cast<HEMAX_GeometryPlugin*>(Child->GetObjectRef());
-                        GeoPlugin->MaxNode = Child;
-                        GeoPlugin->IsStranded = false;
-
-                        std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*> DisplayGeometries;
-                        HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
-
-                        if (PartId != -1)
-                        {
-                            auto Lookup = GeometryHda.DisplayGeometry.find({ Hda.TopLevelSopNode.DisplayGeoInfo.nodeId });
-                            if (Lookup != GeometryHda.DisplayGeometry.end())
-                            {
-                                Lookup->second.insert({ PartId, GeoPlugin });
-                            }
-                            else
-                            {
-                                DisplayGeometries.insert({ PartId, GeoPlugin });
-                                GeometryHda.DisplayGeometry.insert({ Hda.TopLevelSopNode.DisplayGeoInfo.nodeId, DisplayGeometries });
-                            }
-                        }
-                    }
-                    else if (IsINodeAnEditableNode(Child))
-                    {
-                        std::string EditableNodeName = GetEditableNodeName(Child);
-                        int PartNum = GetEditablePartNumber(Child);
-                        bool Success;
-                        HEMAX_EditableNode EditableNode = FindEditableNodeFromName(Hda, EditableNodeName, Success);
-                        if (Success)
-                        {
-                            HEMAX_EditableCurve EditableCurve;
-                            EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
-                            EditableCurve.PushPartId = PartNum;
-                            EditableCurve.Node = Child;
-                            EditableCurve.Dirty = true;
-                            HEMAX_SessionManager::GetSessionManager().Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, PartNum, &EditableCurve.CurveInfo);
-                            GeometryHda.EditableCurves.push_back(EditableCurve);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    ContainerNode = Node;
 }
 
 bool
-IsINodeADisplayGeometry(INode* Node)
+HEMAX_GeometryHda::IsINodeADisplayGeometry(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
     if (CustAttribs)
     {
-        if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_STAMP_INDEX, HEMAX_MAX_GEO_STAMP_NAME))
-        {
-            return true;
-        }
+	if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_STAMP_INDEX, HEMAX_MAX_GEO_STAMP_NAME))
+	{
+	    return true;
+	}
     }
 
     return false;
 }
 
-static bool
-IsINodeAnEditableNode(INode* Node)
+bool
+HEMAX_GeometryHda::IsINodeAnEditableNode(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
     if (CustAttribs)
     {
-        if (DoesCustomAttributeExist(CustAttribs, HEMAX_EDITABLE_NODE_STAMP_INDEX, HEMAX_EDITABLE_NODE_STAMP_NAME))
-        {
-            return true;
-        }
+	if (DoesCustomAttributeExist(CustAttribs, HEMAX_EDITABLE_NODE_STAMP_INDEX, HEMAX_EDITABLE_NODE_STAMP_NAME))
+	{
+	    return true;
+	}
     }
 
     return false;
 }
 
 HEMAX_PartId
-GetPartIdFromCustomAttributes(INode* Node)
+HEMAX_GeometryHda::GetPartIdFromCustomAttributes(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
     if (CustAttribs)
     {
-        if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_PART_STAMP_INDEX, HEMAX_MAX_GEO_PART_STAMP_NAME))
-        {
-            CustAttrib* PartCustAttrib = Node->GetCustAttribContainer()->GetCustAttrib(HEMAX_MAX_GEO_PART_STAMP_INDEX);
-            HEMAX_ParameterAttrib* Attrib = dynamic_cast<HEMAX_ParameterAttrib*>(PartCustAttrib);
-            int Value;
-            Attrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
-            return Value;
-        }
+	if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_PART_STAMP_INDEX, HEMAX_MAX_GEO_PART_STAMP_NAME))
+	{
+	    CustAttrib* PartCustAttrib = Node->GetCustAttribContainer()->GetCustAttrib(HEMAX_MAX_GEO_PART_STAMP_INDEX);
+	    HEMAX_ParameterAttrib* Attrib = dynamic_cast<HEMAX_ParameterAttrib*>(PartCustAttrib);
+	    int Value;
+	    Attrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
+	    return Value;
+	}
     }
 
     return -1;
 }
 
 void
-CreateDisplayGeometry(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode)
+HEMAX_GeometryHda::CreateDisplayGeometry(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode)
 {
-    std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*> DisplayGeometries;
-
     // First pass is to create any Mesh geometries
     for (int p = 0; p < DisplayNode.Parts.size(); p++)
     {
-        if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-        {
-            CreateMeshPart(GeometryHda, Hda, DisplayNode, DisplayNode.Parts[p], DisplayGeometries);
-        }
-    }
-
-    if (DisplayGeometries.size() > 0)
-    {
-        GeometryHda.DisplayGeometry.insert({ DisplayNode.DisplayGeoInfo.nodeId, DisplayGeometries });
+	if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+	{
+	    CreateMeshPluginPart(Hda, DisplayNode, DisplayNode.Parts[p]);
+	}
+	else if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+	{
+	    CreateCurvePart(DisplayNode, DisplayNode.Parts[p]);
+	}
     }
 
     // Second pass is for instancing (packed primitives)
     for (int p = 0; p < DisplayNode.Parts.size(); p++)
     {
-        if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
-        {
-            CreatePackedPrimitives(GeometryHda, DisplayNode.Parts[p], DisplayGeometries);
-        }
-    }
-}
-
-static void
-CreateMeshPart(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part, std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& DisplayGeometries)
-{
-    HEMAX_GeometryPlugin* NewPlugin = new HEMAX_GeometryPlugin();
-    NewPlugin->IsStranded = false;
-    INode* PluginNode = GetCOREInterface()->CreateObjectNode(NewPlugin);
-    NewPlugin->MaxNode = PluginNode;
-
-    std::wstring PluginLabel = std::wstring(DisplayNode.NodeName.begin(), DisplayNode.NodeName.end());
-    PluginNode->SetName(PluginLabel.c_str());
-
-    GeometryHda.ContainerNode->AttachChild(PluginNode);
-    DisplayGeometries.insert({ Part.Info.id, NewPlugin });
-
-    LoadMesh(&NewPlugin->Mesh, DisplayNode, Part.Info.id);
-    NewPlugin->BuildMesh(GetCOREInterface()->GetTime());
-
-    InitGeometryPluginCustAttribContainer(PluginNode);
-    GenerateBoilerplateGeometryPluginCustomAttributes(PluginNode, Part.Info.id);
-
-    ApplyMaterialsToDisplayGeometry(GeometryHda, Hda, DisplayNode.DisplayGeoInfo.nodeId, Part.Info.id, NewPlugin);
-
-    if (!DisplayNode.IsVisible || Part.Info.isInstanced)
-    {
-        PluginNode->Hide(true);
-    }
-    else
-    {
-        PluginNode->Hide(false);
+	if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+	{
+	    CreatePackedPrimitives(DisplayNode.Parts[p], DisplayNode);
+	}
     }
 }
 
 void
-CreateInstances(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda)
+HEMAX_GeometryHda::CreateMeshPluginPart(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part)
+{
+    HEMAX_GeometryPlugin* NewPlugin = new HEMAX_GeometryPlugin(
+                                        Hda.HasTimeDependentNodes());
+    NewPlugin->IsStranded = false;
+    INode* PluginNode = GetCOREInterface()->CreateObjectNode(NewPlugin);
+    NewPlugin->MaxNode = PluginNode;
+    
+    bool UseUniqueName = false;
+    Prefs->GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, UseUniqueName);
+    SetPluginNodeName(PluginNode, DisplayNode, Part, UseUniqueName);
+
+    ContainerNode->AttachChild(PluginNode);
+
+    Part.SetMeshPlugin(NewPlugin);
+    Part.Build3dsmaxObject();
+
+    InitGeometryPluginCustAttribContainer(PluginNode);
+    GenerateBoilerplateGeometryPluginCustomAttributes(PluginNode, Part.Info.id);
+
+    if (NewPlugin->Mesh && NewPlugin->Mesh->MaterialPath != "")
+    {
+        ApplySceneMtlToGeometryPlugin(NewPlugin); 
+    }
+    else
+    {
+        AssignMaterials(Hda, DisplayNode.Info.nodeId, Part, NewPlugin);
+    }
+
+    if (!DisplayNode.IsVisible || Part.Info.isInstanced)
+    {
+	PluginNode->Hide(true);
+    }
+    else
+    {
+	PluginNode->Hide(false);
+    }
+}
+
+void
+HEMAX_GeometryHda::CreateCurvePart(HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part)
+{
+    if (Part.Build3dsmaxObject())
+    {
+	INode* CurveNode = Part.GetINodeOf3dsmaxObject();
+	ContainerNode->AttachChild(CurveNode);
+
+	std::wstring WCurveLabel = std::wstring(DisplayNode.Name.begin(),
+						DisplayNode.Name.end());
+
+        bool UseUniqueName = false;
+        Prefs->GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, UseUniqueName);
+        SetPluginNodeName(CurveNode, DisplayNode, Part, UseUniqueName);
+
+	InitGeometryPluginCustAttribContainer(CurveNode);
+	GenerateBoilerplateGeometryPluginCustomAttributes(CurveNode,
+							  Part.Info.id);
+
+	if (!DisplayNode.IsVisible || Part.Info.isInstanced)
+	{
+	    CurveNode->Hide(true);
+	}
+	else
+	{
+	    CurveNode->Hide(false);
+	}
+    }
+}
+
+void
+HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 {
     HEMAX_Object& ObjectNode = Hda.TopLevelObjectNode;
 
     for (auto InstIt = ObjectNode.Instances.begin(); InstIt != ObjectNode.Instances.end(); InstIt++)
     {
-        if (InstIt->second.InstanceAttributeExists)
-        {
-            for (int s = 0; s < InstIt->second.InstanceNodeIds.size(); s++)
-            {
-                // Different display geometries
-                HEMAX_GeometryInfo DisplayGeoInfo;
-                HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
-                HEMAX_NodeId ObjToInstance = DisplayGeoInfo.nodeId;
+	if (InstIt->second.InstanceAttributeExists)
+	{
+	    for (int s = 0; s < InstIt->second.InstanceNodeIds.size(); s++)
+	    {
+		// Different display geometries
+		HEMAX_GeometryInfo DisplayGeoInfo;
+		HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
+		HEMAX_NodeId ObjToInstance = InstIt->second.InstanceNodeIds[s];
 
-                auto ObjSearch = GeometryHda.DisplayGeometry.find(ObjToInstance);
+		auto ObjSearch = ObjectNode.SopNodes.find(ObjToInstance);
 
-                if (ObjSearch != GeometryHda.DisplayGeometry.end())
-                {
-                    std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& GeoPlugins = ObjSearch->second;
+		if (ObjSearch != ObjectNode.SopNodes.end())
+		{
+		    INodeTab CloneableNodeTab;
 
-                    INodeTab CloneableNodeTab;
+		    for (int i = 0; i < ObjSearch->second.Parts.size(); i++)
+		    {
+			INode* CloneableSource = ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+			if (CloneableSource)
+			{
+			    CloneableNodeTab.AppendNode(CloneableSource);
+			}
+		    }
 
-                    for (auto It = GeoPlugins.begin(); It != GeoPlugins.end(); It++)
-                    {
-                        INode* CloneableSource = It->second->MaxNode;
+		    INodeTab ClonedNodeTab;
+		    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE, nullptr, &ClonedNodeTab);
 
-                        if (CloneableSource)
-                        {
-                            CloneableNodeTab.AppendNode(CloneableSource);
-                        }
-                    }
+		    if (CloneResult)
+		    {
+			INode* ParentNode = ContainerNode;
+			for (int c = 0; c < ClonedNodeTab.Count(); c++)
+			{
+			    ClonedNodeTab[c]->SetNodeTM(GetCOREInterface()->GetTime(), ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
+			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c], InstIt->second.InstanceTransforms[s]);
+			    ClonedNodeTab[c]->Hide(false);
+			    StampInstanceNode(ClonedNodeTab[c]);
+			    InstanceClones.push_back(ClonedNodeTab[c]);
+			}
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    auto ObjSearch = ObjectNode.SopNodes.find(InstIt->second.InstanceeId);
+	    if (ObjSearch != ObjectNode.SopNodes.end())
+	    {
+		for (int s = 0; s < InstIt->second.InstanceTransforms.size(); s++)
+		{
+		    INodeTab CloneableNodeTab;
 
-                    INodeTab ClonedNodeTab;
-                    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE, nullptr, &ClonedNodeTab);
+		    for (int i = 0; i < ObjSearch->second.Parts.size(); i++)
+		    {
+			INode* CloneableSource = ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+			if (CloneableSource)
+			{
+			    CloneableNodeTab.AppendNode(CloneableSource);
+			}
+		    }
 
-                    if (CloneResult)
-                    {
-                        INode* ParentNode = GeometryHda.ContainerNode;
-                        for (int c = 0; c < ClonedNodeTab.Count(); c++)
-                        {
-                            ClonedNodeTab[c]->SetNodeTM(GetCOREInterface()->GetTime(), ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
-                            HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c], InstIt->second.InstanceTransforms[s]);
-                            ClonedNodeTab[c]->Hide(false);
-                            StampInstanceNode(ClonedNodeTab[c]);
-                            GeometryHda.InstanceClones.push_back(ClonedNodeTab[c]);
-                        }
-                    }
-                }
-                else
-                {
-                    HEMAX_Logger::Instance().AddEntry("HEMAX_GeometryHda: Error->attempting to instance an object node that does not exist and should exist.", HEMAX_LOG_LEVEL_ERROR);
-                }
-            }
-        }
-        else
-        {
-            HEMAX_GeometryInfo DisplayGeoInfo;
-            HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(InstIt->second.InstanceeId, &DisplayGeoInfo);
-            HEMAX_NodeId ObjToInstance = DisplayGeoInfo.nodeId;
+		    INodeTab ClonedNodeTab;
+		    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab,
+								      Point3(0, 0, 0),
+								      true,
+								      NODE_INSTANCE,
+								      nullptr,
+								      &ClonedNodeTab);
 
-            auto ObjSearch = GeometryHda.DisplayGeometry.find(ObjToInstance);
-            std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>* GeoPlugins = nullptr;
-
-            if (ObjSearch != GeometryHda.DisplayGeometry.end())
-            {
-                GeoPlugins = &(ObjSearch->second);
-            }
-
-            for (int s = 0; s < InstIt->second.InstanceTransforms.size(); s++)
-            {
-                if (GeoPlugins)
-                {
-                    INodeTab CloneableNodeTab;
-
-                    for (auto It = GeoPlugins->begin(); It != GeoPlugins->end(); It++)
-                    {
-                        INode* CloneableSource = It->second->MaxNode;
-
-                        if (CloneableSource)
-                        {
-                            CloneableNodeTab.AppendNode(CloneableSource);
-                        }
-                    }
-
-                    INodeTab ClonedNodeTab;
-                    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE, nullptr, &ClonedNodeTab);
-
-                    if (CloneResult)
-                    {
-                        INode* ParentNode = GeometryHda.ContainerNode;
-                        for (int c = 0; c < ClonedNodeTab.Count(); c++)
-                        {
-                            ClonedNodeTab[c]->SetNodeTM(GetCOREInterface()->GetTime(), ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
-                            HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c], InstIt->second.InstanceTransforms[s]);
-                            ClonedNodeTab[c]->Hide(false);
-                            StampInstanceNode(ClonedNodeTab[c]);
-                            GeometryHda.InstanceClones.push_back(ClonedNodeTab[c]);
-                        }
-                    }
-                }
-            }
-        }
+		    if (CloneResult)
+		    {
+			INode* ParentNode = ContainerNode;
+			for (int c = 0; c < ClonedNodeTab.Count(); c++)
+			{
+			    TimeValue CurrentTime = GetCOREInterface()->GetTime();
+			    ClonedNodeTab[c]->SetNodeTM(CurrentTime,
+							ParentNode->GetNodeTM(CurrentTime));
+			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c],
+								   InstIt->second.InstanceTransforms[s]);
+			    ClonedNodeTab[c]->Hide(false);
+			    StampInstanceNode(ClonedNodeTab[c]);
+			    InstanceClones.push_back(ClonedNodeTab[c]);
+			}
+		    }
+		}
+	    }
+	}
     }
 }
 
 void
-CreatePackedPrimitives(HEMAX_GeometryHda& GeometryHda, HEMAX_Part& Part, std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& DisplayGeometries)
+HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode& DisplayNode)
 {
     HEMAX_PackedPrimitiveInstanceInfo& InstanceInfo = Part.PackedPrimInfo;
+
     for (int i = 0; i < InstanceInfo.InstanceCount; i++)
     {
-        for (int t = 0; t < InstanceInfo.InstancedPartCount; t++)
-        {
-            HEMAX_PartId SourcePartId = InstanceInfo.InstancedPartIds[t];
+	for (int t = 0; t < InstanceInfo.InstancedPartCount; t++)
+	{
+	    HEMAX_PartId SourcePartId = InstanceInfo.InstancedPartIds[t];
+	    HEMAX_Part* InstancedPart = DisplayNode.GetPart(SourcePartId);
 
-            auto Search = DisplayGeometries.find(SourcePartId);
-            if (Search != DisplayGeometries.end())
-            {
-                HEMAX_GeometryPlugin* GeoPluginSource = Search->second;
-                if (GeoPluginSource)
-                {
-                    INode* NodeSource = GeoPluginSource->MaxNode;
-                    if (NodeSource)
-                    {
-                        INodeTab CloneableNodeTab;
-                        CloneableNodeTab.AppendNode(NodeSource);
+	    INode* SourceNode = InstancedPart->GetINodeOf3dsmaxObject();
+	    if (SourceNode)
+	    {
+		INodeTab CloneableNodeTab;
+		CloneableNodeTab.AppendNode(SourceNode);
+		
+		INodeTab ClonedNodeTab;
+		bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab,
+								  Point3(0, 0, 0),
+								  true,
+								  NODE_INSTANCE,
+								  nullptr,
+								  &ClonedNodeTab);
 
-                        INodeTab ClonedNodeTab;
-                        bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE, nullptr, &ClonedNodeTab);
-                        if (CloneResult)
-                        {
-                            INode* ClonedNode = ClonedNodeTab[0];
-                            INode* ParentNode = GeometryHda.ContainerNode;
-                            ClonedNode->SetNodeTM(GetCOREInterface()->GetTime(), ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
-                            HEMAX_Utilities::ApplyTransformToINode(ClonedNode, InstanceInfo.InstancedTransforms[i]);
-                            ClonedNode->Hide(false);
-                            StampPackedPrimitiveNode(ClonedNode);
-                            GeometryHda.PackedPrimClones.push_back(ClonedNode);
-                        }
-                    }
-                }
-            }
-        }
+		if (CloneResult)
+		{
+		    INode* ClonedNode = ClonedNodeTab[0];
+		    INode* ParentNode = ContainerNode;
+		    TimeValue CurTime = GetCOREInterface()->GetTime();
+		    ClonedNode->SetNodeTM(CurTime, ParentNode->GetNodeTM(CurTime));
+		    HEMAX_Utilities::ApplyTransformToINode(ClonedNode,
+							   InstanceInfo.InstancedTransforms[i]);
+		    ClonedNode->Hide(false);
+		    StampPackedPrimitiveNode(ClonedNode);
+		    PackedPrimClones.push_back(ClonedNode);
+		}
+	    }
+	}
     }
 }
 
-static void
-CreateEditableCurves(HEMAX_GeometryHda& GeometryHda, HEMAX_EditableNode& EditableNode)
+void
+HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     for (int p = 0; p < EditableNode.Parts.size(); p++)
     {
-        if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
-        {
-            HEMAX_EditableCurve EditableCurve;
-            EditableCurve.Node = nullptr;
-            EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
-            EditableCurve.PushPartId = p;
-            if (SM.Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, EditableNode.Parts[p].Info.id, &EditableCurve.CurveInfo))
-            {
-                switch (EditableCurve.CurveInfo.curveType)
-                {
-                case (HEMAX_CURVETYPE_LINEAR):
-                {
-                    EditableCurve.Node = MarshallDataInto3dsMaxLinearCurve(EditableCurve, EditableNode, p);
-                } break;
-                case (HEMAX_CURVETYPE_NURBS):
-                {
-                    EditableCurve.Node = MarshallDataInto3dsMaxNURBSCVCurve(EditableCurve, EditableNode, p);
-                } break;
-                default:
-                {
-                    HEMAX_Logger::Instance().AddEntry("HEMAX_Loader::Found editable curve node but curve type is invalid or not supported", HEMAX_LOG_LEVEL_WARN);
-                } break;
-                }
-            }
+	if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+	{
+	    HEMAX_EditableCurve EditableCurve;
+	    EditableCurve.Node = nullptr;
+	    EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
+	    EditableCurve.PushPartId = p;
+	    if (SM.Session->GetCurveInfo(EditableNode.GeoInfo.nodeId, EditableNode.Parts[p].Info.id, &EditableCurve.CurveInfo))
+	    {
+		switch (EditableCurve.CurveInfo.curveType)
+		{
+		    case (HEMAX_CURVETYPE_LINEAR):
+		    {
+			EditableCurve.Node = MarshallDataInto3dsMaxLinearCurve(EditableCurve, EditableNode, p);
+		    } break;
+		    case (HEMAX_CURVETYPE_NURBS):
+		    {
+			EditableCurve.Node = MarshallDataInto3dsMaxNURBSCVCurve(EditableCurve, EditableNode, p);
+		    } break;
+		    default:
+		    {
+			HEMAX_Logger::Instance().AddEntry("HEMAX_Loader::Found editable curve node but curve type is invalid or not supported", HEMAX_LOG_LEVEL_WARN);
+		    } break;
+		}
+	    }
 
-            if (EditableCurve.Node)
-            {
-                std::string NodeName = SM.Session->GetHAPIString(EditableNode.GeoInfo.nameSH);
-                std::wstring Name(NodeName.begin(), NodeName.end());
-                EditableCurve.Node->SetName(Name.c_str());
+	    if (EditableCurve.Node)
+	    {
+		std::string NodeName = SM.Session->GetHAPIString(EditableNode.GeoInfo.nameSH);
+		std::wstring Name(NodeName.begin(), NodeName.end());
+		EditableCurve.Node->SetName(Name.c_str());
 
-                if (GeometryHda.ContainerNode)
-                {
-                    StampEditableNode(EditableCurve.Node, NodeName, p);
-                    GeometryHda.ContainerNode->AttachChild(EditableCurve.Node, 0);
-                    GeometryHda.EditableCurves.push_back(EditableCurve);
-                }
-            }
-        }
-        else if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-        {
-            // In this case the only possibility is that it's a single polygon representing a linear curve.
-            // TODO : editable linear curve
-        }
+		if (ContainerNode)
+		{
+		    StampEditableNode(EditableCurve.Node, NodeName, p);
+		    ContainerNode->AttachChild(EditableCurve.Node, 0);
+		    EditableCurves.push_back(EditableCurve);
+		}
+	    }
+	}
+	else if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+	{
+	    // In this case the only possibility is that it's a single polygon representing a linear curve.
+	    // TODO : editable linear curve
+	}
     }
 }
 
-static void
-InitGeometryCustAttribContainer(HEMAX_GeometryHda& GeometryHda)
+void
+HEMAX_GeometryHda::InitGeometryCustAttribContainer()
 {
-    GeometryHda.CustomAttributes = GeometryHda.ContainerNode->GetCustAttribContainer();
+    CustomAttributes = ContainerNode->GetCustAttribContainer();
 
-    if (!GeometryHda.CustomAttributes)
+    if (!CustomAttributes)
     {
-        GeometryHda.ContainerNode->AllocCustAttribContainer();
-        GeometryHda.CustomAttributes = GeometryHda.ContainerNode->GetCustAttribContainer();
+	ContainerNode->AllocCustAttribContainer();
+	CustomAttributes = ContainerNode->GetCustAttribContainer();
     }
 }
 
-static void
-GenerateBoilerplateGeometryCustomAttributes(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda)
+void
+HEMAX_GeometryHda::GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda)
 {
     // Generate HEMAX boilerplate custom attributes. These are necessary for reloading the scene
     HEMAX_StringParameterAttrib* MaxHoudiniAssetStamp = new HEMAX_StringParameterAttrib;
     MaxHoudiniAssetStamp->SetParameterName(std::string(HEMAX_MAX_HOUDINI_STAMP_NAME));
     MaxHoudiniAssetStamp->PBlock->SetValue(0, 0, L"TRUE");
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_STAMP_INDEX, MaxHoudiniAssetStamp);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_STAMP_INDEX, MaxHoudiniAssetStamp);
 
     HEMAX_StringParameterAttrib* MaxHoudiniAssetPath = new HEMAX_StringParameterAttrib;
     MaxHoudiniAssetPath->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME));
     std::wstring WideAssetPath(Hda.HdaAsset.Path.begin(), Hda.HdaAsset.Path.end());
     MaxHoudiniAssetPath->PBlock->SetValue(0, 0, WideAssetPath.c_str());
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX, MaxHoudiniAssetPath);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX, MaxHoudiniAssetPath);
 
     HEMAX_IntegerParameterAttrib* MaxHoudiniAssetLibIndex = new HEMAX_IntegerParameterAttrib;
     MaxHoudiniAssetLibIndex->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME));
     MaxHoudiniAssetLibIndex->PBlock->SetValue(0, 0, Hda.HdaAssetIndex);
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX, MaxHoudiniAssetLibIndex);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX, MaxHoudiniAssetLibIndex);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniConvertOnSave = new HEMAX_ToggleParameterAttrib;
     MaxHoudiniConvertOnSave->SetParameterName(std::string(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_NAME));
     MaxHoudiniConvertOnSave->PBlock->SetValue(0, 0, 0);
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_INDEX, MaxHoudiniConvertOnSave);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_INDEX, MaxHoudiniConvertOnSave);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniPushTransform = new HEMAX_ToggleParameterAttrib;
     MaxHoudiniPushTransform->SetParameterName(std::string(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_NAME));
     MaxHoudiniPushTransform->PBlock->SetValue(0, 0, 0);
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX, MaxHoudiniPushTransform);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX, MaxHoudiniPushTransform);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniApplyHAPITransform = new HEMAX_ToggleParameterAttrib;
     MaxHoudiniApplyHAPITransform->SetParameterName(std::string(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_NAME));
     MaxHoudiniApplyHAPITransform->PBlock->SetValue(0, 0, 0);
-    GeometryHda.CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX, MaxHoudiniApplyHAPITransform);
+    CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX, MaxHoudiniApplyHAPITransform);
 
     // Make custom attributes for the sub-network inputs
     for (int s = 0; s < Hda.MainNode.Info.inputCount; ++s)
     {
-        HEMAX_NodeParameterAttrib* InputCustAttrib = new HEMAX_NodeParameterAttrib;
-        InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
-        InputCustAttrib->CreateMaxHoudiniAssetLink(GeometryHda.ContainerNode, HEMAX_INPUT_SUBNETWORK, s);
-        GeometryHda.CustomAttributes->AppendCustAttrib(InputCustAttrib);
-        GeometryHda.CustomAttributeMap.insert({ "subnetwork_" + std::to_string(s), InputCustAttrib });
+	HEMAX_NodeParameterAttrib* InputCustAttrib = new HEMAX_NodeParameterAttrib;
+	InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
+	InputCustAttrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK, s);
+	CustomAttributes->AppendCustAttrib(InputCustAttrib);
+	CustomAttributeMap.insert({ "subnetwork_" + std::to_string(s), InputCustAttrib });
     }
 
-    GeometryHda.MaxStampIndex = HEMAX_MAX_HOUDINI_MAX_INDEX;
+    MaxStampIndex = HEMAX_MAX_HOUDINI_MAX_INDEX;
 }
 
-static void
-InitGeometryPluginCustAttribContainer(INode* PluginNode)
+void
+HEMAX_GeometryHda::InitGeometryPluginCustAttribContainer(INode* PluginNode)
 {
     ICustAttribContainer* Container = PluginNode->GetCustAttribContainer();
 
     if (!Container)
     {
-        PluginNode->AllocCustAttribContainer();
+	PluginNode->AllocCustAttribContainer();
     }
 }
 
-static void
-GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HEMAX_PartId Part)
+void
+HEMAX_GeometryHda::GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HEMAX_PartId Part)
 {
     HEMAX_StringParameterAttrib* MaxGeoStamp = new HEMAX_StringParameterAttrib;
     MaxGeoStamp->SetParameterName(std::string(HEMAX_MAX_GEO_STAMP_NAME));
@@ -672,282 +1118,46 @@ GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HEMAX_PartI
 
     if (PluginNode->GetCustAttribContainer())
     {
-        PluginNode->GetCustAttribContainer()->InsertCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX, MaxGeoStamp);
-        PluginNode->GetCustAttribContainer()->InsertCustAttrib(HEMAX_MAX_GEO_PART_STAMP_INDEX, PartStamp);
-    }
-}
-
-std::vector<ULONG>
-GetListOfAllChildINodes(HEMAX_GeometryHda& Hda)
-{
-    std::vector<ULONG> Nodes;
-
-    for (auto It = Hda.DisplayGeometry.begin(); It != Hda.DisplayGeometry.end(); It++)
-    {
-        for (int i = 0; i < It->second.size(); i++)
-        {
-            if (It->second[i])
-            {
-                Nodes.push_back(It->second[i]->MaxNode->GetHandle());
-            }
-        }
-    }
-
-    for (int j = 0; j < Hda.EditableCurves.size(); j++)
-    {
-        if (Hda.EditableCurves[j].Node)
-        {
-            Nodes.push_back(Hda.EditableCurves[j].Node->GetHandle());
-        }
-    }
-
-    return Nodes;
-}
-
-void
-UpdateGeometryHda(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda)
-{
-    // Clear any packed primitive nodes
-    ClearPackedPrimNodes(GeometryHda);
-
-    if (GeometryHda.ContainerNode)
-    {
-        if (Hda.ObjLevelHda)
-        {
-            std::list<HEMAX_NodeId> NodeList;
-            for (auto NodeEntry : GeometryHda.DisplayGeometry)
-            {
-                NodeList.push_back(NodeEntry.first);
-            }
-
-            HEMAX_Object& TopNode = Hda.TopLevelObjectNode;
-
-            // TODO : investigate transform behaviour
-            // HEMAX_Utilities::SetINodeTransform(GeometryHda.ContainerNode, HEMAX_Utilities::HAPITransformToMaxTransform(TopNode.Transform));
-
-            for (auto SopIter = TopNode.SopNodes.begin(); SopIter != TopNode.SopNodes.end(); SopIter++)
-            {
-                NodeList.remove(SopIter->second.DisplayGeoInfo.nodeId);
-
-                if (SopIter->second.Parts.size() > 0)
-                {
-                    auto Search = GeometryHda.DisplayGeometry.find(SopIter->second.DisplayGeoInfo.nodeId);
-
-                    if (Search != GeometryHda.DisplayGeometry.end())
-                    {
-                        std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& Plugins = Search->second;
-
-                        // First pass for Mesh parts
-                        for (int p = 0; p < SopIter->second.Parts.size(); p++)
-                        {
-                            auto PluginIt = Plugins.find(SopIter->second.Parts[p].Info.id);
-                            if (PluginIt != Plugins.end())
-                            {
-                                if (SopIter->second.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-                                {
-                                    delete PluginIt->second->Mesh;
-                                    LoadMesh(&PluginIt->second->Mesh, SopIter->second, p);
-                                    PluginIt->second->BuildMesh(GetCOREInterface()->GetTime());
-                                    PluginIt->second->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
-                                    UpdateChangedMaterials(GeometryHda, Hda, Search->first, p, PluginIt->second);
-                                }
-                            }
-                            else
-                            {
-                                // New part
-                                if (SopIter->second.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-                                {
-                                    CreateMeshPart(GeometryHda, Hda, SopIter->second, SopIter->second.Parts[p], Plugins);
-                                }
-                            }
-                        }
-
-                        // Second pass for packed prims
-                        for (int p = 0; p < SopIter->second.Parts.size(); p++)
-                        {
-                            if (SopIter->second.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
-                            {
-                                CreatePackedPrimitives(GeometryHda, SopIter->second.Parts[p], Plugins);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        CreateDisplayGeometry(GeometryHda, Hda, SopIter->second);
-                    }
-                }
-            }
-
-            if (TopNode.Instances.size() > 0)
-            {
-                UpdateInstances(GeometryHda, Hda);
-            }
-
-            for (auto UnseenNode : NodeList)
-            {
-                auto Search = GeometryHda.DisplayGeometry.find(UnseenNode);
-                if (Search != GeometryHda.DisplayGeometry.end())
-                {
-                    for (auto PluginIt = Search->second.begin(); PluginIt != Search->second.end(); PluginIt++)
-                    {
-                        GetCOREInterface()->DeleteNode(PluginIt->second->MaxNode);
-                        PluginIt->second = nullptr;
-                    }
-                    Search->second.clear();
-                    GeometryHda.DisplayGeometry.erase(UnseenNode);
-                }
-
-                auto MatSearch = GeometryHda.MaterialMap.find(UnseenNode);
-                if (MatSearch != GeometryHda.MaterialMap.end())
-                {
-                    for (auto MtlIt = MatSearch->second.begin(); MtlIt != MatSearch->second.end(); MtlIt++)
-                    {
-                        for (int m = 0; m < MtlIt->second.size(); m++)
-                        {
-                            delete MtlIt->second[m];
-                        }
-                        MtlIt->second.clear();
-                    }
-                    MatSearch->second.clear();
-                    GeometryHda.MaterialMap.erase(UnseenNode);
-                }
-            }
-        }
-        else if (Hda.SopLevelHda)
-        {
-            HEMAX_DisplayGeoNode TopNode = Hda.TopLevelSopNode;
-
-            if (TopNode.Parts.size() > 0)
-            {
-                auto Search = GeometryHda.DisplayGeometry.find(TopNode.DisplayGeoInfo.nodeId);
-
-                if (Search != GeometryHda.DisplayGeometry.end())
-                {
-                    std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*>& Plugins = Search->second;
-
-                    std::unordered_map<HEMAX_PartId, HEMAX_GeometryPlugin*> UnseenPlugins = Plugins;
-
-                    // First pass for Mesh parts
-                    for (int p = 0; p < TopNode.Parts.size(); p++)
-                    {
-                        auto PluginIt = Plugins.find(TopNode.Parts[p].Info.id);
-                        if (PluginIt != Plugins.end())
-                        {
-                            if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-                            {
-                                delete PluginIt->second->Mesh;
-                                LoadMesh(&PluginIt->second->Mesh, TopNode, p);
-                                PluginIt->second->BuildMesh(GetCOREInterface()->GetTime());
-                                PluginIt->second->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
-                                UpdateChangedMaterials(GeometryHda, Hda, TopNode.DisplayGeoInfo.nodeId, p, PluginIt->second);
-                                UnseenPlugins.erase(TopNode.Parts[p].Info.id);
-                            }
-                        }
-                        else
-                        {
-                            // New part
-                            if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
-                            {
-                                CreateMeshPart(GeometryHda, Hda, TopNode, TopNode.Parts[p], Plugins);
-                            }
-                        }
-                    }
-
-                    // Second pass for packed prims
-                    for (int p = 0; p < TopNode.Parts.size(); p++)
-                    {
-                        if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
-                        {
-                            CreatePackedPrimitives(GeometryHda, TopNode.Parts[p], Plugins);
-                        }
-                    }
-
-                    // Remove any 'unseen' plugins... this means that they are no longer in use
-                    for (auto PluginIt = UnseenPlugins.begin(); PluginIt != UnseenPlugins.end(); PluginIt++)
-                    {
-                        auto PluginSearch = Plugins.find(PluginIt->first);
-                        if (PluginSearch != Plugins.end())
-                        {
-                            GetCOREInterface()->DeleteNode(PluginSearch->second->MaxNode);
-                            PluginSearch->second = nullptr;
-                            Plugins.erase(PluginIt->first);
-                        }
-                    }
-                }
-                else
-                {
-                    CreateDisplayGeometry(GeometryHda, Hda, TopNode);
-                }
-            }
-        }
+	PluginNode->GetCustAttribContainer()->InsertCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX, MaxGeoStamp);
+	PluginNode->GetCustAttribContainer()->InsertCustAttrib(HEMAX_MAX_GEO_PART_STAMP_INDEX, PartStamp);
     }
 }
 
 void
-UpdateInstances(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda)
+HEMAX_GeometryHda::UpdateInstances(HEMAX_Hda& Hda)
 {
-    ClearInstances(GeometryHda);
+    ClearInstances();
 
-    int ChildCount = GeometryHda.ContainerNode->NumberOfChildren();
+    int ChildCount = ContainerNode->NumberOfChildren();
 
     for (int c = ChildCount - 1; c >= 0; c--)
     {
-        INode* Child = GeometryHda.ContainerNode->GetChildNode(c);
-        if (Child)
-        {
-            ICustAttribContainer* CustAttribs = Child->GetCustAttribContainer();
-            if (CustAttribs)
-            {
-                if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_INSTANCE_STAMP_INDEX, HEMAX_MAX_GEO_INSTANCE_STAMP_NAME))
-                {
-                    GetCOREInterface()->DeleteNode(Child);
-                }
-            }
-        }
+	INode* Child = ContainerNode->GetChildNode(c);
+	if (Child)
+	{
+	    ICustAttribContainer* CustAttribs = Child->GetCustAttribContainer();
+	    if (CustAttribs)
+	    {
+		if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_INSTANCE_STAMP_INDEX, HEMAX_MAX_GEO_INSTANCE_STAMP_NAME))
+		{
+		    GetCOREInterface()->DeleteNode(Child);
+		}
+	    }
+	}
     }
 
-    CreateInstances(GeometryHda, Hda);
+    CreateInstances(Hda);
 }
 
 void
-PushEditableNodeChanges(HEMAX_GeometryHda& GeometryHda, HEMAX_EditableCurve EditableCurve)
-{
-    for (int i = 0; i < GeometryHda.EditableCurves.size(); i++)
-    {
-        if (GeometryHda.EditableCurves[i].Node && (GeometryHda.EditableCurves[i].Node == EditableCurve.Node))
-        {
-            switch (EditableCurve.CurveInfo.curveType)
-            {
-            case (HEMAX_CURVETYPE_LINEAR):
-            {
-                HEMAX_Node Node(GeometryHda.EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
-                HEMAX_Input_Spline LinearInput(&Node, GeometryHda.EditableCurves[i].Node->GetHandle());
-                GeometryHda.EditableCurves[i].Dirty = false;
-            } break;
-            case (HEMAX_CURVETYPE_NURBS):
-            {
-                HEMAX_Node Node(GeometryHda.EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
-                HEMAX_Input_NURBS NURBSInput(&Node, GeometryHda.EditableCurves[i].Node->GetHandle());
-                GeometryHda.EditableCurves[i].Dirty = false;
-            } break;
-            default:
-            {
-
-            } break;
-            }
-        }
-    }
-}
-
-void
-StampInstanceNode(INode* Node)
+HEMAX_GeometryHda::StampInstanceNode(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
     if (!CustAttribs)
     {
-        Node->AllocCustAttribContainer();
-        CustAttribs = Node->GetCustAttribContainer();
+	Node->AllocCustAttribContainer();
+	CustAttribs = Node->GetCustAttribContainer();
     }
 
     HEMAX_StringParameterAttrib* InstanceStamp = new HEMAX_StringParameterAttrib;
@@ -957,14 +1167,14 @@ StampInstanceNode(INode* Node)
 }
 
 void
-StampPackedPrimitiveNode(INode* Node)
+HEMAX_GeometryHda::StampPackedPrimitiveNode(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
     if (!CustAttribs)
     {
-        Node->AllocCustAttribContainer();
-        CustAttribs = Node->GetCustAttribContainer();
+	Node->AllocCustAttribContainer();
+	CustAttribs = Node->GetCustAttribContainer();
     }
 
     HEMAX_StringParameterAttrib* PackedPrimStamp = new HEMAX_StringParameterAttrib;
@@ -973,15 +1183,15 @@ StampPackedPrimitiveNode(INode* Node)
     CustAttribs->InsertCustAttrib(HEMAX_MAX_GEO_PACKED_PRIM_STAMP_INDEX, PackedPrimStamp);
 }
 
-static void
-StampEditableNode(INode* Node, std::string EditableNodeName, HEMAX_PartId PartNum)
+void
+HEMAX_GeometryHda::StampEditableNode(INode* Node, std::string EditableNodeName, HEMAX_PartId PartNum)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
     if (!CustAttribs)
     {
-        Node->AllocCustAttribContainer();
-        CustAttribs = Node->GetCustAttribContainer();
+	Node->AllocCustAttribContainer();
+	CustAttribs = Node->GetCustAttribContainer();
     }
 
     HEMAX_StringParameterAttrib* EditableStamp = new HEMAX_StringParameterAttrib;
@@ -1001,434 +1211,425 @@ StampEditableNode(INode* Node, std::string EditableNodeName, HEMAX_PartId PartNu
     CustAttribs->InsertCustAttrib(HEMAX_EDITABLE_NODE_PART_NUM_INDEX, PartStamp);
 }
 
-static std::string
-GetEditableNodeName(INode* Node)
+std::string
+HEMAX_GeometryHda::GetEditableNodeName(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
     if (DoesCustomAttributeExist(CustAttribs, HEMAX_EDITABLE_NODE_NAME_INDEX, HEMAX_EDITABLE_NODE_NAME_NAME))
     {
-        HEMAX_StringParameterAttrib* NameAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_NAME_INDEX));
-        const MCHAR* Name;
-        NameAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
-        std::wstring WideName(Name);
-        return std::string(WideName.begin(), WideName.end());
+	HEMAX_StringParameterAttrib* NameAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_NAME_INDEX));
+	const MCHAR* Name;
+	NameAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
+	std::wstring WideName(Name);
+	return std::string(WideName.begin(), WideName.end());
     }
     else
     {
-        return "";
+	return "";
     }
 }
 
-static int
-GetEditablePartNumber(INode* Node)
+int
+HEMAX_GeometryHda::GetEditablePartNumber(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
     if (DoesCustomAttributeExist(CustAttribs, HEMAX_EDITABLE_NODE_PART_NUM_INDEX, HEMAX_EDITABLE_NODE_PART_NUM_NAME))
     {
-        HEMAX_IntegerParameterAttrib* PartAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_PART_NUM_INDEX));
-        int PartNum;
-        PartAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), PartNum, FOREVER);
-        return PartNum;
+	HEMAX_IntegerParameterAttrib* PartAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_PART_NUM_INDEX));
+	int PartNum;
+	PartAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), PartNum, FOREVER);
+	return PartNum;
     }
     else
     {
-        return -1;
+	return -1;
     }
 }
 
 void
-ClearInstances(HEMAX_GeometryHda& GeometryHda)
+HEMAX_GeometryHda::ClearInstances()
 {
-    for (int i = 0; i < GeometryHda.InstanceClones.size(); i++)
+    for (int i = 0; i < InstanceClones.size(); i++)
     {
-        if (GeometryHda.InstanceClones[i])
-        {
-            GetCOREInterface()->DeleteNode(GeometryHda.InstanceClones[i]);
-        }
+	if (InstanceClones[i])
+	{
+	    GetCOREInterface()->DeleteNode(InstanceClones[i]);
+	}
     }
-    GeometryHda.InstanceClones.clear();
+    InstanceClones.clear();
 }
 
 void
-ClearPackedPrimNodes(HEMAX_GeometryHda& GeometryHda)
+HEMAX_GeometryHda::ClearPackedPrimNodes()
 {
-    for (int p = 0; p < GeometryHda.PackedPrimClones.size(); p++)
+    for (int p = 0; p < PackedPrimClones.size(); p++)
     {
-        if (GeometryHda.PackedPrimClones[p])
-        {
-            GetCOREInterface()->DeleteNode(GeometryHda.PackedPrimClones[p]);
-            GeometryHda.PackedPrimClones[p] = nullptr;
-        }
+	if (PackedPrimClones[p])
+	{
+	    GetCOREInterface()->DeleteNode(PackedPrimClones[p]);
+	    PackedPrimClones[p] = nullptr;
+	}
     }
-    GeometryHda.PackedPrimClones.clear();
+    PackedPrimClones.clear();
 
-    int ChildCount = GeometryHda.ContainerNode->NumberOfChildren();
+    int ChildCount = ContainerNode->NumberOfChildren();
 
     for (int c = ChildCount - 1; c >= 0; c--)
     {
-        INode* Child = GeometryHda.ContainerNode->GetChildNode(c);
-        if (Child)
-        {
-            ICustAttribContainer* CustAttribs = Child->GetCustAttribContainer();
-            if (CustAttribs)
-            {
-                if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_PACKED_PRIM_STAMP_INDEX, HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME))
-                {
-                    GetCOREInterface()->DeleteNode(Child);
-                }
-            }
-        }
+	INode* Child = ContainerNode->GetChildNode(c);
+	if (Child)
+	{
+	    ICustAttribContainer* CustAttribs = Child->GetCustAttribContainer();
+	    if (CustAttribs)
+	    {
+		if (DoesCustomAttributeExist(CustAttribs, HEMAX_MAX_GEO_PACKED_PRIM_STAMP_INDEX, HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME))
+		{
+		    GetCOREInterface()->DeleteNode(Child);
+		}
+	    }
+	}
     }
 }
 
 void
-ApplyMaterialsToDisplayGeometry(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part, HEMAX_GeometryPlugin* GeoPlugin)
+HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
+                                   HEMAX_NodeId DisplayNodeId,
+                                   HEMAX_Part& Part,
+                                   HEMAX_GeometryPlugin* GeoPlugin)
 {
-    if (GeoPlugin && GeoPlugin->Mesh)
+    if (!(GeoPlugin && GeoPlugin->Mesh))
+       return; 
+
+    HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
+    HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+
+    if (!MatNodeIds)
+        return;
+
+    if (Mesh->AreMaterialIdsSame)
     {
-        HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
+        HEMAX_NodeId MaterialNodeId = MatNodeIds[0];
+        
+        if (MaterialNodeId == -1)
+            return;
 
-        if (Mesh->MaterialPath == "")
+        auto ShopNode = Hda.ShopNodes.find(MaterialNodeId);
+
+        if (ShopNode == Hda.ShopNodes.end())
         {
-            HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+            std::string Msg = std::string("No material node with id: ") + 
+                std::to_string(int(MaterialNodeId)) + " was found.";
+            HEMAX_Logger::Instance().AddEntry(Msg,
+                                              HEMAX_LOG_LEVEL_ERROR);
+         
+            return;       
+        }
 
-            if (MatNodeIds)
+        HEMAX_MaterialNode& Mat = ShopNode->second;
+
+        if (Mat.IsDirty())
+        {
+            Mat.Build3dsmaxMaterial();
+        }
+
+        StdMat2* Material = Mat.Get3dsmaxMaterial();
+
+        if (!Material)
+            return;
+
+        GeoPlugin->MaxNode->SetMtl(Material);
+    }
+    else
+    {
+        HEMAX_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        std::unordered_map<HEMAX_NodeId, HEMAX_MaterialMapping> MultiMap;
+
+        MultiMtl* MultiMaterial = NewDefaultMultiMtl(); 
+        MultiMaterial->SetNumSubMtls(Mesh->GetNumMaterials());
+
+        for (int f = 0; f < Mesh->GetFaceCount(); f++)
+        {
+            HEMAX_NodeId MatNodeId = FaceMatIds[f];
+            auto Search = MultiMap.find(MatNodeId);
+
+            if (Search == MultiMap.end())
             {
-                if (Mesh->AreMaterialIdsSame)
+                StdMat2* Material = nullptr;
+
+                if (MatNodeId != -1)
                 {
-                    HEMAX_NodeId MaterialNodeId = MatNodeIds[0];
-                    if (MaterialNodeId != -1)
+                    auto ShopNode = Hda.ShopNodes.find(MatNodeId);
+
+                    if (ShopNode != Hda.ShopNodes.end())
                     {
-                        StdMat2* NewMaterial = CreateMaterialForPart(GeometryHda, Hda, MaterialNodeId, DisplayNodeId, Part);
-                        if (NewMaterial)
+                        HEMAX_MaterialNode& Mat = ShopNode->second;
+
+                        if (Mat.IsDirty())
                         {
-                            GeoPlugin->MaxNode->SetMtl(NewMaterial);
+                            Mat.Build3dsmaxMaterial();
                         }
+
+                        Material = Mat.Get3dsmaxMaterial();
+                    }
+                    else
+                    {
+                        std::string Msg = std::string("No material node with "
+                                "id: ") + std::to_string(int(MatNodeId)) +
+                                " was found.";
+                        HEMAX_Logger::Instance().AddEntry(
+                                                    Msg,
+                                                    HEMAX_LOG_LEVEL_ERROR);
                     }
                 }
-                else
+
+                if (!Material)
                 {
-                    HEMAX_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
-                    std::unordered_map<HEMAX_NodeId, HEMAX_MaterialMapping> MultiMap;
-
-                    MultiMtl* MultiMaterial = NewDefaultMultiMtl();
-                    MultiMaterial->SetNumSubMtls(Mesh->GetNumMaterials());
-
-                    for (int f = 0; f < Mesh->GetFaceCount(); f++)
-                    {
-                        HEMAX_NodeId MatNodeId = FaceMatIds[f];
-                        auto Search = MultiMap.find(MatNodeId);
-
-                        if (Search == MultiMap.end())
-                        {
-                            StdMat2* Material = CreateMaterialForPart(GeometryHda, Hda, MatNodeId, DisplayNodeId, Part);
-                            if (Material)
-                            {
-                                HEMAX_MaterialMapping MapEntry;
-                                MapEntry.Material = Material;
-                                MapEntry.SubNumber = (int)MultiMap.size();
-                                MultiMap.insert({ MatNodeId, MapEntry });
-
-                                MultiMaterial->SetSubMtl(MapEntry.SubNumber, Material);
-                                GeoPlugin->SetFaceMaterialId(f, MapEntry.SubNumber);
-                            }
-                        }
-                        else
-                        {
-                            auto Search = MultiMap.find(MatNodeId);
-                            if (Search != MultiMap.end())
-                            {
-                                GeoPlugin->SetFaceMaterialId(f, Search->second.SubNumber);
-                            }
-                        }
-                    }
-
-                    auto NodeSearch = GeometryHda.MaterialMap.find(DisplayNodeId);
-                    if (NodeSearch != GeometryHda.MaterialMap.end())
-                    {
-                        auto PartMats = NodeSearch->second.find(Part);
-                        if (PartMats != NodeSearch->second.end())
-                        {
-                            PartMats->second.push_back(MultiMaterial);
-                        }
-                    }
-
-                    GeoPlugin->MaxNode->SetMtl(MultiMaterial);
+                    Material = NewDefaultStdMat();
                 }
+
+                HEMAX_MaterialMapping MapEntry;
+                MapEntry.Material = Material;
+                MapEntry.SubNumber = (int)MultiMap.size();
+                MultiMap.insert({MatNodeId, MapEntry});
+
+                MultiMaterial->SetSubMtl(MapEntry.SubNumber, Material);
+                GeoPlugin->SetFaceMaterialId(f, MapEntry.SubNumber);
+            }
+            else
+            {
+                GeoPlugin->SetFaceMaterialId(f, Search->second.SubNumber);
             }
         }
-        else
-        {
-            ApplySceneMtlToGeometryPlugin(GeoPlugin, Mesh);
-        }
+
+        GeoPlugin->MaxNode->SetMtl(MultiMaterial);
     }
 }
 
-static void
-ApplySceneMtlToGeometryPlugin(HEMAX_GeometryPlugin* GeoPlugin, HEMAX_Mesh* Mesh)
+void
+HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
+                                        HEMAX_GeometryPlugin* GeoPlugin)
 {
+    HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
+
     // First look up the material in the scene
-    std::wstring WideMatName(Mesh->MaterialPath.begin(), Mesh->MaterialPath.end());
+    std::wstring WideMatName(Mesh->MaterialPath.begin(),
+                             Mesh->MaterialPath.end());
     MtlBaseLib* SceneMatLib = GetCOREInterface()->GetSceneMtls();
     int MatNum = SceneMatLib->FindMtlByName(WStr(WideMatName.c_str()));
 
     if (MatNum > -1)
     {
-        MtlBase* Mat = (*SceneMatLib)[MatNum];
-        Mtl* MtlMat = (Mtl*)Mat;
-        GeoPlugin->MaxNode->SetMtl(MtlMat);
+	MtlBase* Mat = (*SceneMatLib)[MatNum];
+	Mtl* MtlMat = (Mtl*)Mat;
+	GeoPlugin->MaxNode->SetMtl(MtlMat);
     }
     else
     {
-        // This means the material wasn't found in the scene,
-        // and we will have to try to load it from file
-        for (int s = (int)WideMatName.size() - 1; s >= 0; s--)
-        {
-            if (WideMatName[s] == L':')
-            {
-                int SplitIndex = s;
-                std::wstring MatLibPath = WideMatName.substr(0, SplitIndex);
-                std::wstring MatName = WideMatName.substr(SplitIndex + 1, WideMatName.size() - SplitIndex - 1);
+	// This means the material wasn't found in the scene,
+	// and we will have to try to load it from file
+	for (int s = (int)WideMatName.size() - 1; s >= 0; s--)
+	{
+	    if (WideMatName[s] == L':')
+	    {
+		int SplitIndex = s;
+		std::wstring MatLibPath = WideMatName.substr(0, SplitIndex);
+		std::wstring MatName = WideMatName.substr(
+                                        SplitIndex + 1,
+                                        WideMatName.size() - SplitIndex - 1);
 
-                MtlBaseLib CustomMatLib;
-                int Result = GetCOREInterface()->LoadMaterialLib(MatLibPath.c_str(), &CustomMatLib);
+		MtlBaseLib CustomMatLib;
+		int Result = GetCOREInterface()->LoadMaterialLib(
+                                        MatLibPath.c_str(),
+                                        &CustomMatLib);
 
-                if (Result)
-                {
-                    int CustomMatNum = CustomMatLib.FindMtlByName(WStr(MatName.c_str()));
-                    if (CustomMatNum > -1)
-                    {
-                        MtlBase* Mat = CustomMatLib[CustomMatNum];
-                        Mtl* MtlMat = (Mtl*)Mat;
-                        GeoPlugin->MaxNode->SetMtl(MtlMat);
-                    }
-                }
-                break;
-            }
-        }
+		if (Result)
+		{
+		    int CustomMatNum = CustomMatLib.FindMtlByName(
+                                                        WStr(MatName.c_str()));
+		    if (CustomMatNum > -1)
+		    {
+			MtlBase* Mat = CustomMatLib[CustomMatNum];
+			Mtl* MtlMat = (Mtl*)Mat;
+			GeoPlugin->MaxNode->SetMtl(MtlMat);
+		    }
+		}
+		break;
+	    }
+	}
     }
-}
-
-StdMat2*
-CreateMaterialForPart(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId MatNodeId, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part)
-{
-    StdMat2* Material = nullptr;
-
-    auto MatNode = Hda.ShopNodes.find(MatNodeId);
-
-    if (MatNode == Hda.ShopNodes.end())
-    {
-        HEMAX_MaterialNode CustomMaterial(MatNodeId);
-        Hda.ShopNodes.insert({ MatNodeId, CustomMaterial });
-    }
-
-    MatNode = Hda.ShopNodes.find(MatNodeId);
-
-    if (MatNode != Hda.ShopNodes.end())
-    {
-        HEMAX_MaterialNode& Mat = MatNode->second;
-        Mat.GetMaterialInformation();
-        if (Mat.HasTexture)
-        {
-            if (Mat.RenderTextureToMemory())
-            {
-                Material = Mat.Build3dsmaxMaterialFromNode();
-                if (Material)
-                {
-                    auto NodeSearch = GeometryHda.MaterialMap.find(DisplayNodeId);
-                    if (NodeSearch != GeometryHda.MaterialMap.end())
-                    {
-                        auto PartMats = NodeSearch->second.find(Part);
-                        if (PartMats != NodeSearch->second.end())
-                        {
-                            PartMats->second.push_back(Material);
-                        }
-                    }
-                    else
-                    {
-                        std::vector<Mtl*> MaterialList;
-                        std::unordered_map<HEMAX_PartId, std::vector<Mtl*>> PartMtlEntry;
-                        MaterialList.push_back(Material);
-                        PartMtlEntry.insert({ Part, MaterialList });
-                        GeometryHda.MaterialMap.insert({ DisplayNodeId, PartMtlEntry });
-                    }
-                }
-            }
-        }
-        else
-        {
-            Material = Mat.Build3dsmaxMaterialFromNode();
-            if (Material)
-            {
-                auto NodeSearch = GeometryHda.MaterialMap.find(DisplayNodeId);
-                if (NodeSearch != GeometryHda.MaterialMap.end())
-                {
-                    auto PartMats = NodeSearch->second.find(Part);
-                    if (PartMats != NodeSearch->second.end())
-                    {
-                        PartMats->second.push_back(Material);
-                    }
-                }
-                else
-                {
-                    std::vector<Mtl*> MaterialList;
-                    std::unordered_map<HEMAX_PartId, std::vector<Mtl*>> PartMtlEntry;
-                    MaterialList.push_back(Material);
-                    PartMtlEntry.insert({ Part, MaterialList });
-                    GeometryHda.MaterialMap.insert({ DisplayNodeId, PartMtlEntry });
-                }
-            }
-        }
-    }
-
-    return Material;
 }
 
 void
-UpdateChangedMaterials(HEMAX_GeometryHda& GeometryHda, HEMAX_Hda& Hda, HEMAX_NodeId DisplayNodeId, HEMAX_PartId Part, HEMAX_GeometryPlugin* GeoPlugin)
+HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
+                                   HEMAX_NodeId DisplayNodeId,
+                                   HEMAX_Part& Part,
+                                   HEMAX_GeometryPlugin* GeoPlugin)
 {
-    if (GeoPlugin && GeoPlugin->Mesh)
+    if (!(GeoPlugin && GeoPlugin->Mesh))
+        return;
+
+    HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
+    HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+
+    if (!MatNodeIds)
+        return;
+
+    if (Mesh->AreMaterialIdsSame)
     {
-        HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
+        HEMAX_NodeId MaterialNodeId = MatNodeIds[0];
 
-        if (Mesh->MaterialPath == "")
+        if (MaterialNodeId == -1)
+            return;
+
+        auto ShopNode = Hda.ShopNodes.find(MaterialNodeId);
+
+        if (ShopNode == Hda.ShopNodes.end())
         {
-            HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+            std::string Msg = std::string("No material node with id: ") + 
+                std::to_string(int(MaterialNodeId)) + " was found.";
+            HEMAX_Logger::Instance().AddEntry(Msg,
+                                              HEMAX_LOG_LEVEL_ERROR);
+         
+            return;       
+        }
 
-            if (MatNodeIds)
+        HEMAX_MaterialNode& MatNode = ShopNode->second;
+
+        if (MatNode.IsDirty())
+        {
+            MatNode.Build3dsmaxMaterial();
+        }
+
+        StdMat2* Material = MatNode.Get3dsmaxMaterial();
+
+        if (!Material)
+            return;
+
+        GeoPlugin->MaxNode->SetMtl(Material);
+    }
+    else
+    {
+        HEMAX_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        std::unordered_map<HEMAX_NodeId, HEMAX_MaterialMapping> MultiMap;
+
+        Mtl* PluginMat = GeoPlugin->MaxNode->GetMtl();
+        MultiMtl* MultiMaterial = dynamic_cast<MultiMtl*>(PluginMat);
+        MultiMtl* PreviousMultiMat = nullptr;
+
+        if (MultiMaterial)
+        {
+            PreviousMultiMat = MultiMaterial;
+        }
+
+        MultiMaterial = NewDefaultMultiMtl();
+        MultiMaterial->SetNumSubMtls(Mesh->GetNumMaterials());
+
+        for (int f = 0; f < Mesh->GetFaceCount(); f++)
+        {
+            HEMAX_NodeId MatNodeId = FaceMatIds[f];
+            auto Search = MultiMap.find(MatNodeId);
+ 
+            if (Search == MultiMap.end())
             {
-                if (Mesh->AreMaterialIdsSame)
-                {
-                    auto MatNode = Hda.ShopNodes.find(MatNodeIds[0]);
-                    if (MatNode != Hda.ShopNodes.end())
-                    {
-                        HEMAX_MaterialNode& Mat = MatNode->second;
-                        if (Mat.CheckHasChanged())
-                        {
-                            Mat.GetMaterialInformation();
+                    StdMat2* Material = nullptr;
 
-                            auto MatSearch = GeometryHda.MaterialMap.find(DisplayNodeId);
-                            if (MatSearch != GeometryHda.MaterialMap.end())
+                    if (MatNodeId != -1)
+                    {
+                        auto ShopNode = Hda.ShopNodes.find(MatNodeId);
+
+                        if (ShopNode != Hda.ShopNodes.end())
+                        {
+                            HEMAX_MaterialNode& Mat = ShopNode->second;
+
+                            if (Mat.IsDirty())
                             {
-                                auto EntrySearch = MatSearch->second.find(Part);
-                                if (EntrySearch != MatSearch->second.end())
-                                {
-                                    std::vector<Mtl*> Mats = EntrySearch->second;
-                                    for (int i = 0; i < Mats.size(); i++)
-                                    {
-                                        if (Mats[i])
-                                        {
-                                            Mats[i]->DeleteThis();
-                                        }
-                                    }
-                                    GeometryHda.MaterialMap.erase(DisplayNodeId);
-                                }
+                                Mat.Build3dsmaxMaterial(); 
                             }
 
-                            ApplyMaterialsToDisplayGeometry(GeometryHda, Hda, DisplayNodeId, Part, GeoPlugin);
-                            return;
+                            Material = Mat.Get3dsmaxMaterial();
                         }
-                    }
-                }
-                else
-                {
-                    HEMAX_NodeId* FaceMatIds = GeoPlugin->Mesh->GetMaterialIdsArray();
-                    for (int f = 0; f < GeoPlugin->Mesh->GetFaceCount(); f++)
-                    {
-                        HEMAX_NodeId MatNodeId = FaceMatIds[f];
-                        auto MatNode = Hda.ShopNodes.find(MatNodeId);
-                        if (MatNode != Hda.ShopNodes.end())
+                        else
                         {
-                            HEMAX_MaterialNode& Mat = MatNode->second;
-                            if (Mat.CheckHasChanged())
-                            {
-                                Mat.GetMaterialInformation();
-
-                                auto MatSearch = GeometryHda.MaterialMap.find(DisplayNodeId);
-                                if (MatSearch != GeometryHda.MaterialMap.end())
-                                {
-                                    auto EntrySearch = MatSearch->second.find(Part);
-                                    if (EntrySearch != MatSearch->second.end())
-                                    {
-                                        std::vector<Mtl*> Mats = EntrySearch->second;
-                                        for (int i = 0; i < Mats.size(); i++)
-                                        {
-                                            if (Mats[i])
-                                            {
-                                                Mats[i]->DeleteThis();
-                                            }
-                                        }
-                                        GeometryHda.MaterialMap.erase(DisplayNodeId);
-                                    }
-                                }
-
-                                ApplyMaterialsToDisplayGeometry(GeometryHda, Hda, DisplayNodeId, Part, GeoPlugin);
-                                return;
-                            }
+                            std::string Msg = std::string(
+                                    "No material node with id: ") +
+                                    std::to_string(int(MatNodeId)) +
+                                    " was found.";
+                            HEMAX_Logger::Instance().AddEntry(
+                                                    Msg,
+                                                    HEMAX_LOG_LEVEL_ERROR);
                         }
+                    } 
+
+                    if (!Material)
+                    {
+                        Material = NewDefaultStdMat();
                     }
-                }
+
+                    HEMAX_MaterialMapping MapEntry;
+                    MapEntry.Material = Material;
+                    MapEntry.SubNumber = (int)MultiMap.size();
+                    MultiMap.insert({MatNodeId, MapEntry});
+
+                    MultiMaterial->SetSubMtl(MapEntry.SubNumber, Material);
+                    GeoPlugin->SetFaceMaterialId(f, MapEntry.SubNumber);
+            }
+            else
+            {
+                GeoPlugin->SetFaceMaterialId(f, Search->second.SubNumber);
             }
         }
-        else
+
+        GeoPlugin->MaxNode->SetMtl(MultiMaterial);
+
+        if (PreviousMultiMat)
         {
-            ApplySceneMtlToGeometryPlugin(GeoPlugin, Mesh);
+            PreviousMultiMat->MaybeAutoDelete();
         }
     }
 }
 
 void
-BakeGeometryHda(HEMAX_GeometryHda& GeometryHda)
+HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
+                                     const HEMAX_DisplayGeoNode& DisplayNode,
+                                     const HEMAX_Part& Part,
+                                     bool UseUniqueName)
 {
-    INodeTab NodesToClone;
-    NodesToClone.AppendNode(GeometryHda.ContainerNode);
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_AttributeInfo AttrInfo;
+    SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId,
+                                 Part.Info.id,
+                                 HEMAX_MAX_NODE_NAME_OUTPUT,
+                                 HEMAX_ATTRIBUTEOWNER_DETAIL,
+                                 &AttrInfo);
 
-    INodeTab ClonedNodeTab;
-    bool CloneResult = GetCOREInterface()->CloneNodes(NodesToClone, Point3(0, 0, 0), false, NODE_COPY, nullptr, &ClonedNodeTab);
+    std::wstring PluginLabel;
 
-    if (CloneResult)
+    if (AttrInfo.exists)
     {
-        if (ClonedNodeTab.Count() > 0)
-        {
-            INode* Parent = ClonedNodeTab[0];
-
-            int ChildCount = GeometryHda.ContainerNode->NumberOfChildren();
-
-            for (int j = 0; j < ChildCount; j++)
-            {
-                INode* ChildNode = GeometryHda.ContainerNode->GetChildNode(j);
-                if (ChildNode)
-                {
-                    if (!ChildNode->IsHidden())
-                    {
-                        if (!CheckForCustomAttributeOnNode(ChildNode, HEMAX_EDITABLE_NODE_STAMP_NAME))
-                        {
-                            Object* ChildNodeObject = ChildNode->GetObjectRef();
-                            PolyObject* CopiedChildNodeObject = (PolyObject*)ChildNodeObject->ConvertToType(GetCOREInterface()->GetTime(), polyObjectClassID);
-                            Object* CollapsedCopyObject = CopiedChildNodeObject->CollapseObject();
-
-                            if ((void*)ChildNodeObject != (void*)CopiedChildNodeObject && (void*)CopiedChildNodeObject != (void*)CollapsedCopyObject)
-                            {
-                                delete CopiedChildNodeObject;
-                            }
-
-                            if (ChildNodeObject)
-                            {
-                                INode* CopyNode = GetCOREInterface()->CreateObjectNode(CollapsedCopyObject);
-                                if (CopyNode)
-                                {
-                                    CopyNode->SetName(ChildNode->GetName());
-                                    CopyNode->SetMtl(ChildNode->GetMtl());
-                                    CopyNode->SetNodeTM(GetCOREInterface()->GetTime(), ChildNode->GetNodeTM(GetCOREInterface()->GetTime()));
-                                    Parent->AttachChild(CopyNode);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        HEMAX_StringHandle NameAttrSH;
+        SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
+                                           Part.Info.id,
+                                           HEMAX_MAX_NODE_NAME_OUTPUT,
+                                           &AttrInfo,
+                                           &NameAttrSH,
+                                           0,
+                                           1);
+        std::string Label = SM.Session->GetHAPIString(NameAttrSH);
+        PluginLabel = std::wstring(Label.begin(), Label.end());
     }
+    else
+    {
+        PluginLabel = std::wstring(DisplayNode.Name.begin(),
+                                   DisplayNode.Name.end());
+    }
+
+    if (UseUniqueName)
+    {
+        PluginLabel = L"_" + PluginLabel;
+        PluginLabel = ContainerNode->GetName() + PluginLabel;
+    }
+
+    Node->SetName(PluginLabel.c_str());
 }

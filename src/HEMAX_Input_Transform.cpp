@@ -5,9 +5,11 @@ HEMAX_Input_Transform::HEMAX_Input_Transform(HEMAX_InputType Type, int Id, ULONG
 {
     HAPI_TransformEuler HAPITransformEuler = BuildTransform();
 
-    CreateInputNode(*Node, GetInputNodeName());
+    CreateInputNode(GetInputNodeName());
     Node->Info.id = Node->Info.parentId;
-    Cook(*Node);
+    Node->Cook();
+
+    MarshalNodeNameDetailAttribute();
 
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
@@ -20,7 +22,7 @@ HEMAX_Input_Transform::~HEMAX_Input_Transform()
 
     if (SessionManager.IsSessionActive())
     {
-        DeleteNode(*Node);
+	Node->Delete();
     }
 }
 
@@ -41,9 +43,9 @@ HEMAX_Input_Transform::BuildTransform()
 
     if (InputNode)
     {
-        HAPI_Transform HAPITransform = HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_Utilities::BuildMaxTransformFromINode(InputNode));
+	HAPI_Transform HAPITransform = HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_Utilities::BuildMaxTransformFromINode(InputNode));
 
-        return HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPITransform);
+	return HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPITransform);
     }
 
     HAPI_TransformEuler DefaultTransform;

@@ -28,44 +28,44 @@ HEMAX_Shelf::AddShelfDirectory(const std::string& Dir, const std::string &Name, 
     auto Search = Shelves.find(Dir);
     if (Search == Shelves.end())
     {
-        HEMAX_ShelfDirectory ShelfDirectory(Dir, Name);
+	HEMAX_ShelfDirectory ShelfDirectory(Dir, Name);
 
-        DWORD DirResult = GetFileAttributesA(Dir.c_str());
-        if (DirResult != INVALID_FILE_ATTRIBUTES && (DirResult & FILE_ATTRIBUTE_DIRECTORY))
-        {
-            std::string jsonPath = Dir + "\\*.json";
+	DWORD DirResult = GetFileAttributesA(Dir.c_str());
+	if (DirResult != INVALID_FILE_ATTRIBUTES && (DirResult & FILE_ATTRIBUTE_DIRECTORY))
+	{
+	    std::string jsonPath = Dir + "\\*.json";
 
-            WIN32_FIND_DATAA FileData;
-            HANDLE ResultHandle = FindFirstFileA(jsonPath.c_str(), &FileData);
+	    WIN32_FIND_DATAA FileData;
+	    HANDLE ResultHandle = FindFirstFileA(jsonPath.c_str(), &FileData);
 
-            if (ResultHandle != INVALID_HANDLE_VALUE)
-            {
-                std::string jsonFilePath = Dir + "\\" + FileData.cFileName;
+	    if (ResultHandle != INVALID_HANDLE_VALUE)
+	    {
+		std::string jsonFilePath = Dir + "\\" + FileData.cFileName;
 
-                HEMAX_ShelfTool Tool = DeserializeJsonObj(jsonFilePath);
-                if (Tool.Valid)
-                {
-                    ShelfDirectory.AddShelfTool(Tool);
-                }
+		HEMAX_ShelfTool Tool = DeserializeJsonObj(jsonFilePath);
+		if (Tool.Valid)
+		{
+		    ShelfDirectory.AddShelfTool(Tool);
+		}
 
-                while (FindNextFileA(ResultHandle, &FileData))
-                {
-                    jsonFilePath = Dir + "\\" + FileData.cFileName;
-                    Tool = DeserializeJsonObj(jsonFilePath);
-                    if (Tool.Valid)
-                    {
-                        ShelfDirectory.AddShelfTool(Tool);
-                    }
-                }
-            }
-        }
+		while (FindNextFileA(ResultHandle, &FileData))
+		{
+		    jsonFilePath = Dir + "\\" + FileData.cFileName;
+		    Tool = DeserializeJsonObj(jsonFilePath);
+		    if (Tool.Valid)
+		    {
+			ShelfDirectory.AddShelfTool(Tool);
+		    }
+		}
+	    }
+	}
 
-        if (DefaultShelf)
-        {
-            ShelfDirectory.MarkAsDefaultShelf();
-        }
+	if (DefaultShelf)
+	{
+	    ShelfDirectory.MarkAsDefaultShelf();
+	}
 
-        Shelves.insert({ Dir, ShelfDirectory });
+	Shelves.insert({ Dir, ShelfDirectory });
     }
 }
 
@@ -76,7 +76,7 @@ HEMAX_Shelf::RemoveShelfDirectory(const std::string& Dir)
 
     if (DirLocation != Shelves.end())
     {
-        Shelves.erase(DirLocation);
+	Shelves.erase(DirLocation);
     }
 }
 
@@ -86,7 +86,7 @@ HEMAX_Shelf::GetShelfDirectories()
     std::vector<std::string> ShelfDirectories;
     for (auto It = Shelves.begin(); It != Shelves.end(); It++)
     {
-        ShelfDirectories.push_back(It->first);
+	ShelfDirectories.push_back(It->first);
     }
     return ShelfDirectories;
 }
@@ -97,7 +97,7 @@ HEMAX_Shelf::GetShelfDirectory(std::string Dir)
     auto Search = Shelves.find(Dir);
     if (Search != Shelves.end())
     {
-        return Search->second;
+	return Search->second;
     }
 
     return HEMAX_ShelfDirectory();
@@ -109,11 +109,11 @@ HEMAX_Shelf::GetShelf(std::string ShelfDir)
     auto Search = Shelves.find(ShelfDir);
     if (Search != Shelves.end())
     {
-        return Search->second.GetShelf();
+	return Search->second.GetShelf();
     }
     else
     {
-        return nullptr;
+	return nullptr;
     }
 }
 
@@ -125,29 +125,29 @@ HEMAX_Shelf::SaveShelfToJson(std::string Dir)
 
     if (JsonFile.is_open())
     {
-        json JsonObj;
-        json ShelfDirectories;
-        json ShelfDir;
+	json JsonObj;
+	json ShelfDirectories;
+	json ShelfDir;
 
-        for (auto It = Shelves.begin(); It != Shelves.end(); It++)
-        {
-            if (!It->second.IsDefaultShelf())
-            {
-                ShelfDir["path"] = It->second.GetDirectory();
-                ShelfDir["name"] = It->second.GetName();
+	for (auto It = Shelves.begin(); It != Shelves.end(); It++)
+	{
+	    if (!It->second.IsDefaultShelf())
+	    {
+		ShelfDir["path"] = It->second.GetDirectory();
+		ShelfDir["name"] = It->second.GetName();
 
-                ShelfDirectories.push_back(ShelfDir);
-            }
-        }
+		ShelfDirectories.push_back(ShelfDir);
+	    }
+	}
 
-        JsonObj["shelves"] = ShelfDirectories;
+	JsonObj["shelves"] = ShelfDirectories;
 
-        JsonFile << JsonObj.dump(4) << std::endl;
+	JsonFile << JsonObj.dump(4) << std::endl;
     }
     else
     {
-        std::string Warning = "Attempting to save Houdini Engine shelf information to [" + Path + "], but could not open the file";
-        HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
+	std::string Warning = "Attempting to save Houdini Engine shelf information to [" + Path + "], but could not open the file";
+	HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
     }
 }
 
@@ -159,31 +159,31 @@ HEMAX_Shelf::LoadShelvesFromJson(std::string Dir)
 
     if (JsonFile.is_open())
     {
-        json JsonData;
-        
-        try
-        {
-            JsonFile >> JsonData;
-            json ShelfObj = JsonData.at("shelves");
+	json JsonData;
 
-            for (json::iterator It = ShelfObj.begin(); It != ShelfObj.end(); It++)
-            {
-                std::string ShelfName = (*It).at("name").get<std::string>();
-                std::string ShelfDir = (*It).at("path").get<std::string>();
+	try
+	{
+	    JsonFile >> JsonData;
+	    json ShelfObj = JsonData.at("shelves");
 
-                AddShelfDirectory(ShelfDir, ShelfName);
-            }
-        }
-        catch (...)
-        {
-            std::string Warning = "Problem encountered while attempting to deserialize [" + Path + "]";
-            HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
-        }
+	    for (json::iterator It = ShelfObj.begin(); It != ShelfObj.end(); It++)
+	    {
+		std::string ShelfName = (*It).at("name").get<std::string>();
+		std::string ShelfDir = (*It).at("path").get<std::string>();
+
+		AddShelfDirectory(ShelfDir, ShelfName);
+	    }
+	}
+	catch (...)
+	{
+	    std::string Warning = "Problem encountered while attempting to deserialize [" + Path + "]";
+	    HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
+	}
     }
     else
     {
-        std::string Warning = "Attempting to read Houdini Engine shelf information from [" + Path + "], but could not open the file";
-        HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
+	std::string Warning = "Attempting to read Houdini Engine shelf information from [" + Path + "], but could not open the file";
+	HEMAX_Logger::Instance().AddEntry(Warning, HEMAX_LOG_LEVEL_WARN);
     }
 }
 
@@ -192,7 +192,7 @@ HEMAX_Shelf::LoadToolAssets()
 {
     for (auto It = Shelves.begin(); It != Shelves.end(); It++)
     {
-        It->second.LoadAllShelfAssets(HdaStore);
+	It->second.LoadAllShelfAssets(HdaStore);
     }
 }
 

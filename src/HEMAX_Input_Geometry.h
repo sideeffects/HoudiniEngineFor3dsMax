@@ -7,20 +7,18 @@
 
 class HEMAX_Input_Geometry : public HEMAX_Input
 {
-public:
-    HEMAX_Input_Geometry(ULONG MaxNode);
-    HEMAX_Input_Geometry(HEMAX_InputType Type, int Id, ULONG MaxNode);
-    HEMAX_Input_Geometry(HEMAX_InputType Type, TriObject* MaxTriObject);
-    HEMAX_Input_Geometry(HEMAX_InputType Type, PolyObject* MaxPolyObject, INode* MaxNode);
-    ~HEMAX_Input_Geometry();
+    public:
+	HEMAX_Input_Geometry(ULONG MaxNode);
+	HEMAX_Input_Geometry(HEMAX_InputType Type, int Id, ULONG MaxNode);
+	HEMAX_Input_Geometry(HEMAX_InputType Type, PolyObject* MaxPolyObject, INode* MaxNode);
+	~HEMAX_Input_Geometry();
 
-    void RebuildAfterChange() override;
+	void RebuildAfterChange() override;
 
-private:
-    void BuildInputNode();
+    private:
+	void BuildInputNode();
 
-    void BuildGeometryForInputNode(HEMAX_Node* Node, Mesh& MaxMesh, std::string InputNodeName, HEMAX_MaxTransform NodeTransform);
-    void BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& MaxMesh, std::string InputNodeName, HEMAX_MaxTransform NodeTransform, INode* MaxNode);
+	void BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& MaxMesh, std::string InputNodeName, HEMAX_MaxTransform NodeTransform, INode* MaxNode);
 
-    HAPI_TransformEuler EulerTM;
+	HAPI_TransformEuler EulerTM;
 };

@@ -1,87 +1,86 @@
 #pragma once
 
 #include "HEMAX_ParameterWidget.h"
-#include "../HEMAX_3dsmaxHda.h"
+
+class HEMAX_3dsmaxHda;
+class HEMAX_Plugin;
 
 class HEMAX_MaxHoudiniAssetWidget : public HEMAX_ParameterWidget
 {
     Q_OBJECT
 
-public:
+    public:
 
-    HEMAX_MaxHoudiniAssetWidget();
-    ~HEMAX_MaxHoudiniAssetWidget();
+	HEMAX_MaxHoudiniAssetWidget(HEMAX_Plugin* ActivePlugin);
+	~HEMAX_MaxHoudiniAssetWidget();
 
-    void SetSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock);
+	void SetSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock);
 
-    void RefreshParameterUI(bool DeleteLater = true);
-    HEMAX_3dsmaxHda* GetCurrentHdaSelection();
+	void RefreshParameterUI(bool DeleteLater = true);
+	HEMAX_3dsmaxHda* GetCurrentHdaSelection();
 
-    bool IsSelectionLocked();
-    void HandleLockSelectionButtonChanged(int Locked);
+	bool IsSelectionLocked();
+	void HandleLockSelectionButtonChanged(int Locked);
 
-private:
+    private:
+        
+        HEMAX_Plugin* Plugin;
+	HEMAX_3dsmaxHda* Selection;
+	void UpdateWidget();
+	void PushSubnetworkInputNames();
+	void PushParameterInputNames();
 
-    HEMAX_3dsmaxHda* Selection;
-    void UpdateWidget();
-    void PushSubnetworkInputNames();
-    void PushParameterInputNames();
+    private:
 
-    QWidget* HdaActionButtons;
-    QGridLayout* HdaActionButtonsLayout;
+	QWidget* HdaActionButtons;
+	QGridLayout* HdaActionButtonsLayout;
 
-    QPushButton* RecookHdaButton;
-    QPushButton* ReloadHdaButton;
+	QPushButton* RecookHdaButton;
+	QPushButton* ReloadHdaButton;
 
-    QPushButton* BakeHdaButton;
-    QPushButton* CloneHdaButton;
-    QPushButton* CopyToNodeButton;
+	QPushButton* BakeHdaButton;
+	QPushButton* CloneHdaButton;
+	QPushButton* CopyToNodeButton;
 
-    QGroupBox* MHAOptionsBox;
-    QGridLayout* MHAOptionsBoxLayout;
-    QCheckBox* MHAOptions_PushTransformToHAPI;
-    QCheckBox* MHAOptions_ApplyHAPITransformToNode;
+	QGroupBox* MHAOptionsBox;
+	QGridLayout* MHAOptionsBoxLayout;
+	QCheckBox* MHAOptions_PushTransformToHAPI;
+	QCheckBox* MHAOptions_ApplyHAPITransformToNode;
 
-    // Advanced Options Box //
+	// Advanced Options Box //
 
-    QGroupBox* AdvancedOptionsBox;
-    QGridLayout* AdvancedOptionsLayout;
-    QCheckBox* AdvancedOptionsEnabledCheckbox;
-    
-    QWidget* AdvancedOptions_Widget;
-    QGridLayout* AdvancedOptions_WidgetLayout;
-    QLabel* AdvancedOptions_HDAPathLabel;
-    QLineEdit* AdvancedOptions_HDAPath;
-    QPushButton* AdvancedOptions_HDAPathSave;
+	QGroupBox* AdvancedOptionsBox;
+	QGridLayout* AdvancedOptionsLayout;
+	QCheckBox* AdvancedOptionsEnabledCheckbox;
 
-    //////////////////////////
+	QWidget* AdvancedOptions_Widget;
+	QGridLayout* AdvancedOptions_WidgetLayout;
+	QLabel* AdvancedOptions_HDAPathLabel;
+	QLineEdit* AdvancedOptions_HDAPath;
+	QPushButton* AdvancedOptions_HDAPathSave;
 
-    void CreateMHAOptionsUI();
-    void CreateAdvancedOptionsUI();
+	//////////////////////////
 
-    void UpdateAdvancedOptionsUI();
-    void HideHdaActionButtonsUI();
-    void UpdateHdaActionButtonsUI(HEMAX_HdaType HdaType);
-    
-private slots:
+	void CreateMHAOptionsUI();
+	void CreateAdvancedOptionsUI();
 
-    virtual void Slot_LockSelectionButton_Clicked() override;
+	void UpdateAdvancedOptionsUI();
+	void HideHdaActionButtonsUI();
+	void UpdateHdaActionButtonsUI(HEMAX_HdaType HdaType);
 
-    void Slot_RecookHdaButton();
-    void Slot_ReloadHdaButton();
-    void Slot_BakeHdaButton();
-    void Slot_CloneHdaButton();
-    void Slot_CopyToNodeButton();
+    private slots:
 
-    void Slot_MHAOptions_PushTransformToHAPI(int State);
-    void Slot_MHAOptions_ApplyHAPITransformToNode(int State);
+	void Slot_LockSelectionButton_Clicked() override;
 
-    void Slot_AdvancedOptionsCheckbox(int State);
-    void Slot_AdvancedOptionsHdaPathSave();
+	void Slot_RecookHdaButton();
+	void Slot_ReloadHdaButton();
+	void Slot_BakeHdaButton();
+	void Slot_CloneHdaButton();
+	void Slot_CopyToNodeButton();
 
-signals:
+	void Slot_MHAOptions_PushTransformToHAPI(int State);
+	void Slot_MHAOptions_ApplyHAPITransformToNode(int State);
 
-    void Signal_BakeHda(HEMAX_3dsmaxHda* Hda);
-    void Signal_CloneHda(HEMAX_3dsmaxHda* Hda);
-    void Signal_CopyHdaToNode(HEMAX_3dsmaxHda* Hda, INode* Node);
+	void Slot_AdvancedOptionsCheckbox(int State);
+	void Slot_AdvancedOptionsHdaPathSave();
 };

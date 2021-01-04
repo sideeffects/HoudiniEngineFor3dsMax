@@ -1,10 +1,29 @@
 #include "HEMAX_MaxHoudiniAssetWidget.h"
 
+#include "../HEMAX_3dsmaxHda.h"
+#include "../HEMAX_GeometryHda.h"
+#include "../HEMAX_Plugin.h"
+#include "../HEMAX_UserPrefs.h"
+
 #include "HEMAX_AssetSelection.h"
 
 #include "moc_HEMAX_MaxHoudiniAssetWidget.cpp"
 
-HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget() : Selection(nullptr)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
+#include <QtWidgets/qmessagebox.h>
+#endif
+
+#ifdef HEMAX_VERSION_2017
+#include <QtGui/qmessagebox.h>
+#endif
+
+HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
+                                HEMAX_Plugin* ActivePlugin)
+    : Plugin(ActivePlugin)
+    , Selection(nullptr)
 {
     HdaActionButtons = new QWidget;
     HdaActionButtonsLayout = new QGridLayout;
@@ -38,15 +57,43 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget() : Selection(nullptr)
     MHAOptionsBox->setVisible(false);
     AdvancedOptionsBox->setVisible(false);
 
-    QObject::connect(RecookHdaButton, SIGNAL(clicked()), this, SLOT(Slot_RecookHdaButton()));
-    QObject::connect(ReloadHdaButton, SIGNAL(clicked()), this, SLOT(Slot_ReloadHdaButton()));
-    QObject::connect(BakeHdaButton, SIGNAL(clicked()), this, SLOT(Slot_BakeHdaButton()));
-    QObject::connect(CloneHdaButton, SIGNAL(clicked()), this, SLOT(Slot_CloneHdaButton()));
-    QObject::connect(CopyToNodeButton, SIGNAL(clicked()), this, SLOT(Slot_CopyToNodeButton()));
-    QObject::connect(MHAOptions_PushTransformToHAPI, SIGNAL(stateChanged(int)), this, SLOT(Slot_MHAOptions_PushTransformToHAPI(int)));
-    QObject::connect(MHAOptions_ApplyHAPITransformToNode, SIGNAL(stateChanged(int)), this, SLOT(Slot_MHAOptions_ApplyHAPITransformToNode(int)));
-    QObject::connect(AdvancedOptionsEnabledCheckbox, SIGNAL(stateChanged(int)), this, SLOT(Slot_AdvancedOptionsCheckbox(int)));
-    QObject::connect(AdvancedOptions_HDAPathSave, SIGNAL(clicked()), this, SLOT(Slot_AdvancedOptionsHdaPathSave()));
+    QObject::connect(this, SIGNAL(Signal_CookNode(HEMAX_Node*)),
+                     this, SLOT(Slot_RecookHdaButton()));
+
+    QObject::connect(RecookHdaButton, SIGNAL(clicked()),
+                     this, SLOT(Slot_RecookHdaButton()));
+
+    QObject::connect(ReloadHdaButton, SIGNAL(clicked()),
+                     this, SLOT(Slot_ReloadHdaButton()));
+
+    QObject::connect(BakeHdaButton, SIGNAL(clicked()),
+                     this, SLOT(Slot_BakeHdaButton()));
+
+    QObject::connect(CloneHdaButton, SIGNAL(clicked()),
+                     this, SLOT(Slot_CloneHdaButton()));
+
+    QObject::connect(CopyToNodeButton, SIGNAL(clicked()),
+                     this, SLOT(Slot_CopyToNodeButton()));
+
+    QObject::connect(MHAOptions_PushTransformToHAPI,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(Slot_MHAOptions_PushTransformToHAPI(int)));
+
+    QObject::connect(MHAOptions_ApplyHAPITransformToNode,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(Slot_MHAOptions_ApplyHAPITransformToNode(int)));
+
+    QObject::connect(AdvancedOptionsEnabledCheckbox,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(Slot_AdvancedOptionsCheckbox(int)));
+
+    QObject::connect(AdvancedOptions_HDAPathSave,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(Slot_AdvancedOptionsHdaPathSave()));
 }
 
 HEMAX_MaxHoudiniAssetWidget::~HEMAX_MaxHoudiniAssetWidget()
@@ -88,7 +135,7 @@ HEMAX_MaxHoudiniAssetWidget::Slot_RecookHdaButton()
 {
     if (Selection)
     {
-        emit Signal_NodeRequiresRecook(&Selection->Hda.MainNode, false);
+        Plugin->HandleRecookRequest(&Selection->Hda.MainNode);
     }
 }
 
@@ -97,16 +144,42 @@ HEMAX_MaxHoudiniAssetWidget::Slot_ReloadHdaButton()
 {
     if (Selection)
     {
-        emit Signal_ReloadAssetDefinition(&Selection->Hda.MainNode);
+        QMessageBox ConfirmationDialog;
+        ConfirmationDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
+        ConfirmationDialog.setWindowTitle("Reload Asset Definition");
+        ConfirmationDialog.setText("This will delete and recreate all HDAs "
+                "in your scene that are using this asset definition.");
+        ConfirmationDialog.setInformativeText(
+                "Are you sure that you want to continue?");
+        ConfirmationDialog.setStandardButtons(
+                (QMessageBox::Ok | QMessageBox::Cancel));
+        int Result = ConfirmationDialog.exec();
+
+        if (Result == QMessageBox::Ok)
+        {
+            HEMAX_Node* MainNode = &(Selection->Hda.MainNode);
+
+            if (IsSelectionLocked())
+            {
+                HandleLockSelectionButtonChanged(false);
+            }
+
+            Plugin->ReloadAssetDefinition(MainNode);
+        }
     }
 }
 
 void
 HEMAX_MaxHoudiniAssetWidget::Slot_BakeHdaButton()
 {
-    if (Selection)
+    if (Selection && Selection->Type == HEMAX_GEOMETRY_HDA)
     {
-        emit Signal_BakeHda(Selection);
+        HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
+
+        bool BakeDummyObj;
+        Plugin->GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
+                                               BakeDummyObj);
+        GeometryHda->BakeGeometryHda(BakeDummyObj);
     }
 }
 
@@ -115,7 +188,7 @@ HEMAX_MaxHoudiniAssetWidget::Slot_CloneHdaButton()
 {
     if (Selection)
     {
-        emit Signal_CloneHda(Selection);
+        Plugin->CloneHda(Selection);
     }
 }
 
@@ -124,50 +197,52 @@ HEMAX_MaxHoudiniAssetWidget::Slot_CopyToNodeButton()
 {
     if (Selection)
     {
-        std::vector<std::wstring> NodeNames;
+	std::vector<std::wstring> NodeNames;
 
-        HEMAX_Utilities::GetListOfAllSceneNodes(NodeNames);
+	HEMAX_Utilities::GetListOfAllSceneNodes(NodeNames);
 
-        std::vector<std::string> NodeNamesA;
-        for (auto It = NodeNames.begin(); It != NodeNames.end(); It++)
-        {
-            NodeNamesA.push_back(std::string(It->begin(), It->end()));
-        }
+	std::vector<std::string> NodeNamesA;
+	for (auto It = NodeNames.begin(); It != NodeNames.end(); It++)
+	{
+	    NodeNamesA.push_back(std::string(It->begin(), It->end()));
+	}
 
-        HEMAX_AssetSelection NodeSelectDialog(NodeNamesA, "Node Selection", "Nodes in scene:");
-        
-        if (NodeSelectDialog.exec())
-        {
-            std::string Selected = NodeSelectDialog.GetSelectedAssetName();
+	HEMAX_AssetSelection NodeSelectDialog(NodeNamesA, "Node Selection", "Nodes in scene:");
 
-            if (!Selected.empty())
-            {
-                std::wstring Selected_W = std::wstring(Selected.begin(), Selected.end());
-                INode* SelectedNode = GetCOREInterface()->GetINodeByName(Selected_W.c_str());
-                if (SelectedNode)
-                {
-                    emit Signal_CopyHdaToNode(Selection, SelectedNode);
-                }
-            }
-        }
+	if (NodeSelectDialog.exec())
+	{
+	    std::string Selected = NodeSelectDialog.GetSelectedAssetName();
+
+	    if (!Selected.empty())
+	    {
+		std::wstring Selected_W = std::wstring(Selected.begin(), Selected.end());
+		INode* SelectedNode = GetCOREInterface()->GetINodeByName(Selected_W.c_str());
+		if (SelectedNode)
+		{
+		    Plugin->CopyHdaToNode(Selection, SelectedNode);
+		}
+	    }
+	}
     }
 }
 
 void
 HEMAX_MaxHoudiniAssetWidget::Slot_MHAOptions_PushTransformToHAPI(int State)
 {
-    if (Selection)
+    if (Selection && Selection->Type == HEMAX_GEOMETRY_HDA)
     {
-        Selection->GeometryHda.SetPushTransformsOption(State);
+	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
+	GeometryHda->SetPushTransformsOption(State);
     }
 }
 
 void
 HEMAX_MaxHoudiniAssetWidget::Slot_MHAOptions_ApplyHAPITransformToNode(int State)
 {
-    if (Selection)
+    if (Selection && Selection->Type == HEMAX_GEOMETRY_HDA)
     {
-        Selection->GeometryHda.SetApplyHAPITransformOption(State);
+	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
+	GeometryHda->SetApplyHAPITransformOption(State);
     }
 }
 
@@ -176,13 +251,13 @@ HEMAX_MaxHoudiniAssetWidget::SetSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock
 {
     if (ForceUnlock && SelectionLocked)
     {
-        Slot_LockSelectionButton_Clicked();
+	Slot_LockSelectionButton_Clicked();
     }
 
     if (!SelectionLocked)
     {
-        Selection = Hda;
-        UpdateWidget();
+	Selection = Hda;
+	UpdateWidget();
     }
 }
 
@@ -193,32 +268,35 @@ HEMAX_MaxHoudiniAssetWidget::UpdateWidget()
 
     if (!Selection)
     {
-        SelectHDA(false);
+	SelectHDA(false);
     }
     else if (Selection->Type == HEMAX_GEOMETRY_HDA)
     {
-        UpdateHdaActionButtonsUI(Selection->Type);
-        SelectHDA(&Selection->Hda.MainNode);
-        // Hide for now
-        //MHAOptionsBox->setVisible(true);
-        MHAOptions_PushTransformToHAPI->setChecked(Selection->GeometryHda.IsPushTransformsOptionEnabled());
-        MHAOptions_ApplyHAPITransformToNode->setChecked(Selection->GeometryHda.ShouldApplyHAPITransform());
-        AdvancedOptionsBox->setVisible(true);
-        PushSubnetworkInputNames();
-	    PushParameterInputNames();
+	UpdateHdaActionButtonsUI(Selection->Type);
+	SelectHDA(&Selection->Hda.MainNode);
+	// Hide for now
+	//MHAOptionsBox->setVisible(true);
+	
+	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
+
+	MHAOptions_PushTransformToHAPI->setChecked(GeometryHda->IsPushTransformsOptionEnabled());
+	MHAOptions_ApplyHAPITransformToNode->setChecked(GeometryHda->ShouldApplyHAPITransform());
+	AdvancedOptionsBox->setVisible(true);
+	PushSubnetworkInputNames();
+	PushParameterInputNames();
     }
     else if (Selection->Type == HEMAX_MODIFIER_HDA)
     {
-        SelectHDA(&Selection->Hda.MainNode);
-        UpdateHdaActionButtonsUI(Selection->Type);
-        AdvancedOptionsBox->setVisible(true);
-        
-        if (Selection->Hda.MainNode.Info.inputCount > 0)
-        {
-            DisableSubnetworkInputUI(0);
-        }
-        PushSubnetworkInputNames();
-	    PushParameterInputNames();
+	SelectHDA(&Selection->Hda.MainNode);
+	UpdateHdaActionButtonsUI(Selection->Type);
+	AdvancedOptionsBox->setVisible(true);
+
+	if (Selection->Hda.MainNode.Info.inputCount > 0)
+	{
+	    DisableSubnetworkInputUI(0);
+	}
+	PushSubnetworkInputNames();
+	PushParameterInputNames();
     }
 
     UpdateAdvancedOptionsUI();
@@ -229,21 +307,21 @@ HEMAX_MaxHoudiniAssetWidget::PushSubnetworkInputNames()
 {
     if (Selection)
     {
-        for (int i = 0; i < SubnetworkInputs.size(); i++)
-        {
-            if (SubnetworkInputs[i])
-            {
-                if (Selection->SubnetworkNodeInputs[i])
-                {
-                    INode* InputNode = GetCOREInterface()->GetINodeByHandle(Selection->SubnetworkNodeInputs[i]->MaxInput->Get3dsMaxNodeHandle());
-                    std::wstring WideName = InputNode->GetName();
-                    std::string InputNodeName = std::string(WideName.begin(), WideName.end());
+	for (int i = 0; i < SubnetworkInputs.size(); i++)
+	{
+	    if (SubnetworkInputs[i])
+	    {
+		if (Selection->SubnetworkNodeInputs[i])
+		{
+		    INode* InputNode = GetCOREInterface()->GetINodeByHandle(Selection->SubnetworkNodeInputs[i]->MaxInput->Get3dsMaxNodeHandle());
+		    std::wstring WideName = InputNode->GetName();
+		    std::string InputNodeName = std::string(WideName.begin(), WideName.end());
 
-                    HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(SubnetworkInputs[i]);
-                    NodePWidget->SetInputName(InputNodeName);
-                }
-            }
-        }
+		    HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(SubnetworkInputs[i]);
+		    NodePWidget->SetInputName(InputNodeName);
+		}
+	    }
+	}
     }
 }
 
@@ -252,26 +330,26 @@ HEMAX_MaxHoudiniAssetWidget::PushParameterInputNames()
 {
     if (Selection)
     {
-	    for (int i = 0; i < ParameterWidgets.size(); i++)
+	for (int i = 0; i < OpParmWidgets.size(); i++)
+	{
+	    if (OpParmWidgets[i])
 	    {
-	        if (ParameterWidgets[i])
-	        {
-		        HEMAX_ParameterWidget_Parameter* PWidget = dynamic_cast<HEMAX_ParameterWidget_Parameter*>(ParameterWidgets[i]);
-		        HEMAX_ParameterId ParmId = PWidget->GetParameterId();
+		HEMAX_ParameterWidget_Parameter* PWidget = dynamic_cast<HEMAX_ParameterWidget_Parameter*>(OpParmWidgets[i]);
+		HEMAX_ParameterId ParmId = PWidget->GetParameterId();
 
-		        auto Search = Selection->InputNodeMap.find(ParmId);
+		auto Search = Selection->InputNodeMap.find(ParmId);
 
-		        if (Search != Selection->InputNodeMap.end())
-		        {
-		            INode* InputNode = GetCOREInterface()->GetINodeByHandle(Search->second->MaxInput->Get3dsMaxNodeHandle());
-		            std::wstring WideName = InputNode->GetName();
-		            std::string InputNodeName = std::string(WideName.begin(), WideName.end());
+		if (Search != Selection->InputNodeMap.end())
+		{
+		    INode* InputNode = GetCOREInterface()->GetINodeByHandle(Search->second->MaxInput->Get3dsMaxNodeHandle());
+		    std::wstring WideName = InputNode->GetName();
+		    std::string InputNodeName = std::string(WideName.begin(), WideName.end());
 
-		            HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(PWidget);
-		            NodePWidget->SetInputName(InputNodeName);
-		        }
-	        }
+		    HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(PWidget);
+		    NodePWidget->SetInputName(InputNodeName);
+		}
 	    }
+	}
     }
 }
 
@@ -280,12 +358,12 @@ HEMAX_MaxHoudiniAssetWidget::RefreshParameterUI(bool DeleteLater)
 {
     RefreshUI(DeleteLater);
 
-    if (Selection->Type == HEMAX_MODIFIER_HDA)
+    if (Selection && Selection->Type == HEMAX_MODIFIER_HDA)
     {
-        if (Selection->Hda.MainNode.Info.inputCount > 0)
-        {
-            DisableSubnetworkInputUI(0);
-        }
+	if (Selection->Hda.MainNode.Info.inputCount > 0)
+	{
+	    DisableSubnetworkInputUI(0);
+	}
     }
     PushSubnetworkInputNames();
     PushParameterInputNames();
@@ -309,11 +387,11 @@ HEMAX_MaxHoudiniAssetWidget::HandleLockSelectionButtonChanged(int Locked)
     // This means it's about to be unlocked
     if (!Locked)
     {
-        Selection = nullptr;
-        HideHdaActionButtonsUI();
+	Selection = nullptr;
+	HideHdaActionButtonsUI();
     }
 
-    HEMAX_ParameterWidget::Slot_LockSelectionButton_Clicked();
+    HEMAX_ParameterWidget::SetSelectionLocked(Locked);
 }
 
 void
@@ -367,11 +445,11 @@ HEMAX_MaxHoudiniAssetWidget::Slot_AdvancedOptionsCheckbox(int State)
 {
     if (State)
     {
-        AdvancedOptions_Widget->setHidden(false);
+	AdvancedOptions_Widget->setHidden(false);
     }
     else
     {
-        AdvancedOptions_Widget->setHidden(true);
+	AdvancedOptions_Widget->setHidden(true);
     }
 }
 
@@ -380,7 +458,7 @@ HEMAX_MaxHoudiniAssetWidget::Slot_AdvancedOptionsHdaPathSave()
 {
     if (Selection)
     {
-        SetHardcodedHdaAssetPath((*Selection), AdvancedOptions_HDAPath->text().toStdString());
+	Selection->SetHardcodedHdaAssetPath(AdvancedOptions_HDAPath->text().toStdString());
     }
 }
 
@@ -389,11 +467,11 @@ HEMAX_MaxHoudiniAssetWidget::UpdateAdvancedOptionsUI()
 {
     if (Selection)
     {
-        AdvancedOptions_HDAPath->setText(GetHardcodedHdaAssetPath((*Selection)).c_str());
+	AdvancedOptions_HDAPath->setText(Selection->GetHardcodedHdaAssetPath().c_str());
     }
     else
     {
-        AdvancedOptions_HDAPath->setText("");
+	AdvancedOptions_HDAPath->setText("");
     }
 }
 
@@ -414,26 +492,26 @@ HEMAX_MaxHoudiniAssetWidget::UpdateHdaActionButtonsUI(HEMAX_HdaType HdaType)
 {
     if (HdaType == HEMAX_GEOMETRY_HDA)
     {
-        RecookHdaButton->setVisible(true);
-        ReloadHdaButton->setVisible(true);
-        BakeHdaButton->setVisible(true);
-        CloneHdaButton->setVisible(true);
-        CopyToNodeButton->setVisible(false);
+	RecookHdaButton->setVisible(true);
+	ReloadHdaButton->setVisible(true);
+	BakeHdaButton->setVisible(true);
+	CloneHdaButton->setVisible(true);
+	CopyToNodeButton->setVisible(false);
 
-        HdaActionButtonsLayout->removeWidget(CopyToNodeButton);
-        HdaActionButtonsLayout->removeWidget(BakeHdaButton);
-        HdaActionButtonsLayout->addWidget(BakeHdaButton, 1, 0);
+	HdaActionButtonsLayout->removeWidget(CopyToNodeButton);
+	HdaActionButtonsLayout->removeWidget(BakeHdaButton);
+	HdaActionButtonsLayout->addWidget(BakeHdaButton, 1, 0);
     }
     else if (HdaType == HEMAX_MODIFIER_HDA)
     {
-        RecookHdaButton->setVisible(true);
-        ReloadHdaButton->setVisible(true);
-        BakeHdaButton->setVisible(false);
-        CloneHdaButton->setVisible(true);
-        CopyToNodeButton->setVisible(true);
+	RecookHdaButton->setVisible(true);
+	ReloadHdaButton->setVisible(true);
+	BakeHdaButton->setVisible(false);
+	CloneHdaButton->setVisible(true);
+	CopyToNodeButton->setVisible(true);
 
-        HdaActionButtonsLayout->removeWidget(CopyToNodeButton);
-        HdaActionButtonsLayout->removeWidget(BakeHdaButton);
-        HdaActionButtonsLayout->addWidget(CopyToNodeButton, 1, 0);
+	HdaActionButtonsLayout->removeWidget(CopyToNodeButton);
+	HdaActionButtonsLayout->removeWidget(BakeHdaButton);
+	HdaActionButtonsLayout->addWidget(CopyToNodeButton, 1, 0);
     }
 }

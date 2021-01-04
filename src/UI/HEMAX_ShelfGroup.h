@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qbuttongroup.h>
@@ -28,24 +31,24 @@ class HEMAX_ShelfGroup : public QWidget
 {
     Q_OBJECT
 
-public:
-    HEMAX_ShelfGroup();
-    ~HEMAX_ShelfGroup();
+    public:
+	HEMAX_ShelfGroup();
+	~HEMAX_ShelfGroup();
 
-    void AddShelfTool(std::string Name, std::string IconPath, std::string ToolTip, std::string HelpUrl);
+	void AddShelfTool(std::string Name, std::string IconPath, std::string ToolTip, std::string HelpUrl);
 
-    int GetSelectedButtonId();
+	int GetSelectedButtonId();
 
-private:
-    QGridLayout * Layout;
-    QButtonGroup* ButtonGroup;
-    QWidget* ButtonWidget;
-    QGridLayout* ButtonLayout;
-    std::vector<QToolButton*> Buttons;
+    private:
+	QGridLayout * Layout;
+	QButtonGroup* ButtonGroup;
+	QWidget* ButtonWidget;
+	QGridLayout* ButtonLayout;
+	std::vector<QToolButton*> Buttons;
 
-    std::string ContextMenuUrl;
+	std::string ContextMenuUrl;
 
-private slots:
-    void SlotShowAssetContextMenu(QPoint);
-    void SlotOpenHelpUrl();
+    private slots:
+	void SlotShowAssetContextMenu(QPoint);
+	void SlotOpenHelpUrl();
 };

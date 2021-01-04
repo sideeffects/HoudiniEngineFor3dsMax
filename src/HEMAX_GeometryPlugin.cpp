@@ -4,19 +4,15 @@
 
 static HEMAX_GeometryMouseCallback GlobalGeometryPluginMouseCallback;
 
-HEMAX_GeometryPlugin::HEMAX_GeometryPlugin()
+HEMAX_GeometryPlugin::HEMAX_GeometryPlugin(bool TimeDependent)
 {
     Mesh = nullptr;
     IsStranded = true;
+    IsTimeDependent = TimeDependent;
 }
 
 HEMAX_GeometryPlugin::~HEMAX_GeometryPlugin()
 {
-    if (Mesh)
-    {
-        delete Mesh;
-        Mesh = nullptr;
-    }
 }
 
 ClassDesc2*
@@ -34,7 +30,7 @@ HEMAX_GeometryPlugin::ClassID()
 ReferenceTarget*
 HEMAX_GeometryPlugin::Clone(RemapDir& Remap)
 {
-    ReferenceTarget* TheClone = new HEMAX_GeometryPlugin();
+    ReferenceTarget* TheClone = new HEMAX_GeometryPlugin(IsTimeDependent);
     BaseClone(this, TheClone, Remap);
     return TheClone;
 }
@@ -51,9 +47,17 @@ HEMAX_GeometryPlugin::BuildMesh(TimeValue Time)
 {
     if (Mesh)
     {
-        ivalid = Interval(Time, Time);
-        Mesh->MarshallDataInto3dsMaxMNMesh(polyMesh);
+	Mesh->MarshallDataInto3dsMaxMNMesh(polyMesh);
     }
+    else
+    {
+	polyMesh.ClearAndFree();
+    }
+
+    if (IsTimeDependent)
+        ivalid = Interval(Time, Time);
+    else
+        ivalid = FOREVER;
 }
 
 void

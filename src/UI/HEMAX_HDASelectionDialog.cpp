@@ -19,7 +19,7 @@ HEMAX_HDASelectionDialog::HEMAX_HDASelectionDialog(std::vector<std::string> Asse
     HDASelectionLayout = new QVBoxLayout;
     HDASelectionList = new QListWidget;
     HDASelectionButton = new QPushButton("Select");
-    
+
     MainLayout->setAlignment(Qt::AlignTop);
     HDASelectionBox->setAlignment(Qt::AlignTop);
 
@@ -34,10 +34,10 @@ HEMAX_HDASelectionDialog::HEMAX_HDASelectionDialog(std::vector<std::string> Asse
 
     for (int i = 0; i < AssetPaths.size(); ++i)
     {
-        QFileInfo HDAFile(AssetPaths[i].c_str());
+	QFileInfo HDAFile(AssetPaths[i].c_str());
 
-        HDASelectionList->addItem(HDAFile.fileName());
-        HDASelectionList->item(i)->setToolTip(AssetPaths[i].c_str());
+	HDASelectionList->addItem(HDAFile.fileName());
+	HDASelectionList->item(i)->setToolTip(AssetPaths[i].c_str());
     }
 
     HDASelectionList->sortItems();
@@ -63,11 +63,11 @@ HEMAX_HDASelectionDialog::SlotSelectionButtonClicked()
 {
     if (CurrentSelection == "")
     {
-        this->done(0);
+	this->done(0);
     }
     else
     {
-        this->done(1);
+	this->done(1);
     }
 }
 

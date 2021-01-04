@@ -1,7 +1,9 @@
 #pragma once
 
-#include <string>
 #include <log.h>
+
+#include <string>
+#include <vector>
 
 typedef enum
 {
@@ -13,27 +15,27 @@ typedef enum
 
 class HEMAX_Logger
 {
-public:
-    static HEMAX_Logger& Instance();
+    public:
+	static HEMAX_Logger& Instance();
 
-    void AddEntry(std::string Log, HEMAX_LogLevel LogLevel);
-    void AddEntry(const char* Log, HEMAX_LogLevel LogLevel);
+	void AddEntry(std::string Log, HEMAX_LogLevel LogLevel);
+	void AddEntry(const char* Log, HEMAX_LogLevel LogLevel);
 
-    void ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel);
-    void ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel);
+	void ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel);
+	void ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel);
 
-    void ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print);
+	void ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print);
 
-    ~HEMAX_Logger();
-private:
-    HEMAX_Logger();
+	~HEMAX_Logger();
+    private:
+	HEMAX_Logger();
 
-    const wchar_t* ConvertToWideChar(std::string Msg);
-    const wchar_t* ConvertToWideChar(const char* Msg);
+	const wchar_t* ConvertToWideChar(std::string Msg);
+	const wchar_t* ConvertToWideChar(const char* Msg);
 
-    bool ShouldPrint(HEMAX_LogLevel Level);
+	bool ShouldPrint(HEMAX_LogLevel Level);
 
-    bool PrintErrorLogs;
-    bool PrintWarnLogs;
-    bool PrintInfoLogs;
+	bool PrintErrorLogs;
+	bool PrintWarnLogs;
+	bool PrintInfoLogs;
 };

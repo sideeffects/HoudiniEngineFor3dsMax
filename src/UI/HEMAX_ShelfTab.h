@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qpushbutton.h>
@@ -32,68 +35,67 @@ const int HEMAX_ShelfTab_NameDialog_Height = 300;
 
 const int HEMAX_ShelfTab_ComboBox_MinWidth = 300;
 
+class HEMAX_Plugin;
+
 class HEMAX_ShelfTab : public QWidget
 {
     Q_OBJECT
 
-public:
-    HEMAX_ShelfTab(bool Active);
-    HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf, bool Active);
-    ~HEMAX_ShelfTab();
+    public:
+	HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin, bool Active);
+	HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin,
+                       HEMAX_Shelf* const ToolShelf,
+                       bool Active);
+	~HEMAX_ShelfTab();
 
-    void SetShelf(HEMAX_Shelf* const ToolShelf);
+	void SetShelf(HEMAX_Shelf* const ToolShelf);
 
-    void Update();
+	void Update();
 
-    void DisableShelf();
-    void EnableShelf();
+	void DisableShelf();
+	void EnableShelf();
 
-private:
-    HEMAX_Shelf* Shelf;
+    private:
+        HEMAX_Plugin* Plugin;
+	HEMAX_Shelf* Shelf;
 
-    QGridLayout* MainLayout;
-    QPushButton* ConfigurationButton;
-    QPushButton* AddShelfDirButton;
-    QPushButton* RemoveShelfDirButton;
-    QPushButton* ReloadShelfDirButton;
+	QGridLayout* MainLayout;
+	QPushButton* ConfigurationButton;
+	QPushButton* AddShelfDirButton;
+	QPushButton* RemoveShelfDirButton;
+	QPushButton* ReloadShelfDirButton;
 
-    QWidget* ShelfSelectionWidget;
-    QHBoxLayout* ShelfSelectionWidgetLayout;
-    QLabel* ShelfLabel;
-    QComboBox* ShelfComboBox;
+	QWidget* ShelfSelectionWidget;
+	QHBoxLayout* ShelfSelectionWidgetLayout;
+	QLabel* ShelfLabel;
+	QComboBox* ShelfComboBox;
 
-    QWidget* ShelfWidgetContainer;
-    QGridLayout* ShelfWidgetLayout;
-    std::unordered_map<std::string, HEMAX_ShelfGroup*> ShelfWidgets;
+	QWidget* ShelfWidgetContainer;
+	QGridLayout* ShelfWidgetLayout;
+	std::unordered_map<std::string, HEMAX_ShelfGroup*> ShelfWidgets;
 
-    QPushButton* CreateObjectButton;
-    QPushButton* CreateModifiersButton;
-    
-    QWidget* WarningWidget;
-    QVBoxLayout* WarningLayout;
-    QLabel* NoActiveSessionWarning;
+	QPushButton* CreateObjectButton;
+	QPushButton* CreateModifiersButton;
 
-    std::string ActiveShelf;
+	QWidget* WarningWidget;
+	QVBoxLayout* WarningLayout;
+	QLabel* NoActiveSessionWarning;
 
-    void DeleteShelfWidgets();
+	std::string ActiveShelf;
 
-    void HideConfiguration();
-    void OpenConfiguration();
+	void DeleteShelfWidgets();
 
-private slots:
-    void Slot_ConfigurationButton_Clicked();
-    void Slot_AddShelfDirButton_Clicked();
-    void Slot_RemoveShelfDirButton_Clicked();
-    void Slot_ReloadShelfDirButton_Clicked();
+	void HideConfiguration();
+	void OpenConfiguration();
 
-    void Slot_CreateObjectButton_Clicked();
-    void Slot_CreateModifiersButton_Clicked();
+    private slots:
+	void Slot_ConfigurationButton_Clicked();
+	void Slot_AddShelfDirButton_Clicked();
+	void Slot_RemoveShelfDirButton_Clicked();
+	void Slot_ReloadShelfDirButton_Clicked();
 
-    void Slot_ShelfComboBox_Activated(int Index);
+	void Slot_CreateObjectButton_Clicked();
+	void Slot_CreateModifiersButton_Clicked();
 
-signals:
-    void Signal_ShelfUpdated();
-
-    void Signal_ShelfTool_CreateObject(std::string);
-    void Signal_ShelfTool_CreateModifiers(std::string);
+	void Slot_ShelfComboBox_Activated(int Index);
 };

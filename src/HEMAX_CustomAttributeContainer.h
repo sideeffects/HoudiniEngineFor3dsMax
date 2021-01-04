@@ -4,7 +4,7 @@
 #include <iparamb2.h>
 #include "HEMAX_Types.h"
 
-struct HEMAX_3dsmaxHda;
+class HEMAX_3dsmaxHda;
 
 #define HEMAX_INTEGER_PARAMETER_CLASS_ID Class_ID(0x499721d0, 0x78b55406)
 #define HEMAX_STRING_PARAMETER_CLASS_ID Class_ID(0x692d7cf8, 0x59857abe)
@@ -69,205 +69,205 @@ ClassDesc2* GetHEMAX_MultiParameterAttrib_ClassDesc();
 
 class HEMAX_ParameterAttrib : public CustAttrib
 {
-public:
-    IParamBlock2* PBlock;
+    public:
+	IParamBlock2* PBlock;
 
-    std::string GetParameterName();
+	std::string GetParameterName();
 
-    void SetParameterName(std::string Name);
-    const TCHAR* GetName();
-    SClass_ID SuperClassID();
+	void SetParameterName(std::string Name);
+	const TCHAR* GetName();
+	SClass_ID SuperClassID();
 
-    int NumRefs();
+	int NumRefs();
 
-    int NumSubs();
-    Animatable* SubAnim(int i);
-    TSTR SubAnimName(int i);
+	int NumSubs();
+	Animatable* SubAnim(int i);
+	TSTR SubAnimName(int i);
 
-    void GetClassName(MSTR& str);
+	void GetClassName(MSTR& str);
 
-    RefTargetHandle GetReference(int i);
+	RefTargetHandle GetReference(int i);
 
-    int NumParamBlocks();
-    IParamBlock2* GetParamBlock(int i);
-    IParamBlock2* GetParamBlockByID(BlockID Id);
+	int NumParamBlocks();
+	IParamBlock2* GetParamBlock(int i);
+	IParamBlock2* GetParamBlockByID(BlockID Id);
 
-    IOResult Save(ISave* Save);
-    IOResult Load(ILoad* Load);
+	IOResult Save(ISave* Save);
+	IOResult Load(ILoad* Load);
 
-protected:
-    std::string ParameterName;
-    std::wstring WideParameterName;
+    protected:
+	std::string ParameterName;
+	std::wstring WideParameterName;
 
-    void SetReference(int i, RefTargetHandle RTarget);
+	void SetReference(int i, RefTargetHandle RTarget);
 };
 
 class HEMAX_IntegerParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
-    HEMAX_IntegerParameterAttrib();
+    public:
+	HEMAX_IntegerParameterAttrib();
 
-    Class_ID ClassID();
+	Class_ID ClassID();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
-    int GetIntValue();
+	int GetIntValue();
 };
 
 class HEMAX_IntegerParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 class HEMAX_StringParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
+    public:
 
-    HEMAX_StringParameterAttrib();
+	HEMAX_StringParameterAttrib();
 
-    Class_ID ClassID();
+	Class_ID ClassID();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
-    void SetStringValue(std::string Value);
-    std::string GetStringValue();
+	void SetStringValue(std::string Value);
+	std::string GetStringValue();
 
 };
 
 class HEMAX_StringParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 class HEMAX_FloatParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
+    public:
 
-    HEMAX_FloatParameterAttrib();
+	HEMAX_FloatParameterAttrib();
 
-    Class_ID ClassID();
+	Class_ID ClassID();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
 };
 
 class HEMAX_FloatParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 class HEMAX_ToggleParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
+    public:
 
-    HEMAX_ToggleParameterAttrib();
+	HEMAX_ToggleParameterAttrib();
 
-    Class_ID ClassID();
+	Class_ID ClassID();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
 };
 
 class HEMAX_ToggleParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 class HEMAX_NodeParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
+    public:
 
-    HEMAX_NodeParameterAttrib();
-    void CreateMaxHoudiniAssetLink(INode* Hda, HEMAX_InputType InputType, int Id);
-    void UpdateOwner(INode* Hda);
-    void SetMessagesBlocked(bool Block);
-    Class_ID ClassID();
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	HEMAX_NodeParameterAttrib();
+	void CreateMaxHoudiniAssetLink(INode* Hda, HEMAX_InputType InputType, int Id);
+	void UpdateOwner(INode* Hda);
+	void SetMessagesBlocked(bool Block);
+	Class_ID ClassID();
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
-    void RefDeletedUndoRedo() override;
+	void RefDeletedUndoRedo() override;
 
-private:
-    INode* Owner;
-    HEMAX_InputType InputType;
-    int ParameterId;
-    int Subnetwork;
-    bool MessagesBlocked;
+    private:
+	INode* Owner;
+	HEMAX_InputType InputType;
+	int ParameterId;
+	int Subnetwork;
+	bool MessagesBlocked;
 
 };
 
 class HEMAX_NodeParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 class HEMAX_MultiParameterAttrib : public HEMAX_ParameterAttrib
 {
-public:
-    HEMAX_MultiParameterAttrib();
+    public:
+	HEMAX_MultiParameterAttrib();
 
-    Class_ID ClassID();
+	Class_ID ClassID();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
 };
 
 class HEMAX_MultiParameterAttrib_ClassDesc : public ClassDesc2
 {
-public:
+    public:
 
-    int IsPublic();
-    void* Create(BOOL Loading);
-    const TCHAR* ClassName();
-    SClass_ID SuperClassID();
-    Class_ID ClassID();
-    const TCHAR* Category();
-    const TCHAR* InternalName();
-    HINSTANCE HInstance();
+	int IsPublic();
+	void* Create(BOOL Loading);
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
 };
 
 bool DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int CustomAttributeIndex, std::string CustomAttributeName);

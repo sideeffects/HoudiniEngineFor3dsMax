@@ -6,7 +6,10 @@
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qmenu.h>
 #endif
 
@@ -34,7 +37,7 @@ HEMAX_ShelfGroup::~HEMAX_ShelfGroup()
 {
     for (int i = 0; i < Buttons.size(); i++)
     {
-        delete Buttons[i];
+	delete Buttons[i];
     }
 
     delete ButtonLayout;
@@ -58,7 +61,7 @@ HEMAX_ShelfGroup::AddShelfTool(std::string Name, std::string IconPath, std::stri
 
     if (!ToolTip.empty())
     {
-        ShelfButton->setToolTip(ToolTip.c_str());
+	ShelfButton->setToolTip(ToolTip.c_str());
     }
 
     int NumButtons = ButtonLayout->count();
@@ -84,21 +87,21 @@ HEMAX_ShelfGroup::SlotShowAssetContextMenu(QPoint Position)
 
     if (Item)
     {
-        std::string Url = Item->property(HEMAX_ShelfGroup_HelpProp).toString().toStdString();
+	std::string Url = Item->property(HEMAX_ShelfGroup_HelpProp).toString().toStdString();
 
-        QMenu Menu;
+	QMenu Menu;
 
-        if (Url.empty())
-        {
-            Menu.addAction("No Help URL");
-        }
-        else
-        {
-            Menu.addAction("Open Help URL", this, SLOT(SlotOpenHelpUrl()));
-            ContextMenuUrl = Url;
-        }
+	if (Url.empty())
+	{
+	    Menu.addAction("No Help URL");
+	}
+	else
+	{
+	    Menu.addAction("Open Help URL", this, SLOT(SlotOpenHelpUrl()));
+	    ContextMenuUrl = Url;
+	}
 
-        Menu.exec(MenuSpawn);
+	Menu.exec(MenuSpawn);
     }   
 }
 

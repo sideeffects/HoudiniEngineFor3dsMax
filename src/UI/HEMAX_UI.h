@@ -4,11 +4,12 @@
 #include "HEMAX_SessionWidget.h"
 #include "HEMAX_HDAWidget.h"
 #include "HEMAX_MaxHoudiniAssetWidget.h"
-#include "HEMAX_OptionsWidget.h"
-#include "HEMAX_DebugWidget.h"
 #include "HEMAX_ShelfTab.h"
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <Qt/QmaxMainWindow.h>
 #include <Qt/QmaxDockWidget.h>
 #include <QtWidgets/qscrollarea.h>
@@ -28,82 +29,64 @@
 #include <maxapi.h>
 
 class HEMAX_Plugin;
+class HEMAX_3dsmaxHda;
 
 class HEMAX_UI : public QDockWidget
 {
 
     Q_OBJECT
 
-public:
-    HEMAX_UI(QMainWindow* MainWindow);
-    ~HEMAX_UI();
+    public:
+	HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin);
+	~HEMAX_UI();
 
-    void ChangeHdaSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock = false);
-    HEMAX_3dsmaxHda* GetCurrentHdaSelection();
+	void ChangeHdaSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock = false);
+	HEMAX_3dsmaxHda* GetCurrentHdaSelection();
+        void SetSelectionLocked(bool Locked);
+	void ShowHEMAXWindow();
+	void UnshowHEMAXWindow();
+	void UpdateLoadedAssetLibrariesList();
+        void HandleHdaPreDeleteEvent(HEMAX_3dsmaxHda* Hda);
+	void Update();
 
-    void ShowHEMAXWindow();
-    void UnshowHEMAXWindow();
+    private:
 
-    void TriggerOutOfProcessSession();
+	QScrollArea* ScrollArea;
+	QTabWidget* TabContainer;
 
-    void AttachPlugin(HEMAX_Plugin* Plugin);
+	HEMAX_ShelfTab* ShelfToolsWidget;
+	HEMAX_SessionWidget* SessionWidget;
+	HEMAX_HDAWidget* HDAWidget;
+	HEMAX_MaxHoudiniAssetWidget* MHAWidget;
 
-    void UpdateLoadedAssetLibrariesList(std::vector<std::string>* LoadedAssetLibraries);
-    void HandleParameterUndoRedoEvent();
+	HEMAX_Plugin* ActivePlugin;
 
-    std::string GetCurrentAssetSelection();
-    std::string GetAssetLoadPath();
+    private slots:
 
-    void Update();
+	void HandleInputSelection(HEMAX_Node* Node,
+                                  HEMAX_Parameter Parameter,
+                                  bool ClearSelection);
 
-private:
+	void HandleSubnetworkInputSelection(HEMAX_Node*, int, bool);
 
-    QScrollArea* ScrollArea;
-    QTabWidget* TabContainer;
+	void Slot_HandleUpdateParameterIntValues(HEMAX_Node* Node,
+                                                 HEMAX_Parameter Parameter,
+                                                 std::vector<int> IntValues,
+                                                 bool DoNotRefreshUI);
 
-    HEMAX_ShelfTab* ShelfToolsWidget;
-    HEMAX_SessionWidget* SessionWidget;
-    HEMAX_HDAWidget* HDAWidget;
-    HEMAX_MaxHoudiniAssetWidget* MHAWidget;
-    HEMAX_OptionsWidget* OptionsWidget;
-    HEMAX_DebugWidget* DebugWidget;
-    
-    HEMAX_Plugin* ActivePlugin;
+	void Slot_HandleUpdateParameterFloatValues(
+                                HEMAX_Node* Node,
+                                HEMAX_Parameter Parameter,
+                                std::vector<float> FloatValues,
+                                bool DoNotRefreshUI);
 
-    void SetPluginOptions();
+	void Slot_HandleUpdateParameterStringValues(
+                                HEMAX_Node* Node,
+                                HEMAX_Parameter Parameter,
+                                std::vector<std::string> StringValues);
 
-private slots:
-
-    void LoadAssetTriggered();
-    void CreateLoadedAssetTriggered();
-    void CreateModifierHdasTriggered();
-    void HandleSessionStopped();
-    void HandleSessionStarted();
-
-    void Slot_HandleRecookRequested(HEMAX_Node* Node);
-    void Slot_ReloadAssetDefinition(HEMAX_Node* Node);
-    void Slot_BakeHda(HEMAX_3dsmaxHda* MaxHda);
-    void Slot_CloneHda(HEMAX_3dsmaxHda* MaxHda);
-    void Slot_CopyHdaToNode(HEMAX_3dsmaxHda* MaxHda, INode* Node);
-    void HandleInputSelection(HEMAX_Node* Node, HEMAX_Parameter Parameter, bool ClearSelection);
-    void HandleSubnetworkInputSelection(HEMAX_Node*, int, bool);
-    void Slot_HandleUpdateParameterIntValues(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<int> IntValues, bool DoNotRefreshUI);
-    void Slot_HandleUpdateParameterFloatValues(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<float> FloatValues, bool DoNotRefreshUI);
-    void Slot_HandleUpdateParameterStringValues(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<std::string> StringValues);
-    void Slot_HandleUpdateMultiParameterList(HEMAX_Node* Node, HEMAX_Parameter Parameter, HEMAX_MultiParameterChangeInfo ChangeInfo);
-
-    void Slot_Options_AutoSelectRoot(int Checked);
-    void Slot_Options_AutoStartSession(int Checked);
-    void Slot_Options_AutoStartWindow(int Checked);
-    void Slot_Options_AutoLoadHDADirectory(std::string Directory);
-    void Slot_Options_HdaRepoDir_EditingFinished(std::string Directory);
-    void Slot_DebugTempDirChanged(std::string Directory);
-
-    void Slot_SessionConfigPathChanged(const char* PathChanged, std::string Path);
-
-    void Slot_RemoveAsset(QString AssetPath);
-
-    void Slot_ShelfUpdated();
-    void Slot_ShelfTool_CreateObject(std::string AssetPath);
-    void Slot_ShelfTool_CreateModifiers(std::string AssetPath);
+	void Slot_HandleUpdateMultiParameterList(
+                            HEMAX_Node* Node,
+                            HEMAX_Parameter Parameter,
+                            HEMAX_MultiParameterChangeInfo ChangeInfo);
 };

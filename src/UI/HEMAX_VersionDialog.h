@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qdialog.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
@@ -14,15 +17,15 @@
 
 class HEMAX_VersionDialog : public QDialog
 {
-public:
-    HEMAX_VersionDialog();
-    ~HEMAX_VersionDialog();
+    public:
+	HEMAX_VersionDialog();
+	~HEMAX_VersionDialog();
 
-private:
-    QVBoxLayout* Layout;
-    QLabel* HoudiniInfo;
-    QLabel* HoudiniEngineInfo;
+    private:
+	QVBoxLayout* Layout;
+	QLabel* HoudiniInfo;
+	QLabel* HoudiniEngineInfo;
 
-    std::string HoudiniVersionLabel;
-    std::string HoudiniEngineVersionLabel;
+	std::string HoudiniVersionLabel;
+	std::string HoudiniEngineVersionLabel;
 };

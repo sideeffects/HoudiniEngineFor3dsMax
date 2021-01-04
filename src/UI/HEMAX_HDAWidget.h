@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qboxlayout.h>
@@ -27,58 +30,63 @@
 #define HEMAX_HDAWIDGET_MAX_LIST_HEIGHT 350
 #define HEMAX_HDAWIDGET_CREATE_BUTTONS_MIN_HEIGHT 50
 
+class HEMAX_Plugin;
+
 class HEMAX_HDAWidget : public QWidget
 {
     Q_OBJECT
 
-    friend class HEMAX_UI;
+    public:
+	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin);
+	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin, std::string AssetsBoxTitle);
+	~HEMAX_HDAWidget();
 
-public:
-    HEMAX_HDAWidget();
-    HEMAX_HDAWidget(std::string AssetsBoxTitle);
-    ~HEMAX_HDAWidget();
+	std::string GetCurrentAssetLoadPath();
+	std::string GetSelectedAssetPath();
 
-    std::string GetCurrentAssetLoadPath();
-    std::string GetSelectedAssetPath();
+	void UpdateLoadedAssetList(std::vector<std::string>* Paths);
 
-    void UpdateLoadedAssetList(std::vector<std::string>* Paths);
+	void SetAssetLoadWidgetEnabled(bool Enabled);
 
-    void SetAssetLoadWidgetEnabled(bool Enabled);
+    private:
 
-private:
+        HEMAX_Plugin* Plugin;
 
-    QVBoxLayout* MainLayout;
+    private:
 
-    QWidget* MainBox;
-    QVBoxLayout* MainBoxLayout;
+	QVBoxLayout* MainLayout;
 
-    QGroupBox* AssetLoadOptionsBox;
-    QGridLayout* AssetLoadOptionsBoxLayout;
-    QLabel* AssetLoadOptionsPathLabel;
-    QLineEdit* AssetLoadOptionsPath;
-    QPushButton* AssetLoadOptionsPathBrowse;
-    QPushButton* AssetLoadButton;
+	QWidget* MainBox;
+	QVBoxLayout* MainBoxLayout;
 
-    QGroupBox* LoadedAssetsBox;
-    QVBoxLayout* LoadedAssetsBoxLayout;
-    QListWidget* LoadedAssetsList;
-    QPushButton* LoadSelectedAssetButton;
-    QPushButton* CreateModifiersButton;
+	QGroupBox* AssetLoadOptionsBox;
+	QGridLayout* AssetLoadOptionsBoxLayout;
+	QLabel* AssetLoadOptionsPathLabel;
+	QLineEdit* AssetLoadOptionsPath;
+	QPushButton* AssetLoadOptionsPathBrowse;
+	QPushButton* AssetLoadButton;
 
-    QString SelectedAssetPath;
-    QString CurrentContextMenuSelection;
+	QGroupBox* LoadedAssetsBox;
+	QVBoxLayout* LoadedAssetsBoxLayout;
+	QListWidget* LoadedAssetsList;
+	QPushButton* LoadSelectedAssetButton;
+	QPushButton* CreateModifiersButton;
 
-private slots:
+	QString SelectedAssetPath;
+	QString CurrentContextMenuSelection;
 
-    void SlotAssetLoadOptionsPathBrowse();
-    void SlotLoadedAssetItemClicked(QListWidgetItem* Item);
+    private slots:
 
-    void SlotShowAssetContextMenu(QPoint Position);
+        void LoadAssetTriggered();
+        void CreateGeometryHdaTriggered();
+        void CreateModifierHdasTriggered();
 
-    void SlotRemoveAssetClicked();
+	void SlotAssetLoadOptionsPathBrowse();
+	void SlotLoadedAssetItemClicked(QListWidgetItem* Item);
+
+	void SlotShowAssetContextMenu(QPoint Position);
+
+	void SlotRemoveAssetClicked();
 	void SlotCopyAssetPathClicked();
-
-signals:
-    void SignalRemoveAssetClicked(QString);
 
 };

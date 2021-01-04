@@ -13,7 +13,9 @@
 #include "notify.h"
 
 #include "HEMAX_Plugin.h"
+#include "HEMAX_Events.h"
 #include "UI/HEMAX_UI.h"
+#include "UI/HEMAX_OptionsDialog.h"
 #include "UI/HEMAX_VersionDialog.h"
 #include <string>
 
@@ -25,6 +27,7 @@
 
 const TCHAR* const OPEN_HEMAX_MENU_STRING =    _T("Open");
 const TCHAR* const HIDE_HEMAX_MENU_STRING =    _T("Hide");
+const TCHAR* const OPTIONS_HEMAX_MENU_STRING = _T("Options");
 const TCHAR* const VERSION_HEMAX_MENU_STRING = _T("Version Information");
 
 const ActionTableId HEMAX_Actions_Id = 0x33fa7596;
@@ -35,78 +38,80 @@ extern HINSTANCE hInstance;
 
 class HEMAXActionTable : public ActionTable
 {
-public:
-    HEMAXActionTable();
-    ~HEMAXActionTable();
+    public:
+	HEMAXActionTable();
+	~HEMAXActionTable();
 };
 
 class HEMAXLauncher : public GUP, ActionCallback
 {
-public:
-    HEMAXLauncher();
-    virtual ~HEMAXLauncher();
+    public:
+	HEMAXLauncher();
+	virtual ~HEMAXLauncher();
 
-    virtual DWORD     Start();
-    virtual void      Stop();
-    virtual DWORD_PTR Control(DWORD parameter);
-    virtual void      DeleteThis();
+	virtual DWORD     Start();
+	virtual void      Stop();
+	virtual DWORD_PTR Control(DWORD parameter);
+	virtual void      DeleteThis();
 
-    void InstallMenu();
-    void RemoveMenu();
+	void InstallMenu();
+	void RemoveMenu();
 
-    int kContextIdHEMAXMenu;
-    
-    BOOL ExecuteAction(int id) override;
+	int kContextIdHEMAXMenu;
 
-    static void OnCUIMenusLoaded(void* param, NotifyInfo* info);
-    static void OnCUIMenusPreSaved(void* param, NotifyInfo* info);
-    static void OnCUIMenusPostSaved(void* param, NotifyInfo* info);
+	BOOL ExecuteAction(int id) override;
 
-    static HEMAXLauncher* GetInstance() {
-        static HEMAXLauncher theHEMAXLauncher;
-        return &theHEMAXLauncher;
-    }
+	static void OnCUIMenusLoaded(void* param, NotifyInfo* info);
+	static void OnCUIMenusPreSaved(void* param, NotifyInfo* info);
+	static void OnCUIMenusPostSaved(void* param, NotifyInfo* info);
 
-    bool WasHAPIDLLFound();
-    static std::string GetLibHAPILDirectory();
+	static HEMAXLauncher* GetInstance() {
+	    static HEMAXLauncher theHEMAXLauncher;
+	    return &theHEMAXLauncher;
+	}
 
-private:
+	bool WasHAPIDLLFound();
+	static std::string GetLibHAPILDirectory();
 
-    HEMAX_Plugin* ThePlugin;
-    HEMAX_UI* PluginUserInterface;
-    HEMAX_VersionDialog* VersionDialog;
+    private:
 
-    HMODULE LoadLibHAPIL();
+	HEMAX_Plugin* ThePlugin;
+	HEMAX_UI* PluginUserInterface;
+        HEMAX_OptionsDialog* OptionsDialog;
+	HEMAX_VersionDialog* VersionDialog;
+        HEMAX_Events* PluginEvents;
 
-    HMODULE FindHoudiniEngineLibs();
-    void SetHoudiniSubDirectores(std::wstring HoudiniDir);
+	HMODULE LoadLibHAPIL();
 
-    bool FoundHAPIDLL;
-    static std::string LibHAPILDirectory;
-    static std::string HAPIToolsDirectory;
+	HMODULE FindHoudiniEngineLibs();
+	void SetHoudiniSubDirectores(std::wstring HoudiniDir);
 
-    int HoudiniMajorVersion;
-    int HoudiniMinorVersion;
-    int HoudiniBuildVersion;
-    int HoudiniPatchNumber;
+	bool FoundHAPIDLL;
+	static std::string LibHAPILDirectory;
+	static std::string HAPIToolsDirectory;
+
+	int HoudiniMajorVersion;
+	int HoudiniMinorVersion;
+	int HoudiniBuildVersion;
+	int HoudiniPatchNumber;
 };
 
 class HEMAXLauncherClassDesc : public ClassDesc2
 {
-public:
-    virtual int IsPublic() { return TRUE; }
-    virtual void* Create(BOOL) { return HEMAXLauncher::GetInstance(); }
-    virtual const TCHAR* ClassName() { return GetString(IDS_CLASS_NAME); }
-    virtual SClass_ID SuperClassID() { return GUP_CLASS_ID; }
-    virtual Class_ID ClassID() { return HEMAXLauncher_CLASS_ID; }
-    virtual const TCHAR* Category() { return GetString(IDS_CATEGORY); }
+    public:
+	virtual int IsPublic() { return TRUE; }
+	virtual void* Create(BOOL) { return HEMAXLauncher::GetInstance(); }
+	virtual const TCHAR* ClassName() { return GetString(IDS_CLASS_NAME); }
+	virtual SClass_ID SuperClassID() { return GUP_CLASS_ID; }
+	virtual Class_ID ClassID() { return HEMAXLauncher_CLASS_ID; }
+	virtual const TCHAR* Category() { return GetString(IDS_CATEGORY); }
 
-    virtual const TCHAR* InternalName() { return _T("HEMAXLauncher"); }
-    virtual HINSTANCE HInstance() { return hInstance; }
+	virtual const TCHAR* InternalName() { return _T("HEMAXLauncher"); }
+	virtual HINSTANCE HInstance() { return hInstance; }
 
-    int NumActionTables() override;
-    ActionTable* GetActionTable(int) override;
+	int NumActionTables() override;
+	ActionTable* GetActionTable(int) override;
 
-private:
-    ActionTable* HEMAX_ActionTable = nullptr;
+    private:
+	ActionTable* HEMAX_ActionTable = nullptr;
 };

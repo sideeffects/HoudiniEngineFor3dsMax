@@ -12,8 +12,8 @@ HEMAX_3dsMaxInput::HEMAX_3dsMaxInput(INode* Node)
 {
     if (MaxNode)
     {
-        CreateInputNode();
-        ReplaceReference(0, Node);
+	CreateInputNode();
+	ReplaceReference(0, Node);
     }
 }
 
@@ -34,11 +34,11 @@ HEMAX_3dsMaxInput::Get3dsMaxNodeHandle()
 {
     if (MaxNode)
     {
-        return MaxNode->GetHandle();
+	return MaxNode->GetHandle();
     }
     else
     {
-        return -1;
+	return -1;
     }
 }
 
@@ -59,9 +59,9 @@ HEMAX_3dsMaxInput::UpdateInputNode()
 {
     if (Dirty)
     {
-        DeleteInputNode();
-        CreateInputNode();
-        Dirty = false;
+	DeleteInputNode();
+	CreateInputNode();
+	Dirty = false;
     }
 }
 
@@ -101,7 +101,7 @@ HEMAX_3dsMaxInput::AddParameterUsage(HEMAX_Node Node, std::string Parameter)
     NewUsage.Node = Node;
     NewUsage.Subnetwork = -1;
     NewUsage.Parameter = Parameter;
-    
+
     Usages.push_back(NewUsage);
 }
 
@@ -110,10 +110,10 @@ HEMAX_3dsMaxInput::RemoveSubnetworkUsage(HEMAX_Node Node, int Subnetwork)
 {
     for (int i = 0; i < Usages.size(); i++)
     {
-        if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Subnetwork == Subnetwork)
-        {
-            Usages.erase(Usages.begin() + i);
-        }
+	if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Subnetwork == Subnetwork)
+	{
+	    Usages.erase(Usages.begin() + i);
+	}
     }
 }
 
@@ -122,10 +122,10 @@ HEMAX_3dsMaxInput::RemoveParameterUsage(HEMAX_Node Node, std::string Parameter)
 {
     for (int i = 0; i < Usages.size(); i++)
     {
-        if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Parameter == Parameter)
-        {
-            Usages.erase(Usages.begin() + i);
-        }
+	if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Parameter == Parameter)
+	{
+	    Usages.erase(Usages.begin() + i);
+	}
     }
 }
 
@@ -140,33 +140,36 @@ HEMAX_3dsMaxInput::CreateInputNode()
 {
     if (MaxNode)
     {
-        ObjectState MaxObjectState = MaxNode->EvalWorldState(GetCOREInterface()->GetTime());
-        Object* MaxObject = MaxObjectState.obj;
+	ObjectState MaxObjectState = MaxNode->EvalWorldState(GetCOREInterface()->GetTime());
+	Object* MaxObject = MaxObjectState.obj;
 
-        if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
-        {
-            // A closed linear shape will be treated like input geometry since it should just be a polygon in Houdini
-            // Otherwise, treat it as an input spline
+	if (!MaxObject)
+	    return;
 
-            LinearShape* MaxLinearShape = (LinearShape*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), Class_ID(LINEARSHAPE_CLASS_ID, 0));
+	if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
+	{
+	    // A closed linear shape will be treated like input geometry since it should just be a polygon in Houdini
+	    // Otherwise, treat it as an input spline
 
-            if (HEMAX_Utilities::IsLinearSplineClosed(MaxLinearShape))
-            {
-                InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
-            }
-            else
-            {
-                InputNode = new HEMAX_Input_Spline(MaxNode->GetHandle());
-            }
-        }
-        else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
-        {
-            InputNode = new HEMAX_Input_NURBS(MaxNode->GetHandle());
-        }
-        else
-        {
-            InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
-        }
+	    LinearShape* MaxLinearShape = (LinearShape*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), Class_ID(LINEARSHAPE_CLASS_ID, 0));
+
+	    if (HEMAX_Utilities::IsLinearSplineClosed(MaxLinearShape))
+	    {
+		InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
+	    }
+	    else
+	    {
+		InputNode = new HEMAX_Input_Spline(MaxNode->GetHandle());
+	    }
+	}
+	else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
+	{
+	    InputNode = new HEMAX_Input_NURBS(MaxNode->GetHandle());
+	}
+	else
+	{
+	    InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
+	}
     }
 }
 
@@ -175,7 +178,7 @@ HEMAX_3dsMaxInput::DeleteInputNode()
 {
     if (InputNode)
     {
-        delete InputNode;
-        InputNode = nullptr;
+	delete InputNode;
+	InputNode = nullptr;
     }
 }

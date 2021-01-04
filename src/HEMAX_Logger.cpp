@@ -21,8 +21,8 @@ HEMAX_Logger::AddEntry(std::string Log, HEMAX_LogLevel LogLevel)
 
     if (ShouldPrint(LogLevel))
     {
-        mprintf(ConvertToWideChar(Log + "\n"));
-        mflush();
+	mprintf(ConvertToWideChar(Log + "\n"));
+	mflush();
     }
 }
 
@@ -33,9 +33,9 @@ HEMAX_Logger::AddEntry(const char* Log, HEMAX_LogLevel LogLevel)
 
     if (ShouldPrint(LogLevel))
     {
-        std::string MaxscriptListenerString = std::string(Log) + "\n";
-        mprintf(ConvertToWideChar(MaxscriptListenerString));
-        mflush();
+	std::string MaxscriptListenerString = std::string(Log) + "\n";
+	mprintf(ConvertToWideChar(MaxscriptListenerString));
+	mflush();
     }
 }
 
@@ -56,17 +56,17 @@ HEMAX_Logger::ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print)
 {
     switch (LogLevel)
     {
-        case HEMAX_LOG_LEVEL_ERROR:
-            PrintErrorLogs = Print;
-            break;
-        case HEMAX_LOG_LEVEL_WARN:
-            PrintWarnLogs = Print;
-            break;
-        case HEMAX_LOG_LEVEL_INFO:
-            PrintInfoLogs = Print;
-            break;
-        default:
-            break;
+	case HEMAX_LOG_LEVEL_ERROR:
+	    PrintErrorLogs = Print;
+	    break;
+	case HEMAX_LOG_LEVEL_WARN:
+	    PrintWarnLogs = Print;
+	    break;
+	case HEMAX_LOG_LEVEL_INFO:
+	    PrintInfoLogs = Print;
+	    break;
+	default:
+	    break;
     }
 }
 
@@ -89,18 +89,18 @@ HEMAX_Logger::ShouldPrint(HEMAX_LogLevel Level)
 {
     if (Level == HEMAX_LOG_LEVEL_ERROR && PrintErrorLogs)
     {
-        return true;
+	return true;
     }
     else if (Level == HEMAX_LOG_LEVEL_WARN && PrintWarnLogs)
     {
-        return true;
+	return true;
     }
     else if (Level == HEMAX_LOG_LEVEL_INFO && PrintInfoLogs)
     {
-        return true;
+	return true;
     }
     else
     {
-        return false;
+	return false;
     }
 }

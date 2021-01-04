@@ -32,6 +32,9 @@ struct HEMAX_Utilities
     static void ApplyTransformToINode(INode* Node, HEMAX_MaxTransform& Transform);
     static Matrix3 MaxTransformToMatrix3(HEMAX_MaxTransform& Transform);
     static HEMAX_MaxTransform CalculateRelativeTransformBetweenINodes(INode* OriginNode, INode* SecondaryNode);
+    static Matrix3 GetINodeTransformationMatrix(INode* Node);
+    static Matrix3 GetINodeLocalTransformationMatrix(INode* Node);
+    static void Matrix3ToFlatArray(Matrix3& In, std::vector<float>& Out);
 
     static float GetHoudiniToMaxScale();
     static float GetMaxToHoudiniScale();
@@ -43,7 +46,7 @@ struct HEMAX_Utilities
     static std::string GetHoudiniRegistryPath(std::string VersionString);
     static std::string GetHoudiniSteamRegistryPath(std::string VersionString);
 
-	static std::string GetEnvVar(std::string Var);
+    static std::string GetEnvVar(std::string Var);
     static void SetEnvVar(std::string Var, std::string Val);
 
     static bool IsLinearSplineClosed(LinearShape* Curve);

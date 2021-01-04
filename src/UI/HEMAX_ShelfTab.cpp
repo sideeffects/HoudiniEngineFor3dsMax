@@ -3,10 +3,16 @@
 #include "moc_HEMAX_ShelfTab.cpp"
 
 #include "HEMAX_AssetSelection.h"
+
+#include "../HEMAX_Events.h"
+#include "../HEMAX_Plugin.h"
 #include "../HEMAX_ShelfTool.h"
 #include "../HEMAX_ShelfDirectory.h"
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qinputdialog.h>
 #endif
@@ -16,7 +22,8 @@
 #include <QtGui/qinputdialog.h>
 #endif
 
-HEMAX_ShelfTab::HEMAX_ShelfTab(bool Active)
+HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin, bool Active)
+    : Plugin(ActivePlugin)
 {
     Shelf = nullptr;
 
@@ -83,16 +90,18 @@ HEMAX_ShelfTab::HEMAX_ShelfTab(bool Active)
 
     if (Active)
     {
-        EnableShelf();
+	EnableShelf();
     }
     else
     {
-        DisableShelf();
+	DisableShelf();
     }
 }
 
-HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Shelf* const ToolShelf, bool Active)
-    : HEMAX_ShelfTab(Active)
+HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin, 
+                               HEMAX_Shelf* const ToolShelf,
+                               bool Active)
+    : HEMAX_ShelfTab(ActivePlugin, Active)
 {
     Shelf = ToolShelf;
 }
@@ -137,33 +146,33 @@ HEMAX_ShelfTab::Update()
 
     if (ShelfDirs.size() >= 1)
     {
-        ShelfSelectionWidget->setVisible(true);
+	ShelfSelectionWidget->setVisible(true);
     }
 
     for (int i = 0; i < ShelfDirs.size(); i++)
     {
-        HEMAX_ShelfDirectory ShelfDir = Shelf->GetShelfDirectory(ShelfDirs[i]);
-        ShelfComboBox->addItem(ShelfDir.GetName().c_str());
-        ShelfComboBox->setItemData(i, ShelfDir.GetDirectory().c_str());
+	HEMAX_ShelfDirectory ShelfDir = Shelf->GetShelfDirectory(ShelfDirs[i]);
+	ShelfComboBox->addItem(ShelfDir.GetName().c_str());
+	ShelfComboBox->setItemData(i, ShelfDir.GetDirectory().c_str());
 
-        if (ActiveShelf.empty())
-        {
-            ActiveShelf = ShelfDirs[i];
-        }
+	if (ActiveShelf.empty())
+	{
+	    ActiveShelf = ShelfDirs[i];
+	}
 
-        if (ShelfDirs[i] == ActiveShelf)
-        {
-            ShelfComboBox->setCurrentIndex(i);
+	if (ShelfDirs[i] == ActiveShelf)
+	{
+	    ShelfComboBox->setCurrentIndex(i);
 
-            HEMAX_ShelfGroup* ShelfGroup = new HEMAX_ShelfGroup;
-            std::vector<HEMAX_ShelfTool>* Tools = Shelf->GetShelf(ShelfDirs[i]);
-            for (int t = 0; t < Tools->size(); t++)
-            {
-                ShelfGroup->AddShelfTool((*Tools)[t].Name, (*Tools)[t].IconPath, (*Tools)[t].Description, (*Tools)[t].HelpUrl);
-            }
-            ShelfWidgets.insert({ ShelfDirs[i], ShelfGroup });  
-            ShelfWidgetLayout->addWidget(ShelfGroup, ShelfWidgetLayout->rowCount(), Qt::AlignCenter);
-        }
+	    HEMAX_ShelfGroup* ShelfGroup = new HEMAX_ShelfGroup;
+	    std::vector<HEMAX_ShelfTool>* Tools = Shelf->GetShelf(ShelfDirs[i]);
+	    for (int t = 0; t < Tools->size(); t++)
+	    {
+		ShelfGroup->AddShelfTool((*Tools)[t].Name, (*Tools)[t].IconPath, (*Tools)[t].Description, (*Tools)[t].HelpUrl);
+	    }
+	    ShelfWidgets.insert({ ShelfDirs[i], ShelfGroup });  
+	    ShelfWidgetLayout->addWidget(ShelfGroup, ShelfWidgetLayout->rowCount(), Qt::AlignCenter);
+	}
     }
 }
 
@@ -190,7 +199,7 @@ HEMAX_ShelfTab::DeleteShelfWidgets()
 {
     for (auto It = ShelfWidgets.begin(); It != ShelfWidgets.end(); It++)
     {
-        delete It->second;
+	delete It->second;
     }
 
     ShelfWidgets.clear();
@@ -219,11 +228,11 @@ HEMAX_ShelfTab::Slot_ConfigurationButton_Clicked()
 {
     if (ConfigurationButton->text() == "Open Shelf Configuration")
     {
-        OpenConfiguration();
+	OpenConfiguration();
     }
     else
     {
-        HideConfiguration();
+	HideConfiguration();
     }
 }
 
@@ -232,34 +241,31 @@ HEMAX_ShelfTab::Slot_AddShelfDirButton_Clicked()
 {
     if (Shelf)
     {
-        QFileDialog DirDialog;
-        DirDialog.setFileMode(QFileDialog::Directory);
-        DirDialog.setOption(QFileDialog::ShowDirsOnly);
-        DirDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
+	QFileDialog DirDialog;
+	DirDialog.setFileMode(QFileDialog::Directory);
+	DirDialog.setOption(QFileDialog::ShowDirsOnly);
+	DirDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
 
-        if (DirDialog.exec())
-        {
-            QInputDialog NameDialog;
-            NameDialog.setWindowTitle("Add New Shelf Directory");
-            NameDialog.setLabelText("Enter a name for the shelf:");
-            NameDialog.resize(QSize(HEMAX_ShelfTab_NameDialog_Width, HEMAX_ShelfTab_NameDialog_Height));
-            NameDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
+	if (DirDialog.exec())
+	{
+	    QInputDialog NameDialog;
+	    NameDialog.setWindowTitle("Add New Shelf Directory");
+	    NameDialog.setLabelText("Enter a name for the shelf:");
+	    NameDialog.resize(QSize(HEMAX_ShelfTab_NameDialog_Width, HEMAX_ShelfTab_NameDialog_Height));
+	    NameDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
 
-            if (NameDialog.exec())
-            {
-                if (!NameDialog.textValue().isEmpty())
-                {
-                    QString Folder = DirDialog.selectedFiles()[0];
-                    Shelf->AddShelfDirectory(Folder.toStdString(), NameDialog.textValue().toStdString());
+	    if (NameDialog.exec())
+	    {
+		if (!NameDialog.textValue().isEmpty())
+		{
+		    QString Folder = DirDialog.selectedFiles()[0];
+		    Shelf->AddShelfDirectory(Folder.toStdString(), NameDialog.textValue().toStdString());
 
-                    ActiveShelf = Folder.toStdString();
-
-                    Update();
-
-                    emit Signal_ShelfUpdated();
-                }
-            }
-        }
+		    ActiveShelf = Folder.toStdString();
+                    Plugin->GetEventHub()->ShelfUpdated();
+		}
+	    }
+	}
     }
 }
 
@@ -268,21 +274,21 @@ HEMAX_ShelfTab::Slot_RemoveShelfDirButton_Clicked()
 {
     if (Shelf)
     {
-        HEMAX_AssetSelection ShelfSelection(Shelf->GetShelfDirectories(), "Remove Shelf", "Currently active shelves:");
+	HEMAX_AssetSelection ShelfSelection(Shelf->GetShelfDirectories(), "Remove Shelf", "Currently active shelves:");
 
-        if (ShelfSelection.exec())
-        {
-            std::string SelectedShelf = ShelfSelection.GetSelectedAssetName();
+	if (ShelfSelection.exec())
+	{
+	    std::string SelectedShelf = ShelfSelection.GetSelectedAssetName();
 
-            if (SelectedShelf == ActiveShelf)
-            {
-                ActiveShelf = "";
-            }
+	    if (SelectedShelf == ActiveShelf)
+	    {
+		ActiveShelf = "";
+	    }
 
-            Shelf->RemoveShelfDirectory(SelectedShelf);
+	    Shelf->RemoveShelfDirectory(SelectedShelf);
 
-            Update();
-        }
+	    Update();
+	}
     }
 }
 
@@ -291,13 +297,13 @@ HEMAX_ShelfTab::Slot_ReloadShelfDirButton_Clicked()
 {
     if (Shelf)
     {
-        std::string ReloadShelf = ActiveShelf;
-        std::string ShelfName = Shelf->GetShelfDirectory(ReloadShelf).GetName();
+	std::string ReloadShelf = ActiveShelf;
+	std::string ShelfName = Shelf->GetShelfDirectory(ReloadShelf).GetName();
 
-        Shelf->RemoveShelfDirectory(ReloadShelf);
-        Shelf->AddShelfDirectory(ReloadShelf, ShelfName);
+	Shelf->RemoveShelfDirectory(ReloadShelf);
+	Shelf->AddShelfDirectory(ReloadShelf, ShelfName);
 
-        Update();
+	Update();
     }
 }
 
@@ -307,15 +313,15 @@ HEMAX_ShelfTab::Slot_CreateObjectButton_Clicked()
     auto Search = ShelfWidgets.find(ActiveShelf);
     if (Search != ShelfWidgets.end())
     {
-        int SelectedButton = Search->second->GetSelectedButtonId();
-        if (SelectedButton > -1)
-        {
-            std::vector<HEMAX_ShelfTool>* ShelfTools = Shelf->GetShelf(ActiveShelf);
-            if (ShelfTools)
-            {
-                emit Signal_ShelfTool_CreateObject((*ShelfTools)[SelectedButton].AssetPath);
-            }
-        }
+	int SelectedButton = Search->second->GetSelectedButtonId();
+	if (SelectedButton > -1)
+	{
+	    std::vector<HEMAX_ShelfTool>* ShelfTools = Shelf->GetShelf(ActiveShelf);
+	    if (ShelfTools)
+	    {
+                Plugin->CreateGeometryHDA((*ShelfTools)[SelectedButton].AssetPath);
+	    }
+	}
     }
 }
 
@@ -325,15 +331,15 @@ HEMAX_ShelfTab::Slot_CreateModifiersButton_Clicked()
     auto Search = ShelfWidgets.find(ActiveShelf);
     if (Search != ShelfWidgets.end())
     {
-        int SelectedButton = Search->second->GetSelectedButtonId();
-        if (SelectedButton > -1)
-        {
-            std::vector<HEMAX_ShelfTool>* ShelfTools = Shelf->GetShelf(ActiveShelf);
-            if (ShelfTools)
-            {
-                emit Signal_ShelfTool_CreateModifiers((*ShelfTools)[SelectedButton].AssetPath);
-            }
-        }
+	int SelectedButton = Search->second->GetSelectedButtonId();
+	if (SelectedButton > -1)
+	{
+	    std::vector<HEMAX_ShelfTool>* ShelfTools = Shelf->GetShelf(ActiveShelf);
+	    if (ShelfTools)
+	    {
+                Plugin->CreateModifierHDAs((*ShelfTools)[SelectedButton].AssetPath);
+	    }
+	}
     }
 }
 

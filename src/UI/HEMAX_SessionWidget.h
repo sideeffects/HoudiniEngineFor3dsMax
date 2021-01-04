@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qradiobutton.h>
@@ -22,105 +25,103 @@
 #include <QtGui/qpushbutton.h>
 #endif
 
-#define HEMAX_SESSION_PIPE_NAME_DEFAULT "hapi"
-#define HEMAX_SESSION_HOST_NAME_DEFAULT "localhost"
-#define HEMAX_SESSION_PORT_NUM_DEFAULT  "9090"
+#include "../HEMAX_UserPrefs.h"
+
+class HEMAX_Plugin;
 
 class HEMAX_SessionWidget : public QWidget
 {
     friend class HEMAX_UI;
 
-public:
-    HEMAX_SessionWidget();
-    ~HEMAX_SessionWidget();
+    public:
+	HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin);
+	~HEMAX_SessionWidget();
 
-    void PushHoudiniEnvFilePath(std::string Path);
-    void PushOtlSearchPath(std::string Path);
-    void PushDsoSearchPath(std::string Path);
-    void PushImageDsoSearchPath(std::string Path);
-    void PushAudioDsoSearchPath(std::string Path);
+	void Update();
 
-private:
+    private:
 
-    Q_OBJECT
+        HEMAX_Plugin* Plugin;
 
-    QVBoxLayout* MainLayout;
+        void InitFieldsFromPrefs();
 
-    QWidget* SessionsBox;
-    QVBoxLayout* SessionsBoxLayout;
+    private:
 
-    QHBoxLayout* SessionsControlLayout;
-    QVBoxLayout* SessionsTypeLayout;
-    QHBoxLayout* SessionsPipeLayout;
-    QHBoxLayout* SessionsSocketLayout;
+	Q_OBJECT
 
-    QPushButton* SessionsStartButton;
-    QPushButton* SessionsStopButton;
+	QVBoxLayout* MainLayout;
 
-    QGroupBox* SessionsTypeBox;
-    QLabel* SessionsAutoStartLabel;
-    QLabel* SessionsManualStartLabel;
-    QHBoxLayout* AutoStartOptionsLayout;
-    QHBoxLayout* ManualStartOptionsLayout;
-    QRadioButton* SessionsOutOfProcessRadioButton;
-    QRadioButton* SessionsInProcessRadioButton;
-    QRadioButton* SessionsSocketRadioButton;
-    QRadioButton* SessionsPipeRadioButton;
+	QWidget* SessionsBox;
+	QVBoxLayout* SessionsBoxLayout;
 
-    QLabel* SessionsHostNameLabel;
-    QLineEdit* SessionsSocketHostName;
-    QLabel* SessionsPortNumberLabel;
-    QLineEdit* SessionsSocketPortNumber;
+	QHBoxLayout* SessionsControlLayout;
+	QVBoxLayout* SessionsTypeLayout;
+	QHBoxLayout* SessionsPipeLayout;
+	QHBoxLayout* SessionsSocketLayout;
 
-    QLabel* SessionsPipeNameLabel;
-    QLineEdit* SessionsPipeName;
+	QPushButton* SessionsStartButton;
+	QPushButton* SessionsStopButton;
 
-    QGroupBox* SessionsConfigurationBox;
-    QGridLayout* SessionsConfigurationBoxLayout;
-    
-    QLabel* SessionsHoudiniEnvFilesLabel;
-    QLineEdit* SessionsHoudiniEnvFiles;
-    QPushButton* SessionsHoudiniEnvFilesBrowse;
-    QLabel* SessionsOtlSearchPathLabel;
-    QLineEdit* SessionsOtlSearchPath;
-    QPushButton* SessionsOtlSearchPathBrowse;
-    QLabel* SessionsDsoSearchPathLabel;
-    QLineEdit* SessionsDsoSearchPath;
-    QPushButton* SessionsDsoSearchPathBrowse;
-    QLabel* SessionsImageDsoSearchPathLabel;
-    QLineEdit* SessionsImageDsoSearchPath;
-    QPushButton* SessionsImageDsoSearchPathBrowse;
-    QLabel* SessionsAudioDsoSearchPathLabel;
-    QLineEdit* SessionsAudioDsoSearchPath;
-    QPushButton* SessionsAudioDsoSearchPathBrowse;
+	QGroupBox* SessionsTypeBox;
+	QLabel* SessionsAutoStartLabel;
+	QLabel* SessionsManualStartLabel;
+	QHBoxLayout* AutoStartOptionsLayout;
+	QHBoxLayout* ManualStartOptionsLayout;
+	QRadioButton* SessionsOutOfProcessRadioButton;
+	QRadioButton* SessionsSocketRadioButton;
+	QRadioButton* SessionsPipeRadioButton;
 
-    QString DirectoryBrowseDialog(QString CurrentValue);
-    QString FileBrowseDialog(QString CurrentValue);
+	QLabel* SessionsHostNameLabel;
+	QLineEdit* SessionsSocketHostName;
+	QLabel* SessionsPortNumberLabel;
+	QLineEdit* SessionsSocketPortNumber;
 
- private slots:
+	QLabel* SessionsPipeNameLabel;
+	QLineEdit* SessionsPipeName;
 
-    void SlotSessionsStartButtonClicked();
-    void SlotSessionsStopButtonClicked();
-    void SlotSessionsSocketToggle(bool checked);
-    void SlotSessionsPipeToggle(bool checked);
+	QGroupBox* SessionsConfigurationBox;
+	QGridLayout* SessionsConfigurationBoxLayout;
 
-    void SlotSessionsHoudiniEnvFileBrowse();
-    void SlotSessionsOtlSearchPathBrowse();
-    void SlotSessionsDsoSearchPathBrowse();
-    void SlotSessionsImageDsoSearchPathBrowse();
-    void SlotSessionsAudioDsoSearchPathBrowse();
+	QLabel* SessionsHoudiniEnvFilesLabel;
+	QLineEdit* SessionsHoudiniEnvFiles;
+	QPushButton* SessionsHoudiniEnvFilesBrowse;
+	QLabel* SessionsOtlSearchPathLabel;
+	QLineEdit* SessionsOtlSearchPath;
+	QPushButton* SessionsOtlSearchPathBrowse;
+	QLabel* SessionsDsoSearchPathLabel;
+	QLineEdit* SessionsDsoSearchPath;
+	QPushButton* SessionsDsoSearchPathBrowse;
+	QLabel* SessionsImageDsoSearchPathLabel;
+	QLineEdit* SessionsImageDsoSearchPath;
+	QPushButton* SessionsImageDsoSearchPathBrowse;
+	QLabel* SessionsAudioDsoSearchPathLabel;
+	QLineEdit* SessionsAudioDsoSearchPath;
+	QPushButton* SessionsAudioDsoSearchPathBrowse;
 
-    void SlotSessionsHoudiniEnvFileEdited();
-    void SlotSessionsOtlSearchPathEdited();
-    void SlotSessionsDsoSearchPathEdited();
-    void SlotSessionsImageSearchPathEdited();
-    void SlotSessionsAudioSearchPathEdited();
+	QString DirectoryBrowseDialog(QString CurrentValue);
+	QString FileBrowseDialog(QString CurrentValue);
 
-signals:
+    private slots:
 
-    void Signal_SessionStopped();
-    void Signal_SessionStarted();
+	void SlotSessionsStartButtonClicked();
+	void SlotSessionsStopButtonClicked();
+        void SlotSessionsAutoToggle(bool Checked);
+	void SlotSessionsSocketToggle(bool Checked);
+	void SlotSessionsPipeToggle(bool Checked);
 
-    void Signal_SessionConfigPathChanged(const char*, std::string);
+        void SlotSessionsSocketHostName();
+        void SlotSessionsSocketPortNumber();
+        void SlotSessionsPipeName();
 
+	void SlotSessionsHoudiniEnvFileBrowse();
+	void SlotSessionsOtlSearchPathBrowse();
+	void SlotSessionsDsoSearchPathBrowse();
+	void SlotSessionsImageDsoSearchPathBrowse();
+	void SlotSessionsAudioDsoSearchPathBrowse();
+
+	void SlotSessionsHoudiniEnvFileEdited();
+	void SlotSessionsOtlSearchPathEdited();
+	void SlotSessionsDsoSearchPathEdited();
+	void SlotSessionsImageSearchPathEdited();
+	void SlotSessionsAudioSearchPathEdited();
 };

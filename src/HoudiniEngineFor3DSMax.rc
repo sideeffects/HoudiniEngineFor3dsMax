@@ -111,6 +111,8 @@ BEGIN
     IDS_HEMAX_AT_CONTEXT        "Houdini Engine"
     IDS_HEMAX_MENU_HIDE         "Hide the Houdini Engine window"
     IDS_HEMAX_MENU_HIDE_DESC    "Hides the dockable user interface for Houdini Engine"
+    IDS_HEMAX_MENU_OPTIONS      "Options"
+    IDS_HEMAX_MENU_OPTIONS_DESC "Opens the options menu"
     IDS_HEMAX_MENU_VERSION      "Show Houdini version information"
     IDS_HEMAX_MENU_VERSION_DESC "Shows Houdini and Houdini Engine version information"
  //TEX_TYPE

@@ -60,7 +60,7 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HE
     Rotation.GetEuler(&XRot, &YRot, &ZRot);
 
     HAPI_TransformEuler TransformEuler;
-    
+
     float Scale = GetMaxToHoudiniScale();
 
     TransformEuler.position[0] = Transform.position[0] * Scale;
@@ -197,7 +197,7 @@ HEMAX_Utilities::MaxTransformToMatrix3(HEMAX_MaxTransform& Transform)
 
     Matrix3 Rotation(1);
     Rotation.SetRotate(Quat(Transform.Quaternion[0], Transform.Quaternion[1],
-        Transform.Quaternion[2], Transform.Quaternion[3]));
+		Transform.Quaternion[2], Transform.Quaternion[3]));
 
     Matrix3 Translate(1);
     Translate.Translate(Point3(Transform.Position[0], Transform.Position[1], Transform.Position[2]));
@@ -230,17 +230,50 @@ HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(INode* OriginNode, INod
     return InputTransform;
 }
 
+Matrix3
+HEMAX_Utilities::GetINodeTransformationMatrix(INode* Node)
+{
+    TimeValue Time = GetCOREInterface()->GetTime();
+
+    return Node->GetNodeTM(Time);
+}
+
+Matrix3
+HEMAX_Utilities::GetINodeLocalTransformationMatrix(INode* Node)
+{
+    TimeValue Time = GetCOREInterface()->GetTime();
+
+    Matrix3 NodeTM = Node->GetNodeTM(Time);
+    INode* ParentNode = Node->GetParentNode();
+    Matrix3 ParentNodeTM = ParentNode->GetNodeTM(Time);
+    Matrix3 LocalTM = NodeTM * Inverse(ParentNodeTM);
+
+    return LocalTM;
+}
+
+void
+HEMAX_Utilities::Matrix3ToFlatArray(Matrix3& In, std::vector<float>& Out)
+{
+    for (int i = 0; i < 4; i++)
+    {
+	Point3 Row = In.GetRow(i);
+	Out.push_back(Row.x);
+	Out.push_back(Row.y);
+	Out.push_back(Row.z);
+    }
+}
+
 void
 HEMAX_Utilities::ConstructPointString(float* Points, int PointCount, std::string& PointString)
 {
     for (int p = 0; p < PointCount; ++p)
     {
-        PointString.append(std::to_string(Points[p * 3]));
-        PointString.append(",");
-        PointString.append(std::to_string(Points[(p * 3) + 1]));
-        PointString.append(",");
-        PointString.append(std::to_string(Points[(p * 3) + 2]));
-        PointString.append(" ");
+	PointString.append(std::to_string(Points[p * 3]));
+	PointString.append(",");
+	PointString.append(std::to_string(Points[(p * 3) + 1]));
+	PointString.append(",");
+	PointString.append(std::to_string(Points[(p * 3) + 2]));
+	PointString.append(" ");
     }
 }
 
@@ -252,18 +285,18 @@ HEMAX_Utilities::ExtractPointsFromParmString(std::vector<Point3>& Points, std::s
 
     while (std::getline(PointStream, APoint, ' '))
     {
-        std::istringstream ValueStream(APoint);
-        std::string ValueString;
-        
-        Point3 Point;
-        int Index = 0;
+	std::istringstream ValueStream(APoint);
+	std::string ValueString;
 
-        while (std::getline(ValueStream, ValueString, ','))
-        {
-            Point[Index++] = std::stof(ValueString);
-        }
+	Point3 Point;
+	int Index = 0;
 
-        Points.push_back(Point);
+	while (std::getline(ValueStream, ValueString, ','))
+	{
+	    Point[Index++] = std::stof(ValueString);
+	}
+
+	Points.push_back(Point);
     }
 }
 
@@ -274,7 +307,7 @@ HEMAX_Utilities::CreateHoudiniVersionString(int HoudiniMajorVersion, int Houdini
 
     if (PatchNumber > 0)
     {
-        VersionString += "." + std::to_string(PatchNumber);
+	VersionString += "." + std::to_string(PatchNumber);
     }
 
     return VersionString;
@@ -295,19 +328,32 @@ HEMAX_Utilities::GetHoudiniSteamRegistryPath(std::string VersionString)
 std::string
 HEMAX_Utilities::GetEnvVar(std::string Var)
 {
-	char VarBuffer[4096];
-	
-	DWORD Result = GetEnvironmentVariableA(Var.c_str(), VarBuffer, 4096);
+    char VarBuffer[4096];
 
-	if (Result && Result <= 4096)
-	{
-		std::string Value(VarBuffer);
-		return Value;
-	}
-	else
-	{
-		return "";
-	}
+    DWORD Count = GetEnvironmentVariableA(Var.c_str(), VarBuffer, 4096);
+
+    if (Count && Count <= 4096)
+    {
+	std::string Value(VarBuffer);
+	return Value;
+    }
+    else
+    {
+	char* VarBufferLong = new char[Count];
+        Count = GetEnvironmentVariableA(Var.c_str(), VarBufferLong, Count);
+
+        if (!Count)
+        {
+            delete [] VarBufferLong;
+            return "";
+        }
+        else
+        {
+            std::string Value(VarBufferLong);
+            delete [] VarBufferLong;
+            return Value;
+        }
+    }
 }
 
 void
@@ -319,7 +365,10 @@ HEMAX_Utilities::SetEnvVar(std::string Var, std::string Val)
 bool
 HEMAX_Utilities::IsLinearSplineClosed(LinearShape* Curve)
 {
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -328,11 +377,11 @@ HEMAX_Utilities::IsLinearSplineClosed(LinearShape* Curve)
 
     if (CurveCount > 0)
     {
-        return Curve->CurveClosed(GetCOREInterface()->GetTime(), 0);
+	return Curve->CurveClosed(GetCOREInterface()->GetTime(), 0);
     }
     else
     {
-        return false;
+	return false;
     }
 }
 
@@ -344,11 +393,11 @@ HEMAX_Utilities::GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames)
 
     if (CurrentNode)
     {
-        int ChildCount = CurrentNode->NumberOfChildren();
-        for (int c = 0; c < ChildCount; c++)
-        {
-            GetListOfChildNodes(CurrentNode->GetChildNode(c), NodeNames);
-        }
+	int ChildCount = CurrentNode->NumberOfChildren();
+	for (int c = 0; c < ChildCount; c++)
+	{
+	    GetListOfChildNodes(CurrentNode->GetChildNode(c), NodeNames);
+	}
     }
 }
 
@@ -357,12 +406,12 @@ HEMAX_Utilities::GetListOfChildNodes(INode* Node, std::vector<std::wstring>& Nod
 {
     if (Node)
     {
-        NodeNames.push_back(Node->GetName());
-        
-        int ChildCount = Node->NumberOfChildren();
-        for (int c = 0; c < ChildCount; c++)
-        {
-            GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
-        }
+	NodeNames.push_back(Node->GetName());
+
+	int ChildCount = Node->NumberOfChildren();
+	for (int c = 0; c < ChildCount; c++)
+	{
+	    GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
+	}
     }
 }

@@ -16,21 +16,21 @@ DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int Cus
 {
     if (CustomAttributeContainer)
     {
-        if (CustomAttributeContainer->GetNumCustAttribs() > CustomAttributeIndex)
-        {
-            CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(CustomAttributeIndex);
+	if (CustomAttributeContainer->GetNumCustAttribs() > CustomAttributeIndex)
+	{
+	    CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(CustomAttributeIndex);
 
-            if (Attrib)
-            {
-                std::wstring WideName(Attrib->GetName());
-                std::string AttribName(WideName.begin(), WideName.end());
-                
-                if (AttribName == CustomAttributeName)
-                {
-                    return true;
-                }
-            }
-        }
+	    if (Attrib)
+	    {
+		std::wstring WideName(Attrib->GetName());
+		std::string AttribName(WideName.begin(), WideName.end());
+
+		if (AttribName == CustomAttributeName)
+		{
+		    return true;
+		}
+	    }
+	}
 
     }
 
@@ -42,21 +42,21 @@ GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::st
 {
     if (CustomAttributeContainer)
     {
-        for (int i = 0; i < CustomAttributeContainer->GetNumCustAttribs(); ++i)
-        {
-            CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(i);
+	for (int i = 0; i < CustomAttributeContainer->GetNumCustAttribs(); ++i)
+	{
+	    CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(i);
 
-            if (Attrib)
-            {
-                std::wstring WideName(Attrib->GetName());
-                std::string AttribName(WideName.begin(), WideName.end());
+	    if (Attrib)
+	    {
+		std::wstring WideName(Attrib->GetName());
+		std::string AttribName(WideName.begin(), WideName.end());
 
-                if (AttribName == ParameterName)
-                {
-                    return Attrib;
-                }
-            }
-        }
+		if (AttribName == ParameterName)
+		{
+		    return Attrib;
+		}
+	    }
+	}
     }
 
     return nullptr;
@@ -67,23 +67,23 @@ GetStringParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::st
 {
     if (!CustomAttributeContainer)
     {
-        return nullptr;
+	return nullptr;
     }
 
     CustAttrib* Attrib = GetCustomAttributeByName(CustomAttributeContainer, ParameterName);
 
     if (Attrib)
     {
-        HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
-        if (ParmAttrib)
-        {
-            ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
-            if (ParamType == TYPE_STRING)
-            {
-                HEMAX_StringParameterAttrib* StringAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(Attrib);
-                return StringAttrib;
-            }
-        }
+	HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
+	if (ParmAttrib)
+	{
+	    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
+	    if (ParamType == TYPE_STRING)
+	    {
+		HEMAX_StringParameterAttrib* StringAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(Attrib);
+		return StringAttrib;
+	    }
+	}
     }
 
     return nullptr;
@@ -94,23 +94,23 @@ GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::strin
 {
     if (!CustomAttributeContainer)
     {
-        return nullptr;
+	return nullptr;
     }
 
     CustAttrib* Attrib = GetCustomAttributeByName(CustomAttributeContainer, ParameterName);
 
     if (Attrib)
     {
-        HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
-        if (ParmAttrib)
-        {
-            ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
-            if (ParamType == TYPE_INT)
-            {
-                HEMAX_IntegerParameterAttrib* IntegerAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(Attrib);
-                return IntegerAttrib;
-            }
-        }
+	HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
+	if (ParmAttrib)
+	{
+	    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
+	    if (ParamType == TYPE_INT)
+	    {
+		HEMAX_IntegerParameterAttrib* IntegerAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(Attrib);
+		return IntegerAttrib;
+	    }
+	}
     }
 
     return nullptr;
@@ -123,10 +123,10 @@ CheckForCustomAttributeOnNode(INode* Node, std::string CustomAttributeName)
 
     if (Container)
     {
-        if (GetCustomAttributeByName(Container, CustomAttributeName))
-        {
-            return true;
-        }
+	if (GetCustomAttributeByName(Container, CustomAttributeName))
+	{
+	    return true;
+	}
     }
 
     return false;
@@ -235,11 +235,11 @@ HEMAX_ParameterAttrib::GetReference(int i)
 {
     if (i == 0)
     {
-        return PBlock;
+	return PBlock;
     }
     else
     {
-        return nullptr;
+	return nullptr;
     }
 }
 
@@ -266,7 +266,7 @@ HEMAX_ParameterAttrib::SetReference(int i, RefTargetHandle RTarget)
 {
     if (i == 0)
     {
-        PBlock = (IParamBlock2*)RTarget;
+	PBlock = (IParamBlock2*)RTarget;
     }
 }
 
@@ -289,30 +289,30 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
 
     while (IO_OK == (LoadResult = Load->OpenChunk()))
     {
-        switch (Load->CurChunkID())
-        {
-        case HEMAX_PARAMETER_ATTRIB_NAME_CHUNK:
-        {
-            LoadResult = Load->ReadCStringChunk(StringBuf);
+	switch (Load->CurChunkID())
+	{
+	    case HEMAX_PARAMETER_ATTRIB_NAME_CHUNK:
+		{
+		    LoadResult = Load->ReadCStringChunk(StringBuf);
 
-            if (LoadResult == IO_OK)
-            {
-                ParameterName = *StringBuf;
-            }
+		    if (LoadResult == IO_OK)
+		    {
+			ParameterName = *StringBuf;
+		    }
 
-            Load->CloseChunk();
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-        
-        if (LoadResult != IO_OK)
-        {
-            return LoadResult;
-        }
+		    Load->CloseChunk();
+		    break;
+		}
+	    default:
+		{
+		    break;
+		}
+	}
+
+	if (LoadResult != IO_OK)
+	{
+	    return LoadResult;
+	}
     }
 
     delete StringBuf;
@@ -327,8 +327,8 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
 /////////////////////////////////////////////
 
 ParamBlockDesc2 IntegerParameterAttrib_ParamBlock(0, _T("IntegerParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_IntegerParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-                                                  0, _T("Value"), TYPE_INT, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
-    
+	0, _T("Value"), TYPE_INT, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+
 HEMAX_IntegerParameterAttrib::HEMAX_IntegerParameterAttrib()
 {
     PBlock = nullptr;
@@ -352,9 +352,9 @@ HEMAX_IntegerParameterAttrib::GetIntValue()
 {
     if (PBlock)
     {
-        int Value;
-        PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
-        return Value;
+	int Value;
+	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
+	return Value;
     }
 
     return -1;
@@ -413,7 +413,7 @@ HEMAX_IntegerParameterAttrib_ClassDesc::HInstance()
 /////////////////////////////////////////////
 
 ParamBlockDesc2 StringParameterAttrib_ParamBlock(0, _T("StringParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_StringParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-    0, _T("Value"), TYPE_STRING, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+	0, _T("Value"), TYPE_STRING, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
 
 HEMAX_StringParameterAttrib::HEMAX_StringParameterAttrib()
 {
@@ -438,8 +438,8 @@ HEMAX_StringParameterAttrib::SetStringValue(std::string Value)
 {
     if (PBlock)
     {
-        std::wstring WideValue(Value.begin(), Value.end());
-        PBlock->SetValue(0, GetCOREInterface()->GetTime(), WideValue.c_str());
+	std::wstring WideValue(Value.begin(), Value.end());
+	PBlock->SetValue(0, GetCOREInterface()->GetTime(), WideValue.c_str());
     }
 }
 
@@ -448,10 +448,10 @@ HEMAX_StringParameterAttrib::GetStringValue()
 {
     if (PBlock)
     {
-        const MCHAR* Name;
-        PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
-        std::wstring WideName(Name);
-        return std::string(WideName.begin(), WideName.end());
+	const MCHAR* Name;
+	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
+	std::wstring WideName(Name);
+	return std::string(WideName.begin(), WideName.end());
     }
 
     return "";
@@ -510,7 +510,7 @@ HEMAX_StringParameterAttrib_ClassDesc::HInstance()
 /////////////////////////////////////////////
 
 ParamBlockDesc2 FloatParameterAttrib_ParamBlock(0, _T("FloatParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_FloatParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-    0, _T("Value"), TYPE_FLOAT, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+	0, _T("Value"), TYPE_FLOAT, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
 
 HEMAX_FloatParameterAttrib::HEMAX_FloatParameterAttrib()
 {
@@ -583,7 +583,7 @@ HEMAX_FloatParameterAttrib_ClassDesc::HInstance()
 /////////////////////////////////////////////
 
 ParamBlockDesc2 ToggleParameterAttrib_ParamBlock(0, _T("ToggleParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_ToggleParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-    0, _T("Value"), TYPE_BOOL, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+	0, _T("Value"), TYPE_BOOL, P_ANIMATABLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
 
 HEMAX_ToggleParameterAttrib::HEMAX_ToggleParameterAttrib()
 {
@@ -656,7 +656,7 @@ HEMAX_ToggleParameterAttrib_ClassDesc::HInstance()
 /////////////////////////////////////////////
 
 ParamBlockDesc2 NodeParameterAttrib_ParamBlock(0, _T("NodeParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_NodeParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-    0, _T("Value"), TYPE_INODE, P_SUBANIM, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+	0, _T("Value"), TYPE_INODE, P_SUBANIM, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
 
 HEMAX_NodeParameterAttrib::HEMAX_NodeParameterAttrib()
 {
@@ -674,13 +674,13 @@ HEMAX_NodeParameterAttrib::CreateMaxHoudiniAssetLink(INode* Hda, HEMAX_InputType
 
     if (InputType == HEMAX_INPUT_PARAMETER)
     {
-        ParameterId = Id;
-        Subnetwork = -1;
+	ParameterId = Id;
+	Subnetwork = -1;
     }
     else if (InputType == HEMAX_INPUT_SUBNETWORK)
     {
-        ParameterId = -1;
-        Subnetwork = Id;
+	ParameterId = -1;
+	Subnetwork = Id;
     }
 }
 
@@ -767,8 +767,8 @@ HEMAX_NodeParameterAttrib_ClassDesc::HInstance()
 /////////////////////////////////////////////
 
 ParamBlockDesc2 MultiParameterAttrib_ParamBlock(0, _T("MultiParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_MultiParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-    0, _T("InstanceCount"), TYPE_INT, P_INVISIBLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end,
-    1, _T("InstanceLength"), TYPE_INT, P_INVISIBLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+	0, _T("InstanceCount"), TYPE_INT, P_INVISIBLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end,
+	1, _T("InstanceLength"), TYPE_INT, P_INVISIBLE, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
 
 HEMAX_MultiParameterAttrib::HEMAX_MultiParameterAttrib()
 {

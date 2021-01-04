@@ -34,7 +34,7 @@ HEMAX_AssetSelection::HEMAX_AssetSelection(std::vector<std::string> AssetNames, 
 
     for (int i = 0; i < AssetNames.size(); ++i)
     {
-        AssetSelectionList->addItem(AssetNames[i].c_str());
+	AssetSelectionList->addItem(AssetNames[i].c_str());
     }
 
     AssetSelectionList->sortItems();
@@ -60,11 +60,11 @@ HEMAX_AssetSelection::SlotSelectionButtonClicked()
 {
     if (CurrentSelection == "")
     {
-        this->done(0);
+	this->done(0);
     }
     else
     {
-        this->done(1);
+	this->done(1);
     }
 }
 

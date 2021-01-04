@@ -8,12 +8,12 @@
 
 class HEMAX_GeometryMouseCallback : public CreateMouseCallBack {
 
-public:
-    int proc(ViewExp *Vpt, int Msg, int Point, int Flags, IPoint2 M, Matrix3& Mat);
-    void SetGeomObject(HEMAX_GeometryPlugin* GeomObject);
+    public:
+	int proc(ViewExp *Vpt, int Msg, int Point, int Flags, IPoint2 M, Matrix3& Mat);
+	void SetGeomObject(HEMAX_GeometryPlugin* GeomObject);
 
-private:
-    HEMAX_GeometryPlugin* TheObject;
+    private:
+	HEMAX_GeometryPlugin* TheObject;
 
-    Point3 CreationPoint;
+	Point3 CreationPoint;
 };

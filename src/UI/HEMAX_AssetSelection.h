@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qdialog.h>
 #include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qboxlayout.h>
@@ -23,26 +26,26 @@ class HEMAX_AssetSelection : public QDialog
 {
     Q_OBJECT
 
-public:
-    HEMAX_AssetSelection(std::vector<std::string> AssetNames);
-    HEMAX_AssetSelection(std::vector<std::string> AssetNames, std::string DialogTitle, std::string DialogSubtitle);
-    ~HEMAX_AssetSelection();
+    public:
+	HEMAX_AssetSelection(std::vector<std::string> AssetNames);
+	HEMAX_AssetSelection(std::vector<std::string> AssetNames, std::string DialogTitle, std::string DialogSubtitle);
+	~HEMAX_AssetSelection();
 
-    std::string GetSelectedAssetName();
-    
-private:
+	std::string GetSelectedAssetName();
 
-    QVBoxLayout* MainLayout;
+    private:
 
-    QGroupBox* AssetSelectionBox;
-    QVBoxLayout* AssetSelectionLayout;
-    QListWidget* AssetSelectionList;
-    QPushButton* AssetSelectionButton;
+	QVBoxLayout* MainLayout;
 
-    QString CurrentSelection;
+	QGroupBox* AssetSelectionBox;
+	QVBoxLayout* AssetSelectionLayout;
+	QListWidget* AssetSelectionList;
+	QPushButton* AssetSelectionButton;
 
-private slots:
+	QString CurrentSelection;
 
-    void SlotSelectionButtonClicked();
-    void SlotListSelection(QListWidgetItem*);
+    private slots:
+
+	void SlotSelectionButtonClicked();
+	void SlotListSelection(QListWidgetItem*);
 };

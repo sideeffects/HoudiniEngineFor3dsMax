@@ -1,11 +1,16 @@
 #include "HEMAX_SessionWidget.h"
+
 #include "../HEMAX_HAPISession.h"
+#include "../HEMAX_Plugin.h"
 #include "../HEMAX_SessionManager.h"
 #include "../HEMAX_UserPrefs.h"
 
 #include "moc_HEMAX_SessionWidget.cpp"
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qfiledialog.h>
 #endif
 
@@ -13,8 +18,9 @@
 #include <QtGui/qfiledialog.h>
 #endif
 
-HEMAX_SessionWidget::HEMAX_SessionWidget()
+HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     : QWidget()
+    , Plugin(ActivePlugin)
 {
     MainLayout = new QVBoxLayout;
 
@@ -35,20 +41,16 @@ HEMAX_SessionWidget::HEMAX_SessionWidget()
     SessionsAutoStartLabel = new QLabel("Auto-Start Session");
     SessionsManualStartLabel = new QLabel("Manual Session");
     SessionsOutOfProcessRadioButton = new QRadioButton("Out of Process");
-    SessionsInProcessRadioButton = new QRadioButton("In-Process");
-    SessionsPipeRadioButton = new QRadioButton("Thift Pipe");
+    SessionsPipeRadioButton = new QRadioButton("Thrift Pipe");
     SessionsSocketRadioButton = new QRadioButton("Thrift Socket");
 
     SessionsHostNameLabel = new QLabel("Host Name:");
     SessionsSocketHostName = new QLineEdit;
-    SessionsSocketHostName->setText(HEMAX_SESSION_HOST_NAME_DEFAULT);
+    
     SessionsPortNumberLabel = new QLabel("Port Number:");
     SessionsSocketPortNumber = new QLineEdit;
-    SessionsSocketPortNumber->setText(HEMAX_SESSION_PORT_NUM_DEFAULT);
-
     SessionsPipeNameLabel = new QLabel("Pipe Name:");
     SessionsPipeName = new QLineEdit;
-    SessionsPipeName->setText(HEMAX_SESSION_PIPE_NAME_DEFAULT);
 
     SessionsConfigurationBox = new QGroupBox("Session Configuration");
     SessionsConfigurationBoxLayout = new QGridLayout;
@@ -82,17 +84,14 @@ HEMAX_SessionWidget::HEMAX_SessionWidget()
 
     SessionsBoxLayout->addLayout(SessionsControlLayout);
 
-    SessionsOutOfProcessRadioButton->setChecked(true);
-
     AutoStartOptionsLayout->setAlignment(Qt::AlignLeft);
     ManualStartOptionsLayout->setAlignment(Qt::AlignLeft);
 
     AutoStartOptionsLayout->addWidget(SessionsOutOfProcessRadioButton);
-    //AutoStartOptionsLayout->addWidget(SessionsInProcessRadioButton);
 
     ManualStartOptionsLayout->addWidget(SessionsSocketRadioButton);
     ManualStartOptionsLayout->addWidget(SessionsPipeRadioButton);
-    
+
     SessionsTypeLayout->addWidget(SessionsAutoStartLabel);
     SessionsTypeLayout->addLayout(AutoStartOptionsLayout);
     SessionsTypeLayout->addWidget(SessionsManualStartLabel);
@@ -118,21 +117,36 @@ HEMAX_SessionWidget::HEMAX_SessionWidget()
 
     SessionsBox->setLayout(SessionsBoxLayout);
 
-    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesLabel, 0, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFiles, 1, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesBrowse, 1, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathLabel, 2, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPath, 3, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathBrowse, 3, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathLabel, 4, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPath, 5, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathBrowse, 5, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathLabel, 6, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPath, 7, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathBrowse, 7, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathLabel, 8, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPath, 9, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathBrowse, 9, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesLabel,
+                                              0, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFiles,
+                                              1, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesBrowse,
+                                              1, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathLabel,
+                                              2, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPath,
+                                              3, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathBrowse,
+                                              3, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathLabel,
+                                              4, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPath,
+                                              5, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathBrowse,
+                                              5, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathLabel,
+                                              6, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPath,
+                                              7, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathBrowse,
+                                              7, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathLabel,
+                                              8, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPath,
+                                              9, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathBrowse,
+                                              9, 1);
 
     SessionsConfigurationBox->setLayout(SessionsConfigurationBoxLayout);
 
@@ -141,26 +155,100 @@ HEMAX_SessionWidget::HEMAX_SessionWidget()
 
     this->setLayout(MainLayout);
 
+    InitFieldsFromPrefs();
+
     SlotSessionsSocketToggle(false);
     SlotSessionsPipeToggle(false);
 
-    QObject::connect(SessionsStartButton, SIGNAL(clicked()), this, SLOT(SlotSessionsStartButtonClicked()));
-    QObject::connect(SessionsStopButton, SIGNAL(clicked()), this, SLOT(SlotSessionsStopButtonClicked()));
+    QObject::connect(SessionsStartButton,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsStartButtonClicked()));
 
-    QObject::connect(SessionsSocketRadioButton, SIGNAL(toggled(bool)), this, SLOT(SlotSessionsSocketToggle(bool)));
-    QObject::connect(SessionsPipeRadioButton, SIGNAL(toggled(bool)), this, SLOT(SlotSessionsPipeToggle(bool)));
+    QObject::connect(SessionsStopButton,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsStopButtonClicked()));
 
-    QObject::connect(SessionsHoudiniEnvFilesBrowse, SIGNAL(clicked()), this, SLOT(SlotSessionsHoudiniEnvFileBrowse()));
-    QObject::connect(SessionsOtlSearchPathBrowse, SIGNAL(clicked()), this, SLOT(SlotSessionsOtlSearchPathBrowse()));
-    QObject::connect(SessionsDsoSearchPathBrowse, SIGNAL(clicked()), this, SLOT(SlotSessionsDsoSearchPathBrowse()));
-    QObject::connect(SessionsImageDsoSearchPathBrowse, SIGNAL(clicked()), this, SLOT(SlotSessionsImageDsoSearchPathBrowse()));
-    QObject::connect(SessionsAudioDsoSearchPathBrowse, SIGNAL(clicked()), this, SLOT(SlotSessionsAudioDsoSearchPathBrowse()));
+    QObject::connect(SessionsOutOfProcessRadioButton,
+                     SIGNAL(toggled(bool)),
+                     this,
+                     SLOT(SlotSessionsAutoToggle(bool)));
 
-    QObject::connect(SessionsHoudiniEnvFiles, SIGNAL(editingFinished()), this, SLOT(SlotSessionsHoudiniEnvFileEdited()));
-    QObject::connect(SessionsOtlSearchPath, SIGNAL(editingFinished()), this, SLOT(SlotSessionsOtlSearchPathEdited()));
-    QObject::connect(SessionsDsoSearchPath, SIGNAL(editingFinished()), this, SLOT(SlotSessionsDsoSearchPathEdited()));
-    QObject::connect(SessionsImageDsoSearchPath, SIGNAL(editingFinished()), this, SLOT(SlotSessionsImageSearchPathEdited()));
-    QObject::connect(SessionsAudioDsoSearchPath, SIGNAL(editingFinished()), this, SLOT(SlotSessionsAudioSearchPathEdited()));
+    QObject::connect(SessionsSocketRadioButton,
+                     SIGNAL(toggled(bool)),
+                     this,
+                     SLOT(SlotSessionsSocketToggle(bool)));
+
+    QObject::connect(SessionsPipeRadioButton,
+                     SIGNAL(toggled(bool)),
+                     this,
+                     SLOT(SlotSessionsPipeToggle(bool)));
+
+    QObject::connect(SessionsSocketHostName,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsSocketHostName()));
+
+    QObject::connect(SessionsSocketPortNumber,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsSocketPortNumber()));
+
+    QObject::connect(SessionsPipeName,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsPipeName()));
+
+    QObject::connect(SessionsHoudiniEnvFilesBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsHoudiniEnvFileBrowse()));
+
+    QObject::connect(SessionsOtlSearchPathBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsOtlSearchPathBrowse()));
+
+    QObject::connect(SessionsDsoSearchPathBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsDsoSearchPathBrowse()));
+
+    QObject::connect(SessionsImageDsoSearchPathBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsImageDsoSearchPathBrowse()));
+
+    QObject::connect(SessionsAudioDsoSearchPathBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotSessionsAudioDsoSearchPathBrowse()));
+
+    QObject::connect(SessionsHoudiniEnvFiles,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsHoudiniEnvFileEdited()));
+
+    QObject::connect(SessionsOtlSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsOtlSearchPathEdited()));
+
+    QObject::connect(SessionsDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsDsoSearchPathEdited()));
+
+    QObject::connect(SessionsImageDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsImageSearchPathEdited()));
+
+    QObject::connect(SessionsAudioDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsAudioSearchPathEdited()));
 }
 
 HEMAX_SessionWidget::~HEMAX_SessionWidget()
@@ -197,7 +285,6 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
 
     delete SessionsPipeRadioButton;
     delete SessionsSocketRadioButton;
-    delete SessionsInProcessRadioButton;
     delete SessionsOutOfProcessRadioButton;
 
     delete SessionsStopButton;
@@ -212,38 +299,142 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
 
     delete SessionsBoxLayout;
     delete SessionsBox;
-    
+
     delete MainLayout;
 }
 
 void
-HEMAX_SessionWidget::PushHoudiniEnvFilePath(std::string Path)
+HEMAX_SessionWidget::Update()
 {
-    SessionsHoudiniEnvFiles->setText(Path.c_str());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+
+    if (SM.IsSessionActive())
+    {
+	SessionsStartButton->setDisabled(true);
+	SessionsStopButton->setDisabled(false);
+	SessionsTypeBox->setDisabled(true);
+	SessionsConfigurationBox->setDisabled(true);
+
+	SessionsSocketHostName->setDisabled(true);
+	SessionsHostNameLabel->setDisabled(true);
+	SessionsSocketPortNumber->setDisabled(true);
+	SessionsPortNumberLabel->setDisabled(true);
+
+	SessionsPipeName->setDisabled(true);
+	SessionsPipeNameLabel->setDisabled(true);
+
+
+	if (SM.IsAutoSession())
+	{
+	    SessionsOutOfProcessRadioButton->setChecked(true); 
+	}
+    }
+    else
+    {
+	SessionsStartButton->setDisabled(false);
+	SessionsStopButton->setDisabled(true);
+	SessionsTypeBox->setDisabled(false);
+	SessionsConfigurationBox->setDisabled(false);
+
+	if (SessionsSocketRadioButton->isChecked())
+	{
+	    SessionsSocketHostName->setDisabled(false);
+	    SessionsHostNameLabel->setDisabled(false);
+	    SessionsSocketPortNumber->setDisabled(false);
+	    SessionsPortNumberLabel->setDisabled(false);
+	}
+
+	if (SessionsPipeRadioButton->isChecked())
+	{
+	    SessionsPipeName->setDisabled(false);
+	    SessionsPipeNameLabel->setDisabled(false);
+	}
+    }
 }
 
 void
-HEMAX_SessionWidget::PushOtlSearchPath(std::string Path)
+HEMAX_SessionWidget::InitFieldsFromPrefs()
 {
-    SessionsOtlSearchPath->setText(Path.c_str());
-}
+    if (!Plugin)
+        return;
 
-void
-HEMAX_SessionWidget::PushDsoSearchPath(std::string Path)
-{
-    SessionsDsoSearchPath->setText(Path.c_str());
-}
+    HEMAX_UserPrefs* Prefs = Plugin->GetUserPrefs();
 
-void
-HEMAX_SessionWidget::PushImageDsoSearchPath(std::string Path)
-{
-    SessionsImageDsoSearchPath->setText(Path.c_str());
-}
+    if (!Prefs)
+        return;
 
-void
-HEMAX_SessionWidget::PushAudioDsoSearchPath(std::string Path)
-{
-    SessionsAudioDsoSearchPath->setText(Path.c_str());
+    int Type;
+    if (Prefs->GetIntSetting(HEMAX_SETTING_SESSION_TYPE, Type))
+    {
+        HEMAX_SessionTypePref SessionType =
+                                static_cast<HEMAX_SessionTypePref>(Type);
+
+        if (SessionType == HEMAX_SessionTypePref::AutoStart)
+        {
+            SessionsOutOfProcessRadioButton->setChecked(true);
+        }
+        else if (SessionType == HEMAX_SessionTypePref::Socket)
+        {
+            SessionsSocketRadioButton->setChecked(true);
+        }
+        else if (SessionType == HEMAX_SessionTypePref::NamedPipe)
+        {
+            SessionsPipeRadioButton->setChecked(true);
+        }
+    }
+
+    std::string HostName;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME, HostName))
+    {
+        SessionsSocketHostName->setText(HostName.c_str());
+    }
+
+    int Port;
+    if (Prefs->GetIntSetting(HEMAX_SETTING_SESSION_PORT, Port))
+    {
+        SessionsSocketPortNumber->setText(std::to_string(Port).c_str());
+    }
+
+    std::string PipeName;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
+    {
+        SessionsPipeName->setText(PipeName.c_str());
+    }
+
+    std::string HoudiniEnvFilePath;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+                                HoudiniEnvFilePath))
+    {
+        SessionsHoudiniEnvFiles->setText(HoudiniEnvFilePath.c_str());
+    }
+
+    std::string OtlSearchPath;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+                                OtlSearchPath))
+    {
+        SessionsOtlSearchPath->setText(OtlSearchPath.c_str());
+    }
+
+    std::string DsoSearchPath;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+                                DsoSearchPath))
+    {
+        SessionsDsoSearchPath->setText(DsoSearchPath.c_str());
+    }
+
+    std::string ImageDsoSearchPath;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+                                ImageDsoSearchPath))
+    {
+        SessionsImageDsoSearchPath->setText(ImageDsoSearchPath.c_str());
+    }
+
+    std::string AudioDsoSearchPath;
+    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+                                AudioDsoSearchPath))
+    {
+        SessionsAudioDsoSearchPath->setText(AudioDsoSearchPath.c_str());
+    }
 }
 
 void
@@ -251,191 +442,233 @@ HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
 {
     HEMAX_SessionType SelectedSessionType;
 
-    if (SessionsInProcessRadioButton->isChecked()) SelectedSessionType = HEMAX_IN_PROCESS;
-    else if (SessionsPipeRadioButton->isChecked()) SelectedSessionType = HEMAX_THRIFT_PIPE;
-    else if (SessionsOutOfProcessRadioButton->isChecked()) SelectedSessionType = HEMAX_THRIFT_PIPE;
-    else SelectedSessionType = HEMAX_THRIFT_SOCKET;
+    if (SessionsPipeRadioButton->isChecked())
+        SelectedSessionType = HEMAX_THRIFT_PIPE;
+    else if (SessionsOutOfProcessRadioButton->isChecked())
+        SelectedSessionType = HEMAX_THRIFT_PIPE;
+    else
+        SelectedSessionType = HEMAX_THRIFT_SOCKET;
 
     HEMAX_SessionManager& Manager = HEMAX_SessionManager::GetSessionManager();
 
     if (Manager.GetSessionType() != SelectedSessionType)
     {
-        Manager.SetSessionType(SelectedSessionType);
+	Manager.SetSessionType(SelectedSessionType);
     }
 
     switch (SelectedSessionType)
     {
-    case (HEMAX_THRIFT_PIPE):
-    {
-        if (SessionsPipeRadioButton->isChecked())
-        {
-            Manager.SetThriftNamedPipeSessionName(SessionsPipeName->text().toStdString());
-        }
-        else
-        {
-            Manager.StartThriftNamedPipeThinClient();
-        }
-        break;
-    }
-    case (HEMAX_THRIFT_SOCKET):
-    {
-        Manager.SetThriftSocketHostName(SessionsSocketHostName->text().toStdString());
-        Manager.SetThriftSocketPortNumber(SessionsSocketPortNumber->text().toInt());
-        break;
-    }
-    default:
-    {
-        break;
-    }
+	case (HEMAX_THRIFT_PIPE):
+	{
+	    if (SessionsPipeRadioButton->isChecked())
+	    {
+		Manager.SetThriftNamedPipeSessionName(
+                        SessionsPipeName->text().toStdString());
+	    }
+	    else
+	    {
+		Manager.StartThriftNamedPipeThinClient();
+	    }
+	    break;
+	}
+	case (HEMAX_THRIFT_SOCKET):
+	{
+	    Manager.SetThriftSocketHostName(
+                        SessionsSocketHostName->text().toStdString());
+	    Manager.SetThriftSocketPortNumber(
+                        SessionsSocketPortNumber->text().toInt());
+	    break;
+	}
+	default:
+	{
+	    break;
+	}
     }
 
-    const char* HoudiniEnvArg = SessionsHoudiniEnvFiles->text().toStdString().empty() ? nullptr : SessionsHoudiniEnvFiles->text().toStdString().c_str();
-    const char* OtlPathArg = SessionsOtlSearchPath->text().toStdString().empty() ? nullptr : SessionsOtlSearchPath->text().toStdString().c_str();
-    const char* DsoPathArg = SessionsDsoSearchPath->text().toStdString().empty() ? nullptr : SessionsDsoSearchPath->text().toStdString().c_str();
-    const char* ImageDsoPathArg = SessionsImageDsoSearchPath->text().toStdString().empty() ? nullptr : SessionsImageDsoSearchPath->text().toStdString().c_str();
-    const char* AudioDsoSearchArg = SessionsAudioDsoSearchPath->text().toStdString().empty() ? nullptr : SessionsAudioDsoSearchPath->text().toStdString().c_str();
-
-    if (Manager.StartSession(HoudiniEnvArg, OtlPathArg, DsoPathArg, ImageDsoPathArg, AudioDsoSearchArg))
-    {
-        SessionsStartButton->setDisabled(true);
-        SessionsStopButton->setDisabled(false);
-        SessionsTypeBox->setDisabled(true);
-        SessionsConfigurationBox->setDisabled(true);
-        
-        SessionsSocketHostName->setDisabled(true);
-        SessionsHostNameLabel->setDisabled(true);
-        SessionsSocketPortNumber->setDisabled(true);
-        SessionsPortNumberLabel->setDisabled(true);
-
-        SessionsPipeName->setDisabled(true);
-        SessionsPipeNameLabel->setDisabled(true);
-
-        emit Signal_SessionStarted();
-    }
+    Plugin->StartSession();
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsStopButtonClicked()
 {
-    SessionsStartButton->setDisabled(false);
-    SessionsStopButton->setDisabled(true);
-    SessionsTypeBox->setDisabled(false);
-    SessionsConfigurationBox->setDisabled(false);
-    
-    if (SessionsSocketRadioButton->isChecked())
-    {
-        SessionsSocketHostName->setDisabled(false);
-        SessionsHostNameLabel->setDisabled(false);
-        SessionsSocketPortNumber->setDisabled(false);
-        SessionsPortNumberLabel->setDisabled(false);
-    }
-
-    if (SessionsPipeRadioButton->isChecked())
-    {
-        SessionsPipeName->setDisabled(false);
-        SessionsPipeNameLabel->setDisabled(false);
-    }
-
-    emit Signal_SessionStopped();
+    Plugin->StopSession();
 }
 
 void
-HEMAX_SessionWidget::SlotSessionsSocketToggle(bool checked)
+HEMAX_SessionWidget::SlotSessionsAutoToggle(bool Checked)
 {
-    if (checked)
+    if (Checked)
     {
-        SessionsSocketHostName->setDisabled(false);
-        SessionsHostNameLabel->setDisabled(false);
-        SessionsSocketPortNumber->setDisabled(false);
-        SessionsPortNumberLabel->setDisabled(false);
-    }
-    else
-    {
-        SessionsSocketHostName->setDisabled(true);
-        SessionsHostNameLabel->setDisabled(true);
-        SessionsSocketPortNumber->setDisabled(true);
-        SessionsPortNumberLabel->setDisabled(true);
+        Plugin->GetUserPrefs()->SetIntSetting(
+                HEMAX_SETTING_SESSION_TYPE,
+                static_cast<int>(HEMAX_SessionTypePref::AutoStart));
     }
 }
 
 void
-HEMAX_SessionWidget::SlotSessionsPipeToggle(bool checked)
+HEMAX_SessionWidget::SlotSessionsSocketToggle(bool Checked)
 {
-    if (checked)
+    if (Checked)
     {
-        SessionsPipeName->setDisabled(false);
-        SessionsPipeNameLabel->setDisabled(false);
+        Plugin->GetUserPrefs()->SetIntSetting(
+                HEMAX_SETTING_SESSION_TYPE,
+                static_cast<int>(HEMAX_SessionTypePref::Socket));
+
+	SessionsSocketHostName->setDisabled(false);
+	SessionsHostNameLabel->setDisabled(false);
+	SessionsSocketPortNumber->setDisabled(false);
+	SessionsPortNumberLabel->setDisabled(false);
     }
     else
     {
-        SessionsPipeName->setDisabled(true);
-        SessionsPipeNameLabel->setDisabled(true);
+	SessionsSocketHostName->setDisabled(true);
+	SessionsHostNameLabel->setDisabled(true);
+	SessionsSocketPortNumber->setDisabled(true);
+	SessionsPortNumberLabel->setDisabled(true);
     }
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsPipeToggle(bool Checked)
+{
+    if (Checked)
+    {
+        Plugin->GetUserPrefs()->SetIntSetting(
+                HEMAX_SETTING_SESSION_TYPE,
+                static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
+
+	SessionsPipeName->setDisabled(false);
+	SessionsPipeNameLabel->setDisabled(false);
+    }
+    else
+    {
+	SessionsPipeName->setDisabled(true);
+	SessionsPipeNameLabel->setDisabled(true);
+    }
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsSocketHostName()
+{
+    Plugin->GetUserPrefs()->SetStringSetting(
+                    HEMAX_SETTING_SESSION_HOST_NAME,
+                    SessionsSocketHostName->text().toStdString());                    
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsSocketPortNumber()
+{
+    Plugin->GetUserPrefs()->SetIntSetting(
+                    HEMAX_SETTING_SESSION_PORT,
+                    SessionsSocketPortNumber->text().toInt());
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsPipeName()
+{
+    Plugin->GetUserPrefs()->SetStringSetting(
+                    HEMAX_SETTING_SESSION_PIPE_NAME,
+                    SessionsPipeName->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsHoudiniEnvFileBrowse()
 {
-    SessionsHoudiniEnvFiles->setText(FileBrowseDialog(SessionsHoudiniEnvFiles->text()));
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_ENV_FILES, SessionsHoudiniEnvFiles->text().toStdString());
+    SessionsHoudiniEnvFiles->setText(FileBrowseDialog(
+                                        SessionsHoudiniEnvFiles->text()));
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_ENV_FILES,
+                                SessionsHoudiniEnvFiles->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsOtlSearchPathBrowse()
 {
-    SessionsOtlSearchPath->setText(DirectoryBrowseDialog(SessionsOtlSearchPath->text()));
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_OTL_SEARCH, SessionsOtlSearchPath->text().toStdString());
+    SessionsOtlSearchPath->setText(DirectoryBrowseDialog(
+                                    SessionsOtlSearchPath->text()));
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_OTL_SEARCH,
+                                SessionsOtlSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsDsoSearchPathBrowse()
 {
-    SessionsDsoSearchPath->setText(DirectoryBrowseDialog(SessionsDsoSearchPath->text()));
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_DSO_SEARCH, SessionsDsoSearchPath->text().toStdString());
+    SessionsDsoSearchPath->setText(DirectoryBrowseDialog(
+                                    SessionsDsoSearchPath->text()));
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_DSO_SEARCH,
+                                SessionsDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsImageDsoSearchPathBrowse()
 {
-    SessionsImageDsoSearchPath->setText(DirectoryBrowseDialog(SessionsImageDsoSearchPath->text()));
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, SessionsImageDsoSearchPath->text().toStdString());
+    SessionsImageDsoSearchPath->setText(DirectoryBrowseDialog(
+                                    SessionsImageDsoSearchPath->text()));
+    Plugin->GetUserPrefs()->SetStringSetting(
+                    HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+                    SessionsImageDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsAudioDsoSearchPathBrowse()
 {
-    SessionsAudioDsoSearchPath->setText(DirectoryBrowseDialog(SessionsAudioDsoSearchPath->text()));
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, SessionsAudioDsoSearchPath->text().toStdString());
+    SessionsAudioDsoSearchPath->setText(DirectoryBrowseDialog(
+                                    SessionsAudioDsoSearchPath->text()));
+    Plugin->GetUserPrefs()->SetStringSetting(
+                    HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+                    SessionsAudioDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsHoudiniEnvFileEdited()
 {
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_ENV_FILES, SessionsHoudiniEnvFiles->text().toStdString());
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_ENV_FILES,
+                                SessionsHoudiniEnvFiles->text().toStdString());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.SetHoudiniEnvFiles(SessionsHoudiniEnvFiles->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsOtlSearchPathEdited()
 {
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_OTL_SEARCH, SessionsOtlSearchPath->text().toStdString());
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_OTL_SEARCH,
+                                SessionsOtlSearchPath->text().toStdString());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.SetOtlSearchPath(SessionsOtlSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsDsoSearchPathEdited()
 {
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_DSO_SEARCH, SessionsDsoSearchPath->text().toStdString());
+    Plugin->GetUserPrefs()->SetStringSetting(
+                                HEMAX_SETTING_SESSION_DSO_SEARCH,
+                                SessionsDsoSearchPath->text().toStdString());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.SetDsoSearchPath(SessionsDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsImageSearchPathEdited()
 {
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, SessionsImageDsoSearchPath->text().toStdString());
+    Plugin->GetUserPrefs()->SetStringSetting(
+                        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+                        SessionsImageDsoSearchPath->text().toStdString());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.SetImageDsoSearchPath(SessionsImageDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsAudioSearchPathEdited()
 {
-    emit Signal_SessionConfigPathChanged(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, SessionsAudioDsoSearchPath->text().toStdString());
+    Plugin->GetUserPrefs()->SetStringSetting(
+                        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+                        SessionsAudioDsoSearchPath->text().toStdString());
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.SetAudioDsoSearchPath(SessionsAudioDsoSearchPath->text().toStdString());
 }
 
 QString
@@ -447,11 +680,11 @@ HEMAX_SessionWidget::DirectoryBrowseDialog(QString CurrentValue)
 
     if (DirectoryDialog.exec())
     {
-        return DirectoryDialog.selectedFiles()[0];
+	return DirectoryDialog.selectedFiles()[0];
     }
     else
     {
-        return CurrentValue;
+	return CurrentValue;
     }
 }
 
@@ -461,13 +694,13 @@ HEMAX_SessionWidget::FileBrowseDialog(QString CurrentValue)
     QFileDialog FileDialog;
     FileDialog.setFileMode(QFileDialog::ExistingFile);
     FileDialog.setNameFilter("env (*.env);; All files (*.*)");
-    
+
     if (FileDialog.exec())
     {
-        return FileDialog.selectedFiles()[0];
+	return FileDialog.selectedFiles()[0];
     }
     else
     {
-        return CurrentValue;
+	return CurrentValue;
     }
 }

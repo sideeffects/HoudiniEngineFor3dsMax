@@ -3,159 +3,194 @@
 #include "HEMAX_Types.h"
 #include "HEMAX_MaterialNode.h"
 #include <unordered_map>
+#include <unordered_set>
+#include <inode.h>
 #include "mnmesh.h"
+
+enum HEMAX_Mesh_MetadataType
+{
+    HEMAX_MESH_INT_METADATA,
+    HEMAX_MESH_FLOAT_METADATA,
+    HEMAX_MESH_STRING_METADATA
+};
+
+template<typename T>
+class HEMAX_MeshList
+{
+    public:
+	HEMAX_MeshList();
+	~HEMAX_MeshList();
+
+	void                        Init(unsigned int _Size, unsigned int _TupleSize, HEMAX_AttributeOwner _Owner);
+	T*                          Data();
+	std::vector<T>              Value(int Index);
+	unsigned int                DataSize();
+	unsigned int                DataTupleSize();
+	HEMAX_AttributeOwner        DataOwner();
+
+	void			    MergeEqualTuples();
+
+	unsigned int		    MergedDataSize();
+	std::vector<T>&		    MergedValues();
+	unsigned int		    GetMergedIndex(int Index);	
+
+    private:
+	T*                          List;
+	HEMAX_AttributeOwner        Owner;
+	unsigned int                Size;
+	unsigned int                TupleSize;
+
+	std::vector<T>		    TupleSet;
+	std::vector<unsigned int>   IndexMapping;
+
+        bool                        IsMerged;
+};
 
 class HEMAX_Mesh
 {
-public:
+    public:
 
-    HEMAX_Mesh();
-    HEMAX_Mesh( int FCount, int VCount, int PCount, int PTupleSize );
-    ~HEMAX_Mesh();
+	HEMAX_Mesh();
+	HEMAX_Mesh( int FCount, int VCount, int PCount );
+	~HEMAX_Mesh();
 
-    void SetFaceCount( int Count );
-    void SetVertexCount ( int Count );
-    void SetPointCount ( int Count, int TupleSize );
+	int GetFaceCount();
+	int GetVertexCount();
+	int GetPointCount();
+	int GetPointUVCount();
+	int GetVertexUVCount();
+	int GetUVTupleSize();
+	int GetNumMaterials();
 
-    int GetFaceCount();
-    int GetVertexCount();
-    int GetPointCount();
-    int GetPointTupleSize();
-    int GetPointUVCount();
-    int GetVertexUVCount();
-    int GetUVTupleSize();
-    int GetNumMaterials();
+	int* GetFaceVertexCountsArray();
+	int* GetVertexListArray();
+	float* GetPointListArray();
+	float* GetPointNormalsListArray();
+	float* GetVertexNormalsListArray();
+	HEMAX_NodeId* GetMaterialIdsArray();
+	float* GetPointUVArray();
+	float* GetVertexUVArray();
+	float* GetPointCdArray();
+	float* GetVertexCdArray();
+	float* GetAlphaArray();
+	float* GetIlluminationArray();
+	int* GetSmoothingGroupArray();
+	int* GetMaterialIDArray();
 
-    void SetFaceVertexCounts( int* FVCounts );
-    void SetVertexList( int* VList );
-    void SetPointList( float* PList );
-    void SetPointNormalsList(float* PNList);
-    void SetVertexNormalsList(float* VNList);
+	int GetFaceVertexCount(int Index);
+	void GetPointAtIndex( int Index, float* Point );
+	void GetPointNormalAtIndex(int Index, float* Normal);
+	void GetVertexNormalAtIndex(int Index, float* Normal);
+	int GetVertex( int Index );
+	void GetPointUVAtIndex(int Index, float* UVVals);
+	void GetVertexUVAtIndex(int Index, float* UVVals);
 
-    int* GetFaceVertexCountsArray();
-    int* GetVertexListArray();
-    float* GetPointListArray();
-    float* GetPointNormalsListArray();
-    float* GetVertexNormalsListArray();
-    HEMAX_NodeId* GetMaterialIdsArray();
-    float* GetPointUVArray();
-    float* GetVertexUVArray();
-    float* GetPointCdArray();
-    float* GetVertexCdArray();
-    float* GetAlphaArray();
-    float* GetIlluminationArray();
-    int* GetSmoothingGroupArray();
-    int* GetMaterialIDArray();
+	void GetPointCdAtIndex(int Index, float* CdVals);
+	void GetVertexCdAtIndex(int Index, float* CdVals);
 
-    int GetFaceVertexCount(int Index);
-    void GetPointAtIndex( int Index, float* Point );
-    void GetPointNormalAtIndex(int Index, float* Normal);
-    void GetVertexNormalAtIndex(int Index, float* Normal);
-    int GetVertex( int Index );
-    void GetPointUVAtIndex(int Index, float* UVVals);
-    void GetVertexUVAtIndex(int Index, float* UVVals);
+	float GetAlphaAtIndex(int Index);
 
-    void GetPointCdAtIndex(int Index, float* CdVals);
-    void GetVertexCdAtIndex(int Index, float* CdVals);
+	void GetIlluminationAtIndex(int Index, float* IlluminationVals);
 
-    float GetAlphaAtIndex(int Index);
+	void SetNormalsExist(bool Exist);
+	bool DoNormalsExist();
 
-    void GetIlluminationAtIndex(int Index, float* IlluminationVals);
+	void AllocatePointNormalArray();
+	void AllocateVertexNormalArray();
+	void AllocateMaterialIdsArray();
+	void AllocatePointUVArray(int TupleSize);
+	void AllocateVertexUVArray(int TupleSize);
 
-    void SetNormalsExist(bool Exist);
-    bool DoNormalsExist();
+	void AllocatePointCdArray();
+	void AllocateVertexCdArray();
 
-    void AllocatePointNormalArray();
-    void AllocateVertexNormalArray();
-    void AllocateMaterialIdsArray();
-    void AllocatePointUVArray(int TupleSize);
-    void AllocateVertexUVArray(int TupleSize);
+	void AllocateAlphaArray(HEMAX_AttributeOwner Owner);
+	void AllocateIlluminationArray(HEMAX_AttributeOwner Owner);
 
-    void AllocatePointCdArray();
-    void AllocateVertexCdArray();
+	void AllocateSmoothingGroupsArray();
+	void AllocateMaterialIDArray();
 
-    void AllocateAlphaArray(HEMAX_AttributeOwner Owner);
-    void AllocateIlluminationArray(HEMAX_AttributeOwner Owner);
+	HEMAX_NormalType GetNormalType();
+	HEMAX_UVType GetUVType();
 
-    void AllocateSmoothingGroupsArray();
-    void AllocateMaterialIDArray();
+	bool DoesCdAttrExist();
+	HEMAX_AttributeOwner GetCdAttrOwner();
 
-    HEMAX_NormalType GetNormalType();
-    HEMAX_UVType GetUVType();
+	bool DoesAlphaAttrExist();
+	HEMAX_AttributeOwner GetAlphaAttrOwner();
 
-    bool DoesCdAttrExist();
-    HEMAX_AttributeOwner GetCdAttrOwner();
+	bool DoesIlluminationAttrExist();
+	HEMAX_AttributeOwner GetIlluminationOwner();
 
-    bool DoesAlphaAttrExist();
-    HEMAX_AttributeOwner GetAlphaAttrOwner();
+	bool DoesSmoothingGroupAttrExist();
+	bool DoesMaterialIDAttrExist();
 
-    bool DoesIlluminationAttrExist();
-    HEMAX_AttributeOwner GetIlluminationOwner();
+	bool DoUVsExist();
 
-    bool DoesSmoothingGroupAttrExist();
-    bool DoesMaterialIDAttrExist();
+	int GetPostTriangulationFaceCount();
 
-    bool DoUVsExist();
+	void CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size);
+	std::vector<float>& GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer);
+	bool DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer);
 
-    void MarshallDataInto3dsMaxMesh(Mesh& MaxMesh);
-    void MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh);
+	void AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HEMAX_AttributeOwner Owner);
 
-    int GetPostTriangulationFaceCount();
+	HEMAX_MeshList<int>& GetIntMetadata(std::string Name);
+	HEMAX_MeshList<float>& GetFloatMetadata(std::string Name);
+	HEMAX_MeshList<std::string>& GetStringMetadata(std::string Name);
 
-    void CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size);
-    std::vector<float>& GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer);
-    bool DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer);
+	void ApplyDetailMetadata(INode* Node);
 
-    std::string MaterialPath;
+	void MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh);
 
-    bool AreMaterialIdsSame;
+	std::string MaterialPath;
 
-private:
-    
-    bool NormalsExist;
-    HEMAX_NormalType NormalType;
+	bool AreMaterialIdsSame;
 
-    int FaceCount;
-    int VertexCount;
-    int PointCount;
-    int PointTupleSize;
+    private:
 
-    HEMAX_NodeId* FaceMaterialIds;
+	bool NormalsExist;
+	HEMAX_NormalType NormalType;
 
-    int* FaceVertexCounts;
-    int* VertexList;
-    float* PointList;
-    float* PointNormals;
-    float* VertexNormals;
+	int FaceCount;
+	int VertexCount;
+	int PointCount;
 
-    float* UVPointArray;
-    float* UVVertArray;
-    int UVTupleSize;
-    bool HasUVs;
-    HEMAX_UVType UVType;
+	HEMAX_MeshList<HEMAX_NodeId> FaceMaterialIds;
+	HEMAX_MeshList<int> FaceVertexCounts;
+	HEMAX_MeshList<int> VertexList;
+	HEMAX_MeshList<float> PointList;
+	HEMAX_MeshList<float> Normals;
+	HEMAX_MeshList<float> UVList;
+	HEMAX_MeshList<float> CdList;
+	HEMAX_MeshList<float> AlphaList;
+	HEMAX_MeshList<float> IlluminationList;
+	HEMAX_MeshList<int> SmoothingGroupList;
+	HEMAX_MeshList<int> MaterialIDList;
 
-    bool ColorAttrExists;
-    HEMAX_AttributeOwner ColorAttrOwner;
+	std::unordered_map<std::string, HEMAX_MeshList<int>> IntMetadata;
+	std::unordered_map<std::string, HEMAX_MeshList<float>> FloatMetadata;
+	std::unordered_map<std::string, HEMAX_MeshList<std::string>> StringMetadata;
 
-    float* PointCdArray;
-    float* VertexCdArray;
+	int UVTupleSize;
+	bool HasUVs;
+	HEMAX_UVType UVType;
 
-    float* AlphaArray;
-    bool AlphaAttrExists;
-    HEMAX_AttributeOwner AlphaAttrOwner;
+	bool ColorAttrExists;
+	HEMAX_AttributeOwner ColorAttrOwner;
 
-    float* IlluminationArray;
-    bool IlluminationAttrExists;
-    HEMAX_AttributeOwner IlluminationAttrOwner;
+	bool AlphaAttrExists;
+	HEMAX_AttributeOwner AlphaAttrOwner;
 
-    int* SmoothingGroupArray;
-    bool SmoothingGroupsExist;
+	bool IlluminationAttrExists;
+	HEMAX_AttributeOwner IlluminationAttrOwner;
 
-    int* MaterialIDArray;
-    bool MaterialIDsExist;
+	bool SmoothingGroupsExist;
 
-    std::unordered_map<int, std::vector<float>> SecondaryVertexUVs;
-    std::unordered_map<int, std::vector<float>> SecondaryPointUVs;
+	bool MaterialIDsExist;
 
-    int SecondaryUVCount;
+	std::unordered_map<int, std::vector<float>> SecondaryVertexUVs;
+	std::unordered_map<int, std::vector<float>> SecondaryPointUVs;
+
+	int SecondaryUVCount;
 };

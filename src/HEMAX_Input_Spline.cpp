@@ -19,7 +19,7 @@ HEMAX_Input_Spline::HEMAX_Input_Spline(HEMAX_InputType Type, LinearShape* TheSha
 {
     if (TheShape)
     {
-        BuildLinearCurveForInputNode(Node, TheShape, "modifier_input");
+	BuildLinearCurveForInputNode(Node, TheShape, "modifier_input");
     }
 }
 
@@ -34,12 +34,12 @@ HEMAX_Input_Spline::~HEMAX_Input_Spline()
 {
     if (Node)
     {
-        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        if (SM.IsSessionActive())
-        {
-            DeleteNode(*Node);
-        }
+	if (SM.IsSessionActive())
+	{
+	    Node->Delete();
+	}
     }
 }
 
@@ -48,7 +48,7 @@ HEMAX_Input_Spline::RebuildAfterChange()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    DeleteNode(*Node);
+    Node->Delete();
     BuildInputNode();
 }
 
@@ -59,112 +59,118 @@ HEMAX_Input_Spline::BuildInputNode()
 
     if (MaxInputNode)
     {
-        ObjectState MaxObjectState = MaxInputNode->EvalWorldState(0);
-        Object* MaxObject = MaxObjectState.obj;
+	ObjectState MaxObjectState = MaxInputNode->EvalWorldState(0);
+	Object* MaxObject = MaxObjectState.obj;
 
-        if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
-        {
-            LinearShape* TheShape = (LinearShape*)MaxObject->ConvertToType(0, Class_ID(LINEARSHAPE_CLASS_ID, 0));
+	if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
+	{
+	    LinearShape* TheShape = (LinearShape*)MaxObject->ConvertToType(0, Class_ID(LINEARSHAPE_CLASS_ID, 0));
 
-            if (InputNodeType == HEMAX_INPUT_EDITABLENODE)
-            {
-                BuildLinearCurveForEditableNode(Node, TheShape, GetInputNodeName());
-            }
-            else
-            {
-                BuildLinearCurveForInputNode(Node, TheShape, GetInputNodeName());
-            }
+	    if (InputNodeType == HEMAX_INPUT_EDITABLENODE)
+	    {
+		BuildLinearCurveForEditableNode(Node, TheShape, GetInputNodeName());
+	    }
+	    else
+	    {
+		BuildLinearCurveForInputNode(Node, TheShape, GetInputNodeName());
+	    }
 
-            if (MaxObject != TheShape)
-            {
-                delete TheShape;
-            }
+	    if (MaxObject != TheShape)
+	    {
+		delete TheShape;
+	    }
 
-            INode* InputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
+	    INode* InputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
 
-            if (InputNode)
-            {
-                HAPI_Transform HAPITransform = HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_Utilities::BuildMaxTransformFromINode(InputNode));
+	    if (InputNode)
+	    {
+		HAPI_Transform HAPITransform = HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_Utilities::BuildMaxTransformFromINode(InputNode));
 
-                HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+		HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-                SM.Session->SetObjectTransform(Node->Info.parentId, &HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPITransform));
-            }
-        }
+		SM.Session->SetObjectTransform(Node->Info.parentId, &HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPITransform));
+	    }
+	}
     }
 }
 
 void
 HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node, LinearShape* TheShape, std::string InputNodeName)
 {
-    CreateInputNode(*Node, InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
+    CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+    MarshalNodeNameDetailAttribute();
+
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
     int CurveCount = TheShape->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
     int CurveCount = TheShape->NumberOfCurves();
 #endif
 
-    if (CurveCount > 1)
-    {
-        HEMAX_Logger::Instance().AddEntry("HEMAX_Input: user chose a shape with more than 1 curve as a HAPI input. Only the first curve will be used.", HEMAX_LOG_LEVEL_INFO);
-    }
-
     if (CurveCount > 0)
     {
-        int PointCount = TheShape->NumberOfVertices(GetCOREInterface()->GetTime(), 0);
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        AddNewPart(*Node, HEMAX_PARTTYPE_CURVE, 1, PointCount, PointCount);
+	std::vector<int> CountsArray(CurveCount);
+	std::vector<int> OrdersArray(CurveCount, 0);
+	std::vector<float> PointsArray;
 
-        HEMAX_CurveInfo CurveInfo;
-        CurveInfo.curveCount = 1;
-        CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
-        CurveInfo.hasKnots = false;
-        CurveInfo.isPeriodic = false;
-        CurveInfo.knotCount = 0;
-        CurveInfo.order = 0;
-        CurveInfo.vertexCount = PointCount;
+	float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
 
-        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	for (int c = 0; c < CurveCount; c++)
+	{
+	    PolyLine& Line = TheShape->shape.lines[c];
 
-        SM.Session->SetCurveInfo(Node->Info.id, 0, &CurveInfo);
+	    CountsArray[c] = Line.Verts();
+	    PolyPt* LinePoints = Line.pts;
 
-        int CountsArray[] = { PointCount };
-        SM.Session->SetCurveCounts(Node->Info.id, 0, CountsArray, 0, 1);
+	    for (int p = 0; p < Line.Verts(); p++)
+	    {
+		PointsArray.push_back(LinePoints[p].p.x * ScaleConversion);
+		PointsArray.push_back(LinePoints[p].p.z * ScaleConversion);
+		PointsArray.push_back(-LinePoints[p].p.y * ScaleConversion);
+	    }
+	}
 
-        int OrdersArray[] = { 0 };
-        SM.Session->SetCurveOrders(Node->Info.id, 0, OrdersArray, 0, 1);
+	int PointCount = (int)PointsArray.size()/3;
 
-        float* Points = new float[PointCount * 3];
+	AddNewPart(HEMAX_PARTTYPE_CURVE, 1, PointCount, PointCount);
 
-        float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
+	HEMAX_CurveInfo CurveInfo;
+	CurveInfo.curveCount = CurveCount;
+	CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
+	CurveInfo.hasKnots = false;
+	CurveInfo.isPeriodic = false;
+	CurveInfo.knotCount = 0;
+	CurveInfo.order = 0;
+	CurveInfo.vertexCount = PointCount;
 
-        PolyShape LinearLines = TheShape->shape;
-        PolyLine* Lines = LinearLines.lines;
-        PolyPt* ThePoints = Lines->pts;
+	SM.Session->SetCurveInfo(Node->Info.id, 0, &CurveInfo);
+	SM.Session->SetCurveCounts(Node->Info.id, 0, &CountsArray.front(), 0, (int)CountsArray.size());
+	SM.Session->SetCurveOrders(Node->Info.id, 0, &OrdersArray.front(), 0, (int)OrdersArray.size());
 
-        int p;
-
-        for (p = 0; p < Lines->numPts; ++p)
-        {
-            Points[p * 3] = ThePoints[p].p.x * ScaleConversion;
-            Points[p * 3 + 1] = ThePoints[p].p.z * ScaleConversion;
-            Points[p * 3 + 2] = -ThePoints[p].p.y * ScaleConversion;
-        }
-
-        HEMAX_AttributeInfo PointAttributeInfo = AddNewPointAttribute(*Node, PointCount, 3, HEMAX_POSITION_ATTRIBUTE);
-        SendFloatAttributeData(*Node, HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, Points, PointCount);
-        FinalizeInputGeometry(*Node);
-
-        delete[] Points;
+	HEMAX_AttributeInfo PointAttributeInfo = AddNewPointAttribute(PointCount, 3, HEMAX_POSITION_ATTRIBUTE);
+	SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, &PointsArray.front(), PointCount);
+	FinalizeInputGeometry();
+    }
+    else
+    {
+	HEMAX_Logger::Instance().AddEntry("Invalid input: provided shape has no curves",
+					  HEMAX_LOG_LEVEL_WARN);
     }
 }
 
 void
 HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node, LinearShape* TheShape, std::string InputNodeName)
 {
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
     int CurveCount = TheShape->NumberOfCurves(HEMAX_FRAME_ZERO);
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -173,64 +179,64 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node, LinearShap
 
     if (CurveCount > 1)
     {
-        HEMAX_Logger::Instance().AddEntry("HEMAX_Input: user chose a shape with more than 1 curve as a HAPI input. Only the first curve will be used.", HEMAX_LOG_LEVEL_INFO);
+	HEMAX_Logger::Instance().AddEntry("HEMAX_Input: user chose a shape with more than 1 curve as a HAPI input. Only the first curve will be used.", HEMAX_LOG_LEVEL_INFO);
     }
 
     if (CurveCount > 0)
     {
-        int PointCount = TheShape->NumberOfVertices(HEMAX_FRAME_ZERO, 0);
+	int PointCount = TheShape->NumberOfVertices(HEMAX_FRAME_ZERO, 0);
 
-        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        HEMAX_GeometryInfo CurveGeoInfo;
-        SM.Session->GetGeometryInfo(Node->Info.id, &CurveGeoInfo);
+	HEMAX_GeometryInfo CurveGeoInfo;
+	SM.Session->GetGeometryInfo(Node->Info.id, &CurveGeoInfo);
 
-        HEMAX_PartInfo CurvePartInfo;
-        SM.Session->GetPartInfo(CurveGeoInfo.nodeId, 0, &CurvePartInfo);
+	HEMAX_PartInfo CurvePartInfo;
+	SM.Session->GetPartInfo(CurveGeoInfo.nodeId, 0, &CurvePartInfo);
 
-        HEMAX_CurveInfo CurveInfo;
-        CurveInfo.curveCount = 1;
-        CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
-        CurveInfo.hasKnots = false;
-        CurveInfo.isPeriodic = false;
-        CurveInfo.knotCount = 0;
-        CurveInfo.order = 0;
-        CurveInfo.vertexCount = PointCount;
+	HEMAX_CurveInfo CurveInfo;
+	CurveInfo.curveCount = 1;
+	CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
+	CurveInfo.hasKnots = false;
+	CurveInfo.isPeriodic = false;
+	CurveInfo.knotCount = 0;
+	CurveInfo.order = 0;
+	CurveInfo.vertexCount = PointCount;
 
-        SM.Session->SetCurveInfo(CurveGeoInfo.nodeId, 0, &CurveInfo);
+	SM.Session->SetCurveInfo(CurveGeoInfo.nodeId, 0, &CurveInfo);
 
-        int CountsArray[] = { PointCount };
-        SM.Session->SetCurveCounts(CurveGeoInfo.nodeId, 0, CountsArray, 0, 1);
+	int CountsArray[] = { PointCount };
+	SM.Session->SetCurveCounts(CurveGeoInfo.nodeId, 0, CountsArray, 0, 1);
 
-        int OrdersArray[] = { 0 };
-        SM.Session->SetCurveOrders(CurveGeoInfo.nodeId, 0, OrdersArray, 0, 1);
+	int OrdersArray[] = { 0 };
+	SM.Session->SetCurveOrders(CurveGeoInfo.nodeId, 0, OrdersArray, 0, 1);
 
-        float* Points = new float[PointCount * 3];
+	float* Points = new float[PointCount * 3];
 
-        float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
+	float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
 
-        PolyShape LinearLines = TheShape->shape;
-        PolyLine* Lines = LinearLines.lines;
-        PolyPt* ThePoints = Lines->pts;
+	PolyShape LinearLines = TheShape->shape;
+	PolyLine* Lines = LinearLines.lines;
+	PolyPt* ThePoints = Lines->pts;
 
-        for (int p = 0; p < Lines->numPts; ++p)
-        {
-            Points[p * 3] = ThePoints[p].p.x * ScaleConversion;
-            Points[p * 3 + 1] = ThePoints[p].p.z * ScaleConversion;
-            Points[p * 3 + 2] = -ThePoints[p].p.y * ScaleConversion;
-        }
+	for (int p = 0; p < Lines->numPts; ++p)
+	{
+	    Points[p * 3] = ThePoints[p].p.x * ScaleConversion;
+	    Points[p * 3 + 1] = ThePoints[p].p.z * ScaleConversion;
+	    Points[p * 3 + 2] = -ThePoints[p].p.y * ScaleConversion;
+	}
 
-        std::string PointString;
-        HEMAX_Utilities::ConstructPointString(Points, PointCount, PointString);
+	std::string PointString;
+	HEMAX_Utilities::ConstructPointString(Points, PointCount, PointString);
 
-        HEMAX_Parameter CoordParam = GetParameter(*Node, "coords");
+	HEMAX_Parameter* CoordParam = Node->GetParameter("coords");
 
-        if (CoordParam.Type != HEMAX_PARAM_INVALID)
-        {
-            std::vector<std::string> StringValues = { PointString };
-            UpdateParameterStringValues(CoordParam, StringValues);
-        }
+	if (CoordParam->Type != HEMAX_PARAM_INVALID)
+	{
+	    std::vector<std::string> StringValues = { PointString };
+	    CoordParam->UpdateStringVals(StringValues);
+	}
 
-        delete[] Points;
+	delete[] Points;
     }
 }

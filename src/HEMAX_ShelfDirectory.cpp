@@ -40,7 +40,7 @@ HEMAX_ShelfDirectory::LoadAllShelfAssets(HEMAX_Store* AssetStore)
 {
     for (int i = 0; i < ShelfTools.size(); i++)
     {
-        ShelfTools[i].LoadAsset(AssetStore);
+	ShelfTools[i].LoadAsset(AssetStore);
     }
 }
 

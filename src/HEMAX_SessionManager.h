@@ -10,49 +10,59 @@
 #define HEMAX_AUTO_PIPE_NAME "HEMAX_AutoPipeServer"
 #define HEMAX_USE_SESSION_ENV_FLAG "USE_HENGINE_ENV_IN_HOSTS"
 
+class HEMAX_Events;
+
 class HEMAX_SessionManager
 {
-public:
-    static HEMAX_SessionManager& GetSessionManager();
-    
-    bool StartSession(const char* HoudiniEnvFiles, const char* OtlSearchPath, const char* DsoSearchPath, const char* ImageDsoSearchPath, const char* AudioDsoSearchPath);
-    void StopSession();
-    bool IsSessionActive();
+    public:
+	static HEMAX_SessionManager& GetSessionManager();
 
-    HEMAX_SessionType GetSessionType();
-    void SetSessionType( HEMAX_SessionType SType );
+	bool StartSession();
+	void StopSession();
+	bool IsSessionActive();
 
-    std::vector<HEMAX_ObjectInfo> GetAllChildObjectNodes(HEMAX_Node* Node);
-    std::vector<HEMAX_HAPITransform> GetAllObjectTransforms(HEMAX_Node* Node);
-    HEMAX_HAPITransform GetObjectTransform(HEMAX_Node* Node);
+        void SetEventHub(HEMAX_Events* _PluginEvents);
 
-    std::vector<HEMAX_MaxTransform> GetInstanceTransforms(HEMAX_NodeId InstancerNode);
-    std::vector<HEMAX_MaxTransform> GetInstancedPartTransforms(HEMAX_NodeId NodeId, HEMAX_PartId PartId, int InstancedPartCount);
-    std::vector<std::string> GetResolvedStringsFromStringAttribute(HEMAX_NodeId Node, HEMAX_PartId PartId, const char* Name, HEMAX_AttributeInfo* AttributeInfo);
-    
-    void LoadAllAssetsInDirectory(std::string Directory, HEMAX_Store* AssetStore);
+	HEMAX_SessionType GetSessionType();
+	void SetSessionType( HEMAX_SessionType SType );
+	bool IsAutoSession();
 
-    std::unordered_map<std::string, std::string> GetEnvMap();
-    bool DoesUseHEngineFlagExist(std::unordered_map<std::string, std::string>& EnvMap);
-    void CopyHEngineEnv(std::unordered_map<std::string, std::string>& EnvMap);
+	std::unordered_map<std::string, std::string> GetEnvMap();
+	bool DoesUseHEngineFlagExist(std::unordered_map<std::string, std::string>& EnvMap);
+	void CopyHEngineEnv(std::unordered_map<std::string, std::string>& EnvMap);
 
-    HEMAX_HAPISession* Session;
-    
-    ~HEMAX_SessionManager();
+	HEMAX_HAPISession* Session;
 
-    void SetThriftNamedPipeSessionName(std::string PipeName);
-    void SetThriftSocketHostName(std::string HostName);
-    void SetThriftSocketPortNumber(int Port);
+	~HEMAX_SessionManager();
 
-    void StartThriftNamedPipeThinClient();
-    
-private:
-    HEMAX_SessionManager();
-   
-    HEMAX_SessionType SessionType;
+	void SetThriftNamedPipeSessionName(std::string PipeName);
+	void SetThriftSocketHostName(std::string HostName);
+	void SetThriftSocketPortNumber(int Port);
 
-    void InitializeSession();
+	void StartThriftNamedPipeThinClient();
 
-    bool IsActiveSession;
-    bool IsSessionInitialized;
+	void SetHoudiniEnvFiles(std::string Files);
+	void SetOtlSearchPath(std::string Path);
+	void SetDsoSearchPath(std::string Path);
+	void SetImageDsoSearchPath(std::string Path);
+	void SetAudioDsoSearchPath(std::string Path);
+
+    private:
+	HEMAX_SessionManager();
+
+	HEMAX_SessionType SessionType;
+
+        HEMAX_Events* PluginEvents;
+
+	void InitializeSession();
+
+	bool IsActiveSession;
+	bool IsSessionInitialized;
+	bool AutoSession;
+
+	std::string HoudiniEnvFiles;
+	std::string OtlSearchPath;
+	std::string DsoSearchPath;
+	std::string ImageDsoSearchPath;
+	std::string AudioDsoSearchPath;
 };

@@ -16,12 +16,12 @@ HEMAX_InputInstance::~HEMAX_InputInstance()
     MergeNode = nullptr;
 }
 
-void
+    void
 HEMAX_InputInstance::RefreshConnection()
 {
     if (MergeNode && MaxInput)
     {
-        MergeNode->RemoveAllMergedInputs();
-        MergeNode->MergeInput(*(MaxInput->GetInputNode()));
+	MergeNode->RemoveAllMergedInputs();
+	MergeNode->MergeInput(*(MaxInput->GetInputNode()));
     }
 }

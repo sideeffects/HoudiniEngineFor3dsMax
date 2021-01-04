@@ -7,15 +7,15 @@ HEMAX_GeometryMouseCallback::proc(ViewExp *Vpt, int Msg, int Point, int Flags, I
 {
     if (Msg == MOUSE_POINT)
     {
-        CreationPoint = Vpt->SnapPoint(M, M, nullptr, SNAP_IN_PLANE);
-        Mat.IdentityMatrix();
-        Mat.Translate(CreationPoint);
+	CreationPoint = Vpt->SnapPoint(M, M, nullptr, SNAP_IN_PLANE);
+	Mat.IdentityMatrix();
+	Mat.Translate(CreationPoint);
 
-        return CREATE_STOP;
+	return CREATE_STOP;
     }
     else if (Msg == MOUSE_ABORT)
     {
-        return CREATE_ABORT;
+	return CREATE_ABORT;
     }
 
     return CREATE_CONTINUE;

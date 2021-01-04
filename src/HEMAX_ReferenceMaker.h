@@ -6,14 +6,14 @@ class HEMAX_Plugin;
 
 class HEMAX_ReferenceMaker : public ReferenceMaker
 {
-public:
-    HEMAX_ReferenceMaker(HEMAX_Plugin* Plugin);
-    ~HEMAX_ReferenceMaker();
+    public:
+	HEMAX_ReferenceMaker(HEMAX_Plugin* Plugin);
+	~HEMAX_ReferenceMaker();
 
-    RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
-    void AddEditableNodeToWatch(INode* Node);
+	void AddEditableNodeToWatch(INode* Node);
 
-private:
-    HEMAX_Plugin* ThePlugin;
+    private:
+	HEMAX_Plugin* ThePlugin;
 };

@@ -5,330 +5,371 @@
 
 HEMAX_Parameter::HEMAX_Parameter()
 {
-    OwnerId = -1;
+    Node = -1;
     Type = HEMAX_PARAM_INVALID;
 }
 
-HEMAX_Parameter::HEMAX_Parameter(HEMAX_NodeId Owner, HEMAX_ParameterInfo ParameterInfo)
+HEMAX_Parameter::HEMAX_Parameter(const HEMAX_NodeId& NodeId, const HEMAX_ParameterInfo& ParameterInfo)
 {
-    OwnerId = Owner;
+    Node = NodeId;
     Info = ParameterInfo;
 
     switch (Info.type)
     {
-        case (HAPI_PARMTYPE_INT): Type = HEMAX_PARAM_INTEGER; break;
-        case (HAPI_PARMTYPE_STRING): Type = HEMAX_PARAM_STRING; break;
-        case (HAPI_PARMTYPE_FLOAT): Type = HEMAX_PARAM_FLOAT; break;
-        case (HAPI_PARMTYPE_MULTIPARMLIST): Type = HEMAX_PARAM_MULTIPARMLIST; break;
-        case (HAPI_PARMTYPE_TOGGLE): Type = HEMAX_PARAM_TOGGLE; break;
-        case (HAPI_PARMTYPE_BUTTON): Type = HEMAX_PARAM_BUTTON; break;
-        case (HAPI_PARMTYPE_COLOR): Type = HEMAX_PARAM_COLOR; break;
-        case (HAPI_PARMTYPE_PATH_FILE): Type = HEMAX_PARAM_PATH_FILE; break;
-        case (HAPI_PARMTYPE_PATH_FILE_DIR): Type = HEMAX_PARAM_PATH_FILE_DIR; break;
-        case (HAPI_PARMTYPE_PATH_FILE_GEO): Type = HEMAX_PARAM_PATH_FILE_GEO; break;
-        case (HAPI_PARMTYPE_PATH_FILE_IMAGE): Type = HEMAX_PARAM_PATH_FILE_IMAGE; break;
-        case (HAPI_PARMTYPE_NODE): Type = HEMAX_PARAM_NODE; break;
-        case (HAPI_PARMTYPE_FOLDERLIST): Type = HEMAX_PARAM_FOLDERLIST; break;
-        case (HAPI_PARMTYPE_FOLDERLIST_RADIO): Type = HEMAX_PARAM_FOLDERLIST_RADIO; break;
-        case (HAPI_PARMTYPE_FOLDER): Type = HEMAX_PARAM_FOLDER; break;
-        case (HAPI_PARMTYPE_LABEL): Type = HEMAX_PARAM_LABEL; break;
-        case (HAPI_PARMTYPE_SEPARATOR): Type = HEMAX_PARAM_SEPARATOR; break;
-        default: Type = HEMAX_PARAM_NOTDEFINED; break;
+	case (HAPI_PARMTYPE_INT): Type = HEMAX_PARAM_INTEGER; break;
+	case (HAPI_PARMTYPE_STRING): Type = HEMAX_PARAM_STRING; break;
+	case (HAPI_PARMTYPE_FLOAT): Type = HEMAX_PARAM_FLOAT; break;
+	case (HAPI_PARMTYPE_MULTIPARMLIST): Type = HEMAX_PARAM_MULTIPARMLIST; break;
+	case (HAPI_PARMTYPE_TOGGLE): Type = HEMAX_PARAM_TOGGLE; break;
+	case (HAPI_PARMTYPE_BUTTON): Type = HEMAX_PARAM_BUTTON; break;
+	case (HAPI_PARMTYPE_COLOR): Type = HEMAX_PARAM_COLOR; break;
+	case (HAPI_PARMTYPE_PATH_FILE): Type = HEMAX_PARAM_PATH_FILE; break;
+	case (HAPI_PARMTYPE_PATH_FILE_DIR): Type = HEMAX_PARAM_PATH_FILE_DIR; break;
+	case (HAPI_PARMTYPE_PATH_FILE_GEO): Type = HEMAX_PARAM_PATH_FILE_GEO; break;
+	case (HAPI_PARMTYPE_PATH_FILE_IMAGE): Type = HEMAX_PARAM_PATH_FILE_IMAGE; break;
+	case (HAPI_PARMTYPE_NODE): Type = HEMAX_PARAM_NODE; break;
+	case (HAPI_PARMTYPE_FOLDERLIST): Type = HEMAX_PARAM_FOLDERLIST; break;
+	case (HAPI_PARMTYPE_FOLDERLIST_RADIO): Type = HEMAX_PARAM_FOLDERLIST_RADIO; break;
+	case (HAPI_PARMTYPE_FOLDER): Type = HEMAX_PARAM_FOLDER; break;
+	case (HAPI_PARMTYPE_LABEL): Type = HEMAX_PARAM_LABEL; break;
+	case (HAPI_PARMTYPE_SEPARATOR): Type = HEMAX_PARAM_SEPARATOR; break;
+	default: Type = HEMAX_PARAM_NOTDEFINED; break;
+    }   
+}
+
+HEMAX_Parameter&
+HEMAX_Parameter::operator=(const HEMAX_Parameter& Other)
+{
+    Node = Other.Node;
+    Type = Other.Type;
+    Info = Other.Info;
+
+    Name = Other.Name;
+    Label = Other.Label;
+    Help = Other.Help;
+
+    CopyValuesFrom(Other);
+
+    return *this;
+}
+
+HEMAX_Parameter::HEMAX_Parameter(const HEMAX_Parameter& Other)
+{
+    Node = Other.Node;
+    Type = Other.Type;
+    Info = Other.Info;
+
+    Name = Other.Name;
+    Label = Other.Label;
+    Help = Other.Help;
+
+    CopyValuesFrom(Other);
+}
+
+std::string&
+HEMAX_Parameter::GetName()
+{
+    if (Name == "")
+    {
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	Name = SM.Session->GetHAPIString(Info.nameSH);
     }
+
+    return Name;
+}
+
+std::string&
+HEMAX_Parameter::GetLabel()
+{
+    if (Label == "")
+    {
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	Label = SM.Session->GetHAPIString(Info.labelSH);
+    }
+
+    return Label;
+}
+
+std::string&
+HEMAX_Parameter::GetHelp()
+{
+    if (Help == "" && Info.helpSH != 0)
+    {
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	Help = SM.Session->GetHAPIString(Info.helpSH);	
+    }
+
+    return Help;
 }
 
 std::vector<int>
-GetParameterIntValues(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetIntVals() const
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    // Do type checking here
 
-    std::vector<int> ParmIntValues(Parameter.Info.size);
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    std::vector<int> IntVals(Info.size);
 
-    SessionManager.Session->GetParameterIntValues(Parameter.OwnerId, &ParmIntValues.front(), Parameter.Info.intValuesIndex, Parameter.Info.size);
+    SM.Session->GetParameterIntValues(Node, &IntVals.front(),
+		    Info.intValuesIndex, Info.size);
 
-    return ParmIntValues;
+    return IntVals;
 }
 
 std::vector<float>
-GetParameterFloatValues(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetFloatVals() const
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    // Do type checking here
 
-    std::vector<float> ParmFloatValues(Parameter.Info.size);
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    std::vector<float> FloatVals(Info.size);
 
-    SessionManager.Session->GetParameterFloatValues(Parameter.OwnerId, &ParmFloatValues.front(), Parameter.Info.floatValuesIndex, Parameter.Info.size);
+    SM.Session->GetParameterFloatValues(Node, &FloatVals.front(),
+		    Info.floatValuesIndex, Info.size);
 
-    return ParmFloatValues;
+    return FloatVals;
 }
 
 std::vector<std::string>
-GetParameterStringValues(HEMAX_Parameter& Parameter, bool Evaluate)
+HEMAX_Parameter::GetStringVals() const
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    // Do type checking here
+    
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    std::vector<HEMAX_StringHandle> Handles(Info.size);
+    std::vector<std::string> StringVals(Info.size);
 
-    HEMAX_StringHandle* SHValues = new HEMAX_StringHandle[Parameter.Info.size];
-    std::vector<std::string> ParmStringValues(Parameter.Info.size);
+    SM.Session->GetParameterStringValues(Node, true, &Handles.front(),
+		    Info.stringValuesIndex, Info.size); 
 
-    SessionManager.Session->GetParameterStringValues(Parameter.OwnerId, Evaluate, SHValues, Parameter.Info.stringValuesIndex, Parameter.Info.size);
-
-    for (int i = 0; i < Parameter.Info.size; ++i)
+    for (int i = 0; i < Info.size; i++)
     {
-        ParmStringValues[i] = SessionManager.Session->GetHAPIString(SHValues[i]);
+	StringVals[i] = SM.Session->GetHAPIString(Handles[i]);
     }
 
-    return ParmStringValues;
+    return StringVals;
 }
 
 std::vector<HEMAX_ParmChoice>
-GetIntParameterChoiceLists(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetIntParameterChoiceLists()
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    // Do type checking here
+    
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_ParameterChoiceInfo* Choices = new HEMAX_ParameterChoiceInfo[Parameter.Info.choiceCount];
-    std::vector<HEMAX_ParmChoice> ParmChoices(Parameter.Info.choiceCount);
+    std::vector<HEMAX_ParameterChoiceInfo> Choices(Info.choiceCount);
+    std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
-    SessionManager.Session->GetParameterChoiceLists(Parameter.OwnerId, Choices, Parameter.Info.choiceIndex, Parameter.Info.choiceCount);
+    SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
+		    Info.choiceIndex, Info.choiceCount);
 
-    for (int i = 0; i < Parameter.Info.choiceCount; ++i)
+    for (int i = 0; i < Info.choiceCount; i++)
     {
-        ParmChoices[i].ChoiceLabel = SessionManager.Session->GetHAPIString(Choices[i].labelSH);
-        ParmChoices[i].ChoiceValue = SessionManager.Session->GetHAPIString(Choices[i].valueSH);
+	ParmChoices[i].ChoiceLabel = SM.Session->GetHAPIString(Choices[i].labelSH);
+	ParmChoices[i].ChoiceValue = SM.Session->GetHAPIString(Choices[i].valueSH);
     }
-
-    delete Choices;
 
     return ParmChoices;
 }
 
 std::vector<HEMAX_ParmChoice>
-GetStringParameterChoiceLists(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetStringParameterChoiceLists()
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    // Do some type checking here?
+    
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_ParameterChoiceInfo* Choices = new HEMAX_ParameterChoiceInfo[Parameter.Info.choiceCount];
-    std::vector<HEMAX_ParmChoice> ParmChoices(Parameter.Info.choiceCount);
+    std::vector<HEMAX_ParameterChoiceInfo> Choices(Info.choiceCount);
+    std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
-    SessionManager.Session->GetParameterChoiceLists(Parameter.OwnerId, Choices, Parameter.Info.choiceIndex, Parameter.Info.choiceCount);
+    SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
+		    Info.choiceIndex, Info.choiceCount);
 
-    for (int i = 0; i < Parameter.Info.choiceCount; ++i)
+    for (int i = 0; i < Info.choiceCount; i++)
     {
-        ParmChoices[i].ChoiceLabel = SessionManager.Session->GetHAPIString(Choices[i].labelSH);
-        ParmChoices[i].ChoiceValue = SessionManager.Session->GetHAPIString(Choices[i].valueSH);
+	ParmChoices[i].ChoiceLabel = SM.Session->GetHAPIString(Choices[i].labelSH);
+	ParmChoices[i].ChoiceValue = SM.Session->GetHAPIString(Choices[i].valueSH);
     }
-
-    delete Choices;
 
     return ParmChoices;
-}
-
-void
-UpdateParameterIntValues(HEMAX_Parameter& Parameter, std::vector<int> Values)
-{
-    HEMAX_SessionManager::GetSessionManager().Session->SetParameterIntValues(Parameter.OwnerId, &Values.front(), Parameter.Info.intValuesIndex, Parameter.Info.size);
-}
-
-void
-UpdateParameterFloatValues(HEMAX_Parameter& Parameter, std::vector<float> Values)
-{
-    HEMAX_SessionManager::GetSessionManager().Session->SetParameterFloatValues(Parameter.OwnerId, &Values.front(), Parameter.Info.floatValuesIndex, Parameter.Info.size);
-}
-
-void
-UpdateParameterStringValues(HEMAX_Parameter& Parameter, std::vector<std::string> Values)
-{
-    HEMAX_SessionManager& Manager = HEMAX_SessionManager::GetSessionManager();
-    for (int i = 0; i < Values.size(); ++i)
-    {
-        Manager.Session->SetParameterStringValue(Parameter.OwnerId, Values[i].c_str(), Parameter.Info.id, i);
-    }
-}
-
-void
-UpdateParameterInputNode(HEMAX_Parameter& Parameter, HEMAX_NodeId InputNode)
-{
-    HEMAX_SessionManager& Manager = HEMAX_SessionManager::GetSessionManager();
-
-    Manager.Session->SetParameterNodeValue(Parameter.OwnerId, GetParameterName(Parameter).c_str(), InputNode);
-}
-
-std::string
-GetParameterName(HEMAX_Parameter& Parameter)
-{
-    return HEMAX_SessionManager::GetSessionManager().Session->GetHAPIString(Parameter.Info.nameSH);
-}
-
-std::string
-GetParameterLabel(HEMAX_Parameter& Parameter)
-{
-    return HEMAX_SessionManager::GetSessionManager().Session->GetHAPIString(Parameter.Info.labelSH);
-}
-
-std::string
-GetHelpString(HEMAX_Parameter& Parameter)
-{
-    if (Parameter.Info.helpSH == 0)
-    {
-        return "";
-    }
-
-    std::string HelpString = HEMAX_SessionManager::GetSessionManager().Session->GetHAPIString(Parameter.Info.helpSH);
-    return HelpString;
 }
 
 HEMAX_NodeId
-GetParameterInputNodeId(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetInputNodeId()
 {
-    if (Parameter.Type = HEMAX_PARAM_NODE)
+    if (Type == HEMAX_PARAM_NODE)
     {
-        HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        HEMAX_NodeId NodeId;
-
-        if (SessionManager.Session->GetParameterNodeValue(Parameter.OwnerId, GetParameterName(Parameter).c_str(), &NodeId))
-        {
-            return NodeId;
-        }
+	HEMAX_NodeId InputNodeId;
+	if (SM.Session->GetParameterNodeValue(Node, Name.c_str(), &InputNodeId))
+	{
+	    return InputNodeId;
+	}
     }
 
     return -1;
 }
 
 std::string
-GetParameterInputNodeName(HEMAX_Parameter& Parameter)
+HEMAX_Parameter::GetInputNodeName()
 {
-    HEMAX_NodeId InputNodeId = GetParameterInputNodeId(Parameter);
+    std::string InputNodeName = "";
 
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_NodeId InputNodeId = GetInputNodeId();
 
     if (InputNodeId > -1)
     {
-        HEMAX_NodeInfo InputNodeInfo;
-        SessionManager.Session->GetNodeInfo(InputNodeId, &InputNodeInfo);
-
-        return SessionManager.Session->GetHAPIString(InputNodeInfo.nameSH);
+	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+	HEMAX_NodeInfo InputNodeInfo;
+	if (SM.Session->GetNodeInfo(InputNodeId, &InputNodeInfo))
+	{
+	    InputNodeName = SM.Session->GetHAPIString(InputNodeInfo.nameSH);
+	}
     }
-    else
-    {
-        return "";
-    }
-}
 
-bool
-IsParameterChoiceList(HEMAX_Parameter& Parameter)
-{
-    return (Parameter.Info.choiceCount > 0);
-}
-
-bool
-IsRootLevelParameter(HEMAX_Parameter& Parameter)
-{
-    return (Parameter.Info.parentId < 0);
-}
-
-bool
-HasUIConstraints(HEMAX_Parameter& Parameter)
-{
-    if (Parameter.Info.hasUIMin || Parameter.Info.hasUIMax)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool
-IsMultiParameter(HEMAX_Parameter& Parameter)
-{
-    return Parameter.Type == HEMAX_PARAM_MULTIPARMLIST;
-}
-
-int
-GetMultiParameterInstancePosition(HEMAX_Parameter& Parameter)
-{
-    return Parameter.Info.instanceNum - 1;
-}
-
-int
-GetMultiParameterStartOffset(HEMAX_Parameter& Parameter)
-{
-    return Parameter.Info.instanceStartOffset;
+    return InputNodeName;
 }
 
 void
-InsertMultiParameterInstance(HEMAX_Parameter& Parameter, int Position)
+HEMAX_Parameter::UpdateIntVals(std::vector<int>& Vals)
 {
-    HEMAX_SessionManager::GetSessionManager().Session->InsertMultiParameterInstance(Parameter.OwnerId, Parameter.Info.id, Position + GetMultiParameterStartOffset(Parameter));
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->SetParameterIntValues(Node, &Vals.front(),
+		    Info.intValuesIndex, Info.size);
 }
 
 void
-RemoveMultiParameterInstance(HEMAX_Parameter& Parameter, int Position)
+HEMAX_Parameter::UpdateFloatVals(std::vector<float>& Vals)
 {
-    HEMAX_SessionManager::GetSessionManager().Session->RemoveMultiParameterInstance(Parameter.OwnerId, Parameter.Info.id, Position + GetMultiParameterStartOffset(Parameter));
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->SetParameterFloatValues(Node, &Vals.front(),
+		    Info.floatValuesIndex, Info.size);
+}
+
+void
+HEMAX_Parameter::UpdateStringVals(std::vector<std::string>& Vals)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    for (int i = 0; i < Vals.size(); i++)
+    {
+	SM.Session->SetParameterStringValue(Node, Vals[i].c_str(),
+			Info.id, i);
+    }
+}
+
+void
+HEMAX_Parameter::UpdateInputNode(HEMAX_NodeId InputNode)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->SetParameterNodeValue(Node, Name.c_str(), InputNode);
 }
 
 bool
-CopyParameter(HEMAX_Parameter& Source, HEMAX_Parameter& Dest)
+HEMAX_Parameter::IsChoiceList()
 {
-    bool RecookRequired = false;
-
-    if (Source.Type != Dest.Type)
-    {
-        HEMAX_Logger::Instance().AddEntry("HEMAX_Parameter: attempting to copy parameters but parameters are of different type", HEMAX_LOG_LEVEL_ERROR);
-        return RecookRequired;
-    }
-
-    switch (Source.Type)
-    {
-    case HEMAX_PARAM_INTEGER:
-    case HEMAX_PARAM_TOGGLE:
-    {
-        std::vector<int> Values = GetParameterIntValues(Source);
-        UpdateParameterIntValues(Dest, Values);
-    } break;
-    case HEMAX_PARAM_FLOAT:
-    {
-        std::vector<float> Values = GetParameterFloatValues(Source);
-        UpdateParameterFloatValues(Dest, Values);
-    } break;
-    case HEMAX_PARAM_STRING:
-    case HEMAX_PARAM_PATH_FILE:
-    case HEMAX_PARAM_PATH_FILE_DIR:
-    case HEMAX_PARAM_PATH_FILE_GEO:
-    case HEMAX_PARAM_PATH_FILE_IMAGE:
-    {
-        std::vector<std::string> Values = GetParameterStringValues(Source, true);
-        UpdateParameterStringValues(Dest, Values);
-    } break;
-    case HEMAX_PARAM_MULTIPARMLIST:
-    {
-        int Source_Count = Source.Info.instanceCount;
-        int Dest_Count = Dest.Info.instanceCount;
-
-        if (Source_Count > Dest_Count)
-        {
-            while (Dest_Count != Source_Count)
-            {
-                InsertMultiParameterInstance(Dest, Dest_Count++);
-            }
-        }
-        else if (Source_Count < Dest_Count)
-        {
-            while (Dest_Count != Source_Count)
-            {
-                RemoveMultiParameterInstance(Dest, (Dest_Count - 1));
-                Dest_Count--;
-            }
-        }
-
-        RecookRequired = true;
-    } break;
-    default:
-    {
-
-    } break;
-    }
-
-    return RecookRequired;
+    return (Info.choiceCount > 0);
 }
+
+bool
+HEMAX_Parameter::IsRootLevel()
+{
+    return (Info.parentId < 0);
+}
+
+bool
+HEMAX_Parameter::HasUIConstraints()
+{
+    return (Info.hasUIMin || Info.hasUIMax);
+}
+
+bool
+HEMAX_Parameter::IsMultiParameter()
+{
+    return Type == HEMAX_PARAM_MULTIPARMLIST;    
+}
+
+int
+HEMAX_Parameter::GetInstancePosition()
+{
+    return Info.instanceNum - 1;
+}
+
+int
+HEMAX_Parameter::GetInstanceStartOffset()
+{
+    return Info.instanceStartOffset;
+}
+
+void
+HEMAX_Parameter::InsertInstance(int Position)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->InsertMultiParameterInstance(Node, Info.id,
+		    Position + GetInstanceStartOffset());
+}
+
+void
+HEMAX_Parameter::RemoveInstance(int Position)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->RemoveMultiParameterInstance(Node, Info.id,
+		    Position + GetInstanceStartOffset());
+}
+
+void
+HEMAX_Parameter::CopyValuesFrom(const HEMAX_Parameter& Other)
+{
+    switch (Other.Type)
+    {
+	case HEMAX_PARAM_INTEGER:
+	case HEMAX_PARAM_TOGGLE:
+	{
+	    std::vector<int> Values = Other.GetIntVals();
+	    UpdateIntVals(Values);
+	} break;
+	case HEMAX_PARAM_FLOAT:
+	case HEMAX_PARAM_COLOR:
+	{
+	    std::vector<float> Values = Other.GetFloatVals();
+	    UpdateFloatVals(Values);
+	} break;
+	case HEMAX_PARAM_STRING:
+	case HEMAX_PARAM_PATH_FILE:
+	case HEMAX_PARAM_PATH_FILE_DIR:
+	case HEMAX_PARAM_PATH_FILE_GEO:
+	case HEMAX_PARAM_PATH_FILE_IMAGE:
+	{
+	    std::vector<std::string> Values = Other.GetStringVals();
+	    UpdateStringVals(Values);
+	} break;
+	case HEMAX_PARAM_MULTIPARMLIST:
+	{
+	    int InstCount = Info.instanceCount;
+	    int OtherInstCount = Other.Info.instanceCount;
+
+	    if (OtherInstCount > InstCount)
+	    {
+		while (InstCount != OtherInstCount)
+		{
+		    InsertInstance(InstCount++);
+		}
+	    }
+	    else if (InstCount > OtherInstCount)
+	    {
+		while (InstCount != OtherInstCount)
+		{
+		    RemoveInstance(InstCount - 1);
+		    InstCount--;
+		}
+	    }
+
+	} break;
+	default:
+	{
+	    // Nothing to do
+	} break;
+    }
+
+}
+

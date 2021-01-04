@@ -26,11 +26,11 @@ WINAPI DllMain(HINSTANCE hinstDLL,ULONG fdwReason,LPVOID /*lpvReserved*/)
 {
     if( fdwReason == DLL_PROCESS_ATTACH )
     {
-        MaxSDK::Util::UseLanguagePackLocale();
-        // Hang on to this DLL's instance handle.
-        hInstance = hinstDLL;
-        DisableThreadLibraryCalls(hInstance);
-        // DO NOT do any initialization here. Use LibInitialize() instead.
+	MaxSDK::Util::UseLanguagePackLocale();
+	// Hang on to this DLL's instance handle.
+	hInstance = hinstDLL;
+	DisableThreadLibraryCalls(hInstance);
+	// DO NOT do any initialization here. Use LibInitialize() instead.
     }
     return(TRUE);
 }
@@ -55,16 +55,16 @@ __declspec( dllexport ) ClassDesc*
 LibClassDesc(int i)
 {
     switch(i) {
-    case 0: return GetHEMAXLauncherDesc(); break;
-    case 1: return GetHEMAX_ModifierClassDesc(); break;
-    case 2: return GetHEMAX_IntegerParameterAttrib_ClassDesc(); break;
-    case 3: return GetHEMAX_StringParameterAttrib_ClassDesc(); break;
-    case 4: return GetHEMAX_FloatParameterAttrib_ClassDesc(); break;
-    case 5: return GetHEMAX_ToggleParameterAttrib_ClassDesc(); break;
-    case 6: return GetHEMAX_NodeParameterAttrib_ClassDesc(); break;
-    case 7: return GetHEMAX_MultiParameterAttrib_ClassDesc(); break;
-    case 8: return GetHEMAX_GeometryPlugin_ClassDesc(); break;
-    default: return 0;
+	case 0: return GetHEMAXLauncherDesc(); break;
+	case 1: return GetHEMAX_ModifierClassDesc(); break;
+	case 2: return GetHEMAX_IntegerParameterAttrib_ClassDesc(); break;
+	case 3: return GetHEMAX_StringParameterAttrib_ClassDesc(); break;
+	case 4: return GetHEMAX_FloatParameterAttrib_ClassDesc(); break;
+	case 5: return GetHEMAX_ToggleParameterAttrib_ClassDesc(); break;
+	case 6: return GetHEMAX_NodeParameterAttrib_ClassDesc(); break;
+	case 7: return GetHEMAX_MultiParameterAttrib_ClassDesc(); break;
+	case 8: return GetHEMAX_GeometryPlugin_ClassDesc(); break;
+	default: return 0;
     }
 }
 
@@ -103,7 +103,7 @@ GetString(int id)
     static TCHAR buf[256];
 
     if (hInstance)
-        return LoadString(hInstance, id, buf, _countof(buf)) ? buf : NULL;
+	return LoadString(hInstance, id, buf, _countof(buf)) ? buf : NULL;
     return NULL;
 }
 

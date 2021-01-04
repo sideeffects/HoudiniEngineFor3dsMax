@@ -17,8 +17,10 @@
 #define IDS_HEMAX_AT_CONTEXT            11
 #define IDS_HEMAX_MENU_HIDE             12
 #define IDS_HEMAX_MENU_HIDE_DESC        13
-#define IDS_HEMAX_MENU_VERSION          14
-#define IDS_HEMAX_MENU_VERSION_DESC     15
+#define IDS_HEMAX_MENU_OPTIONS          14
+#define IDS_HEMAX_MENU_OPTIONS_DESC     15
+#define IDS_HEMAX_MENU_VERSION          16
+#define IDS_HEMAX_MENU_VERSION_DESC     17
 
 
 

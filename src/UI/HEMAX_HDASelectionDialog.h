@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || defined(HEMAX_VERSION_2019)
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
 #include <QtWidgets/qdialog.h>
 #include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qboxlayout.h>
@@ -20,26 +23,26 @@ class HEMAX_HDASelectionDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    HEMAX_HDASelectionDialog(std::vector<std::string> AssetPaths);
-    ~HEMAX_HDASelectionDialog();
+    public:
+	HEMAX_HDASelectionDialog(std::vector<std::string> AssetPaths);
+	~HEMAX_HDASelectionDialog();
 
-    std::string GetSelectedAssetPath();
-    
-private:
+	std::string GetSelectedAssetPath();
 
-    QVBoxLayout* MainLayout;
+    private:
 
-    QGroupBox* HDASelectionBox;
-    QVBoxLayout* HDASelectionLayout;
-    QListWidget* HDASelectionList;
-    QPushButton* HDASelectionButton;
+	QVBoxLayout* MainLayout;
 
-    QString CurrentSelection;
+	QGroupBox* HDASelectionBox;
+	QVBoxLayout* HDASelectionLayout;
+	QListWidget* HDASelectionList;
+	QPushButton* HDASelectionButton;
 
-private slots:
+	QString CurrentSelection;
 
-    void SlotSelectionButtonClicked();
-    void SlotListSelection(QListWidgetItem*);
+    private slots:
+
+	void SlotSelectionButtonClicked();
+	void SlotListSelection(QListWidgetItem*);
 
 };
