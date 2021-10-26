@@ -209,8 +209,8 @@ HEMAX_Part::BuildMesh()
 		    Info.vertexCount, PointAttributeInfo.count);
 
     SM.Session->GetAttributeFloatData(NodeId, Info.id,
-		    HEMAX_POSITION_ATTRIBUTE, &PointAttributeInfo, -1,
-		    PartMesh->GetPointListArray(), 0, PointAttributeInfo.count);
+                    HEMAX_POSITION_ATTRIBUTE, &PointAttributeInfo, -1,
+                    PartMesh->GetPointListArray(), 0, PointAttributeInfo.count);
 
     // NORMALS //
 
@@ -228,10 +228,10 @@ HEMAX_Part::BuildMesh()
     {
 	PartMesh->SetNormalsExist(true);
 	PartMesh->AllocatePointNormalArray();
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
-			HEMAX_NORMAL_ATTRIBUTE, &PointNormalAttrInfo, -1,
-			PartMesh->GetPointNormalsListArray(), 0,
-			PointNormalAttrInfo.count);
+        SM.Session->GetAttributeFloatData(NodeId, Info.id,
+                        HEMAX_NORMAL_ATTRIBUTE, &PointNormalAttrInfo, -1,
+                        PartMesh->GetPointNormalsListArray(), 0,
+                        PointNormalAttrInfo.count);
     }
     else if (VertexNormalAttrInfo.exists)
     {
@@ -375,7 +375,36 @@ HEMAX_Part::BuildMesh()
 			PartMesh->GetFaceCount());
     }
 
-    //////////////////
+    // Selections //
+    
+    if (HasGroup(HEMAX_SELECTION_FACE, HAPI_GROUPTYPE_PRIM))
+    {
+        PartMesh->AllocateFaceSelectionsArray();
+        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_PRIM,
+            HEMAX_SELECTION_FACE, nullptr, PartMesh->GetFaceSelectionsArray(),
+            0, PartMesh->GetFaceCount());
+    }
+
+    if (HasGroup(HEMAX_SELECTION_VERTEX, HAPI_GROUPTYPE_POINT))
+    {
+        PartMesh->AllocateVertexSelectionsArray();
+        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_POINT,
+            HEMAX_SELECTION_VERTEX, nullptr,
+            PartMesh->GetVertexSelectionsArray(), 0, PartMesh->GetPointCount());
+    }
+
+    if (HasGroup(HEMAX_SELECTION_EDGE, HAPI_GROUPTYPE_EDGE))
+    {
+        int EdgeCount = 0;
+        SM.Session->GetEdgeCountOfEdgeGroup(NodeId, Info.id,
+            HEMAX_SELECTION_EDGE, &EdgeCount);
+        PartMesh->AllocateEdgeSelectionsArray(EdgeCount);
+        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_EDGE,
+            HEMAX_SELECTION_EDGE, nullptr, PartMesh->GetEdgeSelectionsArray(),
+            0, EdgeCount*2);
+    }
+
+    /////////////////////
 
     // SHOP MATERIAL PATH //
 
@@ -648,6 +677,42 @@ HEMAX_Part::GetInstancedPartTransforms()
     }
 
     return MaxTransforms;
+}
+
+
+bool
+HEMAX_Part::HasGroup(const std::string& GroupName,
+    HAPI_GroupType GroupType) const
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_GeometryInfo GeometryInfo;
+    SM.Session->GetGeometryInfo(NodeId, &GeometryInfo);
+
+    std::vector<HAPI_StringHandle> GroupNameHandles;
+
+    if (GroupType == HAPI_GROUPTYPE_PRIM)
+    {
+        GroupNameHandles.resize(GeometryInfo.primitiveGroupCount);
+    }
+    else if (GroupType == HAPI_GROUPTYPE_POINT)
+    {
+        GroupNameHandles.resize(GeometryInfo.pointGroupCount);
+    }
+    else if (GroupType == HAPI_GROUPTYPE_EDGE)
+    {
+        GroupNameHandles.resize(GeometryInfo.edgeGroupCount);
+    }
+
+    SM.Session->GetGroupNames(NodeId, GroupType, GroupNameHandles.data(),
+        (int)GroupNameHandles.size());
+
+    for (int i = 0; i < GroupNameHandles.size(); i++)
+    {
+        if (GroupName == SM.Session->GetHAPIString(GroupNameHandles[i]))
+            return true;
+    }
+
+    return false;
 }
 
 bool

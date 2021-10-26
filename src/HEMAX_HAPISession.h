@@ -83,6 +83,11 @@ class HEMAX_HAPISession : public HAPI_Session
                          HEMAX_PartId PartId,
                          HEMAX_PartInfo* PartInfo);
 
+        bool GetEdgeCountOfEdgeGroup(HEMAX_NodeId Node,
+                                     HEMAX_PartId PartId,
+                                     const char* GroupName,
+                                     int* EdgeCount);
+    
 	bool GetFaceCounts(HEMAX_NodeId Node,
                            HEMAX_PartId PartId,
                            int* FaceCountsArray,
@@ -285,11 +290,12 @@ class HEMAX_HAPISession : public HAPI_Session
                            int Start,
                            int Length);
 
-	bool GetInstanceTransforms(HEMAX_NodeId Node,
-                                   HAPI_RSTOrder RSTOrder,
-                                   HAPI_Transform* TransformsArray,
-                                   int Start,
-                                   int Length);
+	bool GetInstanceTransformsOnPart(HEMAX_NodeId Node,
+                                    HEMAX_PartId Part,
+                                    HAPI_RSTOrder RSTOrder,
+                                    HAPI_Transform* TransformsArray,
+                                    int Start,
+                                    int Length);
 
 	bool StartThriftNamedPipeServer(const HAPI_ThriftServerOptions* Options,
                                         const char* PipeName,
@@ -435,6 +441,14 @@ class HEMAX_HAPISession : public HAPI_Session
 
 	bool SetServerEnvString(const char* VarName,
                                 const char* Value);
+
+        bool GetGroupNames(HEMAX_NodeId NodeId, HAPI_GroupType GroupType,
+            HAPI_StringHandle* GroupNameHandles, int Count);
+
+        bool GetGroupMembership(HEMAX_NodeId NodeId, HAPI_PartId PartId,
+            HAPI_GroupType GroupType, const char* GroupName,
+            HAPI_Bool* MembershipAllEqualArray, int* MembershipArray, int Start,
+            int Length);
 
         bool AddGroup(HEMAX_NodeId NodeId,
                       HEMAX_PartId PartId,

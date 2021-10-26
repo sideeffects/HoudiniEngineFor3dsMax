@@ -23,6 +23,7 @@ class HEMAX_Parameter
     public:
 	HEMAX_Parameter();
 	HEMAX_Parameter(const HEMAX_NodeId& NodeId, const HEMAX_ParameterInfo& ParameterInfo);
+
 	HEMAX_Parameter& operator=(const HEMAX_Parameter& Other);
 	HEMAX_Parameter(const HEMAX_Parameter& Other);
 
@@ -51,7 +52,7 @@ class HEMAX_Parameter
 	bool HasUIConstraints();
 	bool IsMultiParameter();
 
-	int GetInstancePosition();
+	int GetInstancePosition(int InstanceStartOffset);
 	int GetInstanceStartOffset();
 	void InsertInstance(int Position);
 	void RemoveInstance(int Position);	

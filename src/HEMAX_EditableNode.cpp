@@ -15,18 +15,23 @@ MarshallDataInto3dsMaxLinearCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edit
 	float* ShapePoints = new float[EditableCurve.CurveInfo.vertexCount * 3];
 
 	HEMAX_AttributeInfo PositionAttributeInfo;
-	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId, EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT, &PositionAttributeInfo);
-	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId, EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo, -1, ShapePoints, 0, EditableCurve.CurveInfo.vertexCount);
+	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId,
+                EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
+                HEMAX_ATTRIBUTEOWNER_POINT, &PositionAttributeInfo);
+	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId,
+                EditableNode.Parts[PartNum].Info.id,
+                HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo, -1,
+                ShapePoints, 0, EditableCurve.CurveInfo.vertexCount);
 
-	float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
+        float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
 	std::vector<PolyPt> PolyPoints;
 
 	for (int p = 0; p < EditableCurve.CurveInfo.vertexCount; ++p)
 	{
 	    Point3 NewPoint;
-	    NewPoint.x = ShapePoints[p * 3] * ScaleConversion;
-	    NewPoint.y = -ShapePoints[(p * 3) + 2] * ScaleConversion;
-	    NewPoint.z = ShapePoints[(p * 3) + 1] * ScaleConversion;
+            NewPoint.x = ShapePoints[(p * 3)];
+            NewPoint.y = -ShapePoints[(p * 3) + 2] * ScaleConversion;
+            NewPoint.z = ShapePoints[(p * 3) + 1] * ScaleConversion;
 
 	    PolyPt NewPt;
 	    NewPt.p = NewPoint;
@@ -98,20 +103,24 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 
 	float* CVPoints = new float[CVCount * 3];
 
-	float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
-
 	HEMAX_AttributeInfo CVAttributeInfo;
-	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId, EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT, &CVAttributeInfo);
+	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId,
+                EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
+                HEMAX_ATTRIBUTEOWNER_POINT, &CVAttributeInfo);
+	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId,
+                EditableNode.Parts[PartNum].Info.id,
+                HEMAX_POSITION_ATTRIBUTE, &CVAttributeInfo, -1, CVPoints, 0,
+                CVCount);
 
-	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId, EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE, &CVAttributeInfo, -1, CVPoints, 0, CVCount);
+        float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
 
 	for (int c = 0; c < CVCount; ++c)
 	{
 	    Point3 CVPos;
 
-	    CVPos.x = CVPoints[c * 3] * ScaleConversion;
-	    CVPos.y = -CVPoints[(c * 3) + 2] * ScaleConversion;
-	    CVPos.z = CVPoints[(c * 3) + 1] * ScaleConversion;
+            CVPos.x = CVPoints[(c * 3)] * ScaleConversion;
+            CVPos.y = -CVPoints[(c * 3) + 2] * ScaleConversion;
+            CVPos.z = CVPoints[(c * 3) + 1] * ScaleConversion;
 
 	    NURBSControlVertex CV;
 	    CV.SetPosition(HEMAX_FRAME_ZERO, CVPos);

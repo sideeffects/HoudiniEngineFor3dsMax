@@ -11,7 +11,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
@@ -37,10 +38,8 @@
 
 #define HEMAX_DEBUG_DEFAULT_HIP_NAME "debug_hip_file.hip"
 
-HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
-                                         HEMAX_Plugin* ThePlugin)
-    : Prefs(UserPrefs),
-      Plugin(ThePlugin)
+HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
+    : Plugin(ThePlugin)
 {
     this->setWindowTitle("Houdini Engine for 3ds Max Options");
     
@@ -96,6 +95,22 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
     GeneralOptionsLayout->addWidget(OnStartupOptions);
     GeneralOptionsLayout->addWidget(AssetOptions);
 
+    DefaultOptions = new QWidget;
+    DefaultOptionsLayout = new QVBoxLayout;
+    DefaultOptions->setLayout(DefaultOptionsLayout);
+
+    NodeOptionDefaults = new QGroupBox("Node Option Defaults");
+    NodeOptionDefaultsLayout = new QVBoxLayout;
+    NodeOptionDefaults->setLayout(NodeOptionDefaultsLayout);
+
+    NodeOptionDefaultsAutoRecook = new QCheckBox(NodeOptionAutoRecookLabel);
+    NodeOptionDefaultsSliderCook = new QCheckBox(NodeOptionSliderCookLabel);
+
+    NodeOptionDefaultsLayout->addWidget(NodeOptionDefaultsAutoRecook);
+    NodeOptionDefaultsLayout->addWidget(NodeOptionDefaultsSliderCook);
+
+    DefaultOptionsLayout->addWidget(NodeOptionDefaults);
+
     GeometryHdaOptions = new QWidget;
     GeometryHdaOptionsLayout = new QVBoxLayout;
     GeometryHdaOptions->setLayout(GeometryHdaOptionsLayout);
@@ -107,15 +122,20 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
     BakeDummyObject = new QCheckBox("Bake Dummy Objects");
     GeoHdaBakingOptionsLayout->addWidget(BakeDummyObject);
 
-    NodeNamingOptions = new QGroupBox("Node Naming");
-    NodeNamingOptionsLayout = new QVBoxLayout;
-    NodeNamingOptions->setLayout(NodeNamingOptionsLayout);
+    BakeCreateLayer = new QCheckBox("Create Layer for Baked Object");
+    GeoHdaBakingOptionsLayout->addWidget(BakeCreateLayer);
+
+    NodeOptions = new QGroupBox("Nodes");
+    NodeOptionsLayout = new QVBoxLayout;
+    NodeOptions->setLayout(NodeOptionsLayout);
 
     UseUniqueNames = new QCheckBox("Use Unique Names for Geometry Nodes");
-    NodeNamingOptionsLayout->addWidget(UseUniqueNames);
+    UseOriginalInstanceName = new QCheckBox("Use Original Node Name for Instances");
+    NodeOptionsLayout->addWidget(UseUniqueNames);
+    NodeOptionsLayout->addWidget(UseOriginalInstanceName);
 
     GeometryHdaOptionsLayout->addWidget(GeoHdaBakingOptions);
-    GeometryHdaOptionsLayout->addWidget(NodeNamingOptions);
+    GeometryHdaOptionsLayout->addWidget(NodeOptions);
 
     DebugOptions = new QWidget;
     DebugOptionsLayout = new QVBoxLayout;
@@ -162,6 +182,7 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
     DebugOptionsLayout->addWidget(LoggingOptions);
 
     OptionsTabs->addTab(GeneralOptions, "General");
+    OptionsTabs->addTab(DefaultOptions, "Defaults");
     OptionsTabs->addTab(GeometryHdaOptions, "Geometry HDA");
     OptionsTabs->addTab(DebugOptions, "Debug");
 
@@ -205,15 +226,35 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
                      this,
                      SLOT(SlotHdaSearchPathBrowse()));
 
+    QObject::connect(NodeOptionDefaultsAutoRecook,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(SlotNodeOptionDefaultsAutoRecook(int)));
+
+    QObject::connect(NodeOptionDefaultsSliderCook,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(SlotNodeOptionDefaultsSliderCook(int)));
+
     QObject::connect(BakeDummyObject,
                      SIGNAL(stateChanged(int)),
                      this,
                      SLOT(SlotBakeDummyObject(int)));
 
+    QObject::connect(BakeCreateLayer,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(SlotBakeCreateLayer(int)));
+
     QObject::connect(UseUniqueNames,
                      SIGNAL(stateChanged(int)),
                      this,
                      SLOT(SlotUseUniqueNames(int)));
+
+    QObject::connect(UseOriginalInstanceName,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(SlotUseOriginalInstanceName(int)));
 
     QObject::connect(TempFilesFolder,
                      SIGNAL(editingFinished()),
@@ -256,60 +297,81 @@ void
 HEMAX_OptionsDialog::InitializeOptions()
 {
     bool Checked = false;
+    HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Checked))
     {
         AutoSelectHDARoot->setChecked(Checked);
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, Checked))
     {
         AutoStartSession->setChecked(Checked);
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Checked))
     {
         AutoOpenWindow->setChecked(Checked);
     }
 
     std::string SVal;
 
-    if (Prefs->GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, SVal))
+    if (Prefs.GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, SVal))
     {
         HdaLoadDir->setText(SVal.c_str());
     }
 
-    if (Prefs->GetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, SVal))
+    if (Prefs.GetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, SVal))
     {
         HdaSearchPath->setText(SVal.c_str());
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_OPTION_AUTORECOOK, Checked))
+    {
+        NodeOptionDefaultsAutoRecook->setChecked(Checked);
+    }
+
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_OPTION_SLIDERCOOK, Checked))
+    {
+        NodeOptionDefaultsSliderCook->setChecked(Checked);
+    }
+
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT, Checked))
     {
         BakeDummyObject->setChecked(Checked);
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_BAKE_CREATE_LAYER, Checked))
+    {
+        BakeCreateLayer->setChecked(Checked);
+    }
+
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, Checked))
     {
         UseUniqueNames->setChecked(Checked);
     }
 
-    if (Prefs->GetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR, SVal))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL, Checked))
+    {
+        UseOriginalInstanceName->setChecked(Checked); 
+    }
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR, SVal))
     {
         TempFilesFolder->setText(SVal.c_str());
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Checked))
     {
         ErrorLogging->setChecked(Checked);
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Checked))
     {
         WarningLogging->setChecked(Checked);
     }
 
-    if (Prefs->GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Checked))
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Checked))
     {
         InfoLogging->setChecked(Checked);
     }
@@ -321,28 +383,36 @@ HEMAX_OptionsDialog::~HEMAX_OptionsDialog()
 }
 
 void
+HEMAX_OptionsDialog::Update()
+{
+    InitializeOptions();
+}
+
+void
 HEMAX_OptionsDialog::SlotAutoSelectHDARoot(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_GRAB_ROOT, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_GRAB_ROOT, State);
 }
 
 void
 HEMAX_OptionsDialog::SlotAutoStartSession(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION,
+        State);
 }
 
 void
 HEMAX_OptionsDialog::SlotAutoOpenWindow(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW,
+        State);
 }
 
 void
 HEMAX_OptionsDialog::SlotHdaLoadDir()
 {
-    Prefs->SetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH,
-                            HdaLoadDir->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH,
+        HdaLoadDir->text().toStdString());
 }
 
 void
@@ -360,8 +430,8 @@ HEMAX_OptionsDialog::SlotHdaLoadDirBrowse()
 void
 HEMAX_OptionsDialog::SlotHdaSearchPath()
 {
-    Prefs->SetStringSetting(HEMAX_SETTING_HDA_REPO_PATH,
-                            HdaSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_HDA_REPO_PATH,
+        HdaSearchPath->text().toStdString());
 }
 
 void
@@ -377,22 +447,52 @@ HEMAX_OptionsDialog::SlotHdaSearchPathBrowse()
 }
 
 void
+HEMAX_OptionsDialog::SlotNodeOptionDefaultsAutoRecook(int State)
+{
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_NODE_OPTION_AUTORECOOK,
+        State);
+}
+
+void
+HEMAX_OptionsDialog::SlotNodeOptionDefaultsSliderCook(int State)
+{
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_NODE_OPTION_SLIDERCOOK,
+        State);
+}
+
+void
 HEMAX_OptionsDialog::SlotBakeDummyObject(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
+        State);
+}
+
+void
+HEMAX_OptionsDialog::SlotBakeCreateLayer(int State)
+{
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_BAKE_CREATE_LAYER,
+        State);
 }
 
 void
 HEMAX_OptionsDialog::SlotUseUniqueNames(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE,
+        State);
+}
+
+void
+HEMAX_OptionsDialog::SlotUseOriginalInstanceName(int State)
+{
+    HEMAX_UserPrefs::Get().SetBoolSetting(
+        HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL, State);
 }
 
 void
 HEMAX_OptionsDialog::SlotTempFilesFolder()
 {
-    Prefs->SetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR,
-                            TempFilesFolder->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR,
+        TempFilesFolder->text().toStdString());
 }
 
 void
@@ -403,8 +503,8 @@ HEMAX_OptionsDialog::SlotTempFilesFolderBrowse()
     if (!Dir.isEmpty())
     {
         TempFilesFolder->setText(Dir);
-        Prefs->SetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR,
-                                Dir.toStdString());
+        HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR,
+            Dir.toStdString());
     }
 }
 
@@ -534,7 +634,8 @@ HEMAX_OptionsDialog::SlotOpenHoudiniButton()
 void
 HEMAX_OptionsDialog::SlotErrorLogging(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS,
+        State);
     HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_ERROR,
                                                   State);
 }
@@ -542,7 +643,8 @@ HEMAX_OptionsDialog::SlotErrorLogging(int State)
 void
 HEMAX_OptionsDialog::SlotWarningLogging(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS,
+        State);
     HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_WARN,
                                                   State);
 }
@@ -550,7 +652,8 @@ HEMAX_OptionsDialog::SlotWarningLogging(int State)
 void
 HEMAX_OptionsDialog::SlotInfoLogging(int State)
 {
-    Prefs->SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, State);
+    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO,
+        State);
     HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_INFO,
                                                   State);
 }

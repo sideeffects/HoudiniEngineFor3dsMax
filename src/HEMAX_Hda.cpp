@@ -17,6 +17,11 @@ HEMAX_Hda::Init(const HEMAX_Asset& Asset, int AssetIndex)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     MainNode.Init(Asset.Names[AssetIndex]);
+
+    // If the node is invalid, it failed to initialize for some reason
+    if (MainNode.Type == HEMAX_NODE_INVALID)
+        return;
+
     MainNode.Cook();
 
     if (MainNode.Type == HEMAX_NODE_OBJ)

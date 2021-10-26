@@ -362,7 +362,7 @@ HEMAX_3dsmaxHda::UpdateAllCustomAttributes()
     std::vector<HEMAX_Parameter>& NodeParameters = Hda.MainNode.GetParameters();
     for (auto ParmIt = NodeParameters.begin(); ParmIt != NodeParameters.end(); ParmIt++)
     {
-	HEMAX_Parameter Parameter = *ParmIt;
+	HEMAX_Parameter& Parameter = *ParmIt;
 
 	switch (Parameter.Type)
 	{
@@ -720,6 +720,13 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 			}
 		    }
 		}
+
+                if (AnotherPassRequired)
+                {
+                    // Updating multiparameters can shift the parameter IDs
+                    // so we need to retrieve the parameters again
+                    break;
+                }
 	    }
 	}
         if (AnotherPassRequired)
@@ -780,8 +787,8 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	    const MCHAR* Val;
 	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
 
-	    std::wstring WideStringValue(Val);
-	    std::string StringValue(WideStringValue.begin(), WideStringValue.end());
+            std::string StringValue = HEMAX_Utilities::WideStringToStringUnsafe(
+                Val);
 	    std::vector<std::string> StringValues = { StringValue };
 
 	    Parameter.UpdateStringVals(StringValues);
@@ -800,8 +807,8 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 		const MCHAR* Val;
 		Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
 
-		std::wstring WideStringValue(Val);
-		std::string StringValue(WideStringValue.begin(), WideStringValue.end());
+		std::string StringValue
+			= HEMAX_Utilities::WideStringToStringUnsafe(Val);
 		StringValues.push_back(StringValue);
 	    }
 	}
@@ -914,14 +921,28 @@ HEMAX_3dsmaxHda::RemakeMultiParameter(HEMAX_Parameter Parameter, std::unordered_
     auto Search = CustomAttributeMap.find(ParameterName);
     if (Search != CustomAttributeMap.end())
     {
-	HEMAX_MultiParameterAttrib* CustAttrib = (HEMAX_MultiParameterAttrib*)Search->second;
-	int InstanceCount = CustAttrib->PBlock->GetInt(0);
-	int InstanceLength = CustAttrib->PBlock->GetInt(1);
+	HEMAX_MultiParameterAttrib* CustAttrib =
+            (HEMAX_MultiParameterAttrib*)Search->second;
 
-	for (int i = 0; i < InstanceCount; i++)
-	{
-	    Parameter.InsertInstance(i);
-	}
+	int SavedInstanceCount = CustAttrib->PBlock->GetInt(0);
+        int CurrentInstanceCount = Parameter.Info.instanceCount;
+
+        if (CurrentInstanceCount > SavedInstanceCount)
+        {
+            while (CurrentInstanceCount > SavedInstanceCount)
+            {
+                Parameter.RemoveInstance(CurrentInstanceCount - 1);
+                --CurrentInstanceCount;
+            }
+        }
+        else if (CurrentInstanceCount < SavedInstanceCount)
+        {
+            while (CurrentInstanceCount < SavedInstanceCount)
+            {
+                Parameter.InsertInstance(CurrentInstanceCount);
+                ++CurrentInstanceCount;
+            }
+        }
     }
 }
 

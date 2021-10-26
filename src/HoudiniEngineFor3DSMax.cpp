@@ -1,10 +1,16 @@
 #include "HoudiniEngineFor3DSMax.h"
 
+#include "HEMAX_Events.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_MaxScriptInterface.h"
 #include "HEMAX_Path.h"
+#include "HEMAX_Plugin.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Utilities.h"
+
+#include "UI/HEMAX_OptionsDialog.h"
+#include "UI/HEMAX_UI.h"
+#include "UI/HEMAX_VersionDialog.h"
 
 #include <fstream>
 #include <sstream>
@@ -79,16 +85,19 @@ HEMAXLauncher::HEMAXLauncher()
                                   "\\" +
                                   "HARS.exe"; 
 
-        int CallResult = SetEnvironmentVariableA("HOUDINI_HARS_LOCATION",
-                                                 HARSProgram.c_str());
-
-        if (!CallResult)
+        if (GetFileAttributesA(HARSProgram.c_str()) != INVALID_FILE_ATTRIBUTES)
         {
-            mprintf(L"Failed to set the HOUDINI_HARS_LOCATION environment "
-                    "variable\n");
-            mflush();
-            mprintf(L"Windows Error Message: %d\n", GetLastError());
-            mflush();
+            int CallResult = SetEnvironmentVariableA("HOUDINI_HARS_LOCATION",
+                                                     HARSProgram.c_str());
+
+            if (!CallResult)
+            {
+                mprintf(L"Failed to set the HOUDINI_HARS_LOCATION environment "
+                        "variable\n");
+                mflush();
+                mprintf(L"Windows Error Message: %d\n", GetLastError());
+                mflush();
+            }
         }
 
 	Interface* TheInterface = GetCOREInterface();
@@ -98,7 +107,8 @@ HEMAXLauncher::HEMAXLauncher()
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 	PluginUserInterface = new HEMAX_UI(TheInterface->GetQmaxMainWindow(),
                                            ThePlugin);
 #endif
@@ -115,8 +125,7 @@ HEMAXLauncher::HEMAXLauncher()
 
         ThePlugin->Init(HAPIToolsDirectory);
 
-        OptionsDialog = new HEMAX_OptionsDialog(ThePlugin->GetUserPrefs(),
-                                                ThePlugin);
+        OptionsDialog = new HEMAX_OptionsDialog(ThePlugin);
         OptionsDialog->hide();
 
 	VersionDialog = new HEMAX_VersionDialog();
@@ -218,7 +227,7 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
 	if (Result == ERROR_SUCCESS)
 	{
-	    SetHoudiniSubDirectores(std::wstring(StringValue));
+	    SetHoudiniSubDirectories(std::wstring(StringValue));
 	    HMODULE libHAPILModule = LoadLibHAPIL();
 	    if (libHAPILModule)
 	    {
@@ -249,7 +258,7 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
 	if (Result == ERROR_SUCCESS)
 	{
-	    SetHoudiniSubDirectores(std::wstring(StringValue));
+	    SetHoudiniSubDirectories(std::wstring(StringValue));
 	    HMODULE libHAPILModule = LoadLibHAPIL();
 	    if (libHAPILModule)
 	    {
@@ -316,16 +325,19 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 }
 
 void
-HEMAXLauncher::SetHoudiniSubDirectores(std::wstring HoudiniDir)
+HEMAXLauncher::SetHoudiniSubDirectories(std::wstring HoudiniDir)
 {
-    std::wstring HAPIToolsDir = HoudiniDir + L"\\" + _T(HEMAX_HOUDINI_TOOLS_SUBDIRECTORY);
+    std::wstring HAPIToolsDir = HoudiniDir + L"\\" + 
+        _T(HEMAX_HOUDINI_TOOLS_SUBDIRECTORY);
     HAPIToolsDirectory = std::string(HAPIToolsDir.begin(), HAPIToolsDir.end());
 
-    std::wstring LibHAPILPath = HoudiniDir + L"\\" + _T(HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY);
+    std::wstring LibHAPILPath = HoudiniDir + L"\\" +
+        _T(HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY);
     LibHAPILDirectory = std::string(LibHAPILPath.begin(), LibHAPILPath.end());
 
     std::wstring WStrValue = HoudiniDir;
-    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = std::string(WStrValue.begin(), WStrValue.end());
+    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = std::string(WStrValue.begin(),
+        WStrValue.end());
 }
 
 void
@@ -381,6 +393,12 @@ std::string
 HEMAXLauncher::GetLibHAPILDirectory()
 {
     return LibHAPILDirectory;
+}
+
+void
+HEMAXLauncher::UpdateOptionsDialog()
+{
+    OptionsDialog->Update();
 }
 
 void

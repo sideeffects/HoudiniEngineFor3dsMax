@@ -2,6 +2,8 @@
 
 #include "HEMAX_SessionManager.h"
 
+#include "HEMAX_Utilities.h"
+
 HEMAX_Object::HEMAX_Object()
 {
     Info.nameSH = 0;
@@ -183,11 +185,15 @@ GetInstanceTransforms(HEMAX_NodeId InstancerNode)
     if (InstancerPointInfo.pointCount > 0)
     {
 	std::vector<HAPI_Transform> InstanceTransforms(InstancerPointInfo.pointCount);
-	SM.Session->GetInstanceTransforms(GeoInfo.nodeId, HAPI_RSTORDER_DEFAULT, &InstanceTransforms.front(), 0, InstancerPointInfo.pointCount);
+	SM.Session->GetInstanceTransformsOnPart(GeoInfo.nodeId, 0,
+                HAPI_SRT, &InstanceTransforms.front(), 0,
+                InstancerPointInfo.pointCount);
 
 	for (int p = 0; p < InstancerPointInfo.pointCount; ++p)
 	{
-	    Transforms.push_back(HEMAX_Utilities::HAPITransformToMaxTransform(InstanceTransforms[p]));
+	    Transforms.push_back(
+                HEMAX_Utilities::HAPITransformToMaxTransform(
+                    InstanceTransforms[p]));
 	}
     }
 

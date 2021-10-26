@@ -3,13 +3,16 @@
 #include "moc_HEMAX_ParameterWidget.cpp"
 
 #include "../HEMAX_Parameter.h"
+#include "../HEMAX_UserPrefs.h"
 
+#include <sstream>
 #include <unordered_map>
 
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qabstractitemview.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qcolordialog.h>
@@ -39,9 +42,8 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
 
     NodeOptionsBox = new QGroupBox("Node Options");
     NodeOptionsBoxLayout = new QGridLayout;
-    NodeOptions_AutoRecook = new QCheckBox("Enable automatic recooking");
-    NodeOptions_RealtimeRecook =
-	new QCheckBox("Cook while dragging parameter slider");
+    NodeOptions_AutoRecook = new QCheckBox(NodeOptionAutoRecookLabel);
+    NodeOptions_RealtimeRecook = new QCheckBox(NodeOptionSliderCookLabel);
     NodeOptions_InputUpdate =
 	new QCheckBox("Automatically cook when an input node changes");
 
@@ -751,8 +753,13 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 			HEMAX_ParameterWidget_MultiParameter *MultiParamParent =
 			    (HEMAX_ParameterWidget_MultiParameter *)
 			    Search->second;
+                        HEMAX_Parameter* ParentMultiParm =
+                            CurrentNode->GetParameter(ParentId);
+                        int InstanceOffset = 1;
+                        if (ParentMultiParm)
+                            InstanceOffset = ParentMultiParm->GetInstanceStartOffset();
 			MultiParamParent->AddParameterToInstance(WidgetToAdd,
-				CurrentParameter->GetInstancePosition());
+			    CurrentParameter->GetInstancePosition(InstanceOffset));
 		    }
 		    else
 		    {
@@ -2186,7 +2193,8 @@ HEMAX_ParameterWidget_Float::HEMAX_ParameterWidget_Float(
 
     for (int i = 0; i < ParamSize; ++i)
     {
-	FloatValues.push_back(new QLineEdit(std::to_string(Values[i]).c_str()));
+        FloatValues.push_back(new QLineEdit(
+            HEMAX_ParameterWidget_Float::FloatToString(Values[i]).c_str()));
     }
 
     FloatSlider = nullptr;
@@ -2216,7 +2224,8 @@ HEMAX_ParameterWidget_Float::HEMAX_ParameterWidget_Float(
 
     for (int i = 0; i < ParamSize; ++i)
     {
-	FloatValues.push_back(new QLineEdit(std::to_string(Values[i]).c_str()));
+        FloatValues.push_back(new QLineEdit(
+            HEMAX_ParameterWidget_Float::FloatToString(Values[i]).c_str()));
     }
 
     FloatSlider = new QSlider(Qt::Horizontal);
@@ -2254,6 +2263,14 @@ HEMAX_ParameterWidget_Float::SetHelpToolTip(std::string HelpString)
     {
 	ParameterLabel->setToolTip(HelpString.c_str());
     }
+}
+
+std::string
+HEMAX_ParameterWidget_Float::FloatToString(float Val)
+{
+    std::stringstream Stream;
+    Stream << Val;
+    return Stream.str();
 }
 
 int

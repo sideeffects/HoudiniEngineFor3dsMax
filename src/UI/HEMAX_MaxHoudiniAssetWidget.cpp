@@ -12,7 +12,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qmessagebox.h>
 #endif
 
@@ -177,8 +178,8 @@ HEMAX_MaxHoudiniAssetWidget::Slot_BakeHdaButton()
         HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
 
         bool BakeDummyObj;
-        Plugin->GetUserPrefs()->GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
-                                               BakeDummyObj);
+        HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
+            BakeDummyObj);
         GeometryHda->BakeGeometryHda(BakeDummyObj);
     }
 }

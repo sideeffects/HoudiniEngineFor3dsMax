@@ -168,6 +168,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	if (InputNode)
 	{
 	    delete InputNode;
+            InputNode = nullptr;
 	}
 
 	if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
@@ -175,18 +176,30 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	    MaxLinearShape = (LinearShape*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), Class_ID(LINEARSHAPE_CLASS_ID, 0));
 	    MaxPolyObject = (PolyObject*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), polyObjectClassID);
 
-	    if (HEMAX_Utilities::IsLinearSplineClosed(MaxLinearShape))
-	    {
-		InputNode = new HEMAX_Input_Geometry(HEMAX_INPUT_SUBNETWORK, MaxPolyObject, MaxNode);
-	    }
-	    else
-	    {
-		InputNode = new HEMAX_Input_Spline(HEMAX_INPUT_SUBNETWORK, MaxLinearShape);
-	    }
+            if (HEMAX_Utilities::IsOnlyClosedSplines(MaxLinearShape) ||
+                HEMAX_Utilities::IsOnlyOpenSplines(MaxLinearShape))
+            {
+                ULONG NodeHandle = -1;
+                if (MaxNode)
+                    NodeHandle = MaxNode->GetHandle();
+
+                InputNode = new HEMAX_Input_Spline(HEMAX_INPUT_SUBNETWORK,
+                    MaxLinearShape, NodeHandle);
+            }
+            else
+            {
+                HEMAX_Logger::Instance().AddEntry("A shape must contain "
+                    "exclusively closed splines or exclusively open splines to "
+                    "be sent to Houdini", HEMAX_LOG_LEVEL_WARN);
+            }
 	}
 	else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
 	{
-	    InputNode = new HEMAX_Input_NURBS(HEMAX_INPUT_SUBNETWORK, MaxObject);
+            ULONG NodeHandle = -1;
+            if (MaxNode)
+                NodeHandle = MaxNode->GetHandle();
+	    InputNode = new HEMAX_Input_NURBS(HEMAX_INPUT_SUBNETWORK, MaxObject,
+                NodeHandle);
 	    TriObject* MaxTriObject = (TriObject*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), triObjectClassID);
 	    MaxPolyObject = (PolyObject*)MaxTriObject->ConvertToType(GetCOREInterface()->GetTime(), polyObjectClassID);
 
@@ -341,19 +354,6 @@ HEMAX_Modifier::NotifyRefChanged(const Interval& changeInt, RefTargetHandle hTar
     return REF_SUCCEED;
 }
 
-const TCHAR*
-HEMAX_Modifier::GetObjectName()
-{
-    if (AssetName != "")
-    {
-	return WideAssetName.c_str();
-    }
-    else
-    {
-	return _T(HEMAX_MODIFIER_STACK_PLUGIN_NAME);
-    }
-}
-
 void
 HEMAX_Modifier::MarkCreated()
 {
@@ -480,6 +480,14 @@ HEMAX_ModifierClassDesc::Create(BOOL Loading)
 {
     return new HEMAX_Modifier;
 }
+
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_ModifierClassDesc::NonLocalizedClassName()
+{
+    return _T(HEMAX_MODIFIER_STACK_PLUGIN_NAME);
+}
+#endif
 
 const TCHAR*
 HEMAX_ModifierClassDesc::ClassName()

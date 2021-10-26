@@ -3,7 +3,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qdialog.h>
 #endif
 
@@ -12,7 +13,6 @@
 #endif
 
 class HEMAX_Plugin;
-class HEMAX_UserPrefs;
 
 class QCheckBox;
 class QVBoxLayout;
@@ -28,9 +28,10 @@ class HEMAX_OptionsDialog : public QDialog
     Q_OBJECT
 
     public:
-        HEMAX_OptionsDialog(HEMAX_UserPrefs* UserPrefs,
-                            HEMAX_Plugin* ThePlugin);
+        HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin);
         ~HEMAX_OptionsDialog();
+
+        void Update();
 
     private:
 
@@ -62,16 +63,26 @@ class HEMAX_OptionsDialog : public QDialog
         QLineEdit* HdaSearchPath;
         QPushButton* HdaSearchPathBrowse;
 
+        QWidget* DefaultOptions;
+        QVBoxLayout* DefaultOptionsLayout;
+
+        QGroupBox* NodeOptionDefaults;
+        QVBoxLayout* NodeOptionDefaultsLayout;
+        QCheckBox* NodeOptionDefaultsAutoRecook;
+        QCheckBox* NodeOptionDefaultsSliderCook;
+
         QWidget* GeometryHdaOptions;
         QVBoxLayout* GeometryHdaOptionsLayout;
 
         QGroupBox* GeoHdaBakingOptions;
         QVBoxLayout* GeoHdaBakingOptionsLayout;
         QCheckBox* BakeDummyObject;
+        QCheckBox* BakeCreateLayer;
 
-        QGroupBox* NodeNamingOptions;
-        QVBoxLayout* NodeNamingOptionsLayout;
+        QGroupBox* NodeOptions;
+        QVBoxLayout* NodeOptionsLayout;
         QCheckBox* UseUniqueNames;
+        QCheckBox* UseOriginalInstanceName;
 
         QWidget* DebugOptions;
         QVBoxLayout* DebugOptionsLayout;
@@ -97,7 +108,6 @@ class HEMAX_OptionsDialog : public QDialog
         QCheckBox* WarningLogging;
         QCheckBox* InfoLogging;
 
-        HEMAX_UserPrefs* Prefs;
         HEMAX_Plugin* Plugin;
 
     private slots:
@@ -109,8 +119,12 @@ class HEMAX_OptionsDialog : public QDialog
         void SlotHdaLoadDirBrowse();
         void SlotHdaSearchPath();
         void SlotHdaSearchPathBrowse();
+        void SlotNodeOptionDefaultsAutoRecook(int State);
+        void SlotNodeOptionDefaultsSliderCook(int State);
         void SlotBakeDummyObject(int State);
+        void SlotBakeCreateLayer(int State);
         void SlotUseUniqueNames(int State);
+        void SlotUseOriginalInstanceName(int State);
         void SlotTempFilesFolder();
         void SlotTempFilesFolderBrowse();
         void SlotSaveHipButton();

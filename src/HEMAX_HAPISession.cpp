@@ -88,6 +88,7 @@ HEMAX_HAPISession::InitializeHAPI(const char* HoudiniEnvFiles,
     CookOptions.handleSpherePartTypes = false;
     CookOptions.splitPointsByVertexAttributes = false;
     CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
+    CookOptions.cacheMeshTopology = false;
 
     HAPI_Result Result = HEMAX_HoudiniApi::Initialize(this,
                                                       &CookOptions,
@@ -357,6 +358,21 @@ HEMAX_HAPISession::GetPartInfo(HEMAX_NodeId Node,
                                                        Node,
                                                        PartId,
                                                        PartInfo);
+
+    return HandleStatusResult(Result);
+}
+
+bool
+HEMAX_HAPISession::GetEdgeCountOfEdgeGroup(HEMAX_NodeId Node,
+                                           HEMAX_PartId PartId,
+                                           const char* GroupName,
+                                           int* EdgeCount)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroup(this,
+                                                                   Node,
+                                                                   PartId,
+                                                                   GroupName,
+                                                                   EdgeCount);
 
     return HandleStatusResult(Result);
 }
@@ -986,15 +1002,17 @@ HEMAX_HAPISession::SetFaceCounts(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetInstanceTransforms(HEMAX_NodeId Node,
-                                         HAPI_RSTOrder RSTOrder,
-                                         HAPI_Transform* TransformsArray,
-                                         int Start,
-                                         int Length)
+HEMAX_HAPISession::GetInstanceTransformsOnPart(HEMAX_NodeId Node,
+                                               HEMAX_PartId Part,
+                                               HAPI_RSTOrder RSTOrder,
+                                               HAPI_Transform* TransformsArray,
+                                               int Start,
+                                               int Length)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::GetInstanceTransforms(
+    HAPI_Result Result = HEMAX_HoudiniApi::GetInstanceTransformsOnPart(
                                                             this,
                                                             Node,
+                                                            Part,
                                                             RSTOrder,
                                                             TransformsArray,
                                                             Start,
@@ -1460,6 +1478,30 @@ HEMAX_HAPISession::SetServerEnvString(const char* VarName,
     HAPI_Result Result = HEMAX_HoudiniApi::SetServerEnvString(this,
                                                               VarName,
                                                               Value);
+
+    return HandleStatusResult(Result);
+}
+
+
+bool
+HEMAX_HAPISession::GetGroupNames(HEMAX_NodeId NodeId, HAPI_GroupType GroupType,
+    HAPI_StringHandle* GroupNameHandles, int Count)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetGroupNames(this, NodeId,
+        GroupType, GroupNameHandles, Count);
+
+    return HandleStatusResult(Result);
+}
+
+bool
+HEMAX_HAPISession::GetGroupMembership(HEMAX_NodeId NodeId, HAPI_PartId PartId,
+    HAPI_GroupType GroupType, const char* GroupName,
+    HAPI_Bool* MembershipAllEqualArray, int* MembershipArray, int Start,
+    int Length)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetGroupMembership(this, NodeId,
+        PartId, GroupType, GroupName, MembershipAllEqualArray, MembershipArray,
+        Start, Length);
 
     return HandleStatusResult(Result);
 }

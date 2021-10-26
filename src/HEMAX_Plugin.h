@@ -5,7 +5,6 @@
 #include "HEMAX_Asset.h"
 #include "HEMAX_Input.h"
 #include "HEMAX_ModifierAsset.h"
-#include "HEMAX_UserPrefs.h"
 #include "HEMAX_Shelf.h"
 
 #include "notify.h"
@@ -95,11 +94,12 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	void DirtyEditableNodes(ULONG ContainerNodeHandle);
 
-	HEMAX_UserPrefs* GetUserPrefs();
-
-	void HandleParameterInputCleared(HEMAX_Node* Node, HEMAX_Parameter Parameter);
+	void HandleParameterInputCleared(HEMAX_Node* Node,
+                                         HEMAX_Parameter Parameter,
+                                         bool UpdateHda = true);
 	void HandleParameterInputSelection(HEMAX_Node* Node, HEMAX_Parameter Parameter, INode* InputNodeToUse = nullptr);
-	void HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork);
+	void HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork,
+                                          bool UpdateHda = true);
 	void HandleSubnetworkInputSelection(HEMAX_Node* Node, int Subnetwork, INode* InputNodeToUse = nullptr);
 
 	void HandleRecookRequest(HEMAX_Node* Node);
@@ -115,13 +115,15 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	void ReloadHdaFromCustomAttributes(HEMAX_3dsmaxHda* MaxHda);
 
+	void Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda,
+                                            bool UpdateHda = true);
+
     private:
 
 	bool ManualModifierAddInProgress;
 
 	Interface* MaxInterface;
 	HEMAX_Store* PluginStore;
-	HEMAX_UserPrefs* UserPreferences;
 	HEMAX_Shelf* ToolShelf;
 
         HEMAX_Events* PluginEvents;
@@ -139,7 +141,8 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	void DestroyAllEditableNodeReferences();
 
-	void Clear3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* Parameter);
+	void Clear3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda,
+                                          HEMAX_Parameter* Parameter);
 	HEMAX_3dsMaxInput* Set3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* Parameter, INode* InputNodeToUse);
 
 	void Clear3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork);
@@ -149,7 +152,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 	void UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda);
 
 	void Handle3dsMaxInputSourceDeletion(HEMAX_3dsMaxInput* MaxInput);
-	void Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda);
 
 	void UpdateEntireHda(HEMAX_3dsmaxHda* Hda, bool ForceRedraw = true);
 
