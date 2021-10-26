@@ -10,7 +10,7 @@ class HEMAX_Input_NURBS : public HEMAX_Input
 	HEMAX_Input_NURBS(ULONG MaxNode);
 	HEMAX_Input_NURBS(HEMAX_InputType Type, int Id, ULONG MaxNode);
 	HEMAX_Input_NURBS(HEMAX_Node* EditableNode, ULONG MaxNode);
-	HEMAX_Input_NURBS(HEMAX_InputType Type, Object* MaxObject);
+	HEMAX_Input_NURBS(HEMAX_InputType Type, Object* MaxObject, ULONG MaxNode);
 	~HEMAX_Input_NURBS();
 
 	void RebuildAfterChange() override;

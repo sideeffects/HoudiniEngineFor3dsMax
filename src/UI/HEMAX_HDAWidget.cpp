@@ -4,11 +4,13 @@
 
 #include "../HEMAX_Logger.h"
 #include "../HEMAX_Plugin.h"
+#include "../HEMAX_SessionManager.h"
 
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets\qapplication.h>
 #include <QtWidgets\qfiledialog.h>
 #include <QtWidgets\qmenu.h>
@@ -198,12 +200,32 @@ HEMAX_HDAWidget::SlotShowAssetContextMenu(QPoint Position)
 {
     QPoint MenuSpawn = LoadedAssetsList->mapToGlobal(Position);
     QListWidgetItem* Item = LoadedAssetsList->itemAt(Position);
+
+    if (!Item)
+        return;
+
     QString FullAssetPath = Item->toolTip();
+    SelectedAssetPath = FullAssetPath;
     CurrentContextMenuSelection = FullAssetPath;
 
     QMenu AssetMenu;
-    AssetMenu.addAction("Remove Asset", this, SLOT(SlotRemoveAssetClicked()));
-    AssetMenu.addAction("Copy Asset Path", this, SLOT(SlotCopyAssetPathClicked()));
+    QAction* GeoHdaAction = AssetMenu.addAction("Create Geometry HDA", this,
+        SLOT(CreateGeometryHdaTriggered()));
+    QAction* ModifierHdaAction = AssetMenu.addAction(
+        "Create Modifier HDA On Selected Objects", this,
+        SLOT(CreateModifierHdasTriggered()));
+    AssetMenu.addSeparator();
+    AssetMenu.addAction("Remove Asset", this,
+        SLOT(SlotRemoveAssetClicked()));
+    AssetMenu.addAction("Copy Asset Path", this,
+        SLOT(SlotCopyAssetPathClicked()));
+
+    if (!HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    {
+        GeoHdaAction->setDisabled(true);
+        ModifierHdaAction->setDisabled(true);
+    }
+
     AssetMenu.exec(MenuSpawn);
 }
 

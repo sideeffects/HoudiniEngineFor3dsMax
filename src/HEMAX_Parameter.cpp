@@ -48,8 +48,6 @@ HEMAX_Parameter::operator=(const HEMAX_Parameter& Other)
     Label = Other.Label;
     Help = Other.Help;
 
-    CopyValuesFrom(Other);
-
     return *this;
 }
 
@@ -62,8 +60,6 @@ HEMAX_Parameter::HEMAX_Parameter(const HEMAX_Parameter& Other)
     Name = Other.Name;
     Label = Other.Label;
     Help = Other.Help;
-
-    CopyValuesFrom(Other);
 }
 
 std::string&
@@ -290,9 +286,9 @@ HEMAX_Parameter::IsMultiParameter()
 }
 
 int
-HEMAX_Parameter::GetInstancePosition()
+HEMAX_Parameter::GetInstancePosition(int InstanceStartOffset)
 {
-    return Info.instanceNum - 1;
+    return Info.instanceNum - InstanceStartOffset;
 }
 
 int

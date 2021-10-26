@@ -75,16 +75,17 @@ class HEMAX_ParameterAttrib : public CustAttrib
 	std::string GetParameterName();
 
 	void SetParameterName(std::string Name);
-	const TCHAR* GetName();
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* GetName(bool Localized = false) override;
+#else
+        const TCHAR* GetName() override;
+#endif
 	SClass_ID SuperClassID();
 
 	int NumRefs();
 
 	int NumSubs();
 	Animatable* SubAnim(int i);
-	TSTR SubAnimName(int i);
-
-	void GetClassName(MSTR& str);
 
 	RefTargetHandle GetReference(int i);
 
@@ -120,6 +121,9 @@ class HEMAX_IntegerParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();
@@ -149,6 +153,9 @@ class HEMAX_StringParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();
@@ -175,6 +182,9 @@ class HEMAX_FloatParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();
@@ -201,6 +211,9 @@ class HEMAX_ToggleParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();
@@ -237,6 +250,9 @@ class HEMAX_NodeParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();
@@ -262,6 +278,9 @@ class HEMAX_MultiParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName();
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();

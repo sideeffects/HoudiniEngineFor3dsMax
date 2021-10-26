@@ -1,6 +1,5 @@
 #pragma once
 
-#include "3dsmaxsdk_preinclude.h"
 #include "resource.h"
 #include <istdplug.h>
 #include <iparamb2.h>
@@ -12,11 +11,6 @@
 #include "guplib.h"
 #include "notify.h"
 
-#include "HEMAX_Plugin.h"
-#include "HEMAX_Events.h"
-#include "UI/HEMAX_UI.h"
-#include "UI/HEMAX_OptionsDialog.h"
-#include "UI/HEMAX_VersionDialog.h"
 #include <string>
 
 #define HEMAXLauncher_CLASS_ID Class_ID(0x93a752c7, 0x774a3d7f)
@@ -35,6 +29,12 @@ const ActionContextId HEMAX_Context_Id = 0x626b4e5c;
 
 extern TCHAR *GetString( int id );
 extern HINSTANCE hInstance;
+
+class HEMAX_Events;
+class HEMAX_OptionsDialog;
+class HEMAX_Plugin;
+class HEMAX_UI;
+class HEMAX_VersionDialog;
 
 class HEMAXActionTable : public ActionTable
 {
@@ -73,6 +73,8 @@ class HEMAXLauncher : public GUP, ActionCallback
 	bool WasHAPIDLLFound();
 	static std::string GetLibHAPILDirectory();
 
+        void UpdateOptionsDialog();
+
     private:
 
 	HEMAX_Plugin* ThePlugin;
@@ -84,7 +86,7 @@ class HEMAXLauncher : public GUP, ActionCallback
 	HMODULE LoadLibHAPIL();
 
 	HMODULE FindHoudiniEngineLibs();
-	void SetHoudiniSubDirectores(std::wstring HoudiniDir);
+	void SetHoudiniSubDirectories(std::wstring HoudiniDir);
 
 	bool FoundHAPIDLL;
 	static std::string LibHAPILDirectory;
@@ -101,7 +103,12 @@ class HEMAXLauncherClassDesc : public ClassDesc2
     public:
 	virtual int IsPublic() { return TRUE; }
 	virtual void* Create(BOOL) { return HEMAXLauncher::GetInstance(); }
-	virtual const TCHAR* ClassName() { return GetString(IDS_CLASS_NAME); }
+#ifdef HEMAX_VERSION_2022
+        virtual const TCHAR* NonLocalizedClassName() override
+            { return GetString(IDS_CLASS_NAME); }
+#endif
+	virtual const TCHAR* ClassName() override
+            { return GetString(IDS_CLASS_NAME); }
 	virtual SClass_ID SuperClassID() { return GUP_CLASS_ID; }
 	virtual Class_ID ClassID() { return HEMAXLauncher_CLASS_ID; }
 	virtual const TCHAR* Category() { return GetString(IDS_CATEGORY); }

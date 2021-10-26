@@ -170,8 +170,11 @@ HEMAX_Mesh::HEMAX_Mesh()
     , IlluminationAttrExists(false)
     , SmoothingGroupsExist(false)
     , MaterialIDsExist(false)
+    , FaceSelectionsExist(false)
+    , VertexSelectionsExist(false)
+    , EdgeSelectionsExist(false)
     , SecondaryUVCount(0)
-      , AreMaterialIdsSame(false)
+    , AreMaterialIdsSame(false)
 {
 }
 
@@ -190,8 +193,11 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , IlluminationAttrExists(false)
     , SmoothingGroupsExist(false)
     , MaterialIDsExist(false)
+    , FaceSelectionsExist(false)
+    , VertexSelectionsExist(false)
+    , EdgeSelectionsExist(false)
     , SecondaryUVCount(0)
-      , AreMaterialIdsSame(false)
+    , AreMaterialIdsSame(false)
 {
     FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
     VertexList.Init(VertexCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_VERTEX);
@@ -298,6 +304,30 @@ HEMAX_Mesh::AllocateMaterialIDArray()
 {
     MaterialIDList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
     MaterialIDsExist = true;
+}
+
+void
+HEMAX_Mesh::AllocateFaceSelectionsArray()
+{
+    FaceSelectionsList.Init(FaceCount, HEMAX_Mesh_SingularTuple,
+        HEMAX_ATTRIBUTEOWNER_PRIM);
+    FaceSelectionsExist = true;
+}
+
+void
+HEMAX_Mesh::AllocateVertexSelectionsArray()
+{
+    VertexSelectionsList.Init(PointCount, HEMAX_Mesh_SingularTuple,
+        HEMAX_ATTRIBUTEOWNER_POINT);
+    VertexSelectionsExist = true;
+}
+
+void
+HEMAX_Mesh::AllocateEdgeSelectionsArray(int EdgeCount)
+{
+    EdgeSelectionsList.Init(EdgeCount*2, HEMAX_Mesh_SingularTuple,
+        HEMAX_ATTRIBUTEOWNER_POINT);
+    EdgeSelectionsExist = true;
 }
 
 HEMAX_Mesh::~HEMAX_Mesh()
@@ -442,6 +472,24 @@ int*
 HEMAX_Mesh::GetMaterialIDArray()
 {
     return MaterialIDList.Data();
+}
+
+int*
+HEMAX_Mesh::GetFaceSelectionsArray()
+{
+    return FaceSelectionsList.Data();
+}
+
+int*
+HEMAX_Mesh::GetVertexSelectionsArray()
+{
+    return VertexSelectionsList.Data();
+}
+
+int*
+HEMAX_Mesh::GetEdgeSelectionsArray()
+{
+    return EdgeSelectionsList.Data();
 }
 
 int
@@ -644,6 +692,24 @@ HEMAX_Mesh::DoesMaterialIDAttrExist()
     return MaterialIDsExist;
 }
 
+bool
+HEMAX_Mesh::HasFaceSelections() const
+{
+    return FaceSelectionsExist;
+}
+
+bool
+HEMAX_Mesh::HasVertexSelections() const
+{
+    return VertexSelectionsExist;
+}
+
+bool
+HEMAX_Mesh::HasEdgeSelections() const
+{
+    return EdgeSelectionsExist;
+}
+
 int
 HEMAX_Mesh::GetPostTriangulationFaceCount()
 {
@@ -819,7 +885,6 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     MaxMesh.ClearAndFree();
 
     float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
-
     float Point[3];
 
     MaxMesh.setNumVerts(GetPointCount());
@@ -828,11 +893,26 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     for (int p = 0; p < PointCount; p++)
     {
 	GetPointAtIndex(p, Point);
-	MaxMesh.v[p].p = Point3(Point[0] * ScaleConversion, -Point[2] * ScaleConversion, Point[1] * ScaleConversion);
+        MaxMesh.v[p].p = Point3(
+                            Point[0] * ScaleConversion,
+                            -Point[2] * ScaleConversion,
+                            Point[1] * ScaleConversion);
     }
 
     int CurrentIndex = 0;
 
+    BitArray FaceSelections;
+    if (HasFaceSelections())
+    {
+        FaceSelections.SetSize(GetFaceCount());
+    }
+
+    BitArray VertexSelections;
+    if (HasVertexSelections())
+    {
+        VertexSelections.SetSize(GetPointCount());
+    }
+    
     for (int f = 0; f < GetFaceCount(); f++)
     {
 	MaxMesh.F(f)->SetDeg(GetFaceVertexCount(f));
@@ -853,6 +933,11 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	    {
 		MaxMesh.F(f)->material = GetMaterialIDArray()[f];
 	    }
+
+            if (HasFaceSelections())
+            {
+                FaceSelections.Set(f, GetFaceSelectionsArray()[f]);
+            }
 	}
 
 	if (GetFaceVertexCount(f) > 4)
@@ -885,7 +970,10 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
 		{
 		    GetVertexNormalAtIndex(CurrentIndex, NormalVals);
-		    Point3 NormalVec = Point3(NormalVals[0], -NormalVals[2], NormalVals[1]);
+                    Point3 NormalVec = Point3(
+                                            NormalVals[0],
+                                            -NormalVals[2],
+                                            NormalVals[1]);
 		    SpecNormals->SetNormal(f, v, NormalVec);
 		    CurrentIndex++;
 		}
@@ -1077,6 +1165,11 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	    IlluminationMap->v[p].y = IlluminationVals[1];
 	    IlluminationMap->v[p].z = IlluminationVals[2];
 	}
+
+        if (HasVertexSelections())
+        {
+            VertexSelections.Set(p, GetVertexSelectionsArray()[p]);
+        }
     }
 
     int VertexIndex = 0;
@@ -1245,4 +1338,27 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     MaxMesh.InvalidateTopoCache();
 
     MaxMesh.FillInMesh();
+
+    if (HasEdgeSelections() && MaxMesh.ENum() > 0)
+    {
+        BitArray EdgeSelections;
+        EdgeSelections.SetSize(MaxMesh.ENum());
+        EdgeSelections.ClearAll();
+
+        for (int e = 0; e < EdgeSelectionsList.DataSize() - 1; e += 2)
+        {
+            int EdgeToSelect = MaxMesh.FindEdgeFromVertToVert(
+                EdgeSelectionsList.Data()[e], EdgeSelectionsList.Data()[e+1]);
+            if (EdgeToSelect > -1)
+            {
+                EdgeSelections.Set(EdgeToSelect, 1);
+            }
+        } 
+
+        MaxMesh.EdgeSelect(EdgeSelections);
+    }
+
+    // Set selections
+    MaxMesh.FaceSelect(FaceSelections);
+    MaxMesh.VertexSelect(VertexSelections);
 }

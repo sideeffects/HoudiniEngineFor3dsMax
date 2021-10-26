@@ -2,6 +2,7 @@
 
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
+#include "HEMAX_UserPrefs.h"
 
 constexpr const char* DoubleCookParmName = "hda_force_double_cook";
 
@@ -9,10 +10,8 @@ HEMAX_Node::HEMAX_Node()
 {
     Info.id = -1;
     Type = HEMAX_NODE_INVALID;
-
-    AutoRecookOnParameterUpdate = true;
-    RealtimeRecookEnabled = false;
-    AutoRecookOnInputChange = false;
+    
+    InitNodeOptions();
 }
 
 HEMAX_Node::HEMAX_Node(HEMAX_NodeId NodeId, HEMAX_NodeType NodeType)
@@ -20,9 +19,7 @@ HEMAX_Node::HEMAX_Node(HEMAX_NodeId NodeId, HEMAX_NodeType NodeType)
     Info.id = NodeId;
     Type = NodeType;
 
-    AutoRecookOnParameterUpdate = true;
-    RealtimeRecookEnabled = false;
-    AutoRecookOnInputChange = false;
+    InitNodeOptions();
 }
 
 void
@@ -86,7 +83,7 @@ HEMAX_Node::Cook()
 
 	    for (int i = 0; i < Info.parmCount; i++)
 	    {
-		Parameters.push_back(HEMAX_Parameter(Info.id, ParmInfos[i]));
+                Parameters.emplace_back(Info.id, ParmInfos[i]);
 	    }
 	}
     }
@@ -222,4 +219,26 @@ HEMAX_Node::ShouldCookTwice()
     }
 
     return false;
+}
+
+void
+HEMAX_Node::InitNodeOptions()
+{
+    AutoRecookOnParameterUpdate = true;
+    RealtimeRecookEnabled = false;
+    AutoRecookOnInputChange = false;
+
+    bool Option;
+
+    if (HEMAX_UserPrefs::Get().GetBoolSetting(
+            HEMAX_SETTING_NODE_OPTION_AUTORECOOK, Option))
+    {
+        AutoRecookOnParameterUpdate = Option;
+    }
+
+    if (HEMAX_UserPrefs::Get().GetBoolSetting(
+            HEMAX_SETTING_NODE_OPTION_SLIDERCOOK, Option))
+    {
+        RealtimeRecookEnabled = Option;
+    }
 }

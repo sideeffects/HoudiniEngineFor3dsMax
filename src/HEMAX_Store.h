@@ -41,8 +41,7 @@ class HEMAX_Store
 	void AddModifier(ULONG NodeHandle, HEMAX_ModifierHda* Hda);
 
 	HEMAX_GeometryHda* CreateGeometryHda(std::string Path,
-                                             int AssetIndex,
-                                             HEMAX_UserPrefs* Prefs);
+                                             int AssetIndex);
 	HEMAX_ModifierHda* CreateModifierHda(INode* Node, std::string Path, int AssetIndex);
 
 	// Deletes the display geometries
@@ -66,6 +65,7 @@ class HEMAX_Store
 	HEMAX_GeometryHda* FindGeometryHda(ULONG NodeHandle);
 
 	std::vector<HEMAX_3dsmaxHda*> GetAllHdas();
+        void GetAllGeometryHdas(std::vector<HEMAX_GeometryHda*>& HdaList);
 
 	std::vector<HEMAX_3dsmaxHda*> FindAllHdasUsingAssetDefinition(HEMAX_Asset* Asset);
 

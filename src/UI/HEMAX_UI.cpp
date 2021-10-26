@@ -5,6 +5,7 @@
 #include "../HEMAX_HAPISession.h"
 #include "../HEMAX_SessionManager.h"
 #include "../HEMAX_Logger.h"
+#include "../HEMAX_UserPrefs.h"
 
 #include "moc_HEMAX_UI.cpp"
 
@@ -107,9 +108,8 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
     ShelfToolsWidget->SetShelf(ActivePlugin->GetToolShelf());
 
     bool AutoStartWindow;
-    ActivePlugin->GetUserPrefs()->GetBoolSetting(
-                                    HEMAX_SETTING_AUTO_START_WINDOW,
-                                    AutoStartWindow);
+    HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW,
+        AutoStartWindow);
 
     if (AutoStartWindow)
     {

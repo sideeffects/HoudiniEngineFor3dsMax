@@ -19,6 +19,4 @@ class HEMAX_Input_Geometry : public HEMAX_Input
 	void BuildInputNode();
 
 	void BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& MaxMesh, std::string InputNodeName, HEMAX_MaxTransform NodeTransform, INode* MaxNode);
-
-	HAPI_TransformEuler EulerTM;
 };

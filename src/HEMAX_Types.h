@@ -48,6 +48,13 @@ typedef HAPI_GroupType       HEMAX_GroupType;
 #define HEMAX_MATERIAL_PATH_ATTRIBUTE   "hemax_material"
 #define HEMAX_METADATA                  "meta_"
 
+#define HEMAX_BAKE_LAYER_NAME_ATTRIBUTE         "hemax_bake_layer_name"
+#define HEMAX_BAKE_PARENT_NODE_NAME_ATTRIBUTE   "hemax_bake_parent_node_name"
+
+#define HEMAX_SELECTION_FACE                    "hemax_face_selection"
+#define HEMAX_SELECTION_VERTEX                  "hemax_vertex_selection"
+#define HEMAX_SELECTION_EDGE                    "hemax_edge_selection"
+
 #define HEMAX_IMAGE_PLANE_ALPHA "A"
 #define HEMAX_IMAGE_PLANE_DIFFUSE "C"
 

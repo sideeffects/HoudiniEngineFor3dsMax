@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HEMAX_GeometryPlugin.h"
-#include "3dsmaxsdk_preinclude.h"
 #include "resource.h"
 #include <istdplug.h>
 #include <mouseman.h>

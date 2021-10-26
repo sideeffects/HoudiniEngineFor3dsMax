@@ -32,9 +32,6 @@ class HEMAX_Node
 
 	bool ShouldCookTwice();
 
-	std::vector<HEMAX_Node> GetAllChildNodes();
-	std::vector<HEMAX_Node> GetImmediateChildNodes();
-
 	HEMAX_NodeInfo Info;
 	HEMAX_NodeType Type;	
 
@@ -44,6 +41,12 @@ class HEMAX_Node
 	std::vector<HEMAX_Parameter> Parameters;
 
 	std::vector<std::string> InputLabels;
+
+    private:
+
+        void InitNodeOptions();
+
+    public:
 
 	bool AutoRecookOnParameterUpdate;
 	bool RealtimeRecookEnabled;

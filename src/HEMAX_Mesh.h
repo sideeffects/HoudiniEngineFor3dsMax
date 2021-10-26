@@ -76,6 +76,9 @@ class HEMAX_Mesh
 	float* GetIlluminationArray();
 	int* GetSmoothingGroupArray();
 	int* GetMaterialIDArray();
+        int* GetFaceSelectionsArray();
+        int* GetVertexSelectionsArray();
+        int* GetEdgeSelectionsArray();
 
 	int GetFaceVertexCount(int Index);
 	void GetPointAtIndex( int Index, float* Point );
@@ -109,6 +112,9 @@ class HEMAX_Mesh
 
 	void AllocateSmoothingGroupsArray();
 	void AllocateMaterialIDArray();
+        void AllocateFaceSelectionsArray();
+        void AllocateVertexSelectionsArray();
+        void AllocateEdgeSelectionsArray(int EdgeCount);
 
 	HEMAX_NormalType GetNormalType();
 	HEMAX_UVType GetUVType();
@@ -126,6 +132,10 @@ class HEMAX_Mesh
 	bool DoesMaterialIDAttrExist();
 
 	bool DoUVsExist();
+
+        bool HasFaceSelections() const;
+        bool HasVertexSelections() const;
+        bool HasEdgeSelections() const;
 
 	int GetPostTriangulationFaceCount();
 
@@ -167,6 +177,9 @@ class HEMAX_Mesh
 	HEMAX_MeshList<float> IlluminationList;
 	HEMAX_MeshList<int> SmoothingGroupList;
 	HEMAX_MeshList<int> MaterialIDList;
+        HEMAX_MeshList<int> FaceSelectionsList;
+        HEMAX_MeshList<int> VertexSelectionsList;
+        HEMAX_MeshList<int> EdgeSelectionsList;
 
 	std::unordered_map<std::string, HEMAX_MeshList<int>> IntMetadata;
 	std::unordered_map<std::string, HEMAX_MeshList<float>> FloatMetadata;
@@ -186,8 +199,10 @@ class HEMAX_Mesh
 	HEMAX_AttributeOwner IlluminationAttrOwner;
 
 	bool SmoothingGroupsExist;
-
 	bool MaterialIDsExist;
+        bool FaceSelectionsExist;
+        bool VertexSelectionsExist;
+        bool EdgeSelectionsExist;
 
 	std::unordered_map<int, std::vector<float>> SecondaryVertexUVs;
 	std::unordered_map<int, std::vector<float>> SecondaryPointUVs;

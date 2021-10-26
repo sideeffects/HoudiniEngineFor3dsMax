@@ -1,5 +1,7 @@
 #include "HEMAX_Utilities.h"
+
 #include "HEMAX_Types.h"
+
 #include "simpobj.h"
 #include "units.h"
 
@@ -52,9 +54,13 @@ HEMAX_Utilities::GetIdentityTransform()
 }
 
 HAPI_TransformEuler
-HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HEMAX_RSTOrder RSTOrder)
+HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform,
+                    HEMAX_RSTOrder RSTOrder)
 {
-    Quat Rotation = Quat(Transform.rotationQuaternion[0], Transform.rotationQuaternion[1], Transform.rotationQuaternion[2], Transform.rotationQuaternion[3]);
+    Quat Rotation = Quat(Transform.rotationQuaternion[0],
+                        Transform.rotationQuaternion[1],
+                        Transform.rotationQuaternion[2],
+                        Transform.rotationQuaternion[3]);
 
     float XRot, YRot, ZRot;
     Rotation.GetEuler(&XRot, &YRot, &ZRot);
@@ -79,7 +85,6 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HE
     TransformEuler.shear[1] = 0.0f;
     TransformEuler.shear[2] = 0.0f;
 
-
     TransformEuler.rotationOrder = HAPI_ZYX;
     TransformEuler.rstOrder = HAPI_RSTOrder(RSTOrder);
 
@@ -87,7 +92,8 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HE
 }
 
 HAPI_Transform
-HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform, HEMAX_RSTOrder RSTOrder)
+HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform,
+                    HEMAX_RSTOrder RSTOrder)
 {
     HAPI_Transform HAPITransform;
 
@@ -114,9 +120,11 @@ HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform, HEMA
 }
 
 HAPI_TransformEuler
-HEMAX_Utilities::MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform, HEMAX_RSTOrder RSTOrder)
+HEMAX_Utilities::MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform,
+        HEMAX_RSTOrder RSTOrder)
 {
-    return HAPITransformToHAPITransformEuler(MaxTransformToHAPITransform(Transform, RSTOrder), RSTOrder);
+    return HAPITransformToHAPITransformEuler(MaxTransformToHAPITransform(
+                                                Transform, RSTOrder), RSTOrder);
 }
 
 HEMAX_MaxTransform
@@ -125,13 +133,16 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
     TimeValue Time = GetCOREInterface()->GetTime();
 
     Point3 Translation;
-    Node->GetTMController()->GetPositionController()->GetValue(Time, Translation, FOREVER);
+    Node->GetTMController()->GetPositionController()->GetValue(Time,
+            Translation, FOREVER);
 
     Quat Rotation;
-    Node->GetTMController()->GetRotationController()->GetValue(Time, Rotation, FOREVER);
+    Node->GetTMController()->GetRotationController()->GetValue(Time,
+            Rotation, FOREVER);
 
     Point3 Scale;
-    Node->GetTMController()->GetScaleController()->GetValue(Time, Scale, FOREVER);
+    Node->GetTMController()->GetScaleController()->GetValue(Time,
+            Scale, FOREVER);
 
     HEMAX_MaxTransform MaxTransform;
 
@@ -154,10 +165,15 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
 float
 HEMAX_Utilities::GetHoudiniToMaxScale()
 {
-    int MasterUnitType;
-    float MasterUnitScale;
-    GetMasterUnitInfo(&MasterUnitType, &MasterUnitScale);
-    return (float)GetRelativeScale(UNITS_METERS, 1, MasterUnitType, MasterUnitScale);
+    int SystemUnitType;
+    float SystemUnitScale;
+#ifdef HEMAX_VERSION_2022
+    GetSystemUnitInfo(&SystemUnitType, &SystemUnitScale);
+#else
+    GetMasterUnitInfo(&SystemUnitType, &SystemUnitScale);
+#endif
+    return (float)GetRelativeScale(UNITS_METERS, 1, SystemUnitType,
+                SystemUnitScale);
 }
 
 float
@@ -177,7 +193,8 @@ HEMAX_Utilities::SetINodeTransform(INode* Node, HEMAX_MaxTransform& Transform)
 }
 
 void
-HEMAX_Utilities::ApplyTransformToINode(INode* Node, HEMAX_MaxTransform& Transform)
+HEMAX_Utilities::ApplyTransformToINode(INode* Node,
+        HEMAX_MaxTransform& Transform)
 {
     Matrix3 CurrentTM = Node->GetNodeTM(1);
     Matrix3 Transformation = MaxTransformToMatrix3(Transform);
@@ -193,20 +210,23 @@ HEMAX_Utilities::MaxTransformToMatrix3(HEMAX_MaxTransform& Transform)
     Matrix3 TransformationMatrix(1);
 
     Matrix3 Scale(1);
-    Scale.SetScale(Point3(Transform.Scale[0], Transform.Scale[1], Transform.Scale[2]));
+    Scale.SetScale(Point3(Transform.Scale[0],
+                    Transform.Scale[1], Transform.Scale[2]));
 
     Matrix3 Rotation(1);
     Rotation.SetRotate(Quat(Transform.Quaternion[0], Transform.Quaternion[1],
 		Transform.Quaternion[2], Transform.Quaternion[3]));
 
     Matrix3 Translate(1);
-    Translate.Translate(Point3(Transform.Position[0], Transform.Position[1], Transform.Position[2]));
+    Translate.Translate(Point3(Transform.Position[0], Transform.Position[1],
+        Transform.Position[2]));
 
     return (Scale * Rotation * Translate);
 }
 
 HEMAX_MaxTransform
-HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(INode* OriginNode, INode* SecondaryNode)
+HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(INode* OriginNode,
+        INode* SecondaryNode)
 {
     Matrix3 PrimaryMatrix = OriginNode->GetNodeTM(GetCOREInterface()->GetTime());
     Matrix3 SecondaryMatrix = SecondaryNode->GetNodeTM(GetCOREInterface()->GetTime());
@@ -216,7 +236,8 @@ HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(INode* OriginNode, INod
     Matrix3 RelativeOffset = SecondaryMatrix * PrimaryMatrix;
     Quat RelativeQuat(RelativeOffset);
 
-    HEMAX_MaxTransform InputTransform = HEMAX_Utilities::BuildMaxTransformFromINode(SecondaryNode);
+    HEMAX_MaxTransform InputTransform =
+        HEMAX_Utilities::BuildMaxTransformFromINode(SecondaryNode);
 
     InputTransform.Position[0] = RelativeOffset.GetTrans()[0];
     InputTransform.Position[1] = RelativeOffset.GetTrans()[1];
@@ -264,7 +285,8 @@ HEMAX_Utilities::Matrix3ToFlatArray(Matrix3& In, std::vector<float>& Out)
 }
 
 void
-HEMAX_Utilities::ConstructPointString(float* Points, int PointCount, std::string& PointString)
+HEMAX_Utilities::ConstructPointString(float* Points, int PointCount,
+        std::string& PointString)
 {
     for (int p = 0; p < PointCount; ++p)
     {
@@ -278,7 +300,8 @@ HEMAX_Utilities::ConstructPointString(float* Points, int PointCount, std::string
 }
 
 void
-HEMAX_Utilities::ExtractPointsFromParmString(std::vector<Point3>& Points, std::string& PointString)
+HEMAX_Utilities::ExtractPointsFromParmString(std::vector<Point3>& Points,
+        std::string& PointString)
 {
     std::istringstream PointStream(PointString);
     std::string APoint;
@@ -301,9 +324,13 @@ HEMAX_Utilities::ExtractPointsFromParmString(std::vector<Point3>& Points, std::s
 }
 
 std::string
-HEMAX_Utilities::CreateHoudiniVersionString(int HoudiniMajorVersion, int HoudiniMinorVersion, int HoudiniBuildVersion, int PatchNumber)
+HEMAX_Utilities::CreateHoudiniVersionString(int HoudiniMajorVersion,
+        int HoudiniMinorVersion, int HoudiniBuildVersion, int PatchNumber)
 {
-    std::string VersionString = "Houdini " + std::to_string(HoudiniMajorVersion) + "." + std::to_string(HoudiniMinorVersion) + "." + std::to_string(HoudiniBuildVersion);
+    std::string VersionString = "Houdini " +
+        std::to_string(HoudiniMajorVersion) + "." +
+        std::to_string(HoudiniMinorVersion) + "." +
+        std::to_string(HoudiniBuildVersion);
 
     if (PatchNumber > 0)
     {
@@ -363,26 +390,49 @@ HEMAX_Utilities::SetEnvVar(std::string Var, std::string Val)
 }
 
 bool
-HEMAX_Utilities::IsLinearSplineClosed(LinearShape* Curve)
+HEMAX_Utilities::IsOnlyClosedSplines(LinearShape* Curve)
 {
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
     int CurveCount = Curve->NumberOfCurves();
 #endif
 
-    if (CurveCount > 0)
+    for (int i = 0; i < CurveCount; i++)
     {
-	return Curve->CurveClosed(GetCOREInterface()->GetTime(), 0);
+        if (!Curve->CurveClosed(GetCOREInterface()->GetTime(), i))
+            return false;
     }
-    else
+
+    return true;
+}
+
+bool
+HEMAX_Utilities::IsOnlyOpenSplines(LinearShape* Curve)
+{
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
+    int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
+#endif
+#ifdef HEMAX_VERSION_2017
+    int CurveCount = Curve->NumberOfCurves();
+#endif
+
+    for (int i = 0; i < CurveCount; i++)
     {
-	return false;
+        if (Curve->CurveClosed(GetCOREInterface()->GetTime(), i))
+            return false;
     }
+
+    return true;
 }
 
 void
@@ -402,7 +452,8 @@ HEMAX_Utilities::GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames)
 }
 
 void
-HEMAX_Utilities::GetListOfChildNodes(INode* Node, std::vector<std::wstring>& NodeNames)
+HEMAX_Utilities::GetListOfChildNodes(INode* Node,
+        std::vector<std::wstring>& NodeNames)
 {
     if (Node)
     {
@@ -414,4 +465,69 @@ HEMAX_Utilities::GetListOfChildNodes(INode* Node, std::vector<std::wstring>& Nod
 	    GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
 	}
     }
+}
+
+std::string
+HEMAX_Utilities::WideStringToStringUnsafe(const std::wstring& In)
+{
+#pragma warning(disable:4244)
+    std::string Out(In.begin(), In.end());
+#pragma warning(default:4244)
+    return Out;
+}
+
+bool
+HEMAX_Utilities::ParmIsIntType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_INTEGER ||
+        Type == HEMAX_PARAM_BUTTON ||
+        Type == HEMAX_PARAM_TOGGLE ||
+        Type == HEMAX_PARAM_MULTIPARMLIST)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsFloatType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_FLOAT ||
+        Type == HEMAX_PARAM_COLOR)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsStringType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_STRING ||
+        Type == HEMAX_PARAM_PATH_FILE ||
+        Type == HEMAX_PARAM_PATH_FILE_DIR ||
+        Type == HEMAX_PARAM_PATH_FILE_GEO ||
+        Type == HEMAX_PARAM_PATH_FILE_IMAGE)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsNodeType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_NODE)
+        return true;
+    else
+        return false;
 }

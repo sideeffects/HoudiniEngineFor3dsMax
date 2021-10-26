@@ -90,28 +90,45 @@ HEMAX_CurvePlugin::BuildLinearShape()
 	SM.Session->GetCurveCounts(NodeId, PartId, SegmentsCVCount.data(), 0, CurveInfo.curveCount); 
 
 	std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
+        std::vector<int> MatIds(CurveInfo.vertexCount);
 
 	HEMAX_AttributeInfo PositionAttributeInfo;
 	SM.Session->GetAttributeInfo(NodeId, PartId,
 			HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
 			&PositionAttributeInfo);
 
-	SM.Session->GetAttributeFloatData(NodeId, PartId,
-			HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
-			-1, CurvePoints.data(), 0, CurveInfo.vertexCount);
+        SM.Session->GetAttributeFloatData(NodeId, PartId,
+            HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
+            -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
-	float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
+        HEMAX_AttributeInfo MatIdAttrInfo;
+        SM.Session->GetAttributeInfo(NodeId, PartId,
+            HEMAX_MATERIAL_ID_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+            &MatIdAttrInfo);
+        if (MatIdAttrInfo.exists)
+        {
+            SM.Session->GetAttributeIntData(NodeId, PartId,
+                HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, MatIds.data(), 0,
+                CurveInfo.vertexCount);
+        }
+
+        float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
 	std::vector<PolyPt> PolyPoints;
 
 	for (int p = 0; p < CurveInfo.vertexCount; p++)
 	{
 	    Point3 NewPoint;
-	    NewPoint.x = CurvePoints[(p * 3)] * ScaleConversion;
-	    NewPoint.y = -CurvePoints[(p * 3) + 2] * ScaleConversion;	
-	    NewPoint.z = CurvePoints[(p * 3) + 1] * ScaleConversion;
+            NewPoint.x = CurvePoints[(p * 3)] * ScaleConversion;
+            NewPoint.y = -CurvePoints[(p * 3) + 2] * ScaleConversion;
+            NewPoint.z = CurvePoints[(p * 3) + 1] * ScaleConversion;
 
 	    PolyPt NewPolyPt;
 	    NewPolyPt.p = NewPoint;
+
+            if (MatIdAttrInfo.exists)
+            {
+                NewPolyPt.SetMatID(MatIds[p]);
+            }
 
 	    PolyPoints.push_back(NewPolyPt);
 	}
@@ -160,12 +177,22 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     HEMAX_AttributeInfo PositionAttributeInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId,
-				 HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
-				 &PositionAttributeInfo);
+	HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+        &PositionAttributeInfo);
 
     SM.Session->GetAttributeFloatData(NodeId, PartId,
-				      HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
-				      -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
+		    HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
+		    -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
+
+    HEMAX_AttributeInfo MatIdAttrInfo;
+    SM.Session->GetAttributeInfo(NodeId, PartId, HEMAX_MATERIAL_ID_ATTRIBUTE,
+        HEMAX_ATTRIBUTEOWNER_DETAIL, &MatIdAttrInfo);
+    int MatId = -1;
+    if (MatIdAttrInfo.exists)
+    {
+        SM.Session->GetAttributeIntData(NodeId, PartId,
+            HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, &MatId, 0, 1);
+    }
 
     std::vector<int> CurvesCVCount(CurveInfo.curveCount);
     SM.Session->GetCurveCounts(NodeId, PartId, CurvesCVCount.data(), 0, CurveInfo.curveCount);
@@ -194,22 +221,27 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 	    Curve->SetKnot(k, CurvesKnots[KnotIndex++]);	
 	}
 
-	float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
+        float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
 
 	for (int p = 0; p < CurvesCVCount[c]; p++)
 	{
 	    NURBSControlVertex CV;
 
 	    Point3 CVPoint;
-	    CVPoint.x = CurvePoints[(CVIndex * 3)] * ScaleConversion;
-	    CVPoint.y = -CurvePoints[(CVIndex * 3) + 2] * ScaleConversion;
-	    CVPoint.z = CurvePoints[(CVIndex * 3) + 1] * ScaleConversion;
+            CVPoint.x = CurvePoints[(CVIndex * 3)] * ScaleConversion;
+            CVPoint.y = -CurvePoints[(CVIndex * 3) + 2] * ScaleConversion;
+            CVPoint.z = CurvePoints[(CVIndex * 3) + 1] * ScaleConversion;
 
 	    CV.SetPosition(0, CVPoint);
 	    Curve->SetCV(p, CV);
 
 	    CVIndex += 1;
 	}		
+
+        if (MatId > -1)
+        {
+            Curve->MatID(MatId);
+        }
 
 	CurveSet.AppendObject(Curve);
     } 

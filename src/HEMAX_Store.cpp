@@ -30,14 +30,7 @@ HEMAX_Store::FindAsset(std::string AssetPath)
     auto Search = LoadedAssetLibraries.find(AssetPath);
 
     if (Search != LoadedAssetLibraries.end())
-    {
 	return &Search->second;
-    }
-    else
-    {
-	std::string LogEntry = "Attempted to find asset <" + AssetPath + "> in the loaded asset store, but it could not be found.";
-	HEMAX_Logger::Instance().AddEntry(LogEntry, HEMAX_LOG_LEVEL_WARN);
-    }
 
     return nullptr;
 }
@@ -156,12 +149,6 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	}
     }
 
-    if (AssetLoadStatus == HEMAX_ASSET_ALREADY_LOADED)
-    {
-	std::string Message = "Attempting to load asset [" + Path + "], but the asset definition is already loaded.";
-	HEMAX_Logger::Instance().AddEntry(Message, HEMAX_LOG_LEVEL_WARN);
-    }
-
     Success = false;
     return "";
 }
@@ -190,6 +177,12 @@ HEMAX_Store::RemoveAsset(std::string AssetPath)
 
 	LoadedAssetLibraries.erase(AssetPath);
 	return true;
+    }
+    else
+    {
+        std::string Msg = "HDA with path <" + AssetPath + "> has already been "
+            "removed.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_WARN);
     }
 
     return false;
@@ -375,15 +368,14 @@ HEMAX_Store::AddModifier(ULONG NodeHandle, HEMAX_ModifierHda* Hda)
 
 HEMAX_GeometryHda*
 HEMAX_Store::CreateGeometryHda(std::string Path,
-                               int AssetIndex,
-                               HEMAX_UserPrefs* Prefs)
+                               int AssetIndex)
 {
     HEMAX_GeometryHda* GeoHda = nullptr;
     HEMAX_Asset* TheAsset = FindAsset(Path);
 
     if (TheAsset)
     {
-	GeoHda = new HEMAX_GeometryHda(Prefs);
+	GeoHda = new HEMAX_GeometryHda();
 	GeoHda->Create(*TheAsset, AssetIndex);
 
 	if (GeoHda->ContainerNode)
@@ -396,6 +388,12 @@ HEMAX_Store::CreateGeometryHda(std::string Path,
 	    GeoHda = nullptr;
 	}
     }
+    else
+    {
+        std::string Msg = "HDA with path <" + Path + "> could not be created "
+            "because it has not been loaded.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+    }
 
     return GeoHda;
 }
@@ -405,9 +403,12 @@ HEMAX_Store::CreateModifierHda(INode* Node, std::string Path, int AssetIndex)
 {
     HEMAX_ModifierHda* ModifierHda = nullptr;
     HEMAX_Asset* TheAsset = FindAsset(Path);
+
     if (TheAsset)
     {
-	HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
+	HEMAX_Modifier* ModifierPlugin =
+            (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(OSM_CLASS_ID,
+                    HEMAX_Modifier_CLASS_ID);
 	GetCOREInterface12()->AddModifier((*Node), (*ModifierPlugin));
 
 	ModifierHda = new HEMAX_ModifierHda;
@@ -423,6 +424,12 @@ HEMAX_Store::CreateModifierHda(INode* Node, std::string Path, int AssetIndex)
 	    delete ModifierPlugin;
             delete ModifierHda;
 	}
+    }
+    else
+    {
+        std::string Msg = "HDA with path <" + Path + "> could not be created "
+            "because it has not been loaded.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
     }
 
     return nullptr;
@@ -458,7 +465,6 @@ HEMAX_Store::Delete3dsmaxHda(ULONG NodeHandle, std::vector<ULONG>& ScheduledDele
 	if (Hda->Type == HEMAX_GEOMETRY_HDA)
 	{
 	    HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Hda);
-	    std::vector<ULONG> NodesToDelete = GeometryHda->GetListOfAllChildINodes();
 
 	    for (int i = 0; i < GeometryHda->InstanceClones.size(); i++)
 	    {
@@ -468,25 +474,6 @@ HEMAX_Store::Delete3dsmaxHda(ULONG NodeHandle, std::vector<ULONG>& ScheduledDele
 	    for (int i = 0; i < GeometryHda->PackedPrimClones.size(); i++)
 	    {
 		DeleteMaxNode(GeometryHda->PackedPrimClones[i]->GetHandle(), ScheduledDeletionList);
-	    }
-
-	    for (int i = 0; i < NodesToDelete.size(); i++)
-	    {
-		bool NodeAlreadyBeingDeleted = false;
-		for (int s = 0; s < ScheduledDeletionList.size(); s++)
-		{
-		    if (NodesToDelete[i] == ScheduledDeletionList[s])
-		    {
-			NodeAlreadyBeingDeleted = true;
-			break;
-		    }
-		}
-
-		if (!NodeAlreadyBeingDeleted)
-		{
-		    INode* TheNode = GetCOREInterface()->GetINodeByHandle(NodesToDelete[i]);
-		    GetCOREInterface()->DeleteNode(TheNode);
-		}
 	    }
 
 	    bool ContainerNodeAlreadyBeingDeleted = false;
@@ -691,6 +678,18 @@ HEMAX_Store::GetAllHdas()
     }
 
     return Hdas;
+}
+
+void
+HEMAX_Store::GetAllGeometryHdas(std::vector<HEMAX_GeometryHda*>& HdaList)
+{
+    for (auto It = MaxHdaStore.begin(); It != MaxHdaStore.end(); It++)
+    {
+        if (It->second)
+        {
+            HdaList.push_back(It->second);
+        }
+    }
 }
 
 std::vector<HEMAX_3dsmaxHda *>
