@@ -49,6 +49,38 @@ HEMAX_Input::HEMAX_Input(ULONG MaxNode)
     Node = new HEMAX_Node;
 }
 
+void
+HEMAX_Input::AddNodeTransformAttributes(INode* MaxNode)
+{
+    HEMAX_MaxTransform NodeTM = HEMAX_Utilities::BuildMaxTransformFromINode(MaxNode);
+    HAPI_Transform HAPITM = HEMAX_Utilities::MaxTransformToHAPITransform(NodeTM);
+    HAPI_TransformEuler EulerTM = HEMAX_Utilities::MaxTransformToHAPITransformEuler(NodeTM);
+    Matrix3 RawNodeTM = HEMAX_Utilities::GetINodeTransformationMatrix(MaxNode);
+
+    HEMAX_AttributeInfo TranslateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_TRANSLATE_ATTR);
+    HEMAX_AttributeInfo RotateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_ROTATE_ATTR);
+    HEMAX_AttributeInfo ScaleAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_SCALE_ATTR);
+    HEMAX_AttributeInfo QuatAttrInfo = AddNewDetailFloatAttribute(1, 4, HEMAX_QUATERNION_ATTR);
+    HEMAX_AttributeInfo WorldSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_WORLD);
+    HEMAX_AttributeInfo LocalSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_LOCAL);
+
+    SendFloatAttributeData(HEMAX_TRANSLATE_ATTR, TranslateAttrInfo, EulerTM.position, 1);
+    SendFloatAttributeData(HEMAX_ROTATE_ATTR, RotateAttrInfo, EulerTM.rotationEuler, 1);
+    SendFloatAttributeData(HEMAX_SCALE_ATTR, ScaleAttrInfo, EulerTM.scale, 1);
+    SendFloatAttributeData(HEMAX_QUATERNION_ATTR, QuatAttrInfo, HAPITM.rotationQuaternion, 1);
+
+    std::vector<float> WorldSpaceTM;
+    HEMAX_Utilities::Matrix3ToFlatArray(RawNodeTM, WorldSpaceTM);
+
+    SendFloatAttributeData(HEMAX_MAX_RAW_TM_WORLD, WorldSpaceAttrInfo, &WorldSpaceTM.front(), 1);
+
+    Matrix3 NodeLocalTM = HEMAX_Utilities::GetINodeLocalTransformationMatrix(MaxNode);
+    std::vector<float> LocalSpaceTM;
+    HEMAX_Utilities::Matrix3ToFlatArray(NodeLocalTM, LocalSpaceTM);
+
+    SendFloatAttributeData(HEMAX_MAX_RAW_TM_LOCAL, LocalSpaceAttrInfo, &LocalSpaceTM.front(), 1);
+}
+
 HEMAX_Input::~HEMAX_Input()
 {
     if (Node)
@@ -195,13 +227,15 @@ HEMAX_Input::AddNewPart(HEMAX_PartType PartType, int FaceCount, int VertexCount,
 }
 
 HEMAX_AttributeInfo
-HEMAX_Input::AddNewPointAttribute(int Count, int TupleSize, std::string AttributeName)
+HEMAX_Input::AddNewPointAttribute(int Count, int TupleSize,
+                                  std::string AttributeName,
+                                  HAPI_StorageType StorageType)
 {
     HEMAX_AttributeInfo NewNodeAttribute;
     NewNodeAttribute.count = Count;
     NewNodeAttribute.tupleSize = TupleSize;
     NewNodeAttribute.exists = true;
-    NewNodeAttribute.storage = HAPI_STORAGETYPE_FLOAT;
+    NewNodeAttribute.storage = StorageType;
     NewNodeAttribute.owner = HAPI_ATTROWNER_POINT;
     NewNodeAttribute.originalOwner = HAPI_ATTROWNER_INVALID;
     NewNodeAttribute.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
@@ -224,7 +258,27 @@ HEMAX_Input::SendPointAttributeData(HEMAX_AttributeInfo AttributeInfo, float* Po
 }
 
 HEMAX_AttributeInfo
-HEMAX_Input::AddNewVertexAttribute(int Count, int TupleSize, std::string AttributeName)
+HEMAX_Input::AddNewPointIntAttribute(int Count, int TupleSize,
+    std::string AttributeName)
+{
+    HEMAX_AttributeInfo NewAttr;
+    NewAttr.count = Count;
+    NewAttr.tupleSize = TupleSize;
+    NewAttr.exists = true;
+    NewAttr.storage = HAPI_STORAGETYPE_INT;
+    NewAttr.owner = HAPI_ATTROWNER_POINT;
+    NewAttr.originalOwner = HAPI_ATTROWNER_POINT;
+    NewAttr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
+
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.Session->AddAttribute(Node->Info.id, 0, AttributeName.c_str(), &NewAttr);
+
+    return NewAttr;
+}
+
+HEMAX_AttributeInfo
+HEMAX_Input::AddNewVertexAttribute(int Count, int TupleSize,
+                std::string AttributeName)
 {
     HEMAX_AttributeInfo NewNodeAttribute;
     NewNodeAttribute.count = Count;
@@ -309,6 +363,25 @@ HEMAX_Input::AddNewDetailStringAttribute(int Count,
     Attr.storage = HAPI_STORAGETYPE_STRING;
     Attr.owner = HAPI_ATTROWNER_DETAIL;
     Attr.originalOwner = HAPI_ATTROWNER_INVALID;
+    Attr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
+
+    HEMAX_SessionManager& sm = HEMAX_SessionManager::GetSessionManager();
+    sm.Session->AddAttribute(Node->Info.id, 0, AttributeName.c_str(), &Attr);
+
+    return Attr;
+}
+
+HEMAX_AttributeInfo
+HEMAX_Input::AddNewDetailIntAttribute(int Count, int TupleSize,
+    std::string AttributeName)
+{
+    HEMAX_AttributeInfo Attr;
+    Attr.count = Count;
+    Attr.tupleSize = TupleSize;
+    Attr.exists = true;
+    Attr.storage = HAPI_STORAGETYPE_INT;
+    Attr.owner = HAPI_ATTROWNER_DETAIL;
+    Attr.originalOwner = HAPI_ATTROWNER_DETAIL;
     Attr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
 
     HEMAX_SessionManager& sm = HEMAX_SessionManager::GetSessionManager();

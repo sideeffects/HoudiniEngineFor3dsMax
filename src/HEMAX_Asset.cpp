@@ -35,21 +35,21 @@ HEMAX_Asset::LoadAsset(bool AllowOverwrite)
     }
     else
     {
-	std::string Msg = std::string("Could not load asset <") + Path + ">"; 
+	std::string Msg = std::string("Could not load asset <") + Path + ">:"; 
 	
 	switch (LoadStatus)
 	{
 	    case HEMAX_ASSET_NOT_FOUND:
 	    {
-		Msg += "\nAsset could not be found on disk.";
+		Msg += " Asset could not be found on disk.";
 	    } break;
 	    case HEMAX_ASSET_ALREADY_LOADED:
 	    {
-		Msg += "\nAsset is already loaded.";
+		Msg += " Asset is already loaded.";
 	    } break;
 	    case HEMAX_ASSET_INVALID:
 	    {
-		Msg += "\nAsset is invalid";
+		Msg += " Asset is invalid";
 	    } break;
 	    default:
 	    {

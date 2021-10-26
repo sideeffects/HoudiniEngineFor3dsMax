@@ -5,6 +5,7 @@
 #include "HEMAX_Input_Spline.h"
 #include "HEMAX_Input_NURBS.h"
 #include "HEMAX_Input_Geometry.h"
+#include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
 HEMAX_3dsMaxInput::HEMAX_3dsMaxInput(INode* Node)
@@ -153,14 +154,17 @@ HEMAX_3dsMaxInput::CreateInputNode()
 
 	    LinearShape* MaxLinearShape = (LinearShape*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), Class_ID(LINEARSHAPE_CLASS_ID, 0));
 
-	    if (HEMAX_Utilities::IsLinearSplineClosed(MaxLinearShape))
-	    {
-		InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
-	    }
-	    else
-	    {
-		InputNode = new HEMAX_Input_Spline(MaxNode->GetHandle());
-	    }
+            if (HEMAX_Utilities::IsOnlyClosedSplines(MaxLinearShape) ||
+                HEMAX_Utilities::IsOnlyOpenSplines(MaxLinearShape))
+            {
+                InputNode = new HEMAX_Input_Spline(MaxNode->GetHandle());
+            }
+            else
+            {
+                HEMAX_Logger::Instance().AddEntry("A shape must contain "
+                    "exclusively closed splines or exclusively open splines to "
+                    "be sent to Houdini", HEMAX_LOG_LEVEL_WARN);
+            }
 	}
 	else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
 	{

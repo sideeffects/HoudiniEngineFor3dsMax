@@ -9,7 +9,7 @@ class HEMAX_Input_Spline : public HEMAX_Input
     public:
 	HEMAX_Input_Spline(ULONG MaxNode);
 	HEMAX_Input_Spline(HEMAX_InputType Type, int Id, ULONG MaxNode);
-	HEMAX_Input_Spline(HEMAX_InputType Type, LinearShape* TheShape);
+	HEMAX_Input_Spline(HEMAX_InputType Type, LinearShape* TheShape, ULONG MaxNode);
 	HEMAX_Input_Spline(HEMAX_Node* EditableNode, ULONG MaxNode);
 	~HEMAX_Input_Spline();
 

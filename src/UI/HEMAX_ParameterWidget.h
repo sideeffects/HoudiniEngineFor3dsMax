@@ -3,7 +3,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qboxlayout.h>
@@ -352,6 +353,8 @@ class HEMAX_ParameterWidget_Float : public HEMAX_ParameterWidget_Parameter
 	~HEMAX_ParameterWidget_Float();
 
 	void SetHelpToolTip(std::string HelpString) override;
+
+        static std::string FloatToString(float Val);
 
     private:
 

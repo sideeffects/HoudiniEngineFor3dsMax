@@ -8,6 +8,13 @@
 #define HEMAX_SESSION_HOST_NAME_DEFAULT "localhost"
 #define HEMAX_SESSION_PORT_NUM_DEFAULT  "9090"
 
+HEMAX_UserPrefs&
+HEMAX_UserPrefs::Get()
+{
+    static HEMAX_UserPrefs UserPrefs;
+    return UserPrefs;
+}
+
 HEMAX_UserPrefs::HEMAX_UserPrefs()
 {
     AddUserSetting(HEMAX_SETTING_SESSION_TYPE,
@@ -49,15 +56,27 @@ HEMAX_UserPrefs::HEMAX_UserPrefs()
     AddUserSetting(HEMAX_SETTING_HDA_LOAD_PATH,
                    HEMAX_SETTING_TYPE_STRING,
                    "");
+    AddUserSetting(HEMAX_SETTING_NODE_OPTION_AUTORECOOK,
+                   HEMAX_SETTING_TYPE_BOOL,
+                   "1");
+    AddUserSetting(HEMAX_SETTING_NODE_OPTION_SLIDERCOOK,
+                   HEMAX_SETTING_TYPE_BOOL,
+                   "0");
     AddUserSetting(HEMAX_SETTING_HDA_REPO_PATH,
                    HEMAX_SETTING_TYPE_STRING,
                    "");
     AddUserSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
                    HEMAX_SETTING_TYPE_BOOL,
                    "1");
+    AddUserSetting(HEMAX_SETTING_BAKE_CREATE_LAYER,
+                   HEMAX_SETTING_TYPE_BOOL,
+                   "1");
     AddUserSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE,
                    HEMAX_SETTING_TYPE_BOOL,
                    "0");
+    AddUserSetting(HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL,
+                   HEMAX_SETTING_TYPE_BOOL,
+                   "1");
     AddUserSetting(HEMAX_SETTING_DEBUG_TEMP_DIR,
                    HEMAX_SETTING_TYPE_STRING,
                    "");
@@ -203,7 +222,7 @@ HEMAX_UserPrefs::SetStringSetting(std::string Key, std::string In)
 bool
 HEMAX_UserPrefs::SetBoolSetting(std::string Key, bool In)
 {
-    auto Search = UserSettings.find({ Key });
+        auto Search = UserSettings.find({ Key });
 
     if (Search != UserSettings.end())
     {
@@ -253,6 +272,21 @@ HEMAX_UserPrefs::SetIntSetting(std::string Key, int In)
     }
 
     return true;
+}
+
+HEMAX_UserPrefs_Setting_Type
+HEMAX_UserPrefs::GetSettingType(const std::string& Key) const
+{
+    auto PrefPair = UserSettings.find(Key);
+
+    if (PrefPair != UserSettings.cend())
+    {
+        return PrefPair->second.Type;
+    }
+    else
+    {
+        return HEMAX_SETTING_TYPE_INVALID;
+    }
 }
 
 std::string

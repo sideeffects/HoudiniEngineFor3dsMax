@@ -3,7 +3,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qradiobutton.h>
@@ -24,8 +25,6 @@
 #include <QtGui/qlineedit.h>
 #include <QtGui/qpushbutton.h>
 #endif
-
-#include "../HEMAX_UserPrefs.h"
 
 class HEMAX_Plugin;
 

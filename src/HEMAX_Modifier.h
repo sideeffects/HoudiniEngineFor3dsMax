@@ -51,8 +51,6 @@ class HEMAX_Modifier : public Modifier
 	RefResult NotifyRefChanged(const Interval& changeInt, RefTargetHandle hTarget,
 		PartID& partID, RefMessage message, BOOL propagate);
 
-	const TCHAR* GetObjectName();
-
 	void MarkCreated();
 	void MarkUndone();
 
@@ -95,6 +93,9 @@ class HEMAX_ModifierClassDesc : public ClassDesc2
     public:
 	int IsPublic();
 	void* Create(BOOL Loading = false);
+#ifdef HEMAX_VERSION_2022
+        const TCHAR* NonLocalizedClassName() override;
+#endif
 	const TCHAR* ClassName();
 	SClass_ID SuperClassID();
 	Class_ID ClassID();

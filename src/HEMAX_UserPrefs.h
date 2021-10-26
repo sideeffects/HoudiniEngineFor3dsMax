@@ -28,13 +28,23 @@
 #define HEMAX_SETTING_HDA_LOAD_PATH   "OnStart\\LoadHDADirectory"
 #define HEMAX_SETTING_HDA_REPO_PATH   "Assets\\HdaRepository"
 
+#define HEMAX_SETTING_NODE_OPTION_AUTORECOOK    "Nodes\\AutoRecook"
+#define HEMAX_SETTING_NODE_OPTION_SLIDERCOOK    "Nodes\\SliderCook"
+
 #define HEMAX_SETTING_BAKE_DUMMY_OBJECT "Bake\\DummyObject"
+#define HEMAX_SETTING_BAKE_CREATE_LAYER "Bake\\CreateLayer"
 #define HEMAX_SETTING_NODE_NAMES_UNIQUE "Naming\\UseUnique"
+#define HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL "Naming\\UseOriginalInstanceName"
 
 #define HEMAX_SETTING_DEBUG_TEMP_DIR  "Debug\\TemporaryDirectory"
 #define HEMAX_SETTING_DEBUG_PRINT_ERRORS "Debug\\PrintErrorLevelLogs"
 #define HEMAX_SETTING_DEBUG_PRINT_WARNINGS "Debug\\PrintWarningLevelLogs"
 #define HEMAX_SETTING_DEBUG_PRINT_INFO "Debug\\PrintInfoLevelLogs"
+
+constexpr const char* const NodeOptionAutoRecookLabel
+    = "Enable automatic recooking";
+constexpr const char* const NodeOptionSliderCookLabel
+    = "Cook while dragging parameter slider";
 
 enum class HEMAX_SessionTypePref : int
 {
@@ -61,7 +71,8 @@ struct HEMAX_UserPrefs_Setting
 class HEMAX_UserPrefs
 {
     public:
-	HEMAX_UserPrefs();
+        static HEMAX_UserPrefs& Get();
+
 	~HEMAX_UserPrefs();
 
 	bool GetStringSetting(std::string Key, std::string& Out);
@@ -72,9 +83,13 @@ class HEMAX_UserPrefs
 	bool SetBoolSetting(std::string Key, bool In);
         bool SetIntSetting(std::string Key, int In);
 
+        HEMAX_UserPrefs_Setting_Type GetSettingType(const std::string& Key) const;
+
 	std::string GetPluginConfigFolder();
 
     private:
+	HEMAX_UserPrefs();
+
 	std::wstring GetConfigFilePath();
 	void AddUserSetting(std::string Name,
                             HEMAX_UserPrefs_Setting_Type SettingType,

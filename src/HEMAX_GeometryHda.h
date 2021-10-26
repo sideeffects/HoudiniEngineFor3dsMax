@@ -8,7 +8,6 @@
 #include "HEMAX_CustomAttributeContainer.h"
 #include "HEMAX_Hda.h"
 #include "HEMAX_GeometryPlugin.h"
-#include "HEMAX_UserPrefs.h"
 
 #include <unordered_map>
 #include <vector>
@@ -16,7 +15,7 @@
 class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 {
     public:
-	HEMAX_GeometryHda(HEMAX_UserPrefs* UserPrefs);
+	HEMAX_GeometryHda();
 
 	void Init(HEMAX_Asset& Asset, int AssetIndex);
 
@@ -129,7 +128,11 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
                                const HEMAX_DisplayGeoNode& DisplayNode,
                                const HEMAX_Part& Part,
                                bool UseUniqueName);
+        void GetInstancedPluginNodeNames(
+                const HEMAX_DisplayGeoNode& DisplayNode,
+                const HEMAX_Part& Part,
+                std::vector<std::wstring>& NodeNames);
 
-        HEMAX_UserPrefs* Prefs;
+        std::string GetDetailAttributeOverride(const std::string& Name);
 };
 

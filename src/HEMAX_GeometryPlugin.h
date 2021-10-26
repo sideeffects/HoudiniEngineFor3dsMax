@@ -35,7 +35,12 @@ class HEMAX_GeometryPluginClassDesc : public ClassDesc2
     public:
 	virtual int IsPublic() { return TRUE; }
 	virtual void* Create(BOOL) { return new HEMAX_GeometryPlugin(false); }
-	virtual const TCHAR* ClassName() { return L"HDA"; }
+#ifdef HEMAX_VERSION_2022
+        virtual const TCHAR* NonLocalizedClassName() override
+            { return L"HDA"; }
+#endif
+	virtual const TCHAR* ClassName() override
+            { return L"HDA"; }
 	virtual SClass_ID SuperClassID() { return GEOMOBJECT_CLASS_ID; }
 	virtual Class_ID ClassID() { return HEMAX_GeometryPlugin_CLASS_ID; }
 	virtual const TCHAR* Category() { return L"Houdini Engine"; }

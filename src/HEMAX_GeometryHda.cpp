@@ -4,13 +4,17 @@
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Input_NURBS.h"
 #include "HEMAX_Input_Spline.h"
+#include "HEMAX_UserPrefs.h"
+#include "HEMAX_Utilities.h"
+
 #include <icustattribcontainer.h>
+#include <ilayer.h>
+#include <ilayermanager.h>
 #include <custattrib.h>
 
 #include <list>
 
-HEMAX_GeometryHda::HEMAX_GeometryHda(HEMAX_UserPrefs* UserPrefs)
-    : Prefs(UserPrefs)
+HEMAX_GeometryHda::HEMAX_GeometryHda()
 {
     Dummy = nullptr;
     ContainerNode = nullptr;
@@ -22,15 +26,23 @@ void
 HEMAX_GeometryHda::Init(HEMAX_Asset& Asset, int AssetIndex)
 {
     Hda.Init(Asset, AssetIndex);
-    InitializeSubnetworks(); 
+
+    if (Hda.MainNode.Type != HEMAX_NODE_INVALID)
+    {
+        InitializeSubnetworks(); 
+    }
 }
 
 void
 HEMAX_GeometryHda::Create(HEMAX_Asset& Asset, int AssetIndex)
 {
     Init(Asset, AssetIndex);
-    CreateNewGeometryHda(Hda);
-    InitializeParameterCustomAttributes();
+
+    if (Hda.MainNode.Type != HEMAX_NODE_INVALID)
+    {
+        CreateNewGeometryHda(Hda);
+        InitializeParameterCustomAttributes();
+    }
 }
 
 void
@@ -308,7 +320,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
                             }
 
                             bool UseUniqueName = false;
-                            Prefs->GetBoolSetting(
+                            HEMAX_UserPrefs::Get().GetBoolSetting(
                                         HEMAX_SETTING_NODE_NAMES_UNIQUE,
                                         UseUniqueName);
                             SetPluginNodeName(GeoPlugin->MaxNode,
@@ -505,6 +517,52 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         {
             BakedParent = ClonedNodeTab[0];
             BakeResults.push_back(BakedParent);
+
+            std::string ContainerNodeBakedName = GetDetailAttributeOverride(
+                HEMAX_BAKE_PARENT_NODE_NAME_ATTRIBUTE);
+            if (!ContainerNodeBakedName.empty())
+            {
+                std::wstring WContainerNodeBakedName(
+                    ContainerNodeBakedName.begin(),
+                    ContainerNodeBakedName.end());
+                BakedParent->SetName(WContainerNodeBakedName.c_str());
+            }
+        }
+    }
+
+    bool CreateLayer = false;
+    HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_BAKE_CREATE_LAYER,
+        CreateLayer);
+    ILayer* Layer = nullptr;
+
+    if (CreateLayer)
+    {
+        // Check for attribute override
+        std::string LayerName = GetDetailAttributeOverride(
+            HEMAX_BAKE_LAYER_NAME_ATTRIBUTE);
+        if (LayerName.empty())
+        {
+            if (BakeDummyObj && BakedParent)
+            {
+                std::wstring WLayerName = BakedParent->GetName();
+                LayerName = std::string(WLayerName.begin(), WLayerName.end());
+            }
+            else
+            {
+                std::wstring WLayerName = ContainerNode->GetName();
+                LayerName = std::string(WLayerName.begin(), WLayerName.end());
+            }
+        }
+
+        ILayerManager* LM = GetCOREInterface13()->GetLayerManager();
+        std::wstring WLayerName(LayerName.begin(), LayerName.end());
+        
+        Layer = LM->GetLayer(WLayerName.c_str());
+
+        if (!Layer)
+        {
+            Layer = LM->CreateLayer();
+            Layer->SetName(WLayerName.c_str());
         }
     }
 
@@ -585,7 +643,19 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 {
                     BakedParent->AttachChild(BakedNode);
                 }
+                else
+                {
+                    GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
+                }
             }
+        }
+    }
+
+    if (Layer)
+    {
+        for (int i = 0; i < BakeResults.size(); i++)
+        {
+            Layer->AddToLayer(BakeResults[i]);
         }
     }
 
@@ -686,8 +756,14 @@ HEMAX_GeometryHda::SetCustomAttributeContainer(ICustAttribContainer* Container)
 
     for (int i = HEMAX_MAX_GEO_MAX_INDEX; i < CustomAttributes->GetNumCustAttribs(); i++)
     {
-	HEMAX_ParameterAttrib* CustAttrib = static_cast<HEMAX_ParameterAttrib*>(CustomAttributes->GetCustAttrib(i));
-	CustomAttributeMap.insert({ CustAttrib->GetParameterName(), CustAttrib });
+        HEMAX_ParameterAttrib* CustAttrib =
+            dynamic_cast<HEMAX_ParameterAttrib*>(CustomAttributes->GetCustAttrib(i));
+
+        if (CustAttrib)
+        {
+            CustomAttributeMap.insert(
+                { CustAttrib->GetParameterName(), CustAttrib });
+        }
     }
 }
 
@@ -782,7 +858,8 @@ HEMAX_GeometryHda::CreateMeshPluginPart(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& Di
     NewPlugin->MaxNode = PluginNode;
     
     bool UseUniqueName = false;
-    Prefs->GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, UseUniqueName);
+    HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE,
+        UseUniqueName);
     SetPluginNodeName(PluginNode, DisplayNode, Part, UseUniqueName);
 
     ContainerNode->AttachChild(PluginNode);
@@ -824,7 +901,8 @@ HEMAX_GeometryHda::CreateCurvePart(HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part
 						DisplayNode.Name.end());
 
         bool UseUniqueName = false;
-        Prefs->GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, UseUniqueName);
+        HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE,
+            UseUniqueName);
         SetPluginNodeName(CurveNode, DisplayNode, Part, UseUniqueName);
 
 	InitGeometryPluginCustAttribContainer(CurveNode);
@@ -847,6 +925,10 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 {
     HEMAX_Object& ObjectNode = Hda.TopLevelObjectNode;
 
+    bool UseInstanceSourceName = true;
+    HEMAX_UserPrefs::Get().GetBoolSetting(
+        HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL, UseInstanceSourceName);
+
     for (auto InstIt = ObjectNode.Instances.begin(); InstIt != ObjectNode.Instances.end(); InstIt++)
     {
 	if (InstIt->second.InstanceAttributeExists)
@@ -855,7 +937,8 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 	    {
 		// Different display geometries
 		HEMAX_GeometryInfo DisplayGeoInfo;
-		HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
+		HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(
+                        InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
 		HEMAX_NodeId ObjToInstance = InstIt->second.InstanceNodeIds[s];
 
 		auto ObjSearch = ObjectNode.SopNodes.find(ObjToInstance);
@@ -874,18 +957,29 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 		    }
 
 		    INodeTab ClonedNodeTab;
-		    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE, nullptr, &ClonedNodeTab);
+		    bool CloneResult = GetCOREInterface()->CloneNodes(
+                        CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE,
+                        nullptr, &ClonedNodeTab);
 
 		    if (CloneResult)
 		    {
 			INode* ParentNode = ContainerNode;
 			for (int c = 0; c < ClonedNodeTab.Count(); c++)
 			{
-			    ClonedNodeTab[c]->SetNodeTM(GetCOREInterface()->GetTime(), ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
-			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c], InstIt->second.InstanceTransforms[s]);
+			    ClonedNodeTab[c]->SetNodeTM(
+                                GetCOREInterface()->GetTime(),
+                                ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
+			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c],
+                                InstIt->second.InstanceTransforms[s]);
 			    ClonedNodeTab[c]->Hide(false);
 			    StampInstanceNode(ClonedNodeTab[c]);
 			    InstanceClones.push_back(ClonedNodeTab[c]);
+
+                            if (UseInstanceSourceName)
+                            {
+                                ClonedNodeTab[c]->SetName(
+                                    CloneableNodeTab[c]->GetName());
+                            }
 			}
 		    }
 		}
@@ -930,6 +1024,12 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 			    ClonedNodeTab[c]->Hide(false);
 			    StampInstanceNode(ClonedNodeTab[c]);
 			    InstanceClones.push_back(ClonedNodeTab[c]);
+
+                            if (UseInstanceSourceName)
+                            {
+                                ClonedNodeTab[c]->SetName(
+                                    CloneableNodeTab[c]->GetName());
+                            }
 			}
 		    }
 		}
@@ -943,6 +1043,13 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 {
     HEMAX_PackedPrimitiveInstanceInfo& InstanceInfo = Part.PackedPrimInfo;
 
+    std::vector<std::wstring> NodeNames;
+    GetInstancedPluginNodeNames(DisplayNode, Part, NodeNames);
+
+    bool UseInstanceSourceName = true;
+    HEMAX_UserPrefs::Get().GetBoolSetting(
+        HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL, UseInstanceSourceName);
+
     for (int i = 0; i < InstanceInfo.InstanceCount; i++)
     {
 	for (int t = 0; t < InstanceInfo.InstancedPartCount; t++)
@@ -953,6 +1060,12 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 	    INode* SourceNode = InstancedPart->GetINodeOf3dsmaxObject();
 	    if (SourceNode)
 	    {
+                // Single name for all instances
+                if (NodeNames.size() == 1)
+                {
+                    SourceNode->SetName(NodeNames[0].c_str());
+                }
+
 		INodeTab CloneableNodeTab;
 		CloneableNodeTab.AppendNode(SourceNode);
 		
@@ -975,6 +1088,16 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 		    ClonedNode->Hide(false);
 		    StampPackedPrimitiveNode(ClonedNode);
 		    PackedPrimClones.push_back(ClonedNode);
+
+                    // Node name specified by primitive attribute
+                    if (NodeNames.size() > 1 && i < NodeNames.size())
+                    {
+                        ClonedNode->SetName(NodeNames[i].c_str());
+                    }
+                    else if (UseInstanceSourceName)
+                    {
+                        ClonedNode->SetName(SourceNode->GetName());
+                    }
 		}
 	    }
 	}
@@ -1597,22 +1720,23 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
                                      bool UseUniqueName)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_AttributeInfo AttrInfo;
+
+    HEMAX_AttributeInfo AttrInfo_Detail;
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId,
                                  Part.Info.id,
                                  HEMAX_MAX_NODE_NAME_OUTPUT,
                                  HEMAX_ATTRIBUTEOWNER_DETAIL,
-                                 &AttrInfo);
+                                 &AttrInfo_Detail);
 
     std::wstring PluginLabel;
 
-    if (AttrInfo.exists)
+    if (AttrInfo_Detail.exists)
     {
         HEMAX_StringHandle NameAttrSH;
         SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
                                            Part.Info.id,
                                            HEMAX_MAX_NODE_NAME_OUTPUT,
-                                           &AttrInfo,
+                                           &AttrInfo_Detail,
                                            &NameAttrSH,
                                            0,
                                            1);
@@ -1632,4 +1756,152 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
     }
 
     Node->SetName(PluginLabel.c_str());
+}
+
+void
+HEMAX_GeometryHda::GetInstancedPluginNodeNames(
+    const HEMAX_DisplayGeoNode& DisplayNode, const HEMAX_Part& Part,
+    std::vector<std::wstring>& NodeNames)
+{
+    NodeNames.clear();
+
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+
+    HEMAX_AttributeInfo NameDetailInfo, NamePrimInfo;
+    SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId, Part.Info.id,
+                    HEMAX_MAX_NODE_NAME_OUTPUT, HEMAX_ATTRIBUTEOWNER_DETAIL,
+                    &NameDetailInfo);
+    SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId, Part.Info.id,
+                    HEMAX_MAX_NODE_NAME_OUTPUT, HEMAX_ATTRIBUTEOWNER_PRIM,
+                    &NamePrimInfo);
+
+    std::wstring PluginLabel;
+
+    if (NamePrimInfo.exists)
+    {
+        std::vector<HEMAX_StringHandle> NameAttrSHArray(NamePrimInfo.count);
+
+        SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
+            Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT, &NamePrimInfo,
+            &NameAttrSHArray.front(), 0, NamePrimInfo.count);
+
+        for (int i = 0; i < NameAttrSHArray.size(); i++)
+        {
+            std::string Label = SM.Session->GetHAPIString(NameAttrSHArray[i]);
+            NodeNames.push_back(std::wstring(Label.begin(), Label.end()));
+        }
+    }
+    else if (NameDetailInfo.exists)
+    {
+        HEMAX_StringHandle NameAttrSH;
+        SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
+            Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT, &NameDetailInfo,
+            &NameAttrSH, 0, 1);
+        std::string Label = SM.Session->GetHAPIString(NameAttrSH);
+        NodeNames.push_back(std::wstring(Label.begin(), Label.end()));
+    }
+    else
+    {
+        PluginLabel = std::wstring(DisplayNode.Name.begin(),
+                                   DisplayNode.Name.end());
+
+        NodeNames.push_back(PluginLabel);
+    }
+
+    bool UseUniqueName = false;
+    HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE,
+        UseUniqueName);
+
+    if (UseUniqueName)
+    {
+        for (int i = 0; i < NodeNames.size(); i++)
+        {
+            NodeNames[i] = L"_" + NodeNames[i];
+            NodeNames[i] = ContainerNode->GetName() + NodeNames[i];
+        }
+    }
+}
+
+std::string
+HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    std::string OverrideValue;
+
+    if (Hda.HdaType == OBJ_LEVEL_HDA)
+    {
+        std::vector<HEMAX_DisplayGeoNode*> DisplayNodes = Hda.AllDisplayNodes();
+        bool FoundAttr = false;
+
+        for (int i = 0; i < DisplayNodes.size(); i++)
+        {
+            for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
+            {
+                HEMAX_AttributeInfo AttrInfo;
+                SM.Session->GetAttributeInfo(DisplayNodes[i]->Info.nodeId,
+                    DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
+                    HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
+
+                if (AttrInfo.exists)
+                {
+                    HEMAX_StringHandle ValSH;
+                    SM.Session->GetAttributeStringData(DisplayNodes[i]->Info.nodeId,
+                        DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
+                        &AttrInfo, &ValSH, 0, 1);
+                    std::string AttrVal = SM.Session->GetHAPIString(ValSH);
+
+                    if (FoundAttr && AttrVal != OverrideValue)
+                    {
+                        HEMAX_Logger::Instance().AddEntry(
+                            std::string("Detail attribute override ") + Name +
+                            " was found on multiple parts and had different values."
+                            " The first value will be used.", HEMAX_LOG_LEVEL_WARN);
+                        return AttrVal;
+                    }
+                    else
+                    {
+                        FoundAttr = true;
+                        OverrideValue = AttrVal;
+                    }
+                }
+            }
+        }
+    }
+    else if (Hda.HdaType == SOP_LEVEL_HDA)
+    {
+        bool FoundAttr = false;
+        HEMAX_DisplayGeoNode& TopNode = Hda.TopLevelSopNode;
+        for (int p = 0; p < TopNode.Parts.size(); p++)
+        {
+            HEMAX_AttributeInfo AttrInfo;
+            SM.Session->GetAttributeInfo(TopNode.Info.nodeId,
+                TopNode.Parts[p].Info.id, Name.c_str(),
+                HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
+
+            if (AttrInfo.exists)
+            {
+                HEMAX_StringHandle ValSH;
+                SM.Session->GetAttributeStringData(TopNode.Info.nodeId,
+                    TopNode.Parts[p].Info.id, Name.c_str(), &AttrInfo, &ValSH, 
+                    0, 1);
+                std::string AttrVal = SM.Session->GetHAPIString(ValSH);
+
+                if (FoundAttr && AttrVal != OverrideValue)
+                {
+                    HEMAX_Logger::Instance().AddEntry(
+                        std::string("Detail attribute override ") + Name +
+                        " was found on multiple parts and had different values."
+                        " The first value will be used.", HEMAX_LOG_LEVEL_WARN);
+                    return AttrVal;
+                }
+                else
+                {
+                    FoundAttr = true;
+                    OverrideValue = AttrVal;
+                }
+            }
+        }
+    }
+
+    return OverrideValue;
 }

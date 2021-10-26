@@ -65,6 +65,8 @@ class HEMAX_Part
     private:
 	std::vector<HEMAX_MaxTransform> GetInstancedPartTransforms();
 
+        bool HasGroup(const std::string& GroupName, HAPI_GroupType GroupType) const;
+
 	bool BuildGeometryPlugin();
 	bool BuildCurvePlugin();
 

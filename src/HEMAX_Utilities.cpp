@@ -1,5 +1,7 @@
 #include "HEMAX_Utilities.h"
+
 #include "HEMAX_Types.h"
+
 #include "simpobj.h"
 #include "units.h"
 
@@ -154,10 +156,15 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
 float
 HEMAX_Utilities::GetHoudiniToMaxScale()
 {
-    int MasterUnitType;
-    float MasterUnitScale;
-    GetMasterUnitInfo(&MasterUnitType, &MasterUnitScale);
-    return (float)GetRelativeScale(UNITS_METERS, 1, MasterUnitType, MasterUnitScale);
+    int SystemUnitType;
+    float SystemUnitScale;
+#ifdef HEMAX_VERSION_2022
+    GetSystemUnitInfo(&SystemUnitType, &SystemUnitScale);
+#else
+    GetMasterUnitInfo(&SystemUnitType, &SystemUnitScale);
+#endif
+    return (float)GetRelativeScale(UNITS_METERS, 1, SystemUnitType,
+                SystemUnitScale);
 }
 
 float
@@ -363,26 +370,49 @@ HEMAX_Utilities::SetEnvVar(std::string Var, std::string Val)
 }
 
 bool
-HEMAX_Utilities::IsLinearSplineClosed(LinearShape* Curve)
+HEMAX_Utilities::IsOnlyClosedSplines(LinearShape* Curve)
 {
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
     int CurveCount = Curve->NumberOfCurves();
 #endif
 
-    if (CurveCount > 0)
+    for (int i = 0; i < CurveCount; i++)
     {
-	return Curve->CurveClosed(GetCOREInterface()->GetTime(), 0);
+        if (!Curve->CurveClosed(GetCOREInterface()->GetTime(), i))
+            return false;
     }
-    else
+
+    return true;
+}
+
+bool
+HEMAX_Utilities::IsOnlyOpenSplines(LinearShape* Curve)
+{
+#if defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
+    int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
+#endif
+#ifdef HEMAX_VERSION_2017
+    int CurveCount = Curve->NumberOfCurves();
+#endif
+
+    for (int i = 0; i < CurveCount; i++)
     {
-	return false;
+        if (Curve->CurveClosed(GetCOREInterface()->GetTime(), i))
+            return false;
     }
+
+    return true;
 }
 
 void
@@ -414,4 +444,69 @@ HEMAX_Utilities::GetListOfChildNodes(INode* Node, std::vector<std::wstring>& Nod
 	    GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
 	}
     }
+}
+
+std::string
+HEMAX_Utilities::WideStringToStringUnsafe(const std::wstring& In)
+{
+#pragma warning(disable:4244)
+    std::string Out(In.begin(), In.end());
+#pragma warning(default:4244)
+    return Out;
+}
+
+bool
+HEMAX_Utilities::ParmIsIntType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_INTEGER ||
+        Type == HEMAX_PARAM_BUTTON ||
+        Type == HEMAX_PARAM_TOGGLE ||
+        Type == HEMAX_PARAM_MULTIPARMLIST)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsFloatType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_FLOAT ||
+        Type == HEMAX_PARAM_COLOR)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsStringType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_STRING ||
+        Type == HEMAX_PARAM_PATH_FILE ||
+        Type == HEMAX_PARAM_PATH_FILE_DIR ||
+        Type == HEMAX_PARAM_PATH_FILE_GEO ||
+        Type == HEMAX_PARAM_PATH_FILE_IMAGE)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool
+HEMAX_Utilities::ParmIsNodeType(HEMAX_ParameterType Type)
+{
+    if (Type == HEMAX_PARAM_NODE)
+        return true;
+    else
+        return false;
 }

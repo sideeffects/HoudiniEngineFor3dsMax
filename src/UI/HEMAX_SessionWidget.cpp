@@ -10,7 +10,8 @@
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021)
+    defined(HEMAX_VERSION_2021) || \
+    defined(HEMAX_VERSION_2022)
 #include <QtWidgets/qfiledialog.h>
 #endif
 
@@ -358,13 +359,10 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     if (!Plugin)
         return;
 
-    HEMAX_UserPrefs* Prefs = Plugin->GetUserPrefs();
-
-    if (!Prefs)
-        return;
+    HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
 
     int Type;
-    if (Prefs->GetIntSetting(HEMAX_SETTING_SESSION_TYPE, Type))
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_TYPE, Type))
     {
         HEMAX_SessionTypePref SessionType =
                                 static_cast<HEMAX_SessionTypePref>(Type);
@@ -384,53 +382,53 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     }
 
     std::string HostName;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME, HostName))
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME, HostName))
     {
         SessionsSocketHostName->setText(HostName.c_str());
     }
 
     int Port;
-    if (Prefs->GetIntSetting(HEMAX_SETTING_SESSION_PORT, Port))
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_PORT, Port))
     {
         SessionsSocketPortNumber->setText(std::to_string(Port).c_str());
     }
 
     std::string PipeName;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
     {
         SessionsPipeName->setText(PipeName.c_str());
     }
 
     std::string HoudiniEnvFilePath;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
                                 HoudiniEnvFilePath))
     {
         SessionsHoudiniEnvFiles->setText(HoudiniEnvFilePath.c_str());
     }
 
     std::string OtlSearchPath;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
                                 OtlSearchPath))
     {
         SessionsOtlSearchPath->setText(OtlSearchPath.c_str());
     }
 
     std::string DsoSearchPath;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
                                 DsoSearchPath))
     {
         SessionsDsoSearchPath->setText(DsoSearchPath.c_str());
     }
 
     std::string ImageDsoSearchPath;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
                                 ImageDsoSearchPath))
     {
         SessionsImageDsoSearchPath->setText(ImageDsoSearchPath.c_str());
     }
 
     std::string AudioDsoSearchPath;
-    if (Prefs->GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
                                 AudioDsoSearchPath))
     {
         SessionsAudioDsoSearchPath->setText(AudioDsoSearchPath.c_str());
@@ -499,9 +497,8 @@ HEMAX_SessionWidget::SlotSessionsAutoToggle(bool Checked)
 {
     if (Checked)
     {
-        Plugin->GetUserPrefs()->SetIntSetting(
-                HEMAX_SETTING_SESSION_TYPE,
-                static_cast<int>(HEMAX_SessionTypePref::AutoStart));
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::AutoStart));
     }
 }
 
@@ -510,9 +507,8 @@ HEMAX_SessionWidget::SlotSessionsSocketToggle(bool Checked)
 {
     if (Checked)
     {
-        Plugin->GetUserPrefs()->SetIntSetting(
-                HEMAX_SETTING_SESSION_TYPE,
-                static_cast<int>(HEMAX_SessionTypePref::Socket));
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::Socket));
 
 	SessionsSocketHostName->setDisabled(false);
 	SessionsHostNameLabel->setDisabled(false);
@@ -533,9 +529,8 @@ HEMAX_SessionWidget::SlotSessionsPipeToggle(bool Checked)
 {
     if (Checked)
     {
-        Plugin->GetUserPrefs()->SetIntSetting(
-                HEMAX_SETTING_SESSION_TYPE,
-                static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
 
 	SessionsPipeName->setDisabled(false);
 	SessionsPipeNameLabel->setDisabled(false);
@@ -550,25 +545,22 @@ HEMAX_SessionWidget::SlotSessionsPipeToggle(bool Checked)
 void
 HEMAX_SessionWidget::SlotSessionsSocketHostName()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                    HEMAX_SETTING_SESSION_HOST_NAME,
-                    SessionsSocketHostName->text().toStdString());                    
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME,
+        SessionsSocketHostName->text().toStdString());                    
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsSocketPortNumber()
 {
-    Plugin->GetUserPrefs()->SetIntSetting(
-                    HEMAX_SETTING_SESSION_PORT,
-                    SessionsSocketPortNumber->text().toInt());
+    HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_PORT,
+        SessionsSocketPortNumber->text().toInt());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsPipeName()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                    HEMAX_SETTING_SESSION_PIPE_NAME,
-                    SessionsPipeName->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME,
+        SessionsPipeName->text().toStdString());
 }
 
 void
@@ -576,9 +568,8 @@ HEMAX_SessionWidget::SlotSessionsHoudiniEnvFileBrowse()
 {
     SessionsHoudiniEnvFiles->setText(FileBrowseDialog(
                                         SessionsHoudiniEnvFiles->text()));
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_ENV_FILES,
-                                SessionsHoudiniEnvFiles->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+        SessionsHoudiniEnvFiles->text().toStdString());
 }
 
 void
@@ -586,9 +577,8 @@ HEMAX_SessionWidget::SlotSessionsOtlSearchPathBrowse()
 {
     SessionsOtlSearchPath->setText(DirectoryBrowseDialog(
                                     SessionsOtlSearchPath->text()));
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_OTL_SEARCH,
-                                SessionsOtlSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+        SessionsOtlSearchPath->text().toStdString());
 }
 
 void
@@ -596,9 +586,8 @@ HEMAX_SessionWidget::SlotSessionsDsoSearchPathBrowse()
 {
     SessionsDsoSearchPath->setText(DirectoryBrowseDialog(
                                     SessionsDsoSearchPath->text()));
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_DSO_SEARCH,
-                                SessionsDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+        SessionsDsoSearchPath->text().toStdString());
 }
 
 void
@@ -606,9 +595,9 @@ HEMAX_SessionWidget::SlotSessionsImageDsoSearchPathBrowse()
 {
     SessionsImageDsoSearchPath->setText(DirectoryBrowseDialog(
                                     SessionsImageDsoSearchPath->text()));
-    Plugin->GetUserPrefs()->SetStringSetting(
-                    HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
-                    SessionsImageDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+        SessionsImageDsoSearchPath->text().toStdString());
 }
 
 void
@@ -616,17 +605,17 @@ HEMAX_SessionWidget::SlotSessionsAudioDsoSearchPathBrowse()
 {
     SessionsAudioDsoSearchPath->setText(DirectoryBrowseDialog(
                                     SessionsAudioDsoSearchPath->text()));
-    Plugin->GetUserPrefs()->SetStringSetting(
-                    HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
-                    SessionsAudioDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+        SessionsAudioDsoSearchPath->text().toStdString());
 }
 
 void
 HEMAX_SessionWidget::SlotSessionsHoudiniEnvFileEdited()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_ENV_FILES,
-                                SessionsHoudiniEnvFiles->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_ENV_FILES,
+        SessionsHoudiniEnvFiles->text().toStdString());
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.SetHoudiniEnvFiles(SessionsHoudiniEnvFiles->text().toStdString());
 }
@@ -634,9 +623,9 @@ HEMAX_SessionWidget::SlotSessionsHoudiniEnvFileEdited()
 void
 HEMAX_SessionWidget::SlotSessionsOtlSearchPathEdited()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_OTL_SEARCH,
-                                SessionsOtlSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_OTL_SEARCH,
+        SessionsOtlSearchPath->text().toStdString());
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.SetOtlSearchPath(SessionsOtlSearchPath->text().toStdString());
 }
@@ -644,9 +633,9 @@ HEMAX_SessionWidget::SlotSessionsOtlSearchPathEdited()
 void
 HEMAX_SessionWidget::SlotSessionsDsoSearchPathEdited()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                                HEMAX_SETTING_SESSION_DSO_SEARCH,
-                                SessionsDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_DSO_SEARCH,
+        SessionsDsoSearchPath->text().toStdString());
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.SetDsoSearchPath(SessionsDsoSearchPath->text().toStdString());
 }
@@ -654,9 +643,9 @@ HEMAX_SessionWidget::SlotSessionsDsoSearchPathEdited()
 void
 HEMAX_SessionWidget::SlotSessionsImageSearchPathEdited()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
-                        SessionsImageDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+        SessionsImageDsoSearchPath->text().toStdString());
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.SetImageDsoSearchPath(SessionsImageDsoSearchPath->text().toStdString());
 }
@@ -664,9 +653,9 @@ HEMAX_SessionWidget::SlotSessionsImageSearchPathEdited()
 void
 HEMAX_SessionWidget::SlotSessionsAudioSearchPathEdited()
 {
-    Plugin->GetUserPrefs()->SetStringSetting(
-                        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
-                        SessionsAudioDsoSearchPath->text().toStdString());
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+        SessionsAudioDsoSearchPath->text().toStdString());
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.SetAudioDsoSearchPath(SessionsAudioDsoSearchPath->text().toStdString());
 }

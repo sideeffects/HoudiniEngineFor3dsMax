@@ -188,11 +188,19 @@ HEMAX_ParameterAttrib::SetParameterName(std::string Name)
     WideParameterName = std::wstring(ParameterName.begin(), ParameterName.end());
 }
 
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_ParameterAttrib::GetName(bool Localized)
+{
+    return WideParameterName.c_str();
+}
+#else
 const TCHAR*
 HEMAX_ParameterAttrib::GetName()
 {
     return WideParameterName.c_str();
 }
+#endif
 
 SClass_ID
 HEMAX_ParameterAttrib::SuperClassID()
@@ -216,18 +224,6 @@ Animatable*
 HEMAX_ParameterAttrib::SubAnim(int i)
 {
     return PBlock;
-}
-
-TSTR
-HEMAX_ParameterAttrib::SubAnimName(int i)
-{
-    return _T("Value");
-}
-
-void
-HEMAX_ParameterAttrib::GetClassName(MSTR& str)
-{
-    str = _M("HEMAX_Parameter");
 }
 
 RefTargetHandle
@@ -372,6 +368,14 @@ HEMAX_IntegerParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_IntegerParameterAttrib;
 }
 
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_IntegerParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return _T("HEMAX_IntegerParameterAttrib_Class");
+}
+#endif
+
 const TCHAR*
 HEMAX_IntegerParameterAttrib_ClassDesc::ClassName()
 {
@@ -469,6 +473,14 @@ HEMAX_StringParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_StringParameterAttrib;
 }
 
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_StringParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return L"HEMAX_StringParameterAttrib_Class";
+}
+#endif
+
 const TCHAR*
 HEMAX_StringParameterAttrib_ClassDesc::ClassName()
 {
@@ -542,6 +554,14 @@ HEMAX_FloatParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_FloatParameterAttrib;
 }
 
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_FloatParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return L"HEMAX_FloatParameterAttrib_Class";
+}
+#endif
+
 const TCHAR*
 HEMAX_FloatParameterAttrib_ClassDesc::ClassName()
 {
@@ -614,6 +634,14 @@ HEMAX_ToggleParameterAttrib_ClassDesc::Create(BOOL Loading)
 {
     return new HEMAX_ToggleParameterAttrib;
 }
+
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_ToggleParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return L"HEMAX_ToggleParameterAttrib_Class";
+}
+#endif
 
 const TCHAR*
 HEMAX_ToggleParameterAttrib_ClassDesc::ClassName()
@@ -726,6 +754,14 @@ HEMAX_NodeParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_NodeParameterAttrib;
 }
 
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_NodeParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return L"HEMAX_NodeParameterAttrib_Class";
+}
+#endif
+
 const TCHAR*
 HEMAX_NodeParameterAttrib_ClassDesc::ClassName()
 {
@@ -799,6 +835,14 @@ HEMAX_MultiParameterAttrib_ClassDesc::Create(BOOL Loading)
 {
     return new HEMAX_MultiParameterAttrib;
 }
+
+#ifdef HEMAX_VERSION_2022
+const TCHAR*
+HEMAX_MultiParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return _T("HEMAX_MultiParameterAttrib_Class");
+}
+#endif
 
 const TCHAR*
 HEMAX_MultiParameterAttrib_ClassDesc::ClassName()

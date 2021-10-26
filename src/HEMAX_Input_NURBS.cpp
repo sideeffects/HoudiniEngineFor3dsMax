@@ -20,8 +20,9 @@ HEMAX_Input_NURBS::HEMAX_Input_NURBS(HEMAX_Node* EditableNode, ULONG MaxNode)
     Node = nullptr;
 }
 
-HEMAX_Input_NURBS::HEMAX_Input_NURBS(HEMAX_InputType Type, Object* MaxObject)
-    : HEMAX_Input(Type, -1, -1)
+HEMAX_Input_NURBS::HEMAX_Input_NURBS(HEMAX_InputType Type,
+    Object* MaxObject, ULONG MaxNode)
+    : HEMAX_Input(Type, -1, MaxNode)
 {
     if (MaxObject)
     {
@@ -134,7 +135,7 @@ HEMAX_Input_NURBS::BuildInputNode()
 
 void
 HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveObj,
-					       std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
+    std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
 {
     CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
 
@@ -195,8 +196,21 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 	    CVArr[c*3 + 2] = -CVPos.y * ScaleConversion;
 	}
 
-	HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(NumCVs, 3, HEMAX_POSITION_ATTRIBUTE);
-	SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, &CVArr.front(), NumCVs);
+	HAPI_AttributeInfo PointAttributeInfo =
+            AddNewPointAttribute(NumCVs, 3, HEMAX_POSITION_ATTRIBUTE);
+	SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
+            &CVArr.front(), NumCVs);
+
+        int MatId = TheCurve->MatID();
+        HAPI_AttributeInfo MatIdAttrInfo = AddNewDetailIntAttribute(1, 1,
+            HEMAX_MATERIAL_ID_ATTRIBUTE);
+        SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MatIdAttrInfo,
+            &MatId, 1);
+
+        INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
+        if (MaxInputNode)
+            AddNodeTransformAttributes(MaxInputNode);
+
 	FinalizeInputGeometry();
 
 	Node->SetParentTransform(NodeTransform);
@@ -211,7 +225,7 @@ HEMAX_Input_NURBS::GetKnotsArray()
 
 void
 HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveObj,
-					  std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
+    std::string InputNodeName, HEMAX_MaxTransform NodeTransform)
 {
     NURBSCVCurve* TheCurve = (NURBSCVCurve*)CurveObj;
 
@@ -270,8 +284,21 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 	CVPoints[(c * 3) + 2] = -CVPos.y * ScaleConversion;
     }
 
-    HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(CVCount, 3, HEMAX_POSITION_ATTRIBUTE);
-    SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo, CVPoints, CVCount);
+    HAPI_AttributeInfo PointAttributeInfo =
+        AddNewPointAttribute(CVCount, 3, HEMAX_POSITION_ATTRIBUTE);
+    SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
+        CVPoints, CVCount);
+
+    int MatId = TheCurve->MatID();
+    HAPI_AttributeInfo MatIdAttrInfo = AddNewDetailIntAttribute(1, 1,
+        HEMAX_MATERIAL_ID_ATTRIBUTE);
+    SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MatIdAttrInfo,
+        &MatId, 1);
+
+    INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
+    if (MaxInputNode)
+        AddNodeTransformAttributes(MaxInputNode);
+
     FinalizeInputGeometry();
 
     Node->SetParentTransform(NodeTransform);

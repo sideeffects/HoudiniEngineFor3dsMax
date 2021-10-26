@@ -90,6 +90,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
 	SM.Session->GetCurveCounts(NodeId, PartId, SegmentsCVCount.data(), 0, CurveInfo.curveCount); 
 
 	std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
+        std::vector<int> MatIds(CurveInfo.vertexCount);
 
 	HEMAX_AttributeInfo PositionAttributeInfo;
 	SM.Session->GetAttributeInfo(NodeId, PartId,
@@ -101,6 +102,17 @@ HEMAX_CurvePlugin::BuildLinearShape()
 			-1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
 	float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
+        HEMAX_AttributeInfo MatIdAttrInfo;
+        SM.Session->GetAttributeInfo(NodeId, PartId,
+            HEMAX_MATERIAL_ID_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+            &MatIdAttrInfo);
+        if (MatIdAttrInfo.exists)
+        {
+            SM.Session->GetAttributeIntData(NodeId, PartId,
+                HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, MatIds.data(), 0,
+                CurveInfo.vertexCount);
+        }
+
 	std::vector<PolyPt> PolyPoints;
 
 	for (int p = 0; p < CurveInfo.vertexCount; p++)
@@ -112,6 +124,11 @@ HEMAX_CurvePlugin::BuildLinearShape()
 
 	    PolyPt NewPolyPt;
 	    NewPolyPt.p = NewPoint;
+
+            if (MatIdAttrInfo.exists)
+            {
+                NewPolyPt.SetMatID(MatIds[p]);
+            }
 
 	    PolyPoints.push_back(NewPolyPt);
 	}
@@ -160,12 +177,22 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     HEMAX_AttributeInfo PositionAttributeInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId,
-				 HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
-				 &PositionAttributeInfo);
+	HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+        &PositionAttributeInfo);
 
     SM.Session->GetAttributeFloatData(NodeId, PartId,
 				      HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
 				      -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
+
+    HEMAX_AttributeInfo MatIdAttrInfo;
+    SM.Session->GetAttributeInfo(NodeId, PartId, HEMAX_MATERIAL_ID_ATTRIBUTE,
+        HEMAX_ATTRIBUTEOWNER_DETAIL, &MatIdAttrInfo);
+    int MatId = -1;
+    if (MatIdAttrInfo.exists)
+    {
+        SM.Session->GetAttributeIntData(NodeId, PartId,
+            HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, &MatId, 0, 1);
+    }
 
     std::vector<int> CurvesCVCount(CurveInfo.curveCount);
     SM.Session->GetCurveCounts(NodeId, PartId, CurvesCVCount.data(), 0, CurveInfo.curveCount);
@@ -210,6 +237,11 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
 	    CVIndex += 1;
 	}		
+
+        if (MatId > -1)
+        {
+            Curve->MatID(MatId);
+        }
 
 	CurveSet.AppendObject(Curve);
     } 

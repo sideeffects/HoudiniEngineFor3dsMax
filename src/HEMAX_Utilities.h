@@ -49,8 +49,16 @@ struct HEMAX_Utilities
     static std::string GetEnvVar(std::string Var);
     static void SetEnvVar(std::string Var, std::string Val);
 
-    static bool IsLinearSplineClosed(LinearShape* Curve);
+    static bool IsOnlyClosedSplines(LinearShape* Curve);
+    static bool IsOnlyOpenSplines(LinearShape* Curve);
 
     static void GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames);
     static void GetListOfChildNodes(INode* Node, std::vector<std::wstring>& NodeNames);
+
+    static std::string WideStringToStringUnsafe(const std::wstring& In);
+
+    static bool ParmIsIntType(HEMAX_ParameterType Type);
+    static bool ParmIsFloatType(HEMAX_ParameterType Type);
+    static bool ParmIsStringType(HEMAX_ParameterType Type);
+    static bool ParmIsNodeType(HEMAX_ParameterType Type);
 };

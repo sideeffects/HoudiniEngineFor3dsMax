@@ -101,6 +101,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
 
     std::unordered_map<int, const char*> SubMatNames;
     std::vector<const char*> FaceMaterialNames;
+    std::string MultiMaterialName;
 
     if (SourceNode)
     {
@@ -111,6 +112,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
 	    // We have a multi-material
 	    if (MeshMat->NumSubMtls() > 0)
 	    {
+                MultiMaterialName = MeshMat->GetName().ToCStr();
 		FaceMaterialNames.resize(MaxMesh.FNum());
 		for (int m = 0; m < MeshMat->NumSubMtls(); m++)
 		{
@@ -140,14 +142,27 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
     int* FaceCountArray = new int[FaceCount];
     int* SmoothingGroupArray = new int[FaceCount];
     int* MaterialIDArray = new int[FaceCount];
+    std::vector<int> FaceSelections;
+    std::vector<int> VertexSelections;
+    std::vector<int> EdgeSelections;
 
     float ScaleConversion = HEMAX_Utilities::GetMaxToHoudiniScale();
+
+    BitArray VertexSelectionsArray;
+    MaxMesh.getVertexSel(VertexSelectionsArray);
+    bool HasVertexSelections = (!VertexSelectionsArray.IsEmpty() &&
+        VertexSelectionsArray.GetSize() == VertCount);
 
     for (int i = 0; i < VertCount; i++)
     {
 	PointArray[i * 3] = MaxMesh.V(i)->p.x * ScaleConversion;
 	PointArray[(i * 3) + 1] = MaxMesh.V(i)->p.z * ScaleConversion;
 	PointArray[(i * 3) + 2] = -MaxMesh.V(i)->p.y * ScaleConversion;
+
+        if (HasVertexSelections)
+        {
+            VertexSelections.push_back(VertexSelectionsArray[i]); 
+        }
     }
 
     int VertIndexCount = 0;
@@ -161,11 +176,24 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
     int* VertIndexArray = new int[VertIndexCount];
     int CurIndex = 0;
 
+    BitArray FaceSelectionsArray;
+    MaxMesh.getFaceSel(FaceSelectionsArray);
+    bool HasFaceSelections = (!FaceSelectionsArray.IsEmpty() &&
+        FaceSelectionsArray.GetSize() == FaceCount);
+
+    BitArray EdgeSelectionsArray;
+    MaxMesh.getEdgeSel(EdgeSelectionsArray);
+    bool HasEdgeSelections = !EdgeSelectionsArray.IsEmpty();
+
     for (int i = 0; i < FaceCount; i++)
     {
-	// Smoothing group
 	SmoothingGroupArray[i] = MaxMesh.F(i)->smGroup;
 	MaterialIDArray[i] = MaxMesh.F(i)->material;
+
+        if (HasFaceSelections)
+        {
+            FaceSelections.push_back(FaceSelectionsArray[i]);
+        }
 
 	if (!SingleMaterial)
 	{
@@ -184,7 +212,19 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
 	for (int v = (MaxMesh.F(i)->deg - 1), c = 0; v >= 0; v--, c++)
 	{
 	    VertIndexArray[CurIndex + c] = MaxMesh.F(i)->vtx[v];
+
+            if (HasEdgeSelections)
+            {
+                int EdgeNum = MaxMesh.F(i)->edg[v];
+                if (EdgeSelectionsArray[EdgeNum])
+                {
+                    MNEdge* Edge = MaxMesh.E(EdgeNum);
+                    EdgeSelections.push_back(Edge->v1);
+                    EdgeSelections.push_back(Edge->v2);
+                }
+            }
 	}
+
 	CurIndex += MaxMesh.F(i)->deg;
     }
 
@@ -196,8 +236,38 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
     HEMAX_AttributeInfo SmoothingGroupAttributeInfo = AddNewPrimitiveIntAttribute(FaceCount, 1, HEMAX_SMOOTHING_GROUP_ATTRIBUTE);
     SendIntAttributeData(HEMAX_SMOOTHING_GROUP_ATTRIBUTE, SmoothingGroupAttributeInfo, SmoothingGroupArray, FaceCount);
 
-    HEMAX_AttributeInfo MaterialIDAttributeInfo = AddNewPrimitiveIntAttribute(FaceCount, 1, HEMAX_MATERIAL_ID_ATTRIBUTE);
-    SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MaterialIDAttributeInfo, MaterialIDArray, FaceCount);
+    if (HasFaceSelections)
+    {
+        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_PRIM,
+            HEMAX_SELECTION_FACE);
+        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_PRIM,
+            HEMAX_SELECTION_FACE, FaceSelections.data(), 0, FaceCount);
+    }
+
+    if (HasVertexSelections)
+    {
+        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_POINT,
+            HEMAX_SELECTION_VERTEX);
+        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_POINT,
+            HEMAX_SELECTION_VERTEX, VertexSelections.data(), 0, VertCount);
+    }
+
+    if (HasEdgeSelections)
+    {
+        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
+            HEMAX_SELECTION_EDGE);
+        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
+            HEMAX_SELECTION_EDGE, EdgeSelections.data(), 0,
+            EdgeSelections.size());
+    }
+
+    HEMAX_AttributeInfo MaterialIDAttributeInfo = AddNewPrimitiveIntAttribute(
+            FaceCount, 1, HEMAX_MATERIAL_ID_ATTRIBUTE);
+    SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MaterialIDAttributeInfo,
+            MaterialIDArray, FaceCount);
 
     if (SingleMaterial && SingleMaterialNameData.size() > 0)
     {
@@ -208,6 +278,16 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
     {
 	HEMAX_AttributeInfo MaterialNamesAttrInfo = AddNewPrimitiveStringAttribute(FaceCount, 1, HEMAX_MATERIAL_PATH_ATTRIBUTE);
 	SendStringAttributeData(HEMAX_MATERIAL_PATH_ATTRIBUTE, MaterialNamesAttrInfo, FaceMaterialNames.data(), FaceCount);
+
+        if (!MultiMaterialName.empty())
+        {
+            HEMAX_AttributeInfo MultiMatNameAttrInfo =
+                AddNewDetailStringAttribute(1, 1,
+                        HEMAX_MATERIAL_PATH_ATTRIBUTE);
+            const char* MultiMatNameCStr = MultiMaterialName.c_str();
+            SendStringAttributeData(HEMAX_MATERIAL_PATH_ATTRIBUTE,
+                MultiMatNameAttrInfo, &MultiMatNameCStr, 1);
+        }
     }
 
     // Normals
@@ -543,33 +623,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node, MNMesh& Ma
 
     if (MaxNode)
     {
-	HEMAX_MaxTransform NodeTM = HEMAX_Utilities::BuildMaxTransformFromINode(MaxNode);
-	HAPI_Transform HAPITM = HEMAX_Utilities::MaxTransformToHAPITransform(NodeTM);
-	EulerTM = HEMAX_Utilities::MaxTransformToHAPITransformEuler(NodeTM);
-	Matrix3 RawNodeTM = HEMAX_Utilities::GetINodeTransformationMatrix(MaxNode);
-
-	HEMAX_AttributeInfo TranslateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_TRANSLATE_ATTR);
-	HEMAX_AttributeInfo RotateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_ROTATE_ATTR);
-	HEMAX_AttributeInfo ScaleAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_SCALE_ATTR);
-	HEMAX_AttributeInfo QuatAttrInfo = AddNewDetailFloatAttribute(1, 4, HEMAX_QUATERNION_ATTR);
-	HEMAX_AttributeInfo WorldSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_WORLD);
-	HEMAX_AttributeInfo LocalSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_LOCAL);
-
-	SendFloatAttributeData(HEMAX_TRANSLATE_ATTR, TranslateAttrInfo, EulerTM.position, 1);
-	SendFloatAttributeData(HEMAX_ROTATE_ATTR, RotateAttrInfo, EulerTM.rotationEuler, 1);
-	SendFloatAttributeData(HEMAX_SCALE_ATTR, ScaleAttrInfo, EulerTM.scale, 1);
-	SendFloatAttributeData(HEMAX_QUATERNION_ATTR, QuatAttrInfo, HAPITM.rotationQuaternion, 1);
-
-	std::vector<float> WorldSpaceTM;
-	HEMAX_Utilities::Matrix3ToFlatArray(RawNodeTM, WorldSpaceTM);
-
-	SendFloatAttributeData(HEMAX_MAX_RAW_TM_WORLD, WorldSpaceAttrInfo, &WorldSpaceTM.front(), 1);
-
-	Matrix3 NodeLocalTM = HEMAX_Utilities::GetINodeLocalTransformationMatrix(MaxNode);
-	std::vector<float> LocalSpaceTM;
-	HEMAX_Utilities::Matrix3ToFlatArray(NodeLocalTM, LocalSpaceTM);
-
-	SendFloatAttributeData(HEMAX_MAX_RAW_TM_LOCAL, LocalSpaceAttrInfo, &LocalSpaceTM.front(), 1);
+        AddNodeTransformAttributes(MaxNode);
     }
 
     Node->SetParentTransform(NodeTransform);

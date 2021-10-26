@@ -183,7 +183,9 @@ GetInstanceTransforms(HEMAX_NodeId InstancerNode)
     if (InstancerPointInfo.pointCount > 0)
     {
 	std::vector<HAPI_Transform> InstanceTransforms(InstancerPointInfo.pointCount);
-	SM.Session->GetInstanceTransforms(GeoInfo.nodeId, HAPI_RSTORDER_DEFAULT, &InstanceTransforms.front(), 0, InstancerPointInfo.pointCount);
+        SM.Session->GetInstanceTransformsOnPart(GeoInfo.nodeId, 0,
+            HAPI_RSTORDER_DEFAULT, &InstanceTransforms.front(), 0,
+            InstancerPointInfo.pointCount);
 
 	for (int p = 0; p < InstancerPointInfo.pointCount; ++p)
 	{

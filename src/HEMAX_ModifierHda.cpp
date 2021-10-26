@@ -80,8 +80,13 @@ HEMAX_ModifierHda::RecreateExistingModifierHda(HEMAX_Hda& Hda, HEMAX_Modifier* M
 
     for (int i = HEMAX_HOUDINI_MODIFIER_MAX_INDEX; i < CustomAttributes->GetNumCustAttribs(); i++)
     {
-	HEMAX_ParameterAttrib* CustAttrib = static_cast<HEMAX_ParameterAttrib*>(CustomAttributes->GetCustAttrib(i));
-	CustomAttributeMap.insert({ CustAttrib->GetParameterName(), CustAttrib });
+        HEMAX_ParameterAttrib* CustAttrib =
+            dynamic_cast<HEMAX_ParameterAttrib*>(CustomAttributes->GetCustAttrib(i));
+        if (CustAttrib)
+        {
+            CustomAttributeMap.insert(
+                {CustAttrib->GetParameterName(), CustAttrib});
+        }
     }
 
     Modifier->SetHda(&Hda);
