@@ -1188,7 +1188,7 @@ HEMAX_Plugin::HandleParameterInputCleared(HEMAX_Node* Node,
     {
 	Clear3dsmaxHdaParameterInput(Hda, &Parameter);
 
-        if (UpdateHda)
+        if (UpdateHda && Node->AutoRecookOnParameterUpdate)
         {
             Hda->Cook3dsmaxHda();
             Hda->Update3dsmaxHda();
@@ -1205,8 +1205,13 @@ HEMAX_Plugin::HandleParameterInputSelection(HEMAX_Node* Node, HEMAX_Parameter Pa
     if (Hda)
     {
 	HEMAX_3dsMaxInput* MaxInput = Set3dsmaxHdaParameterInput(Hda, &Parameter, InputNodeToUse);
-	Hda->Cook3dsmaxHda();
-	Hda->Update3dsmaxHda();
+
+        if (Node->AutoRecookOnParameterUpdate)
+        {
+            Hda->Cook3dsmaxHda();
+            Hda->Update3dsmaxHda();
+        }
+
 	GetCOREInterface()->ForceCompleteRedraw();
     }
 }
@@ -1221,7 +1226,7 @@ HEMAX_Plugin::HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork,
     {
 	Clear3dsmaxHdaSubnetworkInput(Hda, Subnetwork);
 
-        if (UpdateHda)
+        if (UpdateHda && Node->AutoRecookOnParameterUpdate)
         {
             Hda->Cook3dsmaxHda();
             Hda->Update3dsmaxHda();
@@ -1238,8 +1243,13 @@ HEMAX_Plugin::HandleSubnetworkInputSelection(HEMAX_Node* Node, int Subnetwork, I
     if (Hda)
     {
 	Set3dsmaxHdaSubnetworkInput(Hda, Subnetwork, InputNodeToUse);
-	Hda->Cook3dsmaxHda();
-	Hda->Update3dsmaxHda();
+
+        if (Node->AutoRecookOnParameterUpdate)
+        {
+            Hda->Cook3dsmaxHda();
+            Hda->Update3dsmaxHda();
+        }
+
 	GetCOREInterface()->ForceCompleteRedraw();
     }
 }
