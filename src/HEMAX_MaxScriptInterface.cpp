@@ -266,16 +266,22 @@ SetGeometryHdaParameter_cf(Value** ArgList, int Count)
 	std::wstring WParamName(ArgList[1]->to_string());
 	std::string ParamName(WParamName.begin(), WParamName.end());
 
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+	HEMAX_3dsmaxHda* Hda =
+            HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
 	if (Hda)
 	{
-	    HEMAX_Parameter* Parm = Hda->Hda.MainNode.GetParameter(ParamName);
+            HEMAX_Node* HapiNode = &Hda->Hda.MainNode;
+	    HEMAX_Parameter* Parm = HapiNode->GetParameter(ParamName);
 
 	    if (Parm)
 	    {
 		if (HEMAX_MaxScriptInterface::UpdateParameter(*Hda, *Parm, ArgList, Count, 2))
 		{
-		    HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(&(Hda->Hda.MainNode));
+                    if (HapiNode->AutoRecookOnParameterUpdate)
+                    {
+                        HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(HapiNode);
+                    }
+
 		    return &true_value;
 		}
 	    }
@@ -298,13 +304,18 @@ SetModifierHdaParameter_cf(Value** ArgList, int Count)
 	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Modifier);
 	if (Hda)
 	{
-	    HEMAX_Parameter* Parm = Hda->Hda.MainNode.GetParameter(ParamName);
+            HEMAX_Node* HapiNode = &Hda->Hda.MainNode;
+	    HEMAX_Parameter* Parm = HapiNode->GetParameter(ParamName);
 
 	    if (Parm)
 	    {
 		if (HEMAX_MaxScriptInterface::UpdateParameter(*Hda, *Parm, ArgList, Count, 3))
 		{
-		    HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(&(Hda->Hda.MainNode));
+                    if (HapiNode->AutoRecookOnParameterUpdate)
+                    {
+                        HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(HapiNode);
+                    }
+
 		    return &true_value;
 		}
 	    }
