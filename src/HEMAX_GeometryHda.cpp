@@ -1511,6 +1511,8 @@ HEMAX_GeometryHda::ClearInstances()
 	}
     }
     InstanceClones.clear();
+    InstanceSources.clear();
+    InstanceCloneToSourceMap.clear();
 }
 
 void
@@ -1525,6 +1527,8 @@ HEMAX_GeometryHda::ClearPackedPrimNodes()
 	}
     }
     PackedPrimClones.clear();
+    PackedPrimSources.clear();
+    PackedPrimCloneToSourceMap.clear();
 
     int ChildCount = ContainerNode->NumberOfChildren();
 
