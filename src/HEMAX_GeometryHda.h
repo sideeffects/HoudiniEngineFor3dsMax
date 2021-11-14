@@ -10,6 +10,7 @@
 #include "HEMAX_GeometryPlugin.h"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
@@ -56,8 +57,13 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 
 	int MaxStampIndex;
 
+        std::unordered_set<INode*> InstanceSources;
 	std::vector<INode*> InstanceClones;
+        std::unordered_map<INode*, INode*> InstanceCloneToSourceMap;
+
+        std::unordered_set<INode*> PackedPrimSources;
 	std::vector<INode*> PackedPrimClones;
+        std::unordered_map<INode*, INode*> PackedPrimCloneToSourceMap;
 
 	std::vector<HEMAX_EditableCurve> EditableCurves;
 
@@ -134,5 +140,14 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
                 std::vector<std::wstring>& NodeNames);
 
         std::string GetDetailAttributeOverride(const std::string& Name);
+
+        bool IsInstanceSource(INode* Node);
+        bool IsPackedPrimSource(INode* Node);
+        bool IsInstance(INode* Node);
+        bool IsPackedPrim(INode* Node);
+
+        INode* GetBakedInstanceSource(
+            INode* Node,
+            std::unordered_map<INode*, INode*>& InstanceSourceToBakedInstanceSource);
 };
 
