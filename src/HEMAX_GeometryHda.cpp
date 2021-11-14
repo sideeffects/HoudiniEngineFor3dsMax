@@ -12,6 +12,7 @@
 #include <ilayermanager.h>
 #include <custattrib.h>
 
+#include <algorithm>
 #include <list>
 
 HEMAX_GeometryHda::HEMAX_GeometryHda()
@@ -570,6 +571,7 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
     }
 
     int ChildCount = ContainerNode->NumberOfChildren();
+    std::vector<INode*> SkippedNodes;
 
     for (int j = 0; j < ChildCount; j++)
     {
@@ -579,9 +581,19 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
             bool IsEditableNode = CheckForCustomAttributeOnNode(
                                         ChildNode,
                                         HEMAX_EDITABLE_NODE_STAMP_NAME);
+
+            bool ShouldSkip = ChildNode->IsHidden()
+                || IsEditableNode
+                || IsInstanceSource(ChildNode)
+                || IsPackedPrimSource(ChildNode)
+                || IsInstance(ChildNode)
+                || IsPackedPrim(ChildNode);
                                     
-            if (ChildNode->IsHidden() || IsEditableNode)
+            if (ShouldSkip)
+            {
+                SkippedNodes.push_back(ChildNode);
                 continue;
+            }
 
             Object* ChildNodeObj = ChildNode->GetObjectRef();
             Object* CopiedChildNodeObj = nullptr;
@@ -649,6 +661,104 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 else
                 {
                     GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
+                }
+            }
+        }
+    }
+
+    std::unordered_map<INode*, INode*> InstanceSourceToBakedInstanceSource;
+
+    // Do one pass to create the instance sources (since they might not be in
+    // proper order)
+    for (int c = 0; c < SkippedNodes.size(); ++c)
+    {
+        if (IsInstanceSource(SkippedNodes[c])
+            || IsPackedPrimSource(SkippedNodes[c]))
+        {
+            Object* SourceObj = SkippedNodes[c]->GetObjectRef();
+            Object* CopiedObj = nullptr;
+
+            HEMAX_GeometryPlugin* Geometry =
+                dynamic_cast<HEMAX_GeometryPlugin*>(SourceObj);
+
+            if (Geometry)
+            {
+                INode* BakedNode = nullptr;
+                TimeValue CurrentTime = GetCOREInterface()->GetTime(); 
+
+                CopiedObj = SourceObj->ConvertToType(CurrentTime,
+                    polyObjectClassID);
+                Object* CollapsedObj = CopiedObj->CollapseObject();
+                if ((void*)SourceObj != (void*)CopiedObj &&
+                    (void*)CopiedObj != (void*)CollapsedObj)
+                {
+                    delete CopiedObj;
+                    CopiedObj = nullptr;
+                }
+
+                if (CollapsedObj)
+                {
+                    INode* BakedNode =
+                        GetCOREInterface()->CreateObjectNode(CollapsedObj);
+                    BakedNode->SetName(SkippedNodes[c]->GetName());
+                    BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
+                    BakedNode->SetNodeTM(CurrentTime,
+                        SkippedNodes[c]->GetNodeTM(CurrentTime));
+                    BakeResults.push_back(BakedNode);
+
+                    if (BakedParent && BakeDummyObj)
+                        BakedParent->AttachChild(BakedNode);
+                    else
+                        GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
+
+                    BakedNode->Hide(true);
+
+                    InstanceSourceToBakedInstanceSource.insert({
+                        SkippedNodes[c], BakedNode});
+                }
+            }
+        }
+    }
+
+    // Do another pass to create the actual instances
+    for (int c = 0; c < SkippedNodes.size(); ++c)
+    {
+        if (IsInstance(SkippedNodes[c])
+            || IsPackedPrim(SkippedNodes[c]))
+        {
+            INode* BakedSource = GetBakedInstanceSource(SkippedNodes[c],
+                InstanceSourceToBakedInstanceSource);
+            if (BakedSource)
+            {
+                INodeTab NodeToBake;
+                NodeToBake.AppendNode(BakedSource);
+                INodeTab BakedNodeTab;
+
+                bool Success = GetCOREInterface()->CloneNodes(
+                    NodeToBake,
+                    Point3(0, 0, 0),
+                    false,
+                    NODE_INSTANCE,
+                    nullptr,
+                    &BakedNodeTab);
+
+                if (Success)
+                {
+                    INode* BakedInstance = BakedNodeTab[0];
+                    BakedInstance->SetName(SkippedNodes[c]->GetName());
+                    BakedInstance->SetMtl(SkippedNodes[c]->GetMtl());
+                    TimeValue CurrentTime = GetCOREInterface()->GetTime();
+                    BakedInstance->SetNodeTM(
+                        CurrentTime,
+                        SkippedNodes[c]->GetNodeTM(CurrentTime));
+                    BakeResults.push_back(BakedInstance);
+
+                    if (BakedParent && BakeDummyObj)
+                        BakedParent->AttachChild(BakedInstance);
+                    else
+                        GetCOREInterface()->GetRootNode()->AttachChild(BakedInstance);
+
+                    BakedInstance->Hide(false);
                 }
             }
         }
@@ -934,7 +1044,7 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 
     for (auto InstIt = ObjectNode.Instances.begin(); InstIt != ObjectNode.Instances.end(); InstIt++)
     {
-	if (InstIt->second.InstanceAttributeExists)
+	if (InstIt->second.HasMultipleInstancees)
 	{
 	    for (int s = 0; s < InstIt->second.InstanceNodeIds.size(); s++)
 	    {
@@ -952,17 +1062,20 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 
 		    for (int i = 0; i < ObjSearch->second.Parts.size(); i++)
 		    {
-			INode* CloneableSource = ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+			INode* CloneableSource =
+                            ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+
 			if (CloneableSource)
 			{
+                            InstanceSources.insert(CloneableSource);
 			    CloneableNodeTab.AppendNode(CloneableSource);
 			}
 		    }
 
-		    INodeTab ClonedNodeTab;
+		    INodeTab ClonedNodeTab, ClonedNodeSourceTab;
 		    bool CloneResult = GetCOREInterface()->CloneNodes(
                         CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE,
-                        nullptr, &ClonedNodeTab);
+                        &ClonedNodeSourceTab, &ClonedNodeTab);
 
 		    if (CloneResult)
 		    {
@@ -977,6 +1090,8 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 			    ClonedNodeTab[c]->Hide(false);
 			    StampInstanceNode(ClonedNodeTab[c]);
 			    InstanceClones.push_back(ClonedNodeTab[c]);
+                            InstanceCloneToSourceMap.insert(
+                                {ClonedNodeTab[c], ClonedNodeSourceTab[c]});
 
                             if (UseInstanceSourceName)
                             {
@@ -999,20 +1114,24 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 
 		    for (int i = 0; i < ObjSearch->second.Parts.size(); i++)
 		    {
-			INode* CloneableSource = ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+			INode* CloneableSource =
+                            ObjSearch->second.Parts[i].GetINodeOf3dsmaxObject();
+
 			if (CloneableSource)
 			{
+                            InstanceSources.insert(CloneableSource);
 			    CloneableNodeTab.AppendNode(CloneableSource);
 			}
 		    }
 
-		    INodeTab ClonedNodeTab;
-		    bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab,
-								      Point3(0, 0, 0),
-								      true,
-								      NODE_INSTANCE,
-								      nullptr,
-								      &ClonedNodeTab);
+		    INodeTab ClonedNodeTab, ClonedNodeSourceTab;
+		    bool CloneResult = GetCOREInterface()->CloneNodes(
+                        CloneableNodeTab,
+		        Point3(0, 0, 0),
+			true,
+			NODE_INSTANCE,
+			&ClonedNodeSourceTab,
+		        &ClonedNodeTab);
 
 		    if (CloneResult)
 		    {
@@ -1027,6 +1146,8 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 			    ClonedNodeTab[c]->Hide(false);
 			    StampInstanceNode(ClonedNodeTab[c]);
 			    InstanceClones.push_back(ClonedNodeTab[c]);
+                            InstanceCloneToSourceMap.insert(
+                                {ClonedNodeTab[c], ClonedNodeSourceTab[c]});
 
                             if (UseInstanceSourceName)
                             {
@@ -1071,26 +1192,32 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 
 		INodeTab CloneableNodeTab;
 		CloneableNodeTab.AppendNode(SourceNode);
+                PackedPrimSources.insert(SourceNode);
 		
-		INodeTab ClonedNodeTab;
-		bool CloneResult = GetCOREInterface()->CloneNodes(CloneableNodeTab,
-								  Point3(0, 0, 0),
-								  true,
-								  NODE_INSTANCE,
-								  nullptr,
-								  &ClonedNodeTab);
+		INodeTab ClonedNodeTab, ClonedNodeSourceTab;
+		bool CloneResult = GetCOREInterface()->CloneNodes(
+                    CloneableNodeTab,
+		    Point3(0, 0, 0),
+		    true,
+		    NODE_INSTANCE,
+		    &ClonedNodeSourceTab,
+		    &ClonedNodeTab);
 
 		if (CloneResult)
 		{
 		    INode* ClonedNode = ClonedNodeTab[0];
+                    INode* ClonedNodeSource = ClonedNodeSourceTab[0];
 		    INode* ParentNode = ContainerNode;
 		    TimeValue CurTime = GetCOREInterface()->GetTime();
 		    ClonedNode->SetNodeTM(CurTime, ParentNode->GetNodeTM(CurTime));
-		    HEMAX_Utilities::ApplyTransformToINode(ClonedNode,
-							   InstanceInfo.InstancedTransforms[i]);
+		    HEMAX_Utilities::ApplyTransformToINode(
+                            ClonedNode,
+			    InstanceInfo.InstancedTransforms[i]);
 		    ClonedNode->Hide(false);
 		    StampPackedPrimitiveNode(ClonedNode);
 		    PackedPrimClones.push_back(ClonedNode);
+                    PackedPrimCloneToSourceMap.insert(
+                        {ClonedNode, ClonedNodeSource});
 
                     // Node name specified by primitive attribute
                     if (NodeNames.size() > 1 && i < NodeNames.size())
@@ -1906,4 +2033,64 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
     }
 
     return OverrideValue;
+}
+
+bool
+HEMAX_GeometryHda::IsInstanceSource(INode* Node)
+{
+    return InstanceSources.find(Node) != InstanceSources.end();
+}
+
+bool
+HEMAX_GeometryHda::IsPackedPrimSource(INode* Node)
+{
+    return PackedPrimSources.find(Node) != PackedPrimSources.end();
+}
+
+bool
+HEMAX_GeometryHda::IsInstance(INode* Node)
+{
+    auto It = std::find(InstanceClones.begin(), InstanceClones.end(), Node);
+    return It != InstanceClones.end();
+}
+
+bool
+HEMAX_GeometryHda::IsPackedPrim(INode* Node)
+{
+    auto It = std::find(PackedPrimClones.begin(), PackedPrimClones.end(), Node);
+    return It != PackedPrimClones.end();
+}
+
+INode*
+HEMAX_GeometryHda::GetBakedInstanceSource(INode* Node,
+    std::unordered_map<INode*, INode*>& InstanceSourceToBakedInstanceSource)
+{
+    if (IsInstance(Node))
+    {
+        auto Search = InstanceCloneToSourceMap.find(Node);
+        if (Search != InstanceCloneToSourceMap.end())
+        {
+            INode* SourceNode = Search->second;
+            Search = InstanceSourceToBakedInstanceSource.find(SourceNode);
+            if (Search != InstanceSourceToBakedInstanceSource.end())
+            {
+                return Search->second;
+            }
+        }
+    }
+    else if (IsPackedPrim(Node))
+    {
+        auto Search = PackedPrimCloneToSourceMap.find(Node);
+        if (Search != PackedPrimCloneToSourceMap.end())
+        {
+            INode* SourceNode = Search->second;
+            Search = InstanceSourceToBakedInstanceSource.find(SourceNode);
+            if (Search != InstanceSourceToBakedInstanceSource.end())
+            {
+                return Search->second;
+            } 
+        }
+    }
+
+    return nullptr;
 }

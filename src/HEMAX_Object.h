@@ -9,7 +9,7 @@
 
 struct HEMAX_InstancingInformation
 {
-    bool InstanceAttributeExists;
+    bool HasMultipleInstancees;
     std::vector<HEMAX_NodeId> InstanceNodeIds;
     HEMAX_NodeId InstanceeId;
     std::vector<HEMAX_MaxTransform> InstanceTransforms;

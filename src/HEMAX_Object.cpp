@@ -153,13 +153,13 @@ GetInstancingInfo(HEMAX_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformatio
 
 	if (InstanceObjInfo.exists)
 	{
-	    Info.InstanceAttributeExists = true;
+            Info.HasMultipleInstancees = true;
 	    Info.InstanceNodeIds = std::vector<HEMAX_NodeId>(InstanceObjInfo.count);
 	    SM.Session->GetInstancedObjectIds(InstancerObjInfo.nodeId, &Info.InstanceNodeIds.front(), 0, InstanceObjInfo.count);
 	}
 	else
 	{
-	    Info.InstanceAttributeExists = false;
+            Info.HasMultipleInstancees = false;
 	    Info.InstanceeId = InstancerObjInfo.objectToInstanceId;
 	}
 
