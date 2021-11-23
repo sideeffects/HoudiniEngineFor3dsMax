@@ -260,12 +260,14 @@ HEMAX_SessionManager::StartThriftNamedPipeThinClient()
 	HAPI_ThriftServerOptions ServerOptions;
 	ServerOptions.autoClose = true;
 	ServerOptions.timeoutMs = 20000.0f;
+        ServerOptions.verbosity = HAPI_STATUSVERBOSITY_ALL;
 	HAPI_ProcessId ServerProcessId;
 
         TheSession->ClearConnectionError();
 	TheSession->StartThriftNamedPipeServer(&ServerOptions,
                                                HEMAX_AUTO_PIPE_NAME,
-                                               &ServerProcessId);
+                                               &ServerProcessId,
+                                               nullptr);
 
         int ErrLen = 0;
         TheSession->GetConnectionErrorLength(&ErrLen);

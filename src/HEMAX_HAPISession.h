@@ -299,11 +299,13 @@ class HEMAX_HAPISession : public HAPI_Session
 
 	bool StartThriftNamedPipeServer(const HAPI_ThriftServerOptions* Options,
                                         const char* PipeName,
-                                        HAPI_ProcessId* ProcessId);
+                                        HAPI_ProcessId* ProcessId,
+                                        const char* LogFile);
 
 	bool StartThriftSocketServer(const HAPI_ThriftServerOptions* Options,
                                      int Port,
-                                     HAPI_ProcessId* ProcessId);
+                                     HAPI_ProcessId* ProcessId,
+                                     const char* LogFile);
 
 	bool ConnectNodeInput(HEMAX_NodeId Node,
                               int InputIndex,

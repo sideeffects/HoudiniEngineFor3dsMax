@@ -1025,12 +1025,14 @@ bool
 HEMAX_HAPISession::StartThriftNamedPipeServer(
                             const HAPI_ThriftServerOptions* Options,
                             const char* PipeName,
-                            HAPI_ProcessId* ProcessId)
+                            HAPI_ProcessId* ProcessId,
+                            const char* LogFile)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftNamedPipeServer(
                                                 Options,
                                                 PipeName,
-                                                ProcessId);
+                                                ProcessId,
+                                                LogFile);
 
     return HandleStatusResult(Result);
 }
@@ -1039,12 +1041,14 @@ bool
 HEMAX_HAPISession::StartThriftSocketServer(
                             const HAPI_ThriftServerOptions* Options,
                             int Port,
-                            HAPI_ProcessId* ProcessId)
+                            HAPI_ProcessId* ProcessId,
+                            const char* LogFile)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServer(
                                                 Options,
                                                 Port,
-                                                ProcessId);
+                                                ProcessId,
+                                                LogFile);
 
     return HandleStatusResult(Result);
 }
