@@ -284,7 +284,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
             HEMAX_SELECTION_EDGE);
         SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
             HEMAX_SELECTION_EDGE, EdgeSelections.data(), 0,
-            EdgeSelections.size());
+            int(EdgeSelections.size()));
     }
 
     HEMAX_AttributeInfo MaterialIDAttributeInfo = AddNewPrimitiveIntAttribute(
