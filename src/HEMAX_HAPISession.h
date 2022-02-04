@@ -102,14 +102,14 @@ class HEMAX_HAPISession : public HAPI_Session
 
 	bool GetAttributeNames(HAPI_NodeId Node,
                                HAPI_PartId PartId,
-                               HEMAX_AttributeOwner Owner,
+                               HAPI_AttributeOwner Owner,
                                HAPI_StringHandle* AttributeNamesArray,
                                int Count);
 
 	bool GetAttributeInfo(HAPI_NodeId Node,
                               HAPI_PartId PartId,
                               const char* Name,
-                              HEMAX_AttributeOwner Owner,
+                              HAPI_AttributeOwner Owner,
                               HAPI_AttributeInfo* AttributeInfo);
 
 	bool GetAttributeIntData(HAPI_NodeId Node,

@@ -17,7 +17,7 @@ MarshallDataInto3dsMaxLinearCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edit
 	HAPI_AttributeInfo PositionAttributeInfo;
 	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
-                HEMAX_ATTRIBUTEOWNER_POINT, &PositionAttributeInfo);
+                HAPI_ATTROWNER_POINT, &PositionAttributeInfo);
 	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
                 HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo, -1,
@@ -106,7 +106,7 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 	HAPI_AttributeInfo CVAttributeInfo;
 	SM.Session->GetAttributeInfo(EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
-                HEMAX_ATTRIBUTEOWNER_POINT, &CVAttributeInfo);
+                HAPI_ATTROWNER_POINT, &CVAttributeInfo);
 	SM.Session->GetAttributeFloatData(EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
                 HEMAX_POSITION_ATTRIBUTE, &CVAttributeInfo, -1, CVPoints, 0,

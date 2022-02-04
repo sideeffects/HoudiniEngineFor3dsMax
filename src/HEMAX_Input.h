@@ -21,7 +21,7 @@ class HEMAX_Input
 
         void MarshalNodeNameDetailAttribute();
 
-	void AddNewPart(HEMAX_PartType PartType, int FaceCount, int VertexCount,
+	void AddNewPart(HAPI_PartType PartType, int FaceCount, int VertexCount,
                 int PointCount);
 
 	HAPI_AttributeInfo AddNewPointAttribute(int Count, int TupleSize,

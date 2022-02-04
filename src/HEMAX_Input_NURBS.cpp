@@ -152,7 +152,7 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 	TheCurve->GetNURBSData(GetCOREInterface()->GetTime(), Degree, NumCVs,
 			       CVs, NumKnots, Knots);
 
-	AddNewPart(HEMAX_PARTTYPE_CURVE, 1, NumCVs, NumCVs);
+	AddNewPart(HAPI_PARTTYPE_CURVE, 1, NumCVs, NumCVs);
 
 	HAPI_CurveInfo CurveInfo;
 	CurveInfo.curveCount = 1;
@@ -238,7 +238,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     int CVCount = TheCurve->GetNumCVs();
 
     // Add the part to new input node
-    AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
+    AddNewPart(HAPI_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
     HAPI_CurveInfo CurveInfo;
@@ -319,7 +319,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
     int CVCount = TheCurve->GetNumCVs();
 
     // Add the part to new input node
-    AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
+    AddNewPart(HAPI_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
     HAPI_CurveInfo CurveInfo;

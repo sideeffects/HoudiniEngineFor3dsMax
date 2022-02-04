@@ -148,7 +148,7 @@ GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation
 
 	HAPI_AttributeInfo InstanceObjInfo;
 	SM.Session->GetAttributeInfo(GeoInfo.nodeId, 0,
-			HEMAX_INSTANCE_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+			HEMAX_INSTANCE_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 			&InstanceObjInfo);
 
 	if (InstanceObjInfo.exists)

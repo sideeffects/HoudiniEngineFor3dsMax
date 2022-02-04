@@ -245,7 +245,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	CurIndex += MaxMesh.F(i)->deg;
     }
 
-    AddNewPart(HEMAX_PARTTYPE_MESH, FaceCount, VertIndexCount, VertCount);
+    AddNewPart(HAPI_PARTTYPE_MESH, FaceCount, VertIndexCount, VertCount);
 
     HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(VertCount, 3,
                                                 HEMAX_POSITION_ATTRIBUTE);
@@ -475,14 +475,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     }
 
     float* CdArray = nullptr;
-    HEMAX_AttributeOwner CdOwner = HEMAX_ATTRIBUTEOWNER_INVALID;
+    HAPI_AttributeOwner CdOwner = HAPI_ATTROWNER_INVALID;
 
     MNMap* ColorMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_COLOR);
     if (ColorMap && ColorMap->numv > 0)
     {
 	if (ColorMap->numv == VertCount)
 	{
-	    CdOwner = HEMAX_ATTRIBUTEOWNER_POINT;
+	    CdOwner = HAPI_ATTROWNER_POINT;
 	    CdArray = new float[VertCount * 3];
 
 	    UVVert* MapData = ColorMap->v;
@@ -496,7 +496,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	}
         else if (ColorMap->numv <= VertIndexCount)
 	{
-	    CdOwner = HEMAX_ATTRIBUTEOWNER_VERTEX;
+	    CdOwner = HAPI_ATTROWNER_VERTEX;
 	    CdArray = new float[VertIndexCount * 3];
 
 	    UVVert* MapData = ColorMap->v;
@@ -518,14 +518,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     }
 
     float* AlphaArray = nullptr;
-    HEMAX_AttributeOwner AlphaOwner = HEMAX_ATTRIBUTEOWNER_INVALID;
+    HAPI_AttributeOwner AlphaOwner = HAPI_ATTROWNER_INVALID;
 
     MNMap* AlphaMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ALPHA);
     if (AlphaMap && AlphaMap->numv > 0)
     {
 	if (AlphaMap->numv == VertCount)
 	{
-	    AlphaOwner = HEMAX_ATTRIBUTEOWNER_POINT;
+	    AlphaOwner = HAPI_ATTROWNER_POINT;
 	    AlphaArray = new float[VertCount];
 
 	    UVVert* MapData = AlphaMap->v;
@@ -540,7 +540,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	}
         else if (AlphaMap->numv <= VertIndexCount)
 	{
-	    AlphaOwner = HEMAX_ATTRIBUTEOWNER_VERTEX;
+	    AlphaOwner = HAPI_ATTROWNER_VERTEX;
 	    AlphaArray = new float[VertIndexCount];
 
 	    UVVert* MapData = AlphaMap->v;
@@ -565,14 +565,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     }
 
     float* IlluminationArray = nullptr;
-    HEMAX_AttributeOwner IlluminationOwner = HEMAX_ATTRIBUTEOWNER_INVALID;
+    HAPI_AttributeOwner IlluminationOwner = HAPI_ATTROWNER_INVALID;
 
     MNMap* IlluminationMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ILLUMINATION);
     if (IlluminationMap && IlluminationMap->numv > 0)
     {
 	if (IlluminationMap->numv == VertCount)
 	{
-	    IlluminationOwner = HEMAX_ATTRIBUTEOWNER_POINT;
+	    IlluminationOwner = HAPI_ATTROWNER_POINT;
 	    IlluminationArray = new float[VertCount * 3];
 
 	    UVVert* MapData = IlluminationMap->v;
@@ -586,7 +586,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	}
         else if (IlluminationMap->numv <= VertIndexCount)
 	{
-	    IlluminationOwner = HEMAX_ATTRIBUTEOWNER_VERTEX;
+	    IlluminationOwner = HAPI_ATTROWNER_VERTEX;
 	    IlluminationArray = new float[VertIndexCount * 3];
 
 	    UVVert* MapData = IlluminationMap->v;
@@ -612,7 +612,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
     if (IlluminationArray)
     {
-	if (IlluminationOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	if (IlluminationOwner == HAPI_ATTROWNER_VERTEX)
 	{
 	    HAPI_AttributeInfo IlluminationAttributeInfo =
                 AddNewVertexAttribute(VertIndexCount, 3,
@@ -621,7 +621,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
                     IlluminationAttributeInfo, IlluminationArray,
                     VertIndexCount);
 	}
-	else if (IlluminationOwner == HEMAX_ATTRIBUTEOWNER_POINT)
+	else if (IlluminationOwner == HAPI_ATTROWNER_POINT)
 	{
 	    HAPI_AttributeInfo IlluminationAttributeInfo =
                 AddNewPointAttribute(VertCount, 3,
@@ -635,14 +635,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
     if (AlphaArray)
     {
-	if (AlphaOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	if (AlphaOwner == HAPI_ATTROWNER_VERTEX)
 	{
 	    HAPI_AttributeInfo AlphaAttributeInfo =
                 AddNewVertexAttribute(VertIndexCount, 1, HEMAX_ALPHA_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_ALPHA_ATTRIBUTE, AlphaAttributeInfo,
                     AlphaArray, VertIndexCount);
 	}
-	else if (AlphaOwner == HEMAX_ATTRIBUTEOWNER_POINT)
+	else if (AlphaOwner == HAPI_ATTROWNER_POINT)
 	{
 	    HAPI_AttributeInfo AlphaAttributeInfo =
                 AddNewPointAttribute(VertCount, 1, HEMAX_ALPHA_ATTRIBUTE);
@@ -655,14 +655,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
     if (CdArray)
     {
-	if (CdOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	if (CdOwner == HAPI_ATTROWNER_VERTEX)
 	{
 	    HAPI_AttributeInfo CdAttributeInfo = AddNewVertexAttribute(
                     VertIndexCount, 3, HEMAX_COLOR_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_COLOR_ATTRIBUTE, CdAttributeInfo,
                     CdArray, VertIndexCount);
 	}
-	else if (CdOwner == HEMAX_ATTRIBUTEOWNER_POINT)
+	else if (CdOwner == HAPI_ATTROWNER_POINT)
 	{
 	    HAPI_AttributeInfo CdAttributeInfo = AddNewPointAttribute(
                     VertCount, 3, HEMAX_COLOR_ATTRIBUTE);

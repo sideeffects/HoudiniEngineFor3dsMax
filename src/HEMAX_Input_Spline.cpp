@@ -156,7 +156,7 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
 
             int PointCount = (int)PointsArray.size()/3;
 
-            AddNewPart(HEMAX_PARTTYPE_CURVE, 1, PointCount, PointCount);
+            AddNewPart(HAPI_PARTTYPE_CURVE, 1, PointCount, PointCount);
 
             HAPI_CurveInfo CurveInfo;
             CurveInfo.curveCount = CurveCount;
@@ -222,7 +222,7 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
 
             int PointCount = (int)PointsArray.size()/3;
 
-            AddNewPart(HEMAX_PARTTYPE_MESH, CurveCount,
+            AddNewPart(HAPI_PARTTYPE_MESH, CurveCount,
                 (int)VerticesArray.size(), PointCount);
 
             HAPI_AttributeInfo PointAttrInfo = AddNewPointAttribute(PointCount,

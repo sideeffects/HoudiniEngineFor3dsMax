@@ -414,7 +414,7 @@ HEMAX_HAPISession::GetVertexList(HAPI_NodeId Node,
 bool
 HEMAX_HAPISession::GetAttributeNames(HAPI_NodeId Node,
                                      HAPI_PartId PartId,
-                                     HEMAX_AttributeOwner Owner,
+                                     HAPI_AttributeOwner Owner,
                                      HAPI_StringHandle* AttributeNamesArray,
                                      int Count)
 {
@@ -433,7 +433,7 @@ bool
 HEMAX_HAPISession::GetAttributeInfo(HAPI_NodeId Node,
                                     HAPI_PartId PartId,
                                     const char* Name,
-                                    HEMAX_AttributeOwner Owner,
+                                    HAPI_AttributeOwner Owner,
                                     HAPI_AttributeInfo* AttributeInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInfo(

@@ -15,7 +15,7 @@ template<typename T>
 HEMAX_MeshList<T>::HEMAX_MeshList()
 {
     List = nullptr;
-    Owner = HEMAX_ATTRIBUTEOWNER_INVALID;
+    Owner = HAPI_ATTROWNER_INVALID;
     TupleSize = 0;
     IsMerged = false;
 }
@@ -31,7 +31,7 @@ HEMAX_MeshList<T>::~HEMAX_MeshList()
 
 template<typename T>
 void
-HEMAX_MeshList<T>::Init(unsigned int _Size, unsigned int _TupleSize, HEMAX_AttributeOwner _Owner)
+HEMAX_MeshList<T>::Init(unsigned int _Size, unsigned int _TupleSize, HAPI_AttributeOwner _Owner)
 {
     if (!List)
     {
@@ -77,7 +77,7 @@ HEMAX_MeshList<T>::DataTupleSize()
 }
 
 template<typename T>
-HEMAX_AttributeOwner
+HAPI_AttributeOwner
 HEMAX_MeshList<T>::DataOwner()
 {
     return Owner;
@@ -165,7 +165,7 @@ HEMAX_Mesh::HEMAX_Mesh()
     , HasUVs( false )
     , UVType(HEMAX_NO_UV)
     , ColorAttrExists(false)
-    , ColorAttrOwner(HEMAX_ATTRIBUTEOWNER_INVALID)
+    , ColorAttrOwner(HAPI_ATTROWNER_INVALID)
     , AlphaAttrExists(false)
     , IlluminationAttrExists(false)
     , SmoothingGroupsExist(false)
@@ -188,7 +188,7 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , HasUVs( false )
     , UVType(HEMAX_NO_UV)
     , ColorAttrExists(false)
-    , ColorAttrOwner(HEMAX_ATTRIBUTEOWNER_INVALID)
+    , ColorAttrOwner(HAPI_ATTROWNER_INVALID)
     , AlphaAttrExists(false)
     , IlluminationAttrExists(false)
     , SmoothingGroupsExist(false)
@@ -199,35 +199,35 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , SecondaryUVCount(0)
     , AreMaterialIdsSame(false)
 {
-    FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
-    VertexList.Init(VertexCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_VERTEX);
-    PointList.Init(PointCount, HEMAX_Mesh_PointTupleSize, HEMAX_ATTRIBUTEOWNER_POINT);
+    FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
+    VertexList.Init(VertexCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_VERTEX);
+    PointList.Init(PointCount, HEMAX_Mesh_PointTupleSize, HAPI_ATTROWNER_POINT);
 }
 
 void
 HEMAX_Mesh::AllocatePointNormalArray()
 {
     NormalType = HEMAX_POINT_NORMAL;
-    Normals.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_POINT);
+    Normals.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_POINT);
 }
 
 void
 HEMAX_Mesh::AllocateVertexNormalArray()
 {
     NormalType = HEMAX_VERTEX_NORMAL;
-    Normals.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_VERTEX);
+    Normals.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_VERTEX);
 }
 
 void
 HEMAX_Mesh::AllocateMaterialIdsArray()
 {
-    FaceMaterialIds.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
+    FaceMaterialIds.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
 }
 
 void
 HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
 {
-    UVList.Init(PointCount, TupleSize, HEMAX_ATTRIBUTEOWNER_POINT);
+    UVList.Init(PointCount, TupleSize, HAPI_ATTROWNER_POINT);
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_POINT_UV;
@@ -236,7 +236,7 @@ HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
 void
 HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
 {
-    UVList.Init(VertexCount, TupleSize, HEMAX_ATTRIBUTEOWNER_VERTEX);
+    UVList.Init(VertexCount, TupleSize, HAPI_ATTROWNER_VERTEX);
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_VERTEX_UV;
@@ -245,29 +245,29 @@ HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
 void
 HEMAX_Mesh::AllocatePointCdArray()
 {
-    CdList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_POINT);
+    CdList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_POINT);
     ColorAttrExists = true;
-    ColorAttrOwner = HEMAX_ATTRIBUTEOWNER_POINT;
+    ColorAttrOwner = HAPI_ATTROWNER_POINT;
 }
 
 void
 HEMAX_Mesh::AllocateVertexCdArray()
 {
-    CdList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_VERTEX);
+    CdList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_VERTEX);
     ColorAttrExists = true;
-    ColorAttrOwner = HEMAX_ATTRIBUTEOWNER_VERTEX;
+    ColorAttrOwner = HAPI_ATTROWNER_VERTEX;
 }
 
 void
-HEMAX_Mesh::AllocateAlphaArray(HEMAX_AttributeOwner Owner)
+HEMAX_Mesh::AllocateAlphaArray(HAPI_AttributeOwner Owner)
 {
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Owner == HAPI_ATTROWNER_POINT)
     {
 	AlphaList.Init(PointCount, HEMAX_Mesh_SingularTuple, Owner);
 	AlphaAttrExists = true;
 	AlphaAttrOwner = Owner;
     }
-    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+    else if (Owner == HAPI_ATTROWNER_VERTEX)
     {
 	AlphaList.Init(VertexCount, HEMAX_Mesh_SingularTuple, Owner);
 	AlphaAttrExists = true;
@@ -276,15 +276,15 @@ HEMAX_Mesh::AllocateAlphaArray(HEMAX_AttributeOwner Owner)
 }
 
 void
-HEMAX_Mesh::AllocateIlluminationArray(HEMAX_AttributeOwner Owner)
+HEMAX_Mesh::AllocateIlluminationArray(HAPI_AttributeOwner Owner)
 {
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Owner == HAPI_ATTROWNER_POINT)
     {
 	IlluminationList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, Owner);
 	IlluminationAttrExists = true;
 	IlluminationAttrOwner = Owner;
     }
-    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+    else if (Owner == HAPI_ATTROWNER_VERTEX)
     {
 	IlluminationList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, Owner);
 	IlluminationAttrExists = true;
@@ -295,14 +295,14 @@ HEMAX_Mesh::AllocateIlluminationArray(HEMAX_AttributeOwner Owner)
 void
 HEMAX_Mesh::AllocateSmoothingGroupsArray()
 {
-    SmoothingGroupList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
+    SmoothingGroupList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
     SmoothingGroupsExist = true;
 }
 
 void
 HEMAX_Mesh::AllocateMaterialIDArray()
 {
-    MaterialIDList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
+    MaterialIDList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
     MaterialIDsExist = true;
 }
 
@@ -310,7 +310,7 @@ void
 HEMAX_Mesh::AllocateFaceSelectionsArray()
 {
     FaceSelectionsList.Init(FaceCount, HEMAX_Mesh_SingularTuple,
-        HEMAX_ATTRIBUTEOWNER_PRIM);
+        HAPI_ATTROWNER_PRIM);
     FaceSelectionsExist = true;
 }
 
@@ -318,7 +318,7 @@ void
 HEMAX_Mesh::AllocateVertexSelectionsArray()
 {
     VertexSelectionsList.Init(PointCount, HEMAX_Mesh_SingularTuple,
-        HEMAX_ATTRIBUTEOWNER_POINT);
+        HAPI_ATTROWNER_POINT);
     VertexSelectionsExist = true;
 }
 
@@ -326,7 +326,7 @@ void
 HEMAX_Mesh::AllocateEdgeSelectionsArray(int EdgeCount)
 {
     EdgeSelectionsList.Init(EdgeCount*2, HEMAX_Mesh_SingularTuple,
-        HEMAX_ATTRIBUTEOWNER_POINT);
+        HAPI_ATTROWNER_POINT);
     EdgeSelectionsExist = true;
 }
 
@@ -650,7 +650,7 @@ HEMAX_Mesh::DoesCdAttrExist()
     return ColorAttrExists;
 }
 
-HEMAX_AttributeOwner
+HAPI_AttributeOwner
 HEMAX_Mesh::GetCdAttrOwner()
 {
     return ColorAttrOwner;
@@ -662,7 +662,7 @@ HEMAX_Mesh::DoesAlphaAttrExist()
     return AlphaAttrExists;
 }
 
-HEMAX_AttributeOwner
+HAPI_AttributeOwner
 HEMAX_Mesh::GetAlphaAttrOwner()
 {
     return AlphaAttrOwner;
@@ -674,7 +674,7 @@ HEMAX_Mesh::DoesIlluminationAttrExist()
     return IlluminationAttrExists;
 }
 
-HEMAX_AttributeOwner
+HAPI_AttributeOwner
 HEMAX_Mesh::GetIlluminationOwner()
 {
     return IlluminationAttrOwner;
@@ -724,17 +724,17 @@ HEMAX_Mesh::GetPostTriangulationFaceCount()
 }
 
 void
-HEMAX_Mesh::CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size)
+HEMAX_Mesh::CreateSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer, size_t Size)
 {
     std::vector<float> SizedList;
     SizedList.resize(Size);
 
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Owner == HAPI_ATTROWNER_POINT)
     {
 	SecondaryPointUVs.insert({ Layer, SizedList });
 	SecondaryUVCount++;
     }
-    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+    else if (Owner == HAPI_ATTROWNER_VERTEX)
     {
 	SecondaryVertexUVs.insert({ Layer, SizedList });
 	SecondaryUVCount++;
@@ -742,25 +742,25 @@ HEMAX_Mesh::CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t
 }
 
 std::vector<float>&
-HEMAX_Mesh::GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer)
+HEMAX_Mesh::GetSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer)
 {
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Owner == HAPI_ATTROWNER_POINT)
     {
 	auto Search = SecondaryPointUVs.find(Layer);
 	return Search->second;
     }
     else
     {
-	// (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	// (Owner == HAPI_ATTROWNER_VERTEX)
 	auto Search = SecondaryVertexUVs.find(Layer);
 	return Search->second;
     }
 }
 
 bool
-HEMAX_Mesh::DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer)
+HEMAX_Mesh::DoesSecondaryUVLayerExist(HAPI_AttributeOwner Owner, int Layer)
 {
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Owner == HAPI_ATTROWNER_POINT)
     {
 	auto Search = SecondaryPointUVs.find(Layer);
 
@@ -773,7 +773,7 @@ HEMAX_Mesh::DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer)
 	    return false;
 	}
     }
-    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+    else if (Owner == HAPI_ATTROWNER_VERTEX)
     {
 	auto Search = SecondaryVertexUVs.find(Layer);
 
@@ -791,7 +791,7 @@ HEMAX_Mesh::DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer)
 }
 
 void
-HEMAX_Mesh::AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HEMAX_AttributeOwner Owner)
+HEMAX_Mesh::AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HAPI_AttributeOwner Owner)
 {
     switch (Type)
     {
@@ -841,7 +841,7 @@ HEMAX_Mesh::ApplyDetailMetadata(INode* Node)
     for (auto It = IntMetadata.begin(); It != IntMetadata.end(); It++)
     {
 	HEMAX_MeshList<int> &MeshList = It->second;
-	if (MeshList.DataOwner() == HEMAX_ATTRIBUTEOWNER_DETAIL)
+	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
 	{
 	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
 	    {
@@ -854,7 +854,7 @@ HEMAX_Mesh::ApplyDetailMetadata(INode* Node)
     for (auto It = FloatMetadata.begin(); It != FloatMetadata.end(); It++)
     {
 	HEMAX_MeshList<float> &MeshList = It->second;
-	if (MeshList.DataOwner() == HEMAX_ATTRIBUTEOWNER_DETAIL)
+	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
 	{
 	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
 	    {
@@ -867,7 +867,7 @@ HEMAX_Mesh::ApplyDetailMetadata(INode* Node)
     for (auto It = StringMetadata.begin(); It != StringMetadata.end(); It++)
     {
 	HEMAX_MeshList<std::string> &MeshList = It->second;
-	if (MeshList.DataOwner() == HEMAX_ATTRIBUTEOWNER_DETAIL)
+	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
 	{
 	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
 	    {
@@ -1053,12 +1053,12 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	{
 	    CdMap->ClearAllFlags();
 
-	    if (GetCdAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+	    if (GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
 	    {
 		CdMap->setNumFaces(GetFaceCount());
 		CdMap->setNumVerts(GetPointCount());
 	    }
-	    else if (GetCdAttrOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	    else if (GetCdAttrOwner() == HAPI_ATTROWNER_VERTEX)
 	    {
 		CdMap->setNumFaces(GetFaceCount());
 		CdMap->setNumVerts(GetVertexCount());
@@ -1080,12 +1080,12 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	{
 	    AlphaMap->ClearAllFlags();
 
-	    if (GetAlphaAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+	    if (GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
 	    {
 		AlphaMap->setNumFaces(GetFaceCount());
 		AlphaMap->setNumVerts(GetPointCount());
 	    }
-	    else if (GetAlphaAttrOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	    else if (GetAlphaAttrOwner() == HAPI_ATTROWNER_VERTEX)
 	    {
 		AlphaMap->setNumFaces(GetFaceCount());
 		AlphaMap->setNumVerts(GetVertexCount());
@@ -1107,12 +1107,12 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	{
 	    IlluminationMap->ClearAllFlags();
 
-	    if (GetIlluminationOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+	    if (GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
 	    {
 		IlluminationMap->setNumFaces(GetFaceCount());
 		IlluminationMap->setNumVerts(GetPointCount());
 	    }
-	    else if (GetIlluminationOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+	    else if (GetIlluminationOwner() == HAPI_ATTROWNER_VERTEX)
 	    {
 		IlluminationMap->setNumFaces(GetFaceCount());
 		IlluminationMap->setNumVerts(GetVertexCount());
@@ -1140,7 +1140,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
 	if (CdMap &&
             DoesCdAttrExist() &&
-            GetCdAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+            GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
 	{
 	    GetPointCdAtIndex(p, CdVals);
 	    CdMap->v[p].x = CdVals[0];
@@ -1149,7 +1149,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
 	if (AlphaMap &&
             DoesAlphaAttrExist() &&
-            GetAlphaAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+            GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
 	{
 	    AlphaVal = GetAlphaAtIndex(p);
 	    AlphaMap->v[p].x = AlphaVal;
@@ -1158,7 +1158,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
 	if (IlluminationMap &&
             DoesIlluminationAttrExist() &&
-            GetIlluminationOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+            GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
 	{
 	    GetIlluminationAtIndex(p, IlluminationVals);
 	    IlluminationMap->v[p].x = IlluminationVals[0];
@@ -1208,11 +1208,11 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	    }
 	    if (CdMap && DoesCdAttrExist())
 	    {
-		if (GetCdAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+		if (GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
 		{
 		    CdMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
 		}
-		else if (GetCdAttrOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+		else if (GetCdAttrOwner() == HAPI_ATTROWNER_VERTEX)
 		{
 		    GetVertexCdAtIndex(VertexIndex, CdVals);
 		    CdMap->v[VertexIndex].x = CdVals[0];
@@ -1224,11 +1224,11 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	    }
 	    if (AlphaMap && DoesAlphaAttrExist())
 	    {
-		if (GetAlphaAttrOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+		if (GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
 		{
 		    AlphaMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
 		}
-		else if (GetAlphaAttrOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+		else if (GetAlphaAttrOwner() == HAPI_ATTROWNER_VERTEX)
 		{
 		    AlphaVal = GetAlphaAtIndex(VertexIndex);
 		    AlphaMap->v[VertexIndex].x = AlphaVal;
@@ -1240,11 +1240,11 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	    }
 	    if (IlluminationMap && DoesIlluminationAttrExist())
 	    {
-		if (GetIlluminationOwner() == HEMAX_ATTRIBUTEOWNER_POINT)
+		if (GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
 		{
 		    IlluminationMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
 		}
-		else if (GetIlluminationOwner() == HEMAX_ATTRIBUTEOWNER_VERTEX)
+		else if (GetIlluminationOwner() == HAPI_ATTROWNER_VERTEX)
 		{
 		    GetIlluminationAtIndex(VertexIndex, IlluminationVals);
 		    IlluminationMap->v[VertexIndex].x = IlluminationVals[0];
@@ -1260,7 +1260,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
     for (int Layer = 2; Layer < MAX_MESHMAPS; Layer++)
     {
-	if (DoesSecondaryUVLayerExist(HEMAX_ATTRIBUTEOWNER_POINT, Layer))
+	if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_POINT, Layer))
 	{
 	    MNMap* UVMap = MaxMesh.M(Layer);
 
@@ -1276,7 +1276,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		UVMap->setNumFaces(GetFaceCount());
 		UVMap->setNumVerts(GetPointCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_POINT, Layer);
+		std::vector<float>& UVWValues = GetSecondaryUVLayer(HAPI_ATTROWNER_POINT, Layer);
 
 		for (int p = 0; p < GetPointCount(); p++)
 		{
@@ -1296,7 +1296,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		}
 	    }
 	}
-	else if (DoesSecondaryUVLayerExist(HEMAX_ATTRIBUTEOWNER_VERTEX, Layer))
+	else if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_VERTEX, Layer))
 	{
 	    MNMap* UVMap = MaxMesh.M(Layer);
 
@@ -1312,7 +1312,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		UVMap->setNumFaces(GetFaceCount());
 		UVMap->setNumVerts(GetVertexCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_VERTEX, Layer);
+		std::vector<float>& UVWValues = GetSecondaryUVLayer(HAPI_ATTROWNER_VERTEX, Layer);
 		int VertexIndex = 0;
 
 		for (int f = 0; f < GetFaceCount(); f++)

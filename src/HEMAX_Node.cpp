@@ -158,7 +158,7 @@ HEMAX_Node::SetParentTransform(HEMAX_MaxTransform& Xform)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->SetObjectTransform(Info.parentId, &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HEMAX_SRT));
+    SessionManager.Session->SetObjectTransform(Info.parentId, &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HAPI_SRT));
 }
 
 void

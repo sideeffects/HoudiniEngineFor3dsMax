@@ -303,7 +303,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 		{
 		    HEMAX_Part& Part = DisplayNodes[i]->Parts[p];
 
-		    if (Part.Info.type == HEMAX_PARTTYPE_MESH)
+		    if (Part.Info.type == HAPI_PARTTYPE_MESH)
 		    {
 			HEMAX_GeometryPlugin* GeoPlugin = Part.GetMeshPlugin();
 			if (GeoPlugin)
@@ -337,16 +337,16 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 			    CreateMeshPluginPart(Hda, *(DisplayNodes[i]), DisplayNodes[i]->Parts[p]);
 			}
 		    }
-		    else if (Part.Info.type == HEMAX_PARTTYPE_CURVE)
+		    else if (Part.Info.type == HAPI_PARTTYPE_CURVE)
 		    {
 			CreateCurvePart(*(DisplayNodes[i]), DisplayNodes[i]->Parts[p]);
 		    }
-		    else if (Part.Info.type == HEMAX_PARTTYPE_INVALID)
+		    else if (Part.Info.type == HAPI_PARTTYPE_INVALID)
 		    {
 			INode* PartINode = nullptr;
 
-			HEMAX_PartType PreviousPartType = Part.GetPartType();
-			if (PreviousPartType == HEMAX_PARTTYPE_MESH)
+			HAPI_PartType PreviousPartType = Part.GetPartType();
+			if (PreviousPartType == HAPI_PARTTYPE_MESH)
 			{
 			    HEMAX_GeometryPlugin* GeomPlugin = Part.GetMeshPlugin();
 			    if (GeomPlugin)
@@ -354,7 +354,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 				PartINode = GeomPlugin->MaxNode;
 			    }
 			}
-			else if (PreviousPartType == HEMAX_PARTTYPE_CURVE)
+			else if (PreviousPartType == HAPI_PARTTYPE_CURVE)
 			{
 			    HEMAX_CurvePlugin* CurvePlugin = Part.GetCurvePlugin();
 			    if (CurvePlugin)
@@ -375,7 +375,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 
 		for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
 		{
-		    if (DisplayNodes[i]->Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+		    if (DisplayNodes[i]->Parts[p].Info.type == HAPI_PARTTYPE_INSTANCER)
 		    {
 			CreatePackedPrimitives(DisplayNodes[i]->Parts[p], *(DisplayNodes[i])); 
 		    }
@@ -395,7 +395,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 
 	    for (int p = 0; p < TopNode.Parts.size(); p++)
 	    {
-		if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+		if (TopNode.Parts[p].Info.type == HAPI_PARTTYPE_MESH)
 		{
 		    HEMAX_GeometryPlugin* GeoPlugin = TopNode.Parts[p].GetMeshPlugin();
 
@@ -421,16 +421,16 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 			CreateMeshPluginPart(Hda, TopNode, TopNode.Parts[p]);	
 		    }
 		}
-		else if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+		else if (TopNode.Parts[p].Info.type == HAPI_PARTTYPE_CURVE)
 		{
 		    CreateCurvePart(TopNode, TopNode.Parts[p]);
 		}
-		else if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_INVALID)
+		else if (TopNode.Parts[p].Info.type == HAPI_PARTTYPE_INVALID)
 		{
 		    INode* PartINode = nullptr;
 
-		    HEMAX_PartType PreviousPartType = TopNode.Parts[p].GetPartType();
-		    if (PreviousPartType == HEMAX_PARTTYPE_MESH)
+		    HAPI_PartType PreviousPartType = TopNode.Parts[p].GetPartType();
+		    if (PreviousPartType == HAPI_PARTTYPE_MESH)
 		    {
 			HEMAX_GeometryPlugin* GeomPlugin = TopNode.Parts[p].GetMeshPlugin();
 			if (GeomPlugin)
@@ -438,7 +438,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 			    PartINode = GeomPlugin->MaxNode;
 			}
 		    }
-		    else if (PreviousPartType == HEMAX_PARTTYPE_CURVE)
+		    else if (PreviousPartType == HAPI_PARTTYPE_CURVE)
 		    {
 			HEMAX_CurvePlugin* CurvePlugin = TopNode.Parts[p].GetCurvePlugin();
 			if (CurvePlugin)
@@ -459,7 +459,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 
 	    for (int p = 0; p < TopNode.Parts.size(); p++)
 	    {
-		if (TopNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+		if (TopNode.Parts[p].Info.type == HAPI_PARTTYPE_INSTANCER)
 		{
 		    CreatePackedPrimitives(TopNode.Parts[p], TopNode);
 		}
@@ -477,13 +477,13 @@ HEMAX_GeometryHda::PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve)
 	{
 	    switch (EditableCurve.CurveInfo.curveType)
 	    {
-		case (HEMAX_CURVETYPE_LINEAR):
+		case (HAPI_CURVETYPE_LINEAR):
 		{
 		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HAPI_NODETYPE_SOP);
 		    HEMAX_Input_Spline LinearInput(&Node, EditableCurves[i].Node->GetHandle());
 		    EditableCurves[i].Dirty = false;
 		} break;
-		case (HEMAX_CURVETYPE_NURBS):
+		case (HAPI_CURVETYPE_NURBS):
 		{
 		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HAPI_NODETYPE_SOP);
 		    HEMAX_Input_NURBS NURBSInput(&Node, EditableCurves[i].Node->GetHandle());
@@ -941,11 +941,11 @@ HEMAX_GeometryHda::CreateDisplayGeometry(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& D
     // First pass is to create any Mesh geometries
     for (int p = 0; p < DisplayNode.Parts.size(); p++)
     {
-	if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+	if (DisplayNode.Parts[p].Info.type == HAPI_PARTTYPE_MESH)
 	{
 	    CreateMeshPluginPart(Hda, DisplayNode, DisplayNode.Parts[p]);
 	}
-	else if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+	else if (DisplayNode.Parts[p].Info.type == HAPI_PARTTYPE_CURVE)
 	{
 	    CreateCurvePart(DisplayNode, DisplayNode.Parts[p]);
 	}
@@ -954,7 +954,7 @@ HEMAX_GeometryHda::CreateDisplayGeometry(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& D
     // Second pass is for instancing (packed primitives)
     for (int p = 0; p < DisplayNode.Parts.size(); p++)
     {
-	if (DisplayNode.Parts[p].Info.type == HEMAX_PARTTYPE_INSTANCER)
+	if (DisplayNode.Parts[p].Info.type == HAPI_PARTTYPE_INSTANCER)
 	{
 	    CreatePackedPrimitives(DisplayNode.Parts[p], DisplayNode);
 	}
@@ -1240,7 +1240,7 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     for (int p = 0; p < EditableNode.Parts.size(); p++)
     {
-	if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_CURVE)
+	if (EditableNode.Parts[p].Info.type == HAPI_PARTTYPE_CURVE)
 	{
 	    HEMAX_EditableCurve EditableCurve;
 	    EditableCurve.Node = nullptr;
@@ -1250,11 +1250,11 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 	    {
 		switch (EditableCurve.CurveInfo.curveType)
 		{
-		    case (HEMAX_CURVETYPE_LINEAR):
+		    case (HAPI_CURVETYPE_LINEAR):
 		    {
 			EditableCurve.Node = MarshallDataInto3dsMaxLinearCurve(EditableCurve, EditableNode, p);
 		    } break;
-		    case (HEMAX_CURVETYPE_NURBS):
+		    case (HAPI_CURVETYPE_NURBS):
 		    {
 			EditableCurve.Node = MarshallDataInto3dsMaxNURBSCVCurve(EditableCurve, EditableNode, p);
 		    } break;
@@ -1279,7 +1279,7 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 		}
 	    }
 	}
-	else if (EditableNode.Parts[p].Info.type == HEMAX_PARTTYPE_MESH)
+	else if (EditableNode.Parts[p].Info.type == HAPI_PARTTYPE_MESH)
 	{
 	    // In this case the only possibility is that it's a single polygon representing a linear curve.
 	    // TODO : editable linear curve
@@ -1858,7 +1858,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId,
                                  Part.Info.id,
                                  HEMAX_MAX_NODE_NAME_OUTPUT,
-                                 HEMAX_ATTRIBUTEOWNER_DETAIL,
+                                 HAPI_ATTROWNER_DETAIL,
                                  &AttrInfo_Detail);
 
     std::wstring PluginLabel;
@@ -1902,10 +1902,10 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
 
     HAPI_AttributeInfo NameDetailInfo, NamePrimInfo;
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId, Part.Info.id,
-                    HEMAX_MAX_NODE_NAME_OUTPUT, HEMAX_ATTRIBUTEOWNER_DETAIL,
+                    HEMAX_MAX_NODE_NAME_OUTPUT, HAPI_ATTROWNER_DETAIL,
                     &NameDetailInfo);
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId, Part.Info.id,
-                    HEMAX_MAX_NODE_NAME_OUTPUT, HEMAX_ATTRIBUTEOWNER_PRIM,
+                    HEMAX_MAX_NODE_NAME_OUTPUT, HAPI_ATTROWNER_PRIM,
                     &NamePrimInfo);
 
     std::wstring PluginLabel;
@@ -1973,7 +1973,7 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
                 HAPI_AttributeInfo AttrInfo;
                 SM.Session->GetAttributeInfo(DisplayNodes[i]->Info.nodeId,
                     DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
-                    HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
+                    HAPI_ATTROWNER_DETAIL, &AttrInfo);
 
                 if (AttrInfo.exists)
                 {
@@ -2009,7 +2009,7 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
             HAPI_AttributeInfo AttrInfo;
             SM.Session->GetAttributeInfo(TopNode.Info.nodeId,
                 TopNode.Parts[p].Info.id, Name.c_str(),
-                HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
+                HAPI_ATTROWNER_DETAIL, &AttrInfo);
 
             if (AttrInfo.exists)
             {

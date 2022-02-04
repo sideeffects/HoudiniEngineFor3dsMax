@@ -50,7 +50,7 @@ class HEMAX_Part
 	std::string ToString();
 
 	void UpdatePartType();
-	HEMAX_PartType GetPartType();
+	HAPI_PartType GetPartType();
 
 	bool Valid;
 	HAPI_NodeId NodeId;
@@ -75,5 +75,5 @@ class HEMAX_Part
 	HEMAX_GeometryPlugin* MeshPlugin;
 	HEMAX_CurvePlugin CurvePlugin;
 
-	HEMAX_PartType PartType;
+	HAPI_PartType PartType;
 };

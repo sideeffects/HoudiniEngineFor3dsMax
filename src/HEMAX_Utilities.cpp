@@ -55,7 +55,7 @@ HEMAX_Utilities::GetIdentityTransform()
 
 HAPI_TransformEuler
 HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform,
-                    HEMAX_RSTOrder RSTOrder)
+                    HAPI_RSTOrder RSTOrder)
 {
     Quat Rotation = Quat(Transform.rotationQuaternion[0],
                         Transform.rotationQuaternion[1],
@@ -93,7 +93,7 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform,
 
 HAPI_Transform
 HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform,
-                    HEMAX_RSTOrder RSTOrder)
+                    HAPI_RSTOrder RSTOrder)
 {
     HAPI_Transform HAPITransform;
 
@@ -121,7 +121,7 @@ HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform,
 
 HAPI_TransformEuler
 HEMAX_Utilities::MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform,
-        HEMAX_RSTOrder RSTOrder)
+        HAPI_RSTOrder RSTOrder)
 {
     return HAPITransformToHAPITransformEuler(MaxTransformToHAPITransform(
                                                 Transform, RSTOrder), RSTOrder);

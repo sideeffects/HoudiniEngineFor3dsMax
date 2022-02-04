@@ -147,7 +147,7 @@ HEMAX_Hda::InitializeMaterialNodes()
     int Count;
     SM.Session->ComposeChildNodeList(MainNode.Info.id,
                                      HAPI_NODETYPE_SHOP,
-                                     HEMAX_NODEFLAG_ANY,
+                                     HAPI_NODEFLAGS_ANY,
                                      true,
                                      &Count);
 
@@ -169,7 +169,7 @@ HEMAX_Hda::InitializeMaterialNodes()
 
     SM.Session->ComposeChildNodeList(MainNode.Info.id,
                                      HAPI_NODETYPE_VOP,
-                                     HEMAX_NODEFLAG_ANY,
+                                     HAPI_NODEFLAGS_ANY,
                                      true,
                                      &Count);
 
@@ -197,7 +197,7 @@ HEMAX_Hda::GetAllEditableNodes()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     int Count;
-    SM.Session->ComposeChildNodeList(MainNode.Info.id, HAPI_NODETYPE_SOP, HEMAX_NODEFLAG_EDITABLE, true, &Count);
+    SM.Session->ComposeChildNodeList(MainNode.Info.id, HAPI_NODETYPE_SOP, HAPI_NODEFLAGS_EDITABLE, true, &Count);
 
     if (Count > 0)
     {
@@ -215,7 +215,7 @@ HEMAX_Hda::GetAllEditableNodes()
 	    {
 		switch (EditableNode.GeoInfo.type)
 		{
-		    case (HEMAX_GEOTYPE_CURVE):
+		    case (HAPI_GEOTYPE_CURVE):
 			{
 			    EditableNode.Parts.resize(EditableNode.GeoInfo.partCount);
 			    for (int p = 0; p < EditableNode.GeoInfo.partCount; p++)

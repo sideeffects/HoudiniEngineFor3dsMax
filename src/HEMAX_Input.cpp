@@ -186,7 +186,7 @@ HEMAX_Input::MarshalNodeNameDetailAttribute()
 }
 
 void
-HEMAX_Input::AddNewPart(HEMAX_PartType PartType, int FaceCount, int VertexCount,
+HEMAX_Input::AddNewPart(HAPI_PartType PartType, int FaceCount, int VertexCount,
                         int PointCount)
 {
     HAPI_PartInfo NewNodePart;

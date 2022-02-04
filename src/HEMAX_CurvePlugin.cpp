@@ -34,13 +34,13 @@ HEMAX_CurvePlugin::GetINode()
 {
     INode* Node = nullptr;
 
-    if (CurveInfo.curveType == HEMAX_CURVETYPE_LINEAR && Shape)
+    if (CurveInfo.curveType == HAPI_CURVETYPE_LINEAR && Shape)
     {
 	ULONG Handle = 0;
 	Shape->NotifyDependents(FOREVER, (PartID)&Handle, REFMSG_GET_NODE_HANDLE);
 	Node = GetCOREInterface()->GetINodeByHandle(Handle);
     }
-    else if (CurveInfo.curveType == HEMAX_CURVETYPE_NURBS && NurbsCurveNode)
+    else if (CurveInfo.curveType == HAPI_CURVETYPE_NURBS && NurbsCurveNode)
     {
 	Node = NurbsCurveNode;
     }
@@ -51,11 +51,11 @@ HEMAX_CurvePlugin::GetINode()
 bool
 HEMAX_CurvePlugin::BuildCurve()
 {
-    if (CurveInfo.curveType == HEMAX_CURVETYPE_LINEAR)
+    if (CurveInfo.curveType == HAPI_CURVETYPE_LINEAR)
     {
 	return BuildLinearShape();
     }
-    else if (CurveInfo.curveType == HEMAX_CURVETYPE_NURBS)
+    else if (CurveInfo.curveType == HAPI_CURVETYPE_NURBS)
     {
 	return BuildNURBSObject();
     }
@@ -94,7 +94,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
 
 	HAPI_AttributeInfo PositionAttributeInfo;
 	SM.Session->GetAttributeInfo(NodeId, PartId,
-			HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+			HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 			&PositionAttributeInfo);
 
         SM.Session->GetAttributeFloatData(NodeId, PartId,
@@ -103,7 +103,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
 
         HAPI_AttributeInfo MatIdAttrInfo;
         SM.Session->GetAttributeInfo(NodeId, PartId,
-            HEMAX_MATERIAL_ID_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+            HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_ATTROWNER_POINT,
             &MatIdAttrInfo);
         if (MatIdAttrInfo.exists)
         {
@@ -177,7 +177,7 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     HAPI_AttributeInfo PositionAttributeInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId,
-	HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
+	HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
         &PositionAttributeInfo);
 
     SM.Session->GetAttributeFloatData(NodeId, PartId,
@@ -186,7 +186,7 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     HAPI_AttributeInfo MatIdAttrInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId, HEMAX_MATERIAL_ID_ATTRIBUTE,
-        HEMAX_ATTRIBUTEOWNER_DETAIL, &MatIdAttrInfo);
+        HAPI_ATTROWNER_DETAIL, &MatIdAttrInfo);
     int MatId = -1;
     if (MatIdAttrInfo.exists)
     {

@@ -21,12 +21,12 @@ class HEMAX_MeshList
 	HEMAX_MeshList();
 	~HEMAX_MeshList();
 
-	void                        Init(unsigned int _Size, unsigned int _TupleSize, HEMAX_AttributeOwner _Owner);
+	void                        Init(unsigned int _Size, unsigned int _TupleSize, HAPI_AttributeOwner _Owner);
 	T*                          Data();
 	std::vector<T>              Value(int Index);
 	unsigned int                DataSize();
 	unsigned int                DataTupleSize();
-	HEMAX_AttributeOwner        DataOwner();
+	HAPI_AttributeOwner        DataOwner();
 
 	void			    MergeEqualTuples();
 
@@ -36,7 +36,7 @@ class HEMAX_MeshList
 
     private:
 	T*                          List;
-	HEMAX_AttributeOwner        Owner;
+	HAPI_AttributeOwner        Owner;
 	unsigned int                Size;
 	unsigned int                TupleSize;
 
@@ -107,8 +107,8 @@ class HEMAX_Mesh
 	void AllocatePointCdArray();
 	void AllocateVertexCdArray();
 
-	void AllocateAlphaArray(HEMAX_AttributeOwner Owner);
-	void AllocateIlluminationArray(HEMAX_AttributeOwner Owner);
+	void AllocateAlphaArray(HAPI_AttributeOwner Owner);
+	void AllocateIlluminationArray(HAPI_AttributeOwner Owner);
 
 	void AllocateSmoothingGroupsArray();
 	void AllocateMaterialIDArray();
@@ -120,13 +120,13 @@ class HEMAX_Mesh
 	HEMAX_UVType GetUVType();
 
 	bool DoesCdAttrExist();
-	HEMAX_AttributeOwner GetCdAttrOwner();
+	HAPI_AttributeOwner GetCdAttrOwner();
 
 	bool DoesAlphaAttrExist();
-	HEMAX_AttributeOwner GetAlphaAttrOwner();
+	HAPI_AttributeOwner GetAlphaAttrOwner();
 
 	bool DoesIlluminationAttrExist();
-	HEMAX_AttributeOwner GetIlluminationOwner();
+	HAPI_AttributeOwner GetIlluminationOwner();
 
 	bool DoesSmoothingGroupAttrExist();
 	bool DoesMaterialIDAttrExist();
@@ -139,11 +139,11 @@ class HEMAX_Mesh
 
 	int GetPostTriangulationFaceCount();
 
-	void CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size);
-	std::vector<float>& GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer);
-	bool DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer);
+	void CreateSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer, size_t Size);
+	std::vector<float>& GetSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer);
+	bool DoesSecondaryUVLayerExist(HAPI_AttributeOwner Owner, int Layer);
 
-	void AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HEMAX_AttributeOwner Owner);
+	void AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HAPI_AttributeOwner Owner);
 
 	HEMAX_MeshList<int>& GetIntMetadata(std::string Name);
 	HEMAX_MeshList<float>& GetFloatMetadata(std::string Name);
@@ -190,13 +190,13 @@ class HEMAX_Mesh
 	HEMAX_UVType UVType;
 
 	bool ColorAttrExists;
-	HEMAX_AttributeOwner ColorAttrOwner;
+	HAPI_AttributeOwner ColorAttrOwner;
 
 	bool AlphaAttrExists;
-	HEMAX_AttributeOwner AlphaAttrOwner;
+	HAPI_AttributeOwner AlphaAttrOwner;
 
 	bool IlluminationAttrExists;
-	HEMAX_AttributeOwner IlluminationAttrOwner;
+	HAPI_AttributeOwner IlluminationAttrOwner;
 
 	bool SmoothingGroupsExist;
 	bool MaterialIDsExist;

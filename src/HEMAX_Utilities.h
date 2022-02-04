@@ -24,9 +24,9 @@ struct HEMAX_Utilities
 {
     static HEMAX_MaxTransform HAPITransformToMaxTransform(HAPI_Transform& Transform);
     static HEMAX_MaxTransform GetIdentityTransform();
-    static HAPI_Transform MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform, HEMAX_RSTOrder RSTOrder = HEMAX_RSTORDER_DEFAULT);
-    static HAPI_TransformEuler HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HEMAX_RSTOrder RSTOrder = HEMAX_RSTORDER_DEFAULT);
-    static HAPI_TransformEuler MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform, HEMAX_RSTOrder RSTOrder = HEMAX_RSTORDER_DEFAULT);
+    static HAPI_Transform MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform, HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
+    static HAPI_TransformEuler HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
+    static HAPI_TransformEuler MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform, HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
     static HEMAX_MaxTransform BuildMaxTransformFromINode(INode* Node);
     static void SetINodeTransform(INode* Node, HEMAX_MaxTransform& Transform);
     static void ApplyTransformToINode(INode* Node, HEMAX_MaxTransform& Transform);
