@@ -373,12 +373,12 @@ HEMAX_Mesh::GetUVTupleSize()
 int
 HEMAX_Mesh::GetNumMaterials()
 {
-    std::unordered_map<HEMAX_NodeId, bool> SeenMaterials;
+    std::unordered_map<HAPI_NodeId, bool> SeenMaterials;
     int NumMaterials = 0;
 
     for (int f = 0; f < FaceCount; f++)
     {
-	HEMAX_NodeId MatId = FaceMaterialIds.Data()[f];
+	HAPI_NodeId MatId = FaceMaterialIds.Data()[f];
 	auto Search = SeenMaterials.find(MatId);
 	if (Search == SeenMaterials.end())
 	{
@@ -420,7 +420,7 @@ HEMAX_Mesh::GetVertexNormalsListArray()
     return Normals.Data();
 }
 
-HEMAX_NodeId*
+HAPI_NodeId*
 HEMAX_Mesh::GetMaterialIdsArray()
 {
     return FaceMaterialIds.Data();
@@ -1345,7 +1345,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
         EdgeSelections.SetSize(MaxMesh.ENum());
         EdgeSelections.ClearAll();
 
-        for (int e = 0, n = EdgeSelectionsList.DataSize() - 1; e < n; e += 2)
+        for (int e = 0; e < EdgeSelectionsList.DataSize() - 1; e += 2)
         {
             int EdgeToSelect = MaxMesh.FindEdgeFromVertToVert(
                 EdgeSelectionsList.Data()[e], EdgeSelectionsList.Data()[e+1]);

@@ -16,7 +16,7 @@ class HEMAX_Asset
 	HEMAX_AssetLoadStatus LoadAsset(bool AllowOverwrite = false);
 
 	std::string Path;
-	HEMAX_AssetId Id;
+	HAPI_AssetLibraryId Id;
 	int AssetCount;
 	std::vector<std::string> Names;
 };

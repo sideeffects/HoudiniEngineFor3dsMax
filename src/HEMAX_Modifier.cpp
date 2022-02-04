@@ -233,7 +233,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	    Hda->MainNode.Cook();
 	}
 
-	if (Hda->MainNode.Type == HEMAX_NODE_SOP)
+	if (Hda->MainNode.Type == HAPI_NODETYPE_SOP)
 	{
 	    HEMAX_DisplayGeoNode& DisplayNode = Hda->TopLevelSopNode;
 	    if (DisplayNode.Info.type != HAPI_GEOTYPE_INVALID)

@@ -22,7 +22,7 @@ class HEMAX_Parameter
 {
     public:
 	HEMAX_Parameter();
-	HEMAX_Parameter(const HEMAX_NodeId& NodeId, const HEMAX_ParameterInfo& ParameterInfo);
+	HEMAX_Parameter(const HAPI_NodeId& NodeId, const HAPI_ParmInfo& ParameterInfo);
 
 	HEMAX_Parameter& operator=(const HEMAX_Parameter& Other);
 	HEMAX_Parameter(const HEMAX_Parameter& Other);
@@ -38,14 +38,14 @@ class HEMAX_Parameter
 	std::vector<HEMAX_ParmChoice> GetIntParameterChoiceLists();
 	std::vector<HEMAX_ParmChoice> GetStringParameterChoiceLists();
 
-	HEMAX_NodeId GetInputNodeId();
+	HAPI_NodeId GetInputNodeId();
 	std::string GetInputNodeName();
 
 	void UpdateIntVals(std::vector<int>& Vals);
 	void UpdateFloatVals(std::vector<float>& Vals);
 	void UpdateStringVals(std::vector<std::string>& Vals);
 
-	void UpdateInputNode(HEMAX_NodeId InputNode);
+	void UpdateInputNode(HAPI_NodeId InputNode);
 
 	bool IsChoiceList();
 	bool IsRootLevel();
@@ -59,8 +59,8 @@ class HEMAX_Parameter
 
 	void CopyValuesFrom(const HEMAX_Parameter& Other);
 
-	HEMAX_NodeId Node;
-	HEMAX_ParameterInfo Info;
+	HAPI_NodeId Node;
+	HAPI_ParmInfo Info;
 	HEMAX_ParameterType Type;
 
 

@@ -16,7 +16,7 @@ struct HEMAX_PackedPrimitiveInstanceInfo
 {
     int InstanceCount;
     int InstancedPartCount;
-    std::vector<HEMAX_PartId> InstancedPartIds;
+    std::vector<HAPI_PartId> InstancedPartIds;
     std::vector<HEMAX_MaxTransform> InstancedTransforms;
 };
 
@@ -29,7 +29,7 @@ class HEMAX_Part
 	HEMAX_Part(const HEMAX_Part& Other);
 	HEMAX_Part& operator=(const HEMAX_Part& Other);
 	
-	void Update(HEMAX_NodeId Node, int PartNum);
+	void Update(HAPI_NodeId Node, int PartNum);
 
 	void SetMeshPlugin(HEMAX_GeometryPlugin* GeomPlugin);
 	void SetCurvePlugin(LinearShape* Shape);
@@ -53,14 +53,14 @@ class HEMAX_Part
 	HEMAX_PartType GetPartType();
 
 	bool Valid;
-	HEMAX_NodeId NodeId;
+	HAPI_NodeId NodeId;
 
-	HEMAX_PartInfo Info;
+	HAPI_PartInfo Info;
 
 	bool IsInstancer;
 	HEMAX_PackedPrimitiveInstanceInfo PackedPrimInfo;
 
-	HEMAX_CurveInfo CurveInfo;
+	HAPI_CurveInfo CurveInfo;
 
     private:
 	std::vector<HEMAX_MaxTransform> GetInstancedPartTransforms();

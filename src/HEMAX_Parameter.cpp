@@ -9,7 +9,7 @@ HEMAX_Parameter::HEMAX_Parameter()
     Type = HEMAX_PARAM_INVALID;
 }
 
-HEMAX_Parameter::HEMAX_Parameter(const HEMAX_NodeId& NodeId, const HEMAX_ParameterInfo& ParameterInfo)
+HEMAX_Parameter::HEMAX_Parameter(const HAPI_NodeId& NodeId, const HAPI_ParmInfo& ParameterInfo)
 {
     Node = NodeId;
     Info = ParameterInfo;
@@ -132,7 +132,7 @@ HEMAX_Parameter::GetStringVals() const
     // Do type checking here
     
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    std::vector<HEMAX_StringHandle> Handles(Info.size);
+    std::vector<HAPI_StringHandle> Handles(Info.size);
     std::vector<std::string> StringVals(Info.size);
 
     SM.Session->GetParameterStringValues(Node, true, &Handles.front(),
@@ -153,7 +153,7 @@ HEMAX_Parameter::GetIntParameterChoiceLists()
     
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    std::vector<HEMAX_ParameterChoiceInfo> Choices(Info.choiceCount);
+    std::vector<HAPI_ParmChoiceInfo> Choices(Info.choiceCount);
     std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
     SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
@@ -175,7 +175,7 @@ HEMAX_Parameter::GetStringParameterChoiceLists()
     
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    std::vector<HEMAX_ParameterChoiceInfo> Choices(Info.choiceCount);
+    std::vector<HAPI_ParmChoiceInfo> Choices(Info.choiceCount);
     std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
     SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
@@ -190,14 +190,14 @@ HEMAX_Parameter::GetStringParameterChoiceLists()
     return ParmChoices;
 }
 
-HEMAX_NodeId
+HAPI_NodeId
 HEMAX_Parameter::GetInputNodeId()
 {
     if (Type == HEMAX_PARAM_NODE)
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	HEMAX_NodeId InputNodeId;
+	HAPI_NodeId InputNodeId;
 	if (SM.Session->GetParameterNodeValue(Node, Name.c_str(), &InputNodeId))
 	{
 	    return InputNodeId;
@@ -212,12 +212,12 @@ HEMAX_Parameter::GetInputNodeName()
 {
     std::string InputNodeName = "";
 
-    HEMAX_NodeId InputNodeId = GetInputNodeId();
+    HAPI_NodeId InputNodeId = GetInputNodeId();
 
     if (InputNodeId > -1)
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-	HEMAX_NodeInfo InputNodeInfo;
+	HAPI_NodeInfo InputNodeInfo;
 	if (SM.Session->GetNodeInfo(InputNodeId, &InputNodeInfo))
 	{
 	    InputNodeName = SM.Session->GetHAPIString(InputNodeInfo.nameSH);
@@ -255,7 +255,7 @@ HEMAX_Parameter::UpdateStringVals(std::vector<std::string>& Vals)
 }
 
 void
-HEMAX_Parameter::UpdateInputNode(HEMAX_NodeId InputNode)
+HEMAX_Parameter::UpdateInputNode(HAPI_NodeId InputNode)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     SM.Session->SetParameterNodeValue(Node, Name.c_str(), InputNode);

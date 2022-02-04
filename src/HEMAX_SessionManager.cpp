@@ -169,7 +169,7 @@ HEMAX_SessionManager::GetEnvMap()
     int EnvVarCount;
     if (Session->GetServerEnvVarCount(&EnvVarCount))
     {
-	HEMAX_StringHandle* EnvSH = new HEMAX_StringHandle[EnvVarCount];
+	HAPI_StringHandle* EnvSH = new HAPI_StringHandle[EnvVarCount];
 	if (Session->GetServerEnvVarList(EnvSH, 0, EnvVarCount))
 	{
 	    std::vector<std::string> EnvList(EnvVarCount);

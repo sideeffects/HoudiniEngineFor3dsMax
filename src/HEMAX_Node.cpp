@@ -9,12 +9,12 @@ constexpr const char* DoubleCookParmName = "hda_force_double_cook";
 HEMAX_Node::HEMAX_Node()
 {
     Info.id = -1;
-    Type = HEMAX_NODE_INVALID;
+    Type = HAPI_NODETYPE_NONE;
     
     InitNodeOptions();
 }
 
-HEMAX_Node::HEMAX_Node(HEMAX_NodeId NodeId, HEMAX_NodeType NodeType)
+HEMAX_Node::HEMAX_Node(HAPI_NodeId NodeId, HAPI_NodeType NodeType)
 {
     Info.id = NodeId;
     Type = NodeType;
@@ -32,25 +32,13 @@ HEMAX_Node::Init(const std::string& Asset)
     if (SM.Session->CreateNode(-1, AssetName.c_str(), nullptr, false, &Info.id))
     {
 	SM.Session->GetNodeInfo(Info.id, &Info);
-
-	switch (Info.type)
-	{
-	    case (HAPI_NODETYPE_OBJ):
-		Type = HEMAX_NODE_OBJ;
-		break;
-	    case (HAPI_NODETYPE_SOP):
-		Type = HEMAX_NODE_SOP;
-		break;
-	    default:
-		Type = HEMAX_NODE_NOTDEFINED;
-		break;
-	}
+        Type = Info.type;
 
 	NodeName = SM.Session->GetHAPIString(Info.nameSH);
 
 	if (Info.inputCount > 0)
 	{
-	    HEMAX_StringHandle Handle;
+	    HAPI_StringHandle Handle;
 	    for (int j = 0; j < Info.inputCount; j++)
 	    {
 		SM.Session->GetNodeInputName(Info.id, j, &Handle);
@@ -63,7 +51,7 @@ HEMAX_Node::Init(const std::string& Asset)
 void
 HEMAX_Node::Cook()
 {
-    if (Type != HEMAX_NODE_INVALID)
+    if (Type != HAPI_NODETYPE_NONE)
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
@@ -76,7 +64,7 @@ HEMAX_Node::Cook()
 
 	if (Info.parmCount > 0)
 	{
-	    std::vector<HEMAX_ParameterInfo> ParmInfos(Info.parmCount);
+	    std::vector<HAPI_ParmInfo> ParmInfos(Info.parmCount);
 	    SM.Session->GetParameters(Info.id, &ParmInfos.front(), 0, Info.parmCount);
 
 	    Parameters.clear();
@@ -98,7 +86,7 @@ void
 HEMAX_Node::Delete()
 {
     HEMAX_SessionManager::GetSessionManager().Session->DeleteNode(Info.id);
-    Type = HEMAX_NODE_INVALID;
+    Type = HAPI_NODETYPE_NONE;
 }
 
 std::vector<HEMAX_Parameter>&
@@ -108,7 +96,7 @@ HEMAX_Node::GetParameters()
 }
 
 HEMAX_Parameter*
-HEMAX_Node::GetParameter(HEMAX_ParameterId ParmId)
+HEMAX_Node::GetParameter(HAPI_ParmId ParmId)
 {
     for (int i = 0; i < Parameters.size(); i++)
     {
@@ -174,7 +162,7 @@ HEMAX_Node::SetParentTransform(HEMAX_MaxTransform& Xform)
 }
 
 void
-HEMAX_Node::ConnectInputNode(HEMAX_NodeId NodeToConnect, int InputIndex)
+HEMAX_Node::ConnectInputNode(HAPI_NodeId NodeToConnect, int InputIndex)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
@@ -189,12 +177,12 @@ HEMAX_Node::DisconnectInputNode(int InputIndex)
     SessionManager.Session->DisconnectNodeInput(Info.id, InputIndex);
 }
 
-HEMAX_NodeId
+HAPI_NodeId
 HEMAX_Node::QueryNodeInput(int InputIndex)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_NodeId ConnectedNode;
+    HAPI_NodeId ConnectedNode;
 
     if (SessionManager.Session->QueryNodeInput(Info.id, InputIndex, &ConnectedNode))
     {

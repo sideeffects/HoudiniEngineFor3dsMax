@@ -26,7 +26,7 @@ HEMAX_Asset::LoadAsset(bool AllowOverwrite)
     if (SM.Session->LoadHoudiniDigitalAsset(Path.c_str(), AllowOverwrite, &Id, &LoadStatus))
     {
 	SM.Session->GetAvailableAssetCount(Id, &AssetCount);
-	std::vector<HEMAX_StringHandle> AssetNamesSH(AssetCount);
+	std::vector<HAPI_StringHandle> AssetNamesSH(AssetCount);
 	SM.Session->GetAvailableAssets(Id, &AssetNamesSH.front(), AssetCount);
 	for (int i = 0; i < AssetCount; i++)
 	{

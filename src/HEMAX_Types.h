@@ -2,27 +2,6 @@
 
 #include <HAPI.h>
 
-typedef HAPI_AssetLibraryId  HEMAX_AssetId;
-typedef HAPI_AssetInfo       HEMAX_AssetInfo;
-typedef HAPI_StringHandle    HEMAX_StringHandle;
-typedef HAPI_NodeId          HEMAX_NodeId;
-typedef HAPI_PartId          HEMAX_PartId;
-typedef HAPI_Bool            HEMAX_Bool;
-typedef HAPI_NodeInfo        HEMAX_NodeInfo;
-typedef HAPI_ObjectInfo      HEMAX_ObjectInfo;
-typedef HAPI_GeoInfo         HEMAX_GeometryInfo;
-typedef HAPI_PartInfo        HEMAX_PartInfo;
-typedef HAPI_AttributeInfo   HEMAX_AttributeInfo;
-typedef HAPI_ParmId          HEMAX_ParameterId;
-typedef HAPI_ParmInfo        HEMAX_ParameterInfo;
-typedef HAPI_ParmChoiceInfo  HEMAX_ParameterChoiceInfo;
-typedef HAPI_Transform       HEMAX_HAPITransform;
-typedef HAPI_MaterialInfo    HEMAX_MaterialInfo;
-typedef HAPI_ImageInfo       HEMAX_ImageInfo;
-typedef HAPI_CurveInfo       HEMAX_CurveInfo;
-typedef HAPI_TimelineOptions HEMAX_TimelineOptions;
-typedef HAPI_GroupType       HEMAX_GroupType;
-
 #define HEMAX_FRAME_ZERO 0
 
 #define HEMAX_HOUDINI_DEFAULT_GAMMA 2.2f
@@ -98,22 +77,6 @@ enum HEMAX_HdaType
     HEMAX_GEOMETRY_HDA,
     HEMAX_MODIFIER_HDA
 };
-
-typedef enum
-{
-    HEMAX_NODE_ANY = HAPI_NODETYPE_ANY,
-    HEMAX_NODE_NONE = HAPI_NODETYPE_NONE,
-    HEMAX_NODE_OBJ = HAPI_NODETYPE_OBJ,
-    HEMAX_NODE_SOP = HAPI_NODETYPE_SOP,
-    HEMAX_NODE_CHOP = HAPI_NODETYPE_CHOP,
-    HEMAX_NODE_ROP = HAPI_NODETYPE_ROP,
-    HEMAX_NODE_SHOP = HAPI_NODETYPE_SHOP,
-    HEMAX_NODE_COP = HAPI_NODETYPE_COP,
-    HEMAX_NODE_VOP = HAPI_NODETYPE_VOP,
-    HEMAX_NODE_DOP = HAPI_NODETYPE_DOP,
-    HEMAX_NODE_INVALID,
-    HEMAX_NODE_NOTDEFINED,
-} HEMAX_NodeType;
 
 typedef enum
 {

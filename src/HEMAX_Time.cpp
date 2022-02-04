@@ -2,7 +2,7 @@
 
 #include "HEMAX_SessionManager.h"
 
-HEMAX_TimelineOptions HEMAX_GlobalTimeOptions;
+HAPI_TimelineOptions HEMAX_GlobalTimeOptions;
 float CurrentHAPITime;
 bool HasTimeChanged;
 

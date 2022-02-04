@@ -28,7 +28,7 @@ HEMAX_GeometryHda::Init(HEMAX_Asset& Asset, int AssetIndex)
 {
     Hda.Init(Asset, AssetIndex);
 
-    if (Hda.MainNode.Type != HEMAX_NODE_INVALID)
+    if (Hda.MainNode.Type != HAPI_NODETYPE_NONE)
     {
         InitializeSubnetworks(); 
     }
@@ -39,7 +39,7 @@ HEMAX_GeometryHda::Create(HEMAX_Asset& Asset, int AssetIndex)
 {
     Init(Asset, AssetIndex);
 
-    if (Hda.MainNode.Type != HEMAX_NODE_INVALID)
+    if (Hda.MainNode.Type != HAPI_NODETYPE_NONE)
     {
         CreateNewGeometryHda(Hda);
         InitializeParameterCustomAttributes();
@@ -134,7 +134,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
                             Hda.TopLevelObjectNode.FindSopNodeFromName(NodeName);
 			if (SopNode)
 			{
-			    HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
+			    HAPI_PartId PartId = GetPartIdFromCustomAttributes(Child);
 			    if (PartId != -1)
 			    {
 				Part = SopNode->GetPart(PartId);
@@ -192,7 +192,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 		{
 		    if (IsINodeADisplayGeometry(Child))
 		    {
-			HEMAX_PartId PartId = GetPartIdFromCustomAttributes(Child);
+			HAPI_PartId PartId = GetPartIdFromCustomAttributes(Child);
 			HEMAX_Part* Part = Hda.TopLevelSopNode.GetPart(PartId);
 
 			// Sop level HDAs should only have one relevant child node (and this is the one that we just found)
@@ -479,13 +479,13 @@ HEMAX_GeometryHda::PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve)
 	    {
 		case (HEMAX_CURVETYPE_LINEAR):
 		{
-		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
+		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HAPI_NODETYPE_SOP);
 		    HEMAX_Input_Spline LinearInput(&Node, EditableCurves[i].Node->GetHandle());
 		    EditableCurves[i].Dirty = false;
 		} break;
 		case (HEMAX_CURVETYPE_NURBS):
 		{
-		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HEMAX_NODE_SOP);
+		    HEMAX_Node Node(EditableCurves[i].PushNodeId, HAPI_NODETYPE_SOP);
 		    HEMAX_Input_NURBS NURBSInput(&Node, EditableCurves[i].Node->GetHandle());
 		    EditableCurves[i].Dirty = false;
 		} break;
@@ -916,7 +916,7 @@ HEMAX_GeometryHda::IsINodeAnEditableNode(INode* Node)
     return false;
 }
 
-HEMAX_PartId
+HAPI_PartId
 HEMAX_GeometryHda::GetPartIdFromCustomAttributes(INode* Node)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
@@ -1049,10 +1049,10 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 	    for (int s = 0; s < InstIt->second.InstanceNodeIds.size(); s++)
 	    {
 		// Different display geometries
-		HEMAX_GeometryInfo DisplayGeoInfo;
+		HAPI_GeoInfo DisplayGeoInfo;
 		HEMAX_SessionManager::GetSessionManager().Session->GetDisplayGeoInfo(
                         InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
-		HEMAX_NodeId ObjToInstance = InstIt->second.InstanceNodeIds[s];
+		HAPI_NodeId ObjToInstance = InstIt->second.InstanceNodeIds[s];
 
 		auto ObjSearch = ObjectNode.SopNodes.find(ObjToInstance);
 
@@ -1178,7 +1178,7 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
     {
 	for (int t = 0; t < InstanceInfo.InstancedPartCount; t++)
 	{
-	    HEMAX_PartId SourcePartId = InstanceInfo.InstancedPartIds[t];
+	    HAPI_PartId SourcePartId = InstanceInfo.InstancedPartIds[t];
 	    HEMAX_Part* InstancedPart = DisplayNode.GetPart(SourcePartId);
 
 	    INode* SourceNode = InstancedPart->GetINodeOf3dsmaxObject();
@@ -1359,7 +1359,7 @@ HEMAX_GeometryHda::InitGeometryPluginCustAttribContainer(INode* PluginNode)
 }
 
 void
-HEMAX_GeometryHda::GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HEMAX_PartId Part)
+HEMAX_GeometryHda::GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HAPI_PartId Part)
 {
     HEMAX_StringParameterAttrib* MaxGeoStamp = new HEMAX_StringParameterAttrib;
     MaxGeoStamp->SetParameterName(std::string(HEMAX_MAX_GEO_STAMP_NAME));
@@ -1437,7 +1437,7 @@ HEMAX_GeometryHda::StampPackedPrimitiveNode(INode* Node)
 }
 
 void
-HEMAX_GeometryHda::StampEditableNode(INode* Node, std::string EditableNodeName, HEMAX_PartId PartNum)
+HEMAX_GeometryHda::StampEditableNode(INode* Node, std::string EditableNodeName, HAPI_PartId PartNum)
 {
     ICustAttribContainer* CustAttribs = Node->GetCustAttribContainer();
 
@@ -1551,7 +1551,7 @@ HEMAX_GeometryHda::ClearPackedPrimNodes()
 
 void
 HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
-                                   HEMAX_NodeId DisplayNodeId,
+                                   HAPI_NodeId DisplayNodeId,
                                    HEMAX_Part& Part,
                                    HEMAX_GeometryPlugin* GeoPlugin)
 {
@@ -1559,14 +1559,14 @@ HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
        return; 
 
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
-    HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+    HAPI_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
 
     if (!MatNodeIds)
         return;
 
     if (Mesh->AreMaterialIdsSame)
     {
-        HEMAX_NodeId MaterialNodeId = MatNodeIds[0];
+        HAPI_NodeId MaterialNodeId = MatNodeIds[0];
         
         if (MaterialNodeId == -1)
             return;
@@ -1599,15 +1599,15 @@ HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
     }
     else
     {
-        HEMAX_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
-        std::unordered_map<HEMAX_NodeId, HEMAX_MaterialMapping> MultiMap;
+        HAPI_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        std::unordered_map<HAPI_NodeId, HEMAX_MaterialMapping> MultiMap;
 
         MultiMtl* MultiMaterial = NewDefaultMultiMtl(); 
         MultiMaterial->SetNumSubMtls(Mesh->GetNumMaterials());
 
         for (int f = 0; f < Mesh->GetFaceCount(); f++)
         {
-            HEMAX_NodeId MatNodeId = FaceMatIds[f];
+            HAPI_NodeId MatNodeId = FaceMatIds[f];
             auto Search = MultiMap.find(MatNodeId);
 
             if (Search == MultiMap.end())
@@ -1719,7 +1719,7 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
 
 void
 HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
-                                   HEMAX_NodeId DisplayNodeId,
+                                   HAPI_NodeId DisplayNodeId,
                                    HEMAX_Part& Part,
                                    HEMAX_GeometryPlugin* GeoPlugin)
 {
@@ -1727,14 +1727,14 @@ HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
         return;
 
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
-    HEMAX_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+    HAPI_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
 
     if (!MatNodeIds)
         return;
 
     if (Mesh->AreMaterialIdsSame)
     {
-        HEMAX_NodeId MaterialNodeId = MatNodeIds[0];
+        HAPI_NodeId MaterialNodeId = MatNodeIds[0];
 
         if (MaterialNodeId == -1)
             return;
@@ -1767,8 +1767,8 @@ HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
     }
     else
     {
-        HEMAX_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
-        std::unordered_map<HEMAX_NodeId, HEMAX_MaterialMapping> MultiMap;
+        HAPI_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        std::unordered_map<HAPI_NodeId, HEMAX_MaterialMapping> MultiMap;
 
         Mtl* PluginMat = GeoPlugin->MaxNode->GetMtl();
         MultiMtl* MultiMaterial = dynamic_cast<MultiMtl*>(PluginMat);
@@ -1784,7 +1784,7 @@ HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
 
         for (int f = 0; f < Mesh->GetFaceCount(); f++)
         {
-            HEMAX_NodeId MatNodeId = FaceMatIds[f];
+            HAPI_NodeId MatNodeId = FaceMatIds[f];
             auto Search = MultiMap.find(MatNodeId);
  
             if (Search == MultiMap.end())
@@ -1854,7 +1854,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_AttributeInfo AttrInfo_Detail;
+    HAPI_AttributeInfo AttrInfo_Detail;
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId,
                                  Part.Info.id,
                                  HEMAX_MAX_NODE_NAME_OUTPUT,
@@ -1865,7 +1865,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
 
     if (AttrInfo_Detail.exists)
     {
-        HEMAX_StringHandle NameAttrSH;
+        HAPI_StringHandle NameAttrSH;
         SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
                                            Part.Info.id,
                                            HEMAX_MAX_NODE_NAME_OUTPUT,
@@ -1900,7 +1900,7 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_AttributeInfo NameDetailInfo, NamePrimInfo;
+    HAPI_AttributeInfo NameDetailInfo, NamePrimInfo;
     SM.Session->GetAttributeInfo(DisplayNode.Info.nodeId, Part.Info.id,
                     HEMAX_MAX_NODE_NAME_OUTPUT, HEMAX_ATTRIBUTEOWNER_DETAIL,
                     &NameDetailInfo);
@@ -1912,7 +1912,7 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
 
     if (NamePrimInfo.exists)
     {
-        std::vector<HEMAX_StringHandle> NameAttrSHArray(NamePrimInfo.count);
+        std::vector<HAPI_StringHandle> NameAttrSHArray(NamePrimInfo.count);
 
         SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
             Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT, &NamePrimInfo,
@@ -1926,7 +1926,7 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
     }
     else if (NameDetailInfo.exists)
     {
-        HEMAX_StringHandle NameAttrSH;
+        HAPI_StringHandle NameAttrSH;
         SM.Session->GetAttributeStringData(DisplayNode.Info.nodeId,
             Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT, &NameDetailInfo,
             &NameAttrSH, 0, 1);
@@ -1970,14 +1970,14 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
         {
             for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
             {
-                HEMAX_AttributeInfo AttrInfo;
+                HAPI_AttributeInfo AttrInfo;
                 SM.Session->GetAttributeInfo(DisplayNodes[i]->Info.nodeId,
                     DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
                     HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
 
                 if (AttrInfo.exists)
                 {
-                    HEMAX_StringHandle ValSH;
+                    HAPI_StringHandle ValSH;
                     SM.Session->GetAttributeStringData(DisplayNodes[i]->Info.nodeId,
                         DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
                         &AttrInfo, &ValSH, 0, 1);
@@ -2006,14 +2006,14 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
         HEMAX_DisplayGeoNode& TopNode = Hda.TopLevelSopNode;
         for (int p = 0; p < TopNode.Parts.size(); p++)
         {
-            HEMAX_AttributeInfo AttrInfo;
+            HAPI_AttributeInfo AttrInfo;
             SM.Session->GetAttributeInfo(TopNode.Info.nodeId,
                 TopNode.Parts[p].Info.id, Name.c_str(),
                 HEMAX_ATTRIBUTEOWNER_DETAIL, &AttrInfo);
 
             if (AttrInfo.exists)
             {
-                HEMAX_StringHandle ValSH;
+                HAPI_StringHandle ValSH;
                 SM.Session->GetAttributeStringData(TopNode.Info.nodeId,
                     TopNode.Parts[p].Info.id, Name.c_str(), &AttrInfo, &ValSH, 
                     0, 1);

@@ -29,269 +29,269 @@ class HEMAX_HAPISession : public HAPI_Session
 
 	bool LoadHoudiniDigitalAsset(const char* FilePath,
                                      bool AllowOverwrite,
-                                     HEMAX_AssetId* AssetLibId,
+                                     HAPI_AssetLibraryId* AssetLibId,
                                      HEMAX_AssetLoadStatus* LoadStatus=nullptr);
 
-	bool GetAvailableAssetCount(HEMAX_AssetId AssetLibId,
+	bool GetAvailableAssetCount(HAPI_AssetLibraryId AssetLibId,
                                     int* AssetCount);
 
-	bool GetAvailableAssets(HEMAX_AssetId AssetLibId,
-                                HEMAX_StringHandle* AssetNames,
+	bool GetAvailableAssets(HAPI_AssetLibraryId AssetLibId,
+                                HAPI_StringHandle* AssetNames,
                                 int AssetCount);
 
-	bool GetStringBufferLength(HEMAX_StringHandle StringHandle,
+	bool GetStringBufferLength(HAPI_StringHandle StringHandle,
                                    int* StringBufferLength);
 
-	bool GetString(HEMAX_StringHandle StringHandle,
+	bool GetString(HAPI_StringHandle StringHandle,
                        char* StringValue,
                        int StringBufferLength);
 
-	bool CreateNode(HEMAX_NodeId ParentNode,
+	bool CreateNode(HAPI_NodeId ParentNode,
                         const char* OperatorName,
 		        const char* NodeLabel,
-                        HEMAX_Bool CookOnCreation,
-                        HEMAX_NodeId* NewNodeId );
+                        HAPI_Bool CookOnCreation,
+                        HAPI_NodeId* NewNodeId );
 
-	bool DeleteNode(HEMAX_NodeId NodeId);
+	bool DeleteNode(HAPI_NodeId NodeId);
 
-	bool GetAssetInfo(HEMAX_NodeId Node,
-                          HEMAX_AssetInfo* AssetInfo);
+	bool GetAssetInfo(HAPI_NodeId Node,
+                          HAPI_AssetInfo* AssetInfo);
 
-	bool CookNode(HEMAX_NodeId Node);
+	bool CookNode(HAPI_NodeId Node);
 
 	bool HandleStatusResult(HAPI_Result Result);
 
 	HEMAX_CookResult IsCookFinished();
 
-	bool GetNodeInfo(HEMAX_NodeId Node,
-                         HEMAX_NodeInfo* NodeInfo);
+	bool GetNodeInfo(HAPI_NodeId Node,
+                         HAPI_NodeInfo* NodeInfo);
 
-	bool GetNodeInputName(HEMAX_NodeId Node,
+	bool GetNodeInputName(HAPI_NodeId Node,
                               int InputIndex,
-                              HEMAX_StringHandle* nameSH);
+                              HAPI_StringHandle* nameSH);
 
-	bool GetObjectInfo(HEMAX_NodeId Node,
-                           HEMAX_ObjectInfo* ObjectInfo);
+	bool GetObjectInfo(HAPI_NodeId Node,
+                           HAPI_ObjectInfo* ObjectInfo);
 
-	bool GetGeometryInfo(HEMAX_NodeId Node,
-                             HEMAX_GeometryInfo* GeoInfo);
+	bool GetGeometryInfo(HAPI_NodeId Node,
+                             HAPI_GeoInfo* GeoInfo);
 
-	bool GetDisplayGeoInfo(HEMAX_NodeId Node,
-                               HEMAX_GeometryInfo* GeoInfo);
+	bool GetDisplayGeoInfo(HAPI_NodeId Node,
+                               HAPI_GeoInfo* GeoInfo);
 
-	bool GetPartInfo(HEMAX_NodeId Node,
-                         HEMAX_PartId PartId,
-                         HEMAX_PartInfo* PartInfo);
+	bool GetPartInfo(HAPI_NodeId Node,
+                         HAPI_PartId PartId,
+                         HAPI_PartInfo* PartInfo);
 
-        bool GetEdgeCountOfEdgeGroup(HEMAX_NodeId Node,
-                                     HEMAX_PartId PartId,
+        bool GetEdgeCountOfEdgeGroup(HAPI_NodeId Node,
+                                     HAPI_PartId PartId,
                                      const char* GroupName,
                                      int* EdgeCount);
     
-	bool GetFaceCounts(HEMAX_NodeId Node,
-                           HEMAX_PartId PartId,
+	bool GetFaceCounts(HAPI_NodeId Node,
+                           HAPI_PartId PartId,
                            int* FaceCountsArray,
                            int Start,
                            int Length);
 
-	bool GetVertexList(HEMAX_NodeId Node,
-                           HEMAX_PartId PartId,
+	bool GetVertexList(HAPI_NodeId Node,
+                           HAPI_PartId PartId,
                            int* VertexListArray,
                            int Start,
                            int Length);
 
-	bool GetAttributeNames(HEMAX_NodeId Node,
-                               HEMAX_PartId PartId,
+	bool GetAttributeNames(HAPI_NodeId Node,
+                               HAPI_PartId PartId,
                                HEMAX_AttributeOwner Owner,
-                               HEMAX_StringHandle* AttributeNamesArray,
+                               HAPI_StringHandle* AttributeNamesArray,
                                int Count);
 
-	bool GetAttributeInfo(HEMAX_NodeId Node,
-                              HEMAX_PartId PartId,
+	bool GetAttributeInfo(HAPI_NodeId Node,
+                              HAPI_PartId PartId,
                               const char* Name,
                               HEMAX_AttributeOwner Owner,
-                              HEMAX_AttributeInfo* AttributeInfo);
+                              HAPI_AttributeInfo* AttributeInfo);
 
-	bool GetAttributeIntData(HEMAX_NodeId Node,
-                                 HEMAX_PartId PartId,
+	bool GetAttributeIntData(HAPI_NodeId Node,
+                                 HAPI_PartId PartId,
                                  const char* Name,
-                                 HEMAX_AttributeInfo* AttributeInfo,
+                                 HAPI_AttributeInfo* AttributeInfo,
 		                 int Stride,
                                  int* IntDataArray,
                                  int Start,
                                  int Length);
 
-	bool GetAttributeFloatData(HEMAX_NodeId Node,
-                                   HEMAX_PartId PartId,
+	bool GetAttributeFloatData(HAPI_NodeId Node,
+                                   HAPI_PartId PartId,
                                    const char* Name,
-                                   HEMAX_AttributeInfo* AttributeInfo,
+                                   HAPI_AttributeInfo* AttributeInfo,
 		                   int Stride,
                                    float* FloatDataArray,
                                    int Start,
                                    int Length);
 
-	bool GetAttributeStringData(HEMAX_NodeId Node,
-                                    HEMAX_PartId PartId,
+	bool GetAttributeStringData(HAPI_NodeId Node,
+                                    HAPI_PartId PartId,
                                     const char* Name,
-                                    HEMAX_AttributeInfo* AttributeInfo,
-		                    HEMAX_StringHandle* StringHandleDataArray,
+                                    HAPI_AttributeInfo* AttributeInfo,
+		                    HAPI_StringHandle* StringHandleDataArray,
                                     int Start,
                                     int Length);
 
-	bool GetParameters(HEMAX_NodeId Node,
-                           HEMAX_ParameterInfo* ParmInfosArray,
+	bool GetParameters(HAPI_NodeId Node,
+                           HAPI_ParmInfo* ParmInfosArray,
                            int Start,
                            int Length);
 
-        bool GetParameterInfo(HEMAX_NodeId Node,
-                              HEMAX_ParameterId ParmId,
-                              HEMAX_ParameterInfo* ParmInfo);
+        bool GetParameterInfo(HAPI_NodeId Node,
+                              HAPI_ParmId ParmId,
+                              HAPI_ParmInfo* ParmInfo);
 
-	bool GetParameterIntValues(HEMAX_NodeId Node,
+	bool GetParameterIntValues(HAPI_NodeId Node,
                                    int* ValuesArray,
                                    int Start,
                                    int Length);
 
-	bool GetParameterFloatValues(HEMAX_NodeId Node,
+	bool GetParameterFloatValues(HAPI_NodeId Node,
                                      float* ValuesArray,
                                      int Start,
                                      int Length);
 
-	bool GetParameterStringValues(HEMAX_NodeId Node,
+	bool GetParameterStringValues(HAPI_NodeId Node,
                                       bool Evaluate,
-                                      HEMAX_StringHandle* ValuesArray,
+                                      HAPI_StringHandle* ValuesArray,
                                       int Start,
                                       int Length);
 
 	bool GetParameterChoiceLists(
-                                HEMAX_NodeId Node,
-                                HEMAX_ParameterChoiceInfo* ParmChoicesArray,
+                                HAPI_NodeId Node,
+                                HAPI_ParmChoiceInfo* ParmChoicesArray,
                                 int Start,
                                 int Length);
 
-        bool GetParameterIdFromName(HEMAX_NodeId Node,
+        bool GetParameterIdFromName(HAPI_NodeId Node,
                                     const char* ParmName,
-                                    HEMAX_ParameterId* ParmId);
+                                    HAPI_ParmId* ParmId);
 
-	bool SetParameterIntValues(HEMAX_NodeId Node,
+	bool SetParameterIntValues(HAPI_NodeId Node,
                                    int* ValuesArray,
                                    int Start,
                                    int Length);
 
-	bool SetParameterFloatValues(HEMAX_NodeId Node,
+	bool SetParameterFloatValues(HAPI_NodeId Node,
                                      float* ValuesArray,
                                      int Start,
                                      int Length);
 
-	bool SetParameterStringValue(HEMAX_NodeId Node,
+	bool SetParameterStringValue(HAPI_NodeId Node,
                                      const char* StringValue,
-                                     HEMAX_ParameterId ParmId,
+                                     HAPI_ParmId ParmId,
                                      int Index);
 
-	bool InsertMultiParameterInstance(HEMAX_NodeId Node,
-                                          HEMAX_ParameterId Parameter,
+	bool InsertMultiParameterInstance(HAPI_NodeId Node,
+                                          HAPI_ParmId Parameter,
                                           int Position);
 
-	bool RemoveMultiParameterInstance(HEMAX_NodeId Node,
-                                          HEMAX_ParameterId Parameter,
+	bool RemoveMultiParameterInstance(HAPI_NodeId Node,
+                                          HAPI_ParmId Parameter,
                                           int Position);
 
-	bool ComposeObjectList(HEMAX_NodeId Node,
+	bool ComposeObjectList(HAPI_NodeId Node,
                                const char* Categories,
                                int* ObjectCount);
 
-	bool GetComposedObjectList(HEMAX_NodeId Node,
-                                   HEMAX_ObjectInfo* ObjectInfosArray,
+	bool GetComposedObjectList(HAPI_NodeId Node,
+                                   HAPI_ObjectInfo* ObjectInfosArray,
                                    int Start,
                                    int Length);
 
-	bool ComposeChildNodeList(HEMAX_NodeId Node,
+	bool ComposeChildNodeList(HAPI_NodeId Node,
                                   HAPI_NodeTypeBits NodeTypeFilter,
                                   HAPI_NodeFlagsBits NodeFlagFilter,
-                                  HEMAX_Bool Recursive,
+                                  HAPI_Bool Recursive,
                                   int* Count);
 
-	bool GetComposedChildNodeList(HEMAX_NodeId Node,
-                                      HEMAX_NodeId* ChildNodeIdsArray,
+	bool GetComposedChildNodeList(HAPI_NodeId Node,
+                                      HAPI_NodeId* ChildNodeIdsArray,
                                       int Count);
 
-	bool GetComposedObjectTransforms(HEMAX_NodeId Node,
+	bool GetComposedObjectTransforms(HAPI_NodeId Node,
                                          HAPI_RSTOrder RSTOrder,
                                          HAPI_Transform* TransformArray,
                                          int Start,
                                          int Length);
 
-	bool GetObjectTransform(HEMAX_NodeId Node,
-                                HEMAX_NodeId RelativeToNodeId,
+	bool GetObjectTransform(HAPI_NodeId Node,
+                                HAPI_NodeId RelativeToNodeId,
                                 HAPI_RSTOrder RSTOrder,
                                 HAPI_Transform* Transform);
 
-	bool GetParameterNodeValue(HEMAX_NodeId Node,
+	bool GetParameterNodeValue(HAPI_NodeId Node,
                                    const char* ParameterName,
-                                   HEMAX_NodeId* Value);
+                                   HAPI_NodeId* Value);
 
-	bool SetParameterNodeValue(HEMAX_NodeId Node,
+	bool SetParameterNodeValue(HAPI_NodeId Node,
                                    const char* ParameterName,
-                                   HEMAX_NodeId Value);
+                                   HAPI_NodeId Value);
 
-	bool CreateInputNode(HEMAX_NodeId* Node,
+	bool CreateInputNode(HAPI_NodeId* Node,
                              const char* NodeName);
 
-	bool SetObjectTransform(HEMAX_NodeId Node,
+	bool SetObjectTransform(HAPI_NodeId Node,
                                 const HAPI_TransformEuler* Transform);
 
 	bool SaveHIPFile(const char* FilePath,
-                         HEMAX_Bool LockNodes);
+                         HAPI_Bool LockNodes);
 
-	bool CommitGeometry(HEMAX_NodeId Node);
+	bool CommitGeometry(HAPI_NodeId Node);
 
-	bool SetPartInfo(HEMAX_NodeId Node,
-                         HEMAX_PartId PartId,
-                         const HEMAX_PartInfo* PartInfo);
+	bool SetPartInfo(HAPI_NodeId Node,
+                         HAPI_PartId PartId,
+                         const HAPI_PartInfo* PartInfo);
 
-	bool AddAttribute(HEMAX_NodeId Node,
-                          HEMAX_PartId PartId,
+	bool AddAttribute(HAPI_NodeId Node,
+                          HAPI_PartId PartId,
                           const char* Name,
-                          const HEMAX_AttributeInfo* AttributeInfo);
+                          const HAPI_AttributeInfo* AttributeInfo);
 
-	bool SetAttributeFloatData(HEMAX_NodeId Node,
-                                   HEMAX_PartId Part,
+	bool SetAttributeFloatData(HAPI_NodeId Node,
+                                   HAPI_PartId Part,
                                    const char* Name,
-                                   const HEMAX_AttributeInfo* AttributeInfo,
+                                   const HAPI_AttributeInfo* AttributeInfo,
                                    const float* DataArray,
                                    int Start,
                                    int Length);
 
-	bool SetAttributeIntData(HEMAX_NodeId Node,
-                                 HEMAX_PartId Part,
+	bool SetAttributeIntData(HAPI_NodeId Node,
+                                 HAPI_PartId Part,
                                  const char* Name,
-                                 const HEMAX_AttributeInfo* AttributeInfo,
+                                 const HAPI_AttributeInfo* AttributeInfo,
                                  const int* DataArray,
                                  int Start,
                                  int Length);
 
-	bool SetAttributeStringData(HEMAX_NodeId Node,
-                                    HEMAX_PartId Part,
+	bool SetAttributeStringData(HAPI_NodeId Node,
+                                    HAPI_PartId Part,
                                     const char* Name,
-                                    const HEMAX_AttributeInfo* AttributeInfo,
+                                    const HAPI_AttributeInfo* AttributeInfo,
                                     const char** DataArray,
                                     int Start,
                                     int Length);
 
-	bool SetVertexList(HEMAX_NodeId Node,
-                           HEMAX_PartId Part,
+	bool SetVertexList(HAPI_NodeId Node,
+                           HAPI_PartId Part,
                            const int* VertexListArray,
                            int Start,
                            int Length);
 
-	bool SetFaceCounts(HEMAX_NodeId Node,
-                           HEMAX_PartId Part,
+	bool SetFaceCounts(HAPI_NodeId Node,
+                           HAPI_PartId Part,
                            const int* FaceCountsArray,
                            int Start,
                            int Length);
 
-	bool GetInstanceTransformsOnPart(HEMAX_NodeId Node,
-                                    HEMAX_PartId Part,
+	bool GetInstanceTransformsOnPart(HAPI_NodeId Node,
+                                    HAPI_PartId Part,
                                     HAPI_RSTOrder RSTOrder,
                                     HAPI_Transform* TransformsArray,
                                     int Start,
@@ -307,122 +307,122 @@ class HEMAX_HAPISession : public HAPI_Session
                                      HAPI_ProcessId* ProcessId,
                                      const char* LogFile);
 
-	bool ConnectNodeInput(HEMAX_NodeId Node,
+	bool ConnectNodeInput(HAPI_NodeId Node,
                               int InputIndex,
-                              HEMAX_NodeId NodeToConnect,
+                              HAPI_NodeId NodeToConnect,
                               int OutputIndex = 0);
 
-	bool DisconnectNodeInput(HEMAX_NodeId Node,
+	bool DisconnectNodeInput(HAPI_NodeId Node,
                                  int InputIndex);
 
-	bool GetMaterialNodeIdsOnFaces(HEMAX_NodeId GeometryNode,
-                                       HEMAX_PartId Part,
+	bool GetMaterialNodeIdsOnFaces(HAPI_NodeId GeometryNode,
+                                       HAPI_PartId Part,
                                        bool* AreAllTheSame,
-                                       HEMAX_NodeId* MaterialIdsArray,
+                                       HAPI_NodeId* MaterialIdsArray,
                                        int Start,
                                        int Length);
 
-	bool GetMaterialInfo(HEMAX_NodeId MaterialNode,
-                             HEMAX_MaterialInfo* MaterialInfo);
+	bool GetMaterialInfo(HAPI_NodeId MaterialNode,
+                             HAPI_MaterialInfo* MaterialInfo);
 
-	bool RenderTextureToImage(HEMAX_NodeId MaterialNode,
-                                  HEMAX_ParameterId TextureMapFilePath);
+	bool RenderTextureToImage(HAPI_NodeId MaterialNode,
+                                  HAPI_ParmId TextureMapFilePath);
 
-	bool GetImageInfo(HEMAX_NodeId MaterialNode,
-                          HEMAX_ImageInfo* ImageInfo);
+	bool GetImageInfo(HAPI_NodeId MaterialNode,
+                          HAPI_ImageInfo* ImageInfo);
 
-	bool SetImageInfo(HEMAX_NodeId MaterialNode,
-                          const HEMAX_ImageInfo* ImageInfo);
+	bool SetImageInfo(HAPI_NodeId MaterialNode,
+                          const HAPI_ImageInfo* ImageInfo);
 
-	bool ExtractImageToFile(HEMAX_NodeId MaterialNode,
+	bool ExtractImageToFile(HAPI_NodeId MaterialNode,
                                 const char* ImageFileFormatName,
                                 const char* ImagePlanes,
                                 const char* DestinationFolderPath,
 		                const char* DestinationFileName,
                                 int* DestinationFilePath);
 
-	bool ExtractImageToMemory(HEMAX_NodeId MaterialNode,
+	bool ExtractImageToMemory(HAPI_NodeId MaterialNode,
                                   const char* ImageFileFormatName,
                                   const char* ImagePlanes,
                                   int* BufferSize);
 
-	bool GetImageMemoryBuffer(HEMAX_NodeId MaterialNode,
+	bool GetImageMemoryBuffer(HAPI_NodeId MaterialNode,
                                   char* Buffer,
                                   int Length);
 
-	bool GetInstancedObjectIds(HEMAX_NodeId InstancerNodeId,
-                                   HEMAX_NodeId* InstancedNodeIdArray,
+	bool GetInstancedObjectIds(HAPI_NodeId InstancerNodeId,
+                                   HAPI_NodeId* InstancedNodeIdArray,
                                    int Start,
                                    int Length);
 
-	bool GetInstancedPartIds(HEMAX_NodeId NodeId,
-                                 HEMAX_PartId PartId,
-                                 HEMAX_PartId* PartIdArray,
+	bool GetInstancedPartIds(HAPI_NodeId NodeId,
+                                 HAPI_PartId PartId,
+                                 HAPI_PartId* PartIdArray,
                                  int Start,
                                  int Length);
 
-	bool GetInstancerPartTransforms(HEMAX_NodeId NodeId,
-                                        HEMAX_PartId PartId,
+	bool GetInstancerPartTransforms(HAPI_NodeId NodeId,
+                                        HAPI_PartId PartId,
                                         HAPI_RSTOrder RSTOrder,
                                         HAPI_Transform* TransformArray,
                                         int Start,
                                         int Length);
 
-	bool GetCurveInfo(HEMAX_NodeId NodeId,
-                          HEMAX_PartId PartId,
-                          HEMAX_CurveInfo* CurveInfo);
+	bool GetCurveInfo(HAPI_NodeId NodeId,
+                          HAPI_PartId PartId,
+                          HAPI_CurveInfo* CurveInfo);
 
-	bool GetCurveCounts(HEMAX_NodeId NodeId,
-                            HEMAX_PartId PartId,
+	bool GetCurveCounts(HAPI_NodeId NodeId,
+                            HAPI_PartId PartId,
                             int* CountsArray,
                             int Start,
                             int Length);
 
-	bool GetCurveOrders(HEMAX_NodeId NodeId,
-                            HEMAX_PartId PartId,
+	bool GetCurveOrders(HAPI_NodeId NodeId,
+                            HAPI_PartId PartId,
                             int* OrdersArray,
                             int Start,
                             int Length);
 
-	bool GetCurveKnots(HEMAX_NodeId NodeId,
-                           HEMAX_PartId PartId,
+	bool GetCurveKnots(HAPI_NodeId NodeId,
+                           HAPI_PartId PartId,
                            float* KnotsArray,
                            int Start,
                            int Length);
 
-	bool SetCurveInfo(HEMAX_NodeId NodeId,
-                          HEMAX_PartId PartId,
+	bool SetCurveInfo(HAPI_NodeId NodeId,
+                          HAPI_PartId PartId,
                           const HAPI_CurveInfo* CurveInfo);
 
-	bool SetCurveOrders(HEMAX_NodeId NodeId,
-                            HEMAX_PartId PartId,
+	bool SetCurveOrders(HAPI_NodeId NodeId,
+                            HAPI_PartId PartId,
                             const int* OrdersArray,
                             int Start,
                             int Length);
 
-	bool SetCurveCounts(HEMAX_NodeId NodeId,
-                            HEMAX_PartId PartId,
+	bool SetCurveCounts(HAPI_NodeId NodeId,
+                            HAPI_PartId PartId,
                             const int* CountsArray,
                             int Start,
                             int Length);
 
-	bool SetCurveKnots(HEMAX_NodeId NodeId,
-                           HEMAX_PartId PartId,
+	bool SetCurveKnots(HAPI_NodeId NodeId,
+                           HAPI_PartId PartId,
                            const float* KnotsArray,
                            int Start,
                            int Length);
 
-	bool QueryNodeInput(HEMAX_NodeId NodeToQuery,
+	bool QueryNodeInput(HAPI_NodeId NodeToQuery,
                             int InputIndex,
-                            HEMAX_NodeId* ConnectedNodeId);
+                            HAPI_NodeId* ConnectedNodeId);
 
 	bool GetTime(float* Time);
 
 	bool SetTime(float Time);
 
-	bool GetTimelineOptions(HEMAX_TimelineOptions* TimelineOptions);
+	bool GetTimelineOptions(HAPI_TimelineOptions* TimelineOptions);
 
-	bool SetTimelineOptions(const HEMAX_TimelineOptions* TimelineOptions);
+	bool SetTimelineOptions(const HAPI_TimelineOptions* TimelineOptions);
 
 	bool GetServerEnvVarCount(int * Count);
 
@@ -444,22 +444,22 @@ class HEMAX_HAPISession : public HAPI_Session
 	bool SetServerEnvString(const char* VarName,
                                 const char* Value);
 
-        bool GetGroupNames(HEMAX_NodeId NodeId, HAPI_GroupType GroupType,
+        bool GetGroupNames(HAPI_NodeId NodeId, HAPI_GroupType GroupType,
             HAPI_StringHandle* GroupNameHandles, int Count);
 
-        bool GetGroupMembership(HEMAX_NodeId NodeId, HAPI_PartId PartId,
+        bool GetGroupMembership(HAPI_NodeId NodeId, HAPI_PartId PartId,
             HAPI_GroupType GroupType, const char* GroupName,
             HAPI_Bool* MembershipAllEqualArray, int* MembershipArray, int Start,
             int Length);
 
-        bool AddGroup(HEMAX_NodeId NodeId,
-                      HEMAX_PartId PartId,
-                      HEMAX_GroupType GroupType,
+        bool AddGroup(HAPI_NodeId NodeId,
+                      HAPI_PartId PartId,
+                      HAPI_GroupType GroupType,
                       const char* GroupName);
 
-        bool SetGroupMembership(HEMAX_NodeId NodeId,
-                                HEMAX_PartId PartId,
-                                HEMAX_GroupType GroupType,
+        bool SetGroupMembership(HAPI_NodeId NodeId,
+                                HAPI_PartId PartId,
+                                HAPI_GroupType GroupType,
                                 const char* GroupName,
                                 const int* MembershipArray,
                                 int Start,
@@ -473,7 +473,7 @@ class HEMAX_HAPISession : public HAPI_Session
 
         bool GetConnectionErrorLength(int* BufferLength);
 
-	std::string GetHAPIString(HEMAX_StringHandle Handle);
+	std::string GetHAPIString(HAPI_StringHandle Handle);
 
 	std::string GetHAPIErrorStatusString();
 

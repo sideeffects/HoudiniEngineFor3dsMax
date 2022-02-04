@@ -30,14 +30,14 @@ class HEMAX_3dsmaxHda
 	
 	virtual void Update3dsmaxHda() = 0;
 
-	void SetParameterInput(HEMAX_ParameterId ParamId, HEMAX_InputInstance* Input);
-	HEMAX_InputInstance* FindParameterInput(HEMAX_ParameterId Paramid);
+	void SetParameterInput(HAPI_ParmId ParamId, HEMAX_InputInstance* Input);
+	HEMAX_InputInstance* FindParameterInput(HAPI_ParmId Paramid);
 
 	std::vector<HEMAX_Parameter> GetAllParametersWithInputs();
 	std::vector<HEMAX_InputInstance*> GetAllParameter3dsmaxInputs();
 
-	void UpdateParameterInputNode(HEMAX_ParameterId ParamId);
-	void ClearParameterInputNode(HEMAX_ParameterId ParamId);
+	void UpdateParameterInputNode(HAPI_ParmId ParamId);
+	void ClearParameterInputNode(HAPI_ParmId ParamId);
 
 	void SetSubnetworkInput(int Subnetwork, HEMAX_InputInstance* Input);
 	HEMAX_InputInstance* FindSubnetworkInput(int Subnetwork);
@@ -78,7 +78,7 @@ class HEMAX_3dsmaxHda
 	HEMAX_Hda Hda;
 
 	std::vector<HEMAX_InputInstance*> SubnetworkNodeInputs;
-	std::unordered_map<HEMAX_ParameterId, HEMAX_InputInstance*> InputNodeMap;
+	std::unordered_map<HAPI_ParmId, HEMAX_InputInstance*> InputNodeMap;
 
     protected:
 

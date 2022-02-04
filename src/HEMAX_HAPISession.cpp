@@ -164,7 +164,7 @@ HEMAX_HAPIThriftPipeSession::CreateSession()
 bool
 HEMAX_HAPISession::LoadHoudiniDigitalAsset(const char* FilePath,
                                            bool AllowOverwrite,
-	                                   HEMAX_AssetId* AssetLibId,
+	                                   HAPI_AssetLibraryId* AssetLibId,
                                            HEMAX_AssetLoadStatus* LoadStatus)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadAssetLibraryFromFile(
@@ -198,7 +198,7 @@ HEMAX_HAPISession::LoadHoudiniDigitalAsset(const char* FilePath,
 }
 
 bool
-HEMAX_HAPISession::GetAvailableAssetCount(HEMAX_AssetId AssetLibId,
+HEMAX_HAPISession::GetAvailableAssetCount(HAPI_AssetLibraryId AssetLibId,
                                           int* AssetCount)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAvailableAssetCount(this,
@@ -209,8 +209,8 @@ HEMAX_HAPISession::GetAvailableAssetCount(HEMAX_AssetId AssetLibId,
 }
 
 bool
-HEMAX_HAPISession::GetAvailableAssets(HEMAX_AssetId AssetLibId,
-                                      HEMAX_StringHandle* AssetNames,
+HEMAX_HAPISession::GetAvailableAssets(HAPI_AssetLibraryId AssetLibId,
+                                      HAPI_StringHandle* AssetNames,
                                       int AssetCount)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAvailableAssets(this,
@@ -222,7 +222,7 @@ HEMAX_HAPISession::GetAvailableAssets(HEMAX_AssetId AssetLibId,
 }
 
 bool
-HEMAX_HAPISession::GetStringBufferLength(HEMAX_StringHandle StringHandle,
+HEMAX_HAPISession::GetStringBufferLength(HAPI_StringHandle StringHandle,
                                          int* StringBufferLength)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStringBufLength(
@@ -234,7 +234,7 @@ HEMAX_HAPISession::GetStringBufferLength(HEMAX_StringHandle StringHandle,
 }
 
 bool
-HEMAX_HAPISession::GetString(HEMAX_StringHandle StringHandle,
+HEMAX_HAPISession::GetString(HAPI_StringHandle StringHandle,
                              char* StringValue,
                              int StringBufferLength)
 {
@@ -247,11 +247,11 @@ HEMAX_HAPISession::GetString(HEMAX_StringHandle StringHandle,
 }
 
 bool
-HEMAX_HAPISession::CreateNode(HEMAX_NodeId ParentNode,
+HEMAX_HAPISession::CreateNode(HAPI_NodeId ParentNode,
                               const char* OperatorName,
                               const char* NodeLabel,
-                              HEMAX_Bool CookOnCreation,
-	                      HEMAX_NodeId* NewNodeId)
+                              HAPI_Bool CookOnCreation,
+	                      HAPI_NodeId* NewNodeId)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateNode(this,
                                                       ParentNode,
@@ -264,7 +264,7 @@ HEMAX_HAPISession::CreateNode(HEMAX_NodeId ParentNode,
 }
 
 bool
-HEMAX_HAPISession::DeleteNode(HEMAX_NodeId NodeId)
+HEMAX_HAPISession::DeleteNode(HAPI_NodeId NodeId)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DeleteNode(this, NodeId);
 
@@ -272,8 +272,8 @@ HEMAX_HAPISession::DeleteNode(HEMAX_NodeId NodeId)
 }
 
 bool
-HEMAX_HAPISession::GetAssetInfo(HEMAX_NodeId Node,
-                                HEMAX_AssetInfo* AssetInfo)
+HEMAX_HAPISession::GetAssetInfo(HAPI_NodeId Node,
+                                HAPI_AssetInfo* AssetInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetInfo(this,
                                                         Node,
@@ -283,7 +283,7 @@ HEMAX_HAPISession::GetAssetInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::CookNode(HEMAX_NodeId Node)
+HEMAX_HAPISession::CookNode(HAPI_NodeId Node)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CookNode(this, Node, &CookOptions);
 
@@ -291,8 +291,8 @@ HEMAX_HAPISession::CookNode(HEMAX_NodeId Node)
 }
 
 bool
-HEMAX_HAPISession::GetNodeInfo(HEMAX_NodeId Node,
-                               HEMAX_NodeInfo* NodeInfo)
+HEMAX_HAPISession::GetNodeInfo(HAPI_NodeId Node,
+                               HAPI_NodeInfo* NodeInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeInfo(this,
                                                        Node,
@@ -302,9 +302,9 @@ HEMAX_HAPISession::GetNodeInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetNodeInputName(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetNodeInputName(HAPI_NodeId Node,
                                     int InputIndex,
-                                    HEMAX_StringHandle* nameSH)
+                                    HAPI_StringHandle* nameSH)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeInputName(this,
                                                             Node,
@@ -315,8 +315,8 @@ HEMAX_HAPISession::GetNodeInputName(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetObjectInfo(HEMAX_NodeId Node,
-                                 HEMAX_ObjectInfo* ObjectInfo)
+HEMAX_HAPISession::GetObjectInfo(HAPI_NodeId Node,
+                                 HAPI_ObjectInfo* ObjectInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetObjectInfo(this,
                                                          Node,
@@ -326,8 +326,8 @@ HEMAX_HAPISession::GetObjectInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetGeometryInfo(HEMAX_NodeId Node,
-                                   HEMAX_GeometryInfo* GeoInfo)
+HEMAX_HAPISession::GetGeometryInfo(HAPI_NodeId Node,
+                                   HAPI_GeoInfo* GeoInfo)
 {
 #ifdef GetGeoInfo
 #undef GetGeoInfo
@@ -339,8 +339,8 @@ HEMAX_HAPISession::GetGeometryInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetDisplayGeoInfo(HEMAX_NodeId Node,
-                                     HEMAX_GeometryInfo* GeoInfo)
+HEMAX_HAPISession::GetDisplayGeoInfo(HAPI_NodeId Node,
+                                     HAPI_GeoInfo* GeoInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetDisplayGeoInfo(this,
                                                              Node,
@@ -350,9 +350,9 @@ HEMAX_HAPISession::GetDisplayGeoInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetPartInfo(HEMAX_NodeId Node,
-                               HEMAX_PartId PartId,
-                               HEMAX_PartInfo* PartInfo)
+HEMAX_HAPISession::GetPartInfo(HAPI_NodeId Node,
+                               HAPI_PartId PartId,
+                               HAPI_PartInfo* PartInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPartInfo(this,
                                                        Node,
@@ -363,8 +363,8 @@ HEMAX_HAPISession::GetPartInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetEdgeCountOfEdgeGroup(HEMAX_NodeId Node,
-                                           HEMAX_PartId PartId,
+HEMAX_HAPISession::GetEdgeCountOfEdgeGroup(HAPI_NodeId Node,
+                                           HAPI_PartId PartId,
                                            const char* GroupName,
                                            int* EdgeCount)
 {
@@ -378,8 +378,8 @@ HEMAX_HAPISession::GetEdgeCountOfEdgeGroup(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetFaceCounts(HEMAX_NodeId Node,
-                                 HEMAX_PartId PartId,
+HEMAX_HAPISession::GetFaceCounts(HAPI_NodeId Node,
+                                 HAPI_PartId PartId,
                                  int* FaceCountsArray,
                                  int Start,
                                  int Length)
@@ -395,8 +395,8 @@ HEMAX_HAPISession::GetFaceCounts(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetVertexList(HEMAX_NodeId Node,
-                                 HEMAX_PartId PartId,
+HEMAX_HAPISession::GetVertexList(HAPI_NodeId Node,
+                                 HAPI_PartId PartId,
                                  int* VertexListArray,
                                  int Start,
                                  int Length)
@@ -412,10 +412,10 @@ HEMAX_HAPISession::GetVertexList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetAttributeNames(HEMAX_NodeId Node,
-                                     HEMAX_PartId PartId,
+HEMAX_HAPISession::GetAttributeNames(HAPI_NodeId Node,
+                                     HAPI_PartId PartId,
                                      HEMAX_AttributeOwner Owner,
-                                     HEMAX_StringHandle* AttributeNamesArray,
+                                     HAPI_StringHandle* AttributeNamesArray,
                                      int Count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeNames(
@@ -430,11 +430,11 @@ HEMAX_HAPISession::GetAttributeNames(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetAttributeInfo(HEMAX_NodeId Node,
-                                    HEMAX_PartId PartId,
+HEMAX_HAPISession::GetAttributeInfo(HAPI_NodeId Node,
+                                    HAPI_PartId PartId,
                                     const char* Name,
                                     HEMAX_AttributeOwner Owner,
-                                    HEMAX_AttributeInfo* AttributeInfo)
+                                    HAPI_AttributeInfo* AttributeInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInfo(
                                             this,
@@ -448,10 +448,10 @@ HEMAX_HAPISession::GetAttributeInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetAttributeIntData(HEMAX_NodeId Node,
-                                       HEMAX_PartId PartId,
+HEMAX_HAPISession::GetAttributeIntData(HAPI_NodeId Node,
+                                       HAPI_PartId PartId,
                                        const char* Name,
-                                       HEMAX_AttributeInfo* AttributeInfo,
+                                       HAPI_AttributeInfo* AttributeInfo,
 	                               int Stride,
                                        int* IntDataArray,
                                        int Start,
@@ -471,10 +471,10 @@ HEMAX_HAPISession::GetAttributeIntData(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetAttributeFloatData(HEMAX_NodeId Node,
-                                         HEMAX_PartId PartId,
+HEMAX_HAPISession::GetAttributeFloatData(HAPI_NodeId Node,
+                                         HAPI_PartId PartId,
                                          const char* Name,
-                                         HEMAX_AttributeInfo* AttributeInfo,
+                                         HAPI_AttributeInfo* AttributeInfo,
 	                                 int Stride,
                                          float* FloatDataArray,
                                          int Start,
@@ -496,11 +496,11 @@ HEMAX_HAPISession::GetAttributeFloatData(HEMAX_NodeId Node,
 
 bool
 HEMAX_HAPISession::GetAttributeStringData(
-                            HEMAX_NodeId Node,
-                            HEMAX_PartId PartId,
+                            HAPI_NodeId Node,
+                            HAPI_PartId PartId,
                             const char* Name,
-                            HEMAX_AttributeInfo* AttributeInfo,
-	                    HEMAX_StringHandle* StringHandleDataArray,
+                            HAPI_AttributeInfo* AttributeInfo,
+	                    HAPI_StringHandle* StringHandleDataArray,
                             int Start,
                             int Length)
 {
@@ -518,8 +518,8 @@ HEMAX_HAPISession::GetAttributeStringData(
 }
 
 bool
-HEMAX_HAPISession::GetParameters(HEMAX_NodeId Node,
-                                 HEMAX_ParameterInfo* ParmInfosArray,
+HEMAX_HAPISession::GetParameters(HAPI_NodeId Node,
+                                 HAPI_ParmInfo* ParmInfosArray,
                                  int Start,
                                  int Length)
 {
@@ -534,9 +534,9 @@ HEMAX_HAPISession::GetParameters(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetParameterInfo(HEMAX_NodeId Node,
-                                    HEMAX_ParameterId ParmId,
-                                    HEMAX_ParameterInfo* ParmInfo)
+HEMAX_HAPISession::GetParameterInfo(HAPI_NodeId Node,
+                                    HAPI_ParmId ParmId,
+                                    HAPI_ParmInfo* ParmInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmInfo(this,
                                                        Node,
@@ -547,7 +547,7 @@ HEMAX_HAPISession::GetParameterInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetParameterIntValues(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetParameterIntValues(HAPI_NodeId Node,
                                          int* ValuesArray,
                                          int Start,
                                          int Length)
@@ -562,7 +562,7 @@ HEMAX_HAPISession::GetParameterIntValues(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetParameterFloatValues(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetParameterFloatValues(HAPI_NodeId Node,
                                            float* ValuesArray,
                                            int Start,
                                            int Length)
@@ -577,9 +577,9 @@ HEMAX_HAPISession::GetParameterFloatValues(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetParameterStringValues(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetParameterStringValues(HAPI_NodeId Node,
                                             bool Evaluate,
-                                            HEMAX_StringHandle* ValuesArray,
+                                            HAPI_StringHandle* ValuesArray,
                                             int Start,
                                             int Length)
 {
@@ -595,8 +595,8 @@ HEMAX_HAPISession::GetParameterStringValues(HEMAX_NodeId Node,
 
 bool
 HEMAX_HAPISession::GetParameterChoiceLists(
-                            HEMAX_NodeId Node,
-                            HEMAX_ParameterChoiceInfo* ParmChoicesArray,
+                            HAPI_NodeId Node,
+                            HAPI_ParmChoiceInfo* ParmChoicesArray,
                             int Start,
                             int Length)
 {
@@ -610,9 +610,9 @@ HEMAX_HAPISession::GetParameterChoiceLists(
 }
 
 bool
-HEMAX_HAPISession::GetParameterIdFromName(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetParameterIdFromName(HAPI_NodeId Node,
                                           const char* ParmName,
-                                          HEMAX_ParameterId* ParmId)
+                                          HAPI_ParmId* ParmId)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmIdFromName(this,
                                                              Node,
@@ -623,7 +623,7 @@ HEMAX_HAPISession::GetParameterIdFromName(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::SetParameterIntValues(HEMAX_NodeId Node,
+HEMAX_HAPISession::SetParameterIntValues(HAPI_NodeId Node,
                                          int* ValuesArray,
                                          int Start,
                                          int Length)
@@ -639,7 +639,7 @@ HEMAX_HAPISession::SetParameterIntValues(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::SetParameterFloatValues(HEMAX_NodeId Node,
+HEMAX_HAPISession::SetParameterFloatValues(HAPI_NodeId Node,
                                            float* ValuesArray,
                                            int Start,
                                            int Length)
@@ -654,9 +654,9 @@ HEMAX_HAPISession::SetParameterFloatValues(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::SetParameterStringValue(HEMAX_NodeId Node,
+HEMAX_HAPISession::SetParameterStringValue(HAPI_NodeId Node,
                                            const char* StringValue,
-                                           HEMAX_ParameterId ParmId,
+                                           HAPI_ParmId ParmId,
                                            int Index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmStringValue(this,
@@ -669,8 +669,8 @@ HEMAX_HAPISession::SetParameterStringValue(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::InsertMultiParameterInstance(HEMAX_NodeId Node,
-                                                HEMAX_ParameterId Parameter,
+HEMAX_HAPISession::InsertMultiParameterInstance(HAPI_NodeId Node,
+                                                HAPI_ParmId Parameter,
                                                 int Position)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::InsertMultiparmInstance(this,
@@ -682,8 +682,8 @@ HEMAX_HAPISession::InsertMultiParameterInstance(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::RemoveMultiParameterInstance(HEMAX_NodeId Node,
-                                                HEMAX_ParameterId Parameter,
+HEMAX_HAPISession::RemoveMultiParameterInstance(HAPI_NodeId Node,
+                                                HAPI_ParmId Parameter,
                                                 int Position)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RemoveMultiparmInstance(this,
@@ -695,7 +695,7 @@ HEMAX_HAPISession::RemoveMultiParameterInstance(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetComposedObjectTransforms(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetComposedObjectTransforms(HAPI_NodeId Node,
                                                HAPI_RSTOrder RSTOrder,
                                                HAPI_Transform* TransformArray,
                                                int Start,
@@ -731,7 +731,7 @@ HEMAX_HAPIThriftPipeSession::SetPipeName(std::string Name)
 }
 
 bool
-HEMAX_HAPISession::ComposeObjectList(HEMAX_NodeId Node,
+HEMAX_HAPISession::ComposeObjectList(HAPI_NodeId Node,
                                      const char* Categories,
                                      int* ObjectCount)
 {
@@ -744,8 +744,8 @@ HEMAX_HAPISession::ComposeObjectList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetComposedObjectList(HEMAX_NodeId Node,
-                                         HEMAX_ObjectInfo* ObjectInfosArray,
+HEMAX_HAPISession::GetComposedObjectList(HAPI_NodeId Node,
+                                         HAPI_ObjectInfo* ObjectInfosArray,
                                          int Start,
                                          int Length)
 {
@@ -760,10 +760,10 @@ HEMAX_HAPISession::GetComposedObjectList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::ComposeChildNodeList(HEMAX_NodeId Node,
+HEMAX_HAPISession::ComposeChildNodeList(HAPI_NodeId Node,
                                         HAPI_NodeTypeBits NodeTypeFilter,
                                         HAPI_NodeFlagsBits NodeFlagFilter,
-                                        HEMAX_Bool Recursive,
+                                        HAPI_Bool Recursive,
                                         int* Count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ComposeChildNodeList(this,
@@ -777,8 +777,8 @@ HEMAX_HAPISession::ComposeChildNodeList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetComposedChildNodeList(HEMAX_NodeId Node,
-                                            HEMAX_NodeId* ChildNodeIdsArray,
+HEMAX_HAPISession::GetComposedChildNodeList(HAPI_NodeId Node,
+                                            HAPI_NodeId* ChildNodeIdsArray,
                                             int Count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedChildNodeList(
@@ -791,8 +791,8 @@ HEMAX_HAPISession::GetComposedChildNodeList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetObjectTransform(HEMAX_NodeId Node,
-                                      HEMAX_NodeId RelativeToNodeId,
+HEMAX_HAPISession::GetObjectTransform(HAPI_NodeId Node,
+                                      HAPI_NodeId RelativeToNodeId,
                                       HAPI_RSTOrder RSTOrder,
                                       HAPI_Transform* Transform)
 {
@@ -807,9 +807,9 @@ HEMAX_HAPISession::GetObjectTransform(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetParameterNodeValue(HEMAX_NodeId Node,
+HEMAX_HAPISession::GetParameterNodeValue(HAPI_NodeId Node,
                                          const char* ParameterName,
-                                         HEMAX_NodeId* Value)
+                                         HAPI_NodeId* Value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmNodeValue(this,
                                                             Node,
@@ -820,9 +820,9 @@ HEMAX_HAPISession::GetParameterNodeValue(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::SetParameterNodeValue(HEMAX_NodeId Node,
+HEMAX_HAPISession::SetParameterNodeValue(HAPI_NodeId Node,
                                          const char* ParameterName,
-                                         HEMAX_NodeId Value)
+                                         HAPI_NodeId Value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmNodeValue(this,
                                                             Node,
@@ -833,7 +833,7 @@ HEMAX_HAPISession::SetParameterNodeValue(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::CreateInputNode(HEMAX_NodeId* Node,
+HEMAX_HAPISession::CreateInputNode(HAPI_NodeId* Node,
                                    const char* NodeName)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateInputNode(this,
@@ -844,7 +844,7 @@ HEMAX_HAPISession::CreateInputNode(HEMAX_NodeId* Node,
 }
 
 bool
-HEMAX_HAPISession::SetObjectTransform(HEMAX_NodeId Node,
+HEMAX_HAPISession::SetObjectTransform(HAPI_NodeId Node,
                                       const HAPI_TransformEuler* Transform)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetObjectTransform(this,
@@ -856,7 +856,7 @@ HEMAX_HAPISession::SetObjectTransform(HEMAX_NodeId Node,
 
 bool
 HEMAX_HAPISession::SaveHIPFile(const char* FilePath,
-                               HEMAX_Bool LockNodes)
+                               HAPI_Bool LockNodes)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SaveHIPFile(this,
                                                        FilePath,
@@ -866,7 +866,7 @@ HEMAX_HAPISession::SaveHIPFile(const char* FilePath,
 }
 
 bool
-HEMAX_HAPISession::CommitGeometry(HEMAX_NodeId Node)
+HEMAX_HAPISession::CommitGeometry(HAPI_NodeId Node)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CommitGeo(this, Node);
 
@@ -874,9 +874,9 @@ HEMAX_HAPISession::CommitGeometry(HEMAX_NodeId Node)
 }
 
 bool
-HEMAX_HAPISession::SetPartInfo(HEMAX_NodeId Node,
-                               HEMAX_PartId PartId,
-                               const HEMAX_PartInfo* PartInfo)
+HEMAX_HAPISession::SetPartInfo(HAPI_NodeId Node,
+                               HAPI_PartId PartId,
+                               const HAPI_PartInfo* PartInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetPartInfo(this,
                                                        Node,
@@ -887,10 +887,10 @@ HEMAX_HAPISession::SetPartInfo(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::AddAttribute(HEMAX_NodeId Node,
-                                HEMAX_PartId PartId,
+HEMAX_HAPISession::AddAttribute(HAPI_NodeId Node,
+                                HAPI_PartId PartId,
                                 const char* Name,
-                                const HEMAX_AttributeInfo* AttributeInfo)
+                                const HAPI_AttributeInfo* AttributeInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::AddAttribute(this,
                                                         Node,
@@ -903,10 +903,10 @@ HEMAX_HAPISession::AddAttribute(HEMAX_NodeId Node,
 
 bool
 HEMAX_HAPISession::SetAttributeFloatData(
-                            HEMAX_NodeId Node,
-                            HEMAX_PartId Part,
+                            HAPI_NodeId Node,
+                            HAPI_PartId Part,
                             const char* Name,
-                            const HEMAX_AttributeInfo* AttributeInfo,
+                            const HAPI_AttributeInfo* AttributeInfo,
                             const float* DataArray,
                             int Start,
                             int Length)
@@ -925,10 +925,10 @@ HEMAX_HAPISession::SetAttributeFloatData(
 }
 
 bool
-HEMAX_HAPISession::SetAttributeIntData(HEMAX_NodeId Node,
-                                       HEMAX_PartId Part,
+HEMAX_HAPISession::SetAttributeIntData(HAPI_NodeId Node,
+                                       HAPI_PartId Part,
                                        const char* Name,
-                                       const HEMAX_AttributeInfo* AttributeInfo,
+                                       const HAPI_AttributeInfo* AttributeInfo,
                                        const int* DataArray,
                                        int Start,
                                        int Length)
@@ -947,10 +947,10 @@ HEMAX_HAPISession::SetAttributeIntData(HEMAX_NodeId Node,
 
 bool
 HEMAX_HAPISession::SetAttributeStringData(
-                                HEMAX_NodeId Node,
-                                HEMAX_PartId Part,
+                                HAPI_NodeId Node,
+                                HAPI_PartId Part,
                                 const char* Name,
-                                const HEMAX_AttributeInfo* AttributeInfo,
+                                const HAPI_AttributeInfo* AttributeInfo,
                                 const char** DataArray,
                                 int Start,
                                 int Length)
@@ -968,8 +968,8 @@ HEMAX_HAPISession::SetAttributeStringData(
 }
 
 bool
-HEMAX_HAPISession::SetVertexList(HEMAX_NodeId Node,
-                                 HEMAX_PartId Part,
+HEMAX_HAPISession::SetVertexList(HAPI_NodeId Node,
+                                 HAPI_PartId Part,
                                  const int* VertexListArray,
                                  int Start,
                                  int Length)
@@ -985,8 +985,8 @@ HEMAX_HAPISession::SetVertexList(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::SetFaceCounts(HEMAX_NodeId Node,
-                                 HEMAX_PartId Part,
+HEMAX_HAPISession::SetFaceCounts(HAPI_NodeId Node,
+                                 HAPI_PartId Part,
                                  const int* FaceCountsArray,
                                  int Start,
                                  int Length)
@@ -1002,8 +1002,8 @@ HEMAX_HAPISession::SetFaceCounts(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetInstanceTransformsOnPart(HEMAX_NodeId Node,
-                                               HEMAX_PartId Part,
+HEMAX_HAPISession::GetInstanceTransformsOnPart(HAPI_NodeId Node,
+                                               HAPI_PartId Part,
                                                HAPI_RSTOrder RSTOrder,
                                                HAPI_Transform* TransformsArray,
                                                int Start,
@@ -1054,9 +1054,9 @@ HEMAX_HAPISession::StartThriftSocketServer(
 }
 
 bool
-HEMAX_HAPISession::ConnectNodeInput(HEMAX_NodeId Node,
+HEMAX_HAPISession::ConnectNodeInput(HAPI_NodeId Node,
                                     int InputIndex,
-                                    HEMAX_NodeId NodeToConnect,
+                                    HAPI_NodeId NodeToConnect,
                                     int OutputIndex)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConnectNodeInput(this,
@@ -1069,7 +1069,7 @@ HEMAX_HAPISession::ConnectNodeInput(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::DisconnectNodeInput(HEMAX_NodeId Node,
+HEMAX_HAPISession::DisconnectNodeInput(HAPI_NodeId Node,
                                        int InputIndex)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DisconnectNodeInput(this,
@@ -1080,10 +1080,10 @@ HEMAX_HAPISession::DisconnectNodeInput(HEMAX_NodeId Node,
 }
 
 bool
-HEMAX_HAPISession::GetMaterialNodeIdsOnFaces(HEMAX_NodeId GeometryNode,
-                                             HEMAX_PartId Part,
+HEMAX_HAPISession::GetMaterialNodeIdsOnFaces(HAPI_NodeId GeometryNode,
+                                             HAPI_PartId Part,
                                              bool* AreAllTheSame,
-                                             HEMAX_NodeId* MaterialIdsArray,
+                                             HAPI_NodeId* MaterialIdsArray,
                                              int Start,
                                              int Length)
 {
@@ -1100,8 +1100,8 @@ HEMAX_HAPISession::GetMaterialNodeIdsOnFaces(HEMAX_NodeId GeometryNode,
 }
 
 bool
-HEMAX_HAPISession::GetMaterialInfo(HEMAX_NodeId MaterialNode,
-                                   HEMAX_MaterialInfo* MaterialInfo)
+HEMAX_HAPISession::GetMaterialInfo(HAPI_NodeId MaterialNode,
+                                   HAPI_MaterialInfo* MaterialInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetMaterialInfo(this,
                                                            MaterialNode,
@@ -1111,8 +1111,8 @@ HEMAX_HAPISession::GetMaterialInfo(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::RenderTextureToImage(HEMAX_NodeId MaterialNode,
-                                        HEMAX_ParameterId TextureMapFilePath)
+HEMAX_HAPISession::RenderTextureToImage(HAPI_NodeId MaterialNode,
+                                        HAPI_ParmId TextureMapFilePath)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RenderTextureToImage(
                                                             this,
@@ -1123,8 +1123,8 @@ HEMAX_HAPISession::RenderTextureToImage(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::GetImageInfo(HEMAX_NodeId MaterialNode,
-                                HEMAX_ImageInfo* ImageInfo)
+HEMAX_HAPISession::GetImageInfo(HAPI_NodeId MaterialNode,
+                                HAPI_ImageInfo* ImageInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImageInfo(this,
                                                         MaterialNode,
@@ -1134,8 +1134,8 @@ HEMAX_HAPISession::GetImageInfo(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::SetImageInfo(HEMAX_NodeId MaterialNode,
-                                const HEMAX_ImageInfo* ImageInfo)
+HEMAX_HAPISession::SetImageInfo(HAPI_NodeId MaterialNode,
+                                const HAPI_ImageInfo* ImageInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetImageInfo(this,
                                                         MaterialNode,
@@ -1145,7 +1145,7 @@ HEMAX_HAPISession::SetImageInfo(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::ExtractImageToFile(HEMAX_NodeId MaterialNode,
+HEMAX_HAPISession::ExtractImageToFile(HAPI_NodeId MaterialNode,
                                       const char* ImageFileFormatName,
                                       const char* ImagePlanes,
                                       const char* DestinationFolderPath,
@@ -1165,7 +1165,7 @@ HEMAX_HAPISession::ExtractImageToFile(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::ExtractImageToMemory(HEMAX_NodeId MaterialNode,
+HEMAX_HAPISession::ExtractImageToMemory(HAPI_NodeId MaterialNode,
                                         const char* ImageFileFormatName,
                                         const char* ImagePlanes, int* BufferSize)
 {
@@ -1180,7 +1180,7 @@ HEMAX_HAPISession::ExtractImageToMemory(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::GetImageMemoryBuffer(HEMAX_NodeId MaterialNode,
+HEMAX_HAPISession::GetImageMemoryBuffer(HAPI_NodeId MaterialNode,
                                         char* Buffer,
                                         int Length)
 {
@@ -1193,8 +1193,8 @@ HEMAX_HAPISession::GetImageMemoryBuffer(HEMAX_NodeId MaterialNode,
 }
 
 bool
-HEMAX_HAPISession::GetInstancedObjectIds(HEMAX_NodeId InstancerNodeId,
-                                         HEMAX_NodeId* InstancedNodeIdArray,
+HEMAX_HAPISession::GetInstancedObjectIds(HAPI_NodeId InstancerNodeId,
+                                         HAPI_NodeId* InstancedNodeIdArray,
                                          int Start,
                                          int Length)
 {
@@ -1209,9 +1209,9 @@ HEMAX_HAPISession::GetInstancedObjectIds(HEMAX_NodeId InstancerNodeId,
 }
 
 bool
-HEMAX_HAPISession::GetInstancedPartIds(HEMAX_NodeId NodeId,
-                                       HEMAX_PartId PartId,
-                                       HEMAX_PartId* PartIdArray,
+HEMAX_HAPISession::GetInstancedPartIds(HAPI_NodeId NodeId,
+                                       HAPI_PartId PartId,
+                                       HAPI_PartId* PartIdArray,
                                        int Start,
                                        int Length)
 {
@@ -1226,8 +1226,8 @@ HEMAX_HAPISession::GetInstancedPartIds(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::GetInstancerPartTransforms(HEMAX_NodeId NodeId,
-                                              HEMAX_PartId PartId,
+HEMAX_HAPISession::GetInstancerPartTransforms(HAPI_NodeId NodeId,
+                                              HAPI_PartId PartId,
                                               HAPI_RSTOrder RSTOrder,
                                               HAPI_Transform* TransformArray,
                                               int Start,
@@ -1246,9 +1246,9 @@ HEMAX_HAPISession::GetInstancerPartTransforms(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::GetCurveInfo(HEMAX_NodeId NodeId,
-                                HEMAX_PartId PartId,
-                                HEMAX_CurveInfo* CurveInfo)
+HEMAX_HAPISession::GetCurveInfo(HAPI_NodeId NodeId,
+                                HAPI_PartId PartId,
+                                HAPI_CurveInfo* CurveInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCurveInfo(this,
                                                         NodeId,
@@ -1259,8 +1259,8 @@ HEMAX_HAPISession::GetCurveInfo(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::GetCurveCounts(HEMAX_NodeId NodeId,
-                                  HEMAX_PartId PartId,
+HEMAX_HAPISession::GetCurveCounts(HAPI_NodeId NodeId,
+                                  HAPI_PartId PartId,
                                   int* CountsArray,
                                   int Start,
                                   int Length)
@@ -1276,8 +1276,8 @@ HEMAX_HAPISession::GetCurveCounts(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::GetCurveOrders(HEMAX_NodeId NodeId,
-                                  HEMAX_PartId PartId,
+HEMAX_HAPISession::GetCurveOrders(HAPI_NodeId NodeId,
+                                  HAPI_PartId PartId,
                                   int* OrdersArray,
                                   int Start,
                                   int Length)
@@ -1293,8 +1293,8 @@ HEMAX_HAPISession::GetCurveOrders(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::GetCurveKnots(HEMAX_NodeId NodeId,
-                                 HEMAX_PartId PartId,
+HEMAX_HAPISession::GetCurveKnots(HAPI_NodeId NodeId,
+                                 HAPI_PartId PartId,
                                  float* KnotsArray,
                                  int Start,
                                  int Length)
@@ -1310,8 +1310,8 @@ HEMAX_HAPISession::GetCurveKnots(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::SetCurveInfo(HEMAX_NodeId NodeId,
-                                HEMAX_PartId PartId,
+HEMAX_HAPISession::SetCurveInfo(HAPI_NodeId NodeId,
+                                HAPI_PartId PartId,
                                 const HAPI_CurveInfo* CurveInfo)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCurveInfo(this,
@@ -1323,8 +1323,8 @@ HEMAX_HAPISession::SetCurveInfo(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::SetCurveOrders(HEMAX_NodeId NodeId,
-                                  HEMAX_PartId PartId,
+HEMAX_HAPISession::SetCurveOrders(HAPI_NodeId NodeId,
+                                  HAPI_PartId PartId,
                                   const int* OrdersArray,
                                   int Start,
                                   int Length)
@@ -1340,8 +1340,8 @@ HEMAX_HAPISession::SetCurveOrders(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::SetCurveCounts(HEMAX_NodeId NodeId,
-                                  HEMAX_PartId PartId,
+HEMAX_HAPISession::SetCurveCounts(HAPI_NodeId NodeId,
+                                  HAPI_PartId PartId,
                                   const int* CountsArray,
                                   int Start,
                                   int Length)
@@ -1357,8 +1357,8 @@ HEMAX_HAPISession::SetCurveCounts(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::SetCurveKnots(HEMAX_NodeId NodeId,
-                                 HEMAX_PartId PartId,
+HEMAX_HAPISession::SetCurveKnots(HAPI_NodeId NodeId,
+                                 HAPI_PartId PartId,
                                  const float* KnotsArray,
                                  int Start,
                                  int Length)
@@ -1374,9 +1374,9 @@ HEMAX_HAPISession::SetCurveKnots(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::QueryNodeInput(HEMAX_NodeId NodeToQuery,
+HEMAX_HAPISession::QueryNodeInput(HAPI_NodeId NodeToQuery,
                                   int InputIndex,
-                                  HEMAX_NodeId* ConnectedNodeId)
+                                  HAPI_NodeId* ConnectedNodeId)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::QueryNodeInput(this,
                                                           NodeToQuery,
@@ -1403,7 +1403,7 @@ HEMAX_HAPISession::SetTime(float Time)
 }
 
 bool
-HEMAX_HAPISession::GetTimelineOptions(HEMAX_TimelineOptions* TimelineOptions)
+HEMAX_HAPISession::GetTimelineOptions(HAPI_TimelineOptions* TimelineOptions)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetTimelineOptions(this,
                                                               TimelineOptions);
@@ -1413,7 +1413,7 @@ HEMAX_HAPISession::GetTimelineOptions(HEMAX_TimelineOptions* TimelineOptions)
 
 bool
 HEMAX_HAPISession::SetTimelineOptions(
-                            const HEMAX_TimelineOptions* TimelineOptions)
+                            const HAPI_TimelineOptions* TimelineOptions)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetTimelineOptions(this,
                                                               TimelineOptions);
@@ -1488,7 +1488,7 @@ HEMAX_HAPISession::SetServerEnvString(const char* VarName,
 
 
 bool
-HEMAX_HAPISession::GetGroupNames(HEMAX_NodeId NodeId, HAPI_GroupType GroupType,
+HEMAX_HAPISession::GetGroupNames(HAPI_NodeId NodeId, HAPI_GroupType GroupType,
     HAPI_StringHandle* GroupNameHandles, int Count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupNames(this, NodeId,
@@ -1498,7 +1498,7 @@ HEMAX_HAPISession::GetGroupNames(HEMAX_NodeId NodeId, HAPI_GroupType GroupType,
 }
 
 bool
-HEMAX_HAPISession::GetGroupMembership(HEMAX_NodeId NodeId, HAPI_PartId PartId,
+HEMAX_HAPISession::GetGroupMembership(HAPI_NodeId NodeId, HAPI_PartId PartId,
     HAPI_GroupType GroupType, const char* GroupName,
     HAPI_Bool* MembershipAllEqualArray, int* MembershipArray, int Start,
     int Length)
@@ -1511,9 +1511,9 @@ HEMAX_HAPISession::GetGroupMembership(HEMAX_NodeId NodeId, HAPI_PartId PartId,
 }
 
 bool
-HEMAX_HAPISession::AddGroup(HEMAX_NodeId NodeId,
-                            HEMAX_PartId PartId,
-                            HEMAX_GroupType GroupType,
+HEMAX_HAPISession::AddGroup(HAPI_NodeId NodeId,
+                            HAPI_PartId PartId,
+                            HAPI_GroupType GroupType,
                             const char* GroupName)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::AddGroup(this,
@@ -1526,9 +1526,9 @@ HEMAX_HAPISession::AddGroup(HEMAX_NodeId NodeId,
 }
 
 bool
-HEMAX_HAPISession::SetGroupMembership(HEMAX_NodeId NodeId,
-                                      HEMAX_PartId PartId,
-                                      HEMAX_GroupType GroupType,
+HEMAX_HAPISession::SetGroupMembership(HAPI_NodeId NodeId,
+                                      HAPI_PartId PartId,
+                                      HAPI_GroupType GroupType,
                                       const char* GroupName,
                                       const int* MembershipArray,
                                       int Start, int Length)
@@ -1576,7 +1576,7 @@ HEMAX_HAPISession::GetConnectionErrorLength(int* BufferLength)
 }
 
 std::string
-HEMAX_HAPISession::GetHAPIString(HEMAX_StringHandle Handle)
+HEMAX_HAPISession::GetHAPIString(HAPI_StringHandle Handle)
 {
     int StringBufferLength;
     this->GetStringBufferLength(Handle, &StringBufferLength);

@@ -22,13 +22,13 @@ HEMAX_DisplayGeoNode::HEMAX_DisplayGeoNode()
 }
 
 void
-HEMAX_DisplayGeoNode::Init(HEMAX_NodeId NodeId)
+HEMAX_DisplayGeoNode::Init(HAPI_NodeId NodeId)
 {
     Node = NodeId;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_NodeInfo NodeInfo;
+    HAPI_NodeInfo NodeInfo;
     SM.Session->GetNodeInfo(NodeId, &NodeInfo);
     Name = SM.Session->GetHAPIString(NodeInfo.nameSH);
 
@@ -67,7 +67,7 @@ HEMAX_DisplayGeoNode::Update(bool Cook)
 }
 
 HEMAX_Part*
-HEMAX_DisplayGeoNode::GetPart(HEMAX_PartId Id)
+HEMAX_DisplayGeoNode::GetPart(HAPI_PartId Id)
 {
     for (int i = 0; i < Parts.size(); i++)
     {

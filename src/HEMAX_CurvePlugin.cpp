@@ -10,7 +10,7 @@ HEMAX_CurvePlugin::HEMAX_CurvePlugin()
 }
 
 void
-HEMAX_CurvePlugin::SetPart(HEMAX_NodeId _NodeId, HEMAX_PartId _PartId, HEMAX_CurveInfo _CurveInfo)
+HEMAX_CurvePlugin::SetPart(HAPI_NodeId _NodeId, HAPI_PartId _PartId, HAPI_CurveInfo _CurveInfo)
 {
     NodeId = _NodeId;
     PartId = _PartId;
@@ -92,7 +92,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
 	std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
         std::vector<int> MatIds(CurveInfo.vertexCount);
 
-	HEMAX_AttributeInfo PositionAttributeInfo;
+	HAPI_AttributeInfo PositionAttributeInfo;
 	SM.Session->GetAttributeInfo(NodeId, PartId,
 			HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
 			&PositionAttributeInfo);
@@ -101,7 +101,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
             HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
             -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
-        HEMAX_AttributeInfo MatIdAttrInfo;
+        HAPI_AttributeInfo MatIdAttrInfo;
         SM.Session->GetAttributeInfo(NodeId, PartId,
             HEMAX_MATERIAL_ID_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
             &MatIdAttrInfo);
@@ -175,7 +175,7 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
 
-    HEMAX_AttributeInfo PositionAttributeInfo;
+    HAPI_AttributeInfo PositionAttributeInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId,
 	HEMAX_POSITION_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
         &PositionAttributeInfo);
@@ -184,7 +184,7 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 		    HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
 		    -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
-    HEMAX_AttributeInfo MatIdAttrInfo;
+    HAPI_AttributeInfo MatIdAttrInfo;
     SM.Session->GetAttributeInfo(NodeId, PartId, HEMAX_MATERIAL_ID_ATTRIBUTE,
         HEMAX_ATTRIBUTEOWNER_DETAIL, &MatIdAttrInfo);
     int MatId = -1;

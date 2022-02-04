@@ -154,7 +154,7 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 
 	AddNewPart(HEMAX_PARTTYPE_CURVE, 1, NumCVs, NumCVs);
 
-	HEMAX_CurveInfo CurveInfo;
+	HAPI_CurveInfo CurveInfo;
 	CurveInfo.curveCount = 1;
 	CurveInfo.curveType = HAPI_CURVETYPE_NURBS;
 	CurveInfo.hasKnots = (NumKnots > 0);
@@ -241,7 +241,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
-    HEMAX_CurveInfo CurveInfo;
+    HAPI_CurveInfo CurveInfo;
     CurveInfo.curveCount = 1;
     CurveInfo.curveType = HAPI_CURVETYPE_NURBS;
     CurveInfo.hasKnots = (KnotCount > 0);
@@ -322,7 +322,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
     AddNewPart(HEMAX_PARTTYPE_CURVE, 1, CVCount, CVCount);
 
     // Set curve info
-    HEMAX_CurveInfo CurveInfo;
+    HAPI_CurveInfo CurveInfo;
     CurveInfo.curveCount = 1;
     CurveInfo.curveType = HAPI_CURVETYPE_NURBS;
     CurveInfo.hasKnots = (KnotCount > 0);

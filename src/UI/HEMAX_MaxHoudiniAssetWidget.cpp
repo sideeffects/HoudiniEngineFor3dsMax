@@ -336,7 +336,7 @@ HEMAX_MaxHoudiniAssetWidget::PushParameterInputNames()
 	    if (OpParmWidgets[i])
 	    {
 		HEMAX_ParameterWidget_Parameter* PWidget = dynamic_cast<HEMAX_ParameterWidget_Parameter*>(OpParmWidgets[i]);
-		HEMAX_ParameterId ParmId = PWidget->GetParameterId();
+		HAPI_ParmId ParmId = PWidget->GetParameterId();
 
 		auto Search = Selection->InputNodeMap.find(ParmId);
 

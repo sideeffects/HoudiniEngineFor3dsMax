@@ -5,7 +5,7 @@
 #include <IPathConfigMgr.h>
 #include <bitmap.h>
 
-HEMAX_MaterialNode::HEMAX_MaterialNode(HEMAX_NodeId Id)
+HEMAX_MaterialNode::HEMAX_MaterialNode(HAPI_NodeId Id)
     : NodeId(Id)
     , ImageBuffer(nullptr)
     , HasTextureBeenRendered(false)
@@ -18,7 +18,7 @@ HEMAX_MaterialNode::HEMAX_MaterialNode(HEMAX_NodeId Id)
     , Dirty(false)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_NodeInfo NodeInfo;
+    HAPI_NodeInfo NodeInfo;
     SM.Session->GetNodeInfo(NodeId, &NodeInfo);
     Name = SM.Session->GetHAPIString(NodeInfo.nameSH);
 }
@@ -61,19 +61,19 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (!myNodeInfo.isValid)
         return;
 
-    HEMAX_ParameterId Tex0ParmId;
+    HAPI_ParmId Tex0ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_DIFFUSE_COLOR_MAP_0,
                                        &Tex0ParmId);
 
-    HEMAX_ParameterId Tex1ParmId;
+    HAPI_ParmId Tex1ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_DIFFUSE_COLOR_MAP_1,
                                        &Tex1ParmId);
 
     if (Tex0ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Tex0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -86,7 +86,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
     else if (Tex1ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Tex1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -98,19 +98,19 @@ HEMAX_MaterialNode::GetMaterialInformation()
         ImagePath = (HasTexture ? Name : "");
     }
 
-    HEMAX_ParameterId Alpha0ParmId;
+    HAPI_ParmId Alpha0ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_ALPHA_0,
                                        &Alpha0ParmId);
 
-    HEMAX_ParameterId Alpha1ParmId;
+    HAPI_ParmId Alpha1ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_ALPHA_1,
                                        &Alpha1ParmId);
 
     if (Alpha0ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Alpha0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         Alpha = MatParameter.GetFloatVals()[0];
@@ -118,21 +118,21 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
     else if (Alpha1ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Alpha1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         Alpha = MatParameter.GetFloatVals()[0];
         HasAlpha = true;
     }
 
-    HEMAX_ParameterId AmbientParmId;
+    HAPI_ParmId AmbientParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_AMBIENT,
                                        &AmbientParmId);
 
     if (AmbientParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, AmbientParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> AmbientVals = MatParameter.GetFloatVals();
@@ -144,19 +144,19 @@ HEMAX_MaterialNode::GetMaterialInformation()
         HasAmbient = true;
     }
 
-    HEMAX_ParameterId Diffuse0ParmId;
+    HAPI_ParmId Diffuse0ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_DIFFUSE_0,
                                        &Diffuse0ParmId);
 
-    HEMAX_ParameterId Diffuse1ParmId;
+    HAPI_ParmId Diffuse1ParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_DIFFUSE_1,
                                        &Diffuse1ParmId);
 
     if (Diffuse0ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Diffuse0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> DiffuseValues = MatParameter.GetFloatVals();
@@ -169,7 +169,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
     else if (Diffuse1ParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, Diffuse1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -182,14 +182,14 @@ HEMAX_MaterialNode::GetMaterialInformation()
         HasDiffuse = true;
     }
 
-    HEMAX_ParameterId SpecularParmId;
+    HAPI_ParmId SpecularParmId;
     SM.Session->GetParameterIdFromName(NodeId,
                                        HEMAX_MAT_OGL_SPECULAR,
                                        &SpecularParmId);
 
     if (SpecularParmId > -1)
     {
-        HEMAX_ParameterInfo ParmInfo;
+        HAPI_ParmInfo ParmInfo;
         SM.Session->GetParameterInfo(NodeId, SpecularParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> SpecularVals = MatParameter.GetFloatVals();

@@ -23,7 +23,7 @@ HEMAX_Object::HEMAX_Object()
 }
 
 void
-HEMAX_Object::Init(HEMAX_NodeId NodeId)
+HEMAX_Object::Init(HAPI_NodeId NodeId)
 {
     Node = NodeId;
     Create(NodeId);
@@ -52,7 +52,7 @@ HEMAX_Object::FindSopNodeFromName(const std::string& Name)
 }
 
 void
-HEMAX_Object::Create(HEMAX_NodeId NodeId)
+HEMAX_Object::Create(HAPI_NodeId NodeId)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
@@ -66,7 +66,7 @@ HEMAX_Object::Create(HEMAX_NodeId NodeId)
 
 	if (ChildObjectNodeCount > 0)
 	{
-	    std::vector<HEMAX_ObjectInfo> ObjectInfos(ChildObjectNodeCount); 
+	    std::vector<HAPI_ObjectInfo> ObjectInfos(ChildObjectNodeCount); 
 	    SM.Session->GetComposedObjectList(Info.nodeId, &ObjectInfos.front(), 0, ChildObjectNodeCount);
 
 	    for (int i = 0; i < ChildObjectNodeCount; i++)
@@ -137,16 +137,16 @@ HEMAX_Object::Create(HEMAX_NodeId NodeId)
 }
 
 static bool
-GetInstancingInfo(HEMAX_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation& Info)
+GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation& Info)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_GeometryInfo GeoInfo;
+    HAPI_GeoInfo GeoInfo;
     if (SM.Session->GetDisplayGeoInfo(InstancerObjInfo.nodeId, &GeoInfo))
     {
 	Info.InstanceTransforms = GetInstanceTransforms(InstancerObjInfo.nodeId);
 
-	HEMAX_AttributeInfo InstanceObjInfo;
+	HAPI_AttributeInfo InstanceObjInfo;
 	SM.Session->GetAttributeInfo(GeoInfo.nodeId, 0,
 			HEMAX_INSTANCE_ATTRIBUTE, HEMAX_ATTRIBUTEOWNER_POINT,
 			&InstanceObjInfo);
@@ -154,7 +154,7 @@ GetInstancingInfo(HEMAX_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformatio
 	if (InstanceObjInfo.exists)
 	{
             Info.HasMultipleInstancees = true;
-	    Info.InstanceNodeIds = std::vector<HEMAX_NodeId>(InstanceObjInfo.count);
+	    Info.InstanceNodeIds = std::vector<HAPI_NodeId>(InstanceObjInfo.count);
 	    SM.Session->GetInstancedObjectIds(InstancerObjInfo.nodeId, &Info.InstanceNodeIds.front(), 0, InstanceObjInfo.count);
 	}
 	else
@@ -170,14 +170,14 @@ GetInstancingInfo(HEMAX_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformatio
 }
 
 static std::vector<HEMAX_MaxTransform>
-GetInstanceTransforms(HEMAX_NodeId InstancerNode)
+GetInstanceTransforms(HAPI_NodeId InstancerNode)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_GeometryInfo GeoInfo;
+    HAPI_GeoInfo GeoInfo;
     SM.Session->GetDisplayGeoInfo(InstancerNode, &GeoInfo);
 
-    HEMAX_PartInfo InstancerPointInfo;
+    HAPI_PartInfo InstancerPointInfo;
     SM.Session->GetPartInfo(GeoInfo.nodeId, 0, &InstancerPointInfo);
 
     std::vector<HEMAX_MaxTransform> Transforms;

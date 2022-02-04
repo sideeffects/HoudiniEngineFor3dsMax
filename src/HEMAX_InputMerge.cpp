@@ -10,7 +10,7 @@ HEMAX_InputMerge::HEMAX_InputMerge(HEMAX_MaxTransform Transform)
 
 HEMAX_InputMerge::~HEMAX_InputMerge()
 {
-    HEMAX_Node ParentNode(Node.Info.parentId, HEMAX_NODE_NOTDEFINED);
+    HEMAX_Node ParentNode(Node.Info.parentId, HAPI_NODETYPE_NONE);
     ParentNode.Delete();
 }
 
@@ -31,10 +31,10 @@ void
 HEMAX_InputMerge::MergeInput(HEMAX_Input& InputNode)
 {
     Node.ConnectInputNode(InputNode.GetInputNodeId(), MergeCount);
-    HEMAX_NodeId ConnectedNode = Node.QueryNodeInput(MergeCount);
+    HAPI_NodeId ConnectedNode = Node.QueryNodeInput(MergeCount);
     if (ConnectedNode != -1)
     {
-	HEMAX_Node ObjMergeNode(ConnectedNode, HEMAX_NODE_NOTDEFINED);
+	HEMAX_Node ObjMergeNode(ConnectedNode, HAPI_NODETYPE_SOP);
 	ObjMergeNode.Cook();
 	HEMAX_Parameter* XformParm = ObjMergeNode.GetParameter(HEMAX_INPUT_MERGE_XFORM_PARAM_NAME);
 

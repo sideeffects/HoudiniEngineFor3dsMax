@@ -11,13 +11,13 @@ class HEMAX_DisplayGeoNode
     public:
 	HEMAX_DisplayGeoNode();
 
-	void Init(HEMAX_NodeId NodeId);
+	void Init(HAPI_NodeId NodeId);
 	void Update(bool Cook);
 
-	HEMAX_Part* GetPart(HEMAX_PartId Id);
+	HEMAX_Part* GetPart(HAPI_PartId Id);
 
-	HEMAX_NodeId Node;
-	HEMAX_GeometryInfo Info;
+	HAPI_NodeId Node;
+	HAPI_GeoInfo Info;
 	bool IsVisible;
 	std::string Name;
 	std::vector<HEMAX_Part> Parts;

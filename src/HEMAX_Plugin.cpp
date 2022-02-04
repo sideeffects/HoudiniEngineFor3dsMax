@@ -1677,7 +1677,7 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 
 		    for (auto InputMapIt = GeometryHda->InputNodeMap.begin(); InputMapIt != GeometryHda->InputNodeMap.end(); InputMapIt++)
 		    {
-			HEMAX_ParameterId ParmId = InputMapIt->first;
+			HAPI_ParmId ParmId = InputMapIt->first;
 			HEMAX_InputInstance* InputInstance = InputMapIt->second;
 
 			HEMAX_Parameter* OldParm = GeometryHda->Hda.MainNode.GetParameter(ParmId);

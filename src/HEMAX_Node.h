@@ -12,28 +12,28 @@ class HEMAX_Node
 {
     public:
 	HEMAX_Node();
-	HEMAX_Node(HEMAX_NodeId NodeId, HEMAX_NodeType NodeType);
+	HEMAX_Node(HAPI_NodeId NodeId, HAPI_NodeType NodeType);
 
 	void Init(const std::string& Asset);
 	void Cook();
 	void Delete();
 
 	std::vector<HEMAX_Parameter>& GetParameters();
-	HEMAX_Parameter* GetParameter(HEMAX_ParameterId ParmId);
+	HEMAX_Parameter* GetParameter(HAPI_ParmId ParmId);
 	HEMAX_Parameter* GetParameter(std::string ParmName);
 	std::vector<HEMAX_Parameter> GetAllMultiParameterInstances(int MultiId);
 
 	void SetTransform(HEMAX_MaxTransform& Xform);
 	void SetParentTransform(HEMAX_MaxTransform& Xform);
 
-	void ConnectInputNode(HEMAX_NodeId NodeToConnect, int InputIndex);
+	void ConnectInputNode(HAPI_NodeId NodeToConnect, int InputIndex);
 	void DisconnectInputNode(int InputIndex);
-	HEMAX_NodeId QueryNodeInput(int InputIndex);
+	HAPI_NodeId QueryNodeInput(int InputIndex);
 
 	bool ShouldCookTwice();
 
-	HEMAX_NodeInfo Info;
-	HEMAX_NodeType Type;	
+	HAPI_NodeInfo Info;
+	HAPI_NodeType Type;	
 
 	std::string AssetName;
 	std::string NodeName;

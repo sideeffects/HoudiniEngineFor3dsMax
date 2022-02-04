@@ -67,7 +67,7 @@ class HEMAX_Mesh
 	float* GetPointListArray();
 	float* GetPointNormalsListArray();
 	float* GetVertexNormalsListArray();
-	HEMAX_NodeId* GetMaterialIdsArray();
+	HAPI_NodeId* GetMaterialIdsArray();
 	float* GetPointUVArray();
 	float* GetVertexUVArray();
 	float* GetPointCdArray();
@@ -166,7 +166,7 @@ class HEMAX_Mesh
 	int VertexCount;
 	int PointCount;
 
-	HEMAX_MeshList<HEMAX_NodeId> FaceMaterialIds;
+	HEMAX_MeshList<HAPI_NodeId> FaceMaterialIds;
 	HEMAX_MeshList<int> FaceVertexCounts;
 	HEMAX_MeshList<int> VertexList;
 	HEMAX_MeshList<float> PointList;

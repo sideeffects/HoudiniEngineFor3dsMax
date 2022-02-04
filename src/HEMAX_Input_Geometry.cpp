@@ -43,7 +43,7 @@ HEMAX_Input_Geometry::~HEMAX_Input_Geometry()
 
     if (SessionManager.IsSessionActive())
     {
-	HEMAX_NodeId ParentNodeId = Node->Info.parentId;
+	HAPI_NodeId ParentNodeId = Node->Info.parentId;
 	Node->Delete();
 	SessionManager.Session->DeleteNode(ParentNodeId);
     }
@@ -55,7 +55,7 @@ HEMAX_Input_Geometry::RebuildAfterChange()
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_NodeId ParentNodeId = Node->Info.parentId;
+    HAPI_NodeId ParentNodeId = Node->Info.parentId;
     Node->Delete();
     SessionManager.Session->DeleteNode(ParentNodeId);
     BuildInputNode();
@@ -247,13 +247,13 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
     AddNewPart(HEMAX_PARTTYPE_MESH, FaceCount, VertIndexCount, VertCount);
 
-    HEMAX_AttributeInfo PointAttributeInfo = AddNewPointAttribute(VertCount, 3,
+    HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(VertCount, 3,
                                                 HEMAX_POSITION_ATTRIBUTE);
     SendPointAttributeData(PointAttributeInfo, PointArray, VertIndexArray,
             FaceCountArray, FaceCount, VertIndexCount, VertCount,
             HEMAX_POSITION_ATTRIBUTE);
 
-    HEMAX_AttributeInfo SmoothingGroupAttributeInfo =
+    HAPI_AttributeInfo SmoothingGroupAttributeInfo =
         AddNewPrimitiveIntAttribute(FaceCount, 1,
                 HEMAX_SMOOTHING_GROUP_ATTRIBUTE);
     SendIntAttributeData(HEMAX_SMOOTHING_GROUP_ATTRIBUTE,
@@ -284,17 +284,17 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
             HEMAX_SELECTION_EDGE);
         SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
             HEMAX_SELECTION_EDGE, EdgeSelections.data(), 0,
-            int(EdgeSelections.size()));
+            EdgeSelections.size());
     }
 
-    HEMAX_AttributeInfo MaterialIDAttributeInfo = AddNewPrimitiveIntAttribute(
+    HAPI_AttributeInfo MaterialIDAttributeInfo = AddNewPrimitiveIntAttribute(
             FaceCount, 1, HEMAX_MATERIAL_ID_ATTRIBUTE);
     SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MaterialIDAttributeInfo,
             MaterialIDArray, FaceCount);
 
     if (SingleMaterial && SingleMaterialNameData.size() > 0)
     {
-	HEMAX_AttributeInfo MaterialNamesAttrInfo =
+	HAPI_AttributeInfo MaterialNamesAttrInfo =
             AddNewPrimitiveStringAttribute(FaceCount, 1,
                     HEMAX_MATERIAL_PATH_ATTRIBUTE);
 	SendStringAttributeData(HEMAX_MATERIAL_PATH_ATTRIBUTE,
@@ -303,7 +303,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     }
     else if (FaceMaterialNames.size() > 0)
     {
-	HEMAX_AttributeInfo MaterialNamesAttrInfo =
+	HAPI_AttributeInfo MaterialNamesAttrInfo =
             AddNewPrimitiveStringAttribute(FaceCount, 1,
                 HEMAX_MATERIAL_PATH_ATTRIBUTE);
 	SendStringAttributeData(HEMAX_MATERIAL_PATH_ATTRIBUTE,
@@ -311,7 +311,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
         if (!MultiMaterialName.empty())
         {
-            HEMAX_AttributeInfo MultiMatNameAttrInfo =
+            HAPI_AttributeInfo MultiMatNameAttrInfo =
                 AddNewDetailStringAttribute(1, 1,
                         HEMAX_MATERIAL_PATH_ATTRIBUTE);
             const char* MultiMatNameCStr = MultiMaterialName.c_str();
@@ -419,7 +419,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	}
     }
 
-    HEMAX_AttributeInfo NormalAttributeInfo =
+    HAPI_AttributeInfo NormalAttributeInfo =
         AddNewVertexAttribute(VertIndexCount, 3, HEMAX_NORMAL_ATTRIBUTE);
     SendFloatAttributeData(HEMAX_NORMAL_ATTRIBUTE, NormalAttributeInfo,
             &NormalArray.front(), VertIndexCount);
@@ -452,7 +452,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
                                           HEMAX_UV_ATTRIBUTE :
                                           HEMAX_UV_ATTRIBUTE + std::to_string(texMap));
 
-		HEMAX_AttributeInfo UVAttributeInfo =
+		HAPI_AttributeInfo UVAttributeInfo =
                     AddNewVertexAttribute(VertIndexCount, 3, UVAttrName);
 		SendFloatAttributeData(UVAttrName, UVAttributeInfo,
                     UVArray.data(), VertIndexCount);
@@ -614,7 +614,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     {
 	if (IlluminationOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
 	{
-	    HEMAX_AttributeInfo IlluminationAttributeInfo =
+	    HAPI_AttributeInfo IlluminationAttributeInfo =
                 AddNewVertexAttribute(VertIndexCount, 3,
                         HEMAX_ILLUMINATION_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_ILLUMINATION_ATTRIBUTE,
@@ -623,7 +623,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	}
 	else if (IlluminationOwner == HEMAX_ATTRIBUTEOWNER_POINT)
 	{
-	    HEMAX_AttributeInfo IlluminationAttributeInfo =
+	    HAPI_AttributeInfo IlluminationAttributeInfo =
                 AddNewPointAttribute(VertCount, 3,
                         HEMAX_ILLUMINATION_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_ILLUMINATION_ATTRIBUTE,
@@ -637,14 +637,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     {
 	if (AlphaOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
 	{
-	    HEMAX_AttributeInfo AlphaAttributeInfo =
+	    HAPI_AttributeInfo AlphaAttributeInfo =
                 AddNewVertexAttribute(VertIndexCount, 1, HEMAX_ALPHA_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_ALPHA_ATTRIBUTE, AlphaAttributeInfo,
                     AlphaArray, VertIndexCount);
 	}
 	else if (AlphaOwner == HEMAX_ATTRIBUTEOWNER_POINT)
 	{
-	    HEMAX_AttributeInfo AlphaAttributeInfo =
+	    HAPI_AttributeInfo AlphaAttributeInfo =
                 AddNewPointAttribute(VertCount, 1, HEMAX_ALPHA_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_ALPHA_ATTRIBUTE, AlphaAttributeInfo,
                     AlphaArray, VertCount);
@@ -657,14 +657,14 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     {
 	if (CdOwner == HEMAX_ATTRIBUTEOWNER_VERTEX)
 	{
-	    HEMAX_AttributeInfo CdAttributeInfo = AddNewVertexAttribute(
+	    HAPI_AttributeInfo CdAttributeInfo = AddNewVertexAttribute(
                     VertIndexCount, 3, HEMAX_COLOR_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_COLOR_ATTRIBUTE, CdAttributeInfo,
                     CdArray, VertIndexCount);
 	}
 	else if (CdOwner == HEMAX_ATTRIBUTEOWNER_POINT)
 	{
-	    HEMAX_AttributeInfo CdAttributeInfo = AddNewPointAttribute(
+	    HAPI_AttributeInfo CdAttributeInfo = AddNewPointAttribute(
                     VertCount, 3, HEMAX_COLOR_ATTRIBUTE);
 	    SendFloatAttributeData(HEMAX_COLOR_ATTRIBUTE, CdAttributeInfo,
                     CdArray, VertCount);
@@ -675,7 +675,7 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
     if (SoftSelectionArray)
     {
-	HEMAX_AttributeInfo SoftSelectAttributeInfo = AddNewPointAttribute(
+	HAPI_AttributeInfo SoftSelectAttributeInfo = AddNewPointAttribute(
                 VertCount, 1, HEMAX_SOFT_SELECTION_ATTRIBUTE);
 	SendFloatAttributeData(HEMAX_SOFT_SELECTION_ATTRIBUTE,
                 SoftSelectAttributeInfo, SoftSelectionArray, VertCount);

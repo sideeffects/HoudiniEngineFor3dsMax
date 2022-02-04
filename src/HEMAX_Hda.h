@@ -39,7 +39,7 @@ class HEMAX_Hda
 	int HdaAssetIndex;
 	std::string Name;
 
-	std::unordered_map<HEMAX_NodeId, HEMAX_MaterialNode> ShopNodes;
+	std::unordered_map<HAPI_NodeId, HEMAX_MaterialNode> ShopNodes;
 	std::vector<HEMAX_EditableNode> EditableNodes;
 
 	std::unordered_map<std::string, HEMAX_Parameter> Parameters;

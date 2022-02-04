@@ -19,19 +19,19 @@ HEMAX_Hda::Init(const HEMAX_Asset& Asset, int AssetIndex)
     MainNode.Init(Asset.Names[AssetIndex]);
 
     // If the node is invalid, it failed to initialize for some reason
-    if (MainNode.Type == HEMAX_NODE_INVALID)
+    if (MainNode.Type == HAPI_NODETYPE_NONE)
         return;
 
     MainNode.Cook();
 
-    if (MainNode.Type == HEMAX_NODE_OBJ)
+    if (MainNode.Type == HAPI_NODETYPE_OBJ)
     {
 	HdaType = OBJ_LEVEL_HDA;
 
 	TopLevelObjectNode.Init(MainNode.Info.id);
 	Name = TopLevelObjectNode.Name;
     }
-    else if (MainNode.Type == HEMAX_NODE_SOP)
+    else if (MainNode.Type == HAPI_NODETYPE_SOP)
     {
 	HdaType = SOP_LEVEL_HDA;
 
@@ -146,12 +146,12 @@ HEMAX_Hda::InitializeMaterialNodes()
 
     int Count;
     SM.Session->ComposeChildNodeList(MainNode.Info.id,
-                                     HEMAX_NODE_SHOP,
+                                     HAPI_NODETYPE_SHOP,
                                      HEMAX_NODEFLAG_ANY,
                                      true,
                                      &Count);
 
-    std::vector<HEMAX_NodeId> ShopNodeIds(Count);
+    std::vector<HAPI_NodeId> ShopNodeIds(Count);
     SM.Session->GetComposedChildNodeList(MainNode.Info.id,
                                          ShopNodeIds.data(),
                                          Count);
@@ -168,12 +168,12 @@ HEMAX_Hda::InitializeMaterialNodes()
     }
 
     SM.Session->ComposeChildNodeList(MainNode.Info.id,
-                                     HEMAX_NODE_VOP,
+                                     HAPI_NODETYPE_VOP,
                                      HEMAX_NODEFLAG_ANY,
                                      true,
                                      &Count);
 
-    std::vector<HEMAX_NodeId> VopNodeIds(Count);
+    std::vector<HAPI_NodeId> VopNodeIds(Count);
     SM.Session->GetComposedChildNodeList(MainNode.Info.id,
                                          VopNodeIds.data(),
                                          Count);
@@ -197,17 +197,17 @@ HEMAX_Hda::GetAllEditableNodes()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     int Count;
-    SM.Session->ComposeChildNodeList(MainNode.Info.id, HEMAX_NODE_SOP, HEMAX_NODEFLAG_EDITABLE, true, &Count);
+    SM.Session->ComposeChildNodeList(MainNode.Info.id, HAPI_NODETYPE_SOP, HEMAX_NODEFLAG_EDITABLE, true, &Count);
 
     if (Count > 0)
     {
-	std::vector<HEMAX_NodeId> EditableNodeIds(Count);
+	std::vector<HAPI_NodeId> EditableNodeIds(Count);
 	SM.Session->GetComposedChildNodeList(MainNode.Info.id, &EditableNodeIds.front(), Count);
 
 	for (int e = 0; e < Count; e++)
 	{
 	    HEMAX_EditableNode EditableNode;
-	    EditableNode.Node.Type = HEMAX_NODE_SOP;
+	    EditableNode.Node.Type = HAPI_NODETYPE_SOP;
 	    SM.Session->GetNodeInfo(EditableNodeIds[e], &EditableNode.Node.Info);
 	    EditableNode.Node.Cook();
 

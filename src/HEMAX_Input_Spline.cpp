@@ -158,7 +158,7 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
 
             AddNewPart(HEMAX_PARTTYPE_CURVE, 1, PointCount, PointCount);
 
-            HEMAX_CurveInfo CurveInfo;
+            HAPI_CurveInfo CurveInfo;
             CurveInfo.curveCount = CurveCount;
             CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
             CurveInfo.hasKnots = false;
@@ -173,13 +173,13 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             SM.Session->SetCurveOrders(Node->Info.id, 0, &OrdersArray.front(),
                 0, (int)OrdersArray.size());
 
-            HEMAX_AttributeInfo PointAttributeInfo = AddNewPointAttribute(
+            HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(
                 PointCount, 3, HEMAX_POSITION_ATTRIBUTE);
             SendFloatAttributeData(
                 HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
                 &PointsArray.front(), PointCount);
 
-            HEMAX_AttributeInfo MatIdAttributeInfo = AddNewPointAttribute(
+            HAPI_AttributeInfo MatIdAttributeInfo = AddNewPointAttribute(
                 PointCount, 1, HEMAX_MATERIAL_ID_ATTRIBUTE,
                 HAPI_STORAGETYPE_INT);
             SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE,
@@ -225,14 +225,14 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             AddNewPart(HEMAX_PARTTYPE_MESH, CurveCount,
                 (int)VerticesArray.size(), PointCount);
 
-            HEMAX_AttributeInfo PointAttrInfo = AddNewPointAttribute(PointCount,
+            HAPI_AttributeInfo PointAttrInfo = AddNewPointAttribute(PointCount,
                 3, HEMAX_POSITION_ATTRIBUTE);
             SendPointAttributeData(PointAttrInfo, PointsArray.data(),
                 VerticesArray.data(), FaceCountArray.data(), CurveCount,
                 (int)VerticesArray.size(), PointCount,
                 HEMAX_POSITION_ATTRIBUTE);
 
-            HEMAX_AttributeInfo MatIdAttrInfo = AddNewPointAttribute(PointCount,
+            HAPI_AttributeInfo MatIdAttrInfo = AddNewPointAttribute(PointCount,
                 1, HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_STORAGETYPE_INT);
             SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE,
                 MatIdAttrInfo, MatIdArray.data(), PointCount);
@@ -279,13 +279,13 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
 
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	HEMAX_GeometryInfo CurveGeoInfo;
+	HAPI_GeoInfo CurveGeoInfo;
 	SM.Session->GetGeometryInfo(Node->Info.id, &CurveGeoInfo);
 
-	HEMAX_PartInfo CurvePartInfo;
+	HAPI_PartInfo CurvePartInfo;
 	SM.Session->GetPartInfo(CurveGeoInfo.nodeId, 0, &CurvePartInfo);
 
-	HEMAX_CurveInfo CurveInfo;
+	HAPI_CurveInfo CurveInfo;
 	CurveInfo.curveCount = 1;
 	CurveInfo.curveType = HAPI_CURVETYPE_LINEAR;
 	CurveInfo.hasKnots = false;

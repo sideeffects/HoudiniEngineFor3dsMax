@@ -11,19 +11,19 @@ const char* const EditableNodeCurveClosedParm = "close";
 struct HEMAX_EditableNode
 {
     HEMAX_Node Node;
-    HEMAX_GeometryInfo GeoInfo;
+    HAPI_GeoInfo GeoInfo;
     std::vector<HEMAX_Part> Parts;
 };
 
 struct HEMAX_EditableCurve
 {
     INode* Node;
-    HEMAX_CurveInfo CurveInfo;
+    HAPI_CurveInfo CurveInfo;
     std::vector<float> Knots;
     bool Dirty;
 
-    HEMAX_NodeId PushNodeId;
-    HEMAX_PartId PushPartId;
+    HAPI_NodeId PushNodeId;
+    HAPI_PartId PushPartId;
 };
 
 INode*

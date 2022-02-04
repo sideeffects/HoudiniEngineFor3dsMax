@@ -28,14 +28,14 @@ class HEMAX_MaterialNode
 {
     public:
 
-        HEMAX_NodeId NodeId;
-        HEMAX_MaterialInfo MatInfo;
+        HAPI_NodeId NodeId;
+        HAPI_MaterialInfo MatInfo;
 
         std::string Name;
 
         bool HasTexture;
-        HEMAX_ParameterId TextureParameterId;
-        HEMAX_ImageInfo ImageInfo;
+        HAPI_ParmId TextureParameterId;
+        HAPI_ImageInfo ImageInfo;
 
         int ImageMemoryBufferLength;
         unsigned char* ImageBuffer;
@@ -58,7 +58,7 @@ class HEMAX_MaterialNode
 
         bool HasTextureBeenRendered;
 
-        HEMAX_MaterialNode(HEMAX_NodeId Id);
+        HEMAX_MaterialNode(HAPI_NodeId Id);
         ~HEMAX_MaterialNode();
 
         void UpdateInfo();

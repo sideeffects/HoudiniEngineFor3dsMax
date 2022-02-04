@@ -7,8 +7,8 @@
 class HEMAX_Input
 {
     public:
-	HEMAX_NodeId GetInputNodeId();
-	HEMAX_NodeId GetOwnerNodeId();
+	HAPI_NodeId GetInputNodeId();
+	HAPI_NodeId GetOwnerNodeId();
 	std::string GetInputNodeName();
 	ULONG GetMaxNodeHandle();
 
@@ -24,43 +24,43 @@ class HEMAX_Input
 	void AddNewPart(HEMAX_PartType PartType, int FaceCount, int VertexCount,
                 int PointCount);
 
-	HEMAX_AttributeInfo AddNewPointAttribute(int Count, int TupleSize,
+	HAPI_AttributeInfo AddNewPointAttribute(int Count, int TupleSize,
                 std::string AttributeName,
                 HAPI_StorageType StorageType = HAPI_STORAGETYPE_FLOAT);
 
-	void SendPointAttributeData(HEMAX_AttributeInfo AttributeInfo,
+	void SendPointAttributeData(HAPI_AttributeInfo AttributeInfo,
                 float* Points, int* Vertices, int* FaceCounts, int FaceCount,
                 int VertexCount, int PointCount, std::string AttributeName);
 
-        HEMAX_AttributeInfo AddNewPointIntAttribute(int Count, int TupleSize,
+        HAPI_AttributeInfo AddNewPointIntAttribute(int Count, int TupleSize,
                 std::string AttributeName);
 
-	HEMAX_AttributeInfo AddNewVertexAttribute(int Count, int TupleSize,
+	HAPI_AttributeInfo AddNewVertexAttribute(int Count, int TupleSize,
                 std::string AttributeName);
 
-	HEMAX_AttributeInfo AddNewDetailFloatAttribute(int Count, int TupleSize,
+	HAPI_AttributeInfo AddNewDetailFloatAttribute(int Count, int TupleSize,
                 std::string AttributeName);
 
-	HEMAX_AttributeInfo AddNewPrimitiveIntAttribute(int Count,
+	HAPI_AttributeInfo AddNewPrimitiveIntAttribute(int Count,
                 int TupleSize, std::string AttributeName);
 
-	HEMAX_AttributeInfo AddNewPrimitiveStringAttribute(int Count,
+	HAPI_AttributeInfo AddNewPrimitiveStringAttribute(int Count,
                 int TupleSize, std::string AttributeName);
 
-        HEMAX_AttributeInfo AddNewDetailStringAttribute(int Count,
+        HAPI_AttributeInfo AddNewDetailStringAttribute(int Count,
                 int TupleSize, std::string AttributeName);
 
-        HEMAX_AttributeInfo AddNewDetailIntAttribute(int Count, int TupleSize,
+        HAPI_AttributeInfo AddNewDetailIntAttribute(int Count, int TupleSize,
             std::string AttributeName);
 
 	void SendFloatAttributeData(std::string AttributeName,
-                HEMAX_AttributeInfo& AttributeInfo, float* Data, int Length);
+                HAPI_AttributeInfo& AttributeInfo, float* Data, int Length);
 
 	void SendIntAttributeData(std::string AttributeName,
-                HEMAX_AttributeInfo& AttributeInfo, int* Data, int Length);
+                HAPI_AttributeInfo& AttributeInfo, int* Data, int Length);
 
 	void SendStringAttributeData(std::string AttributeName,
-                HEMAX_AttributeInfo& AttributeInfo, const char** Data,
+                HAPI_AttributeInfo& AttributeInfo, const char** Data,
                 int Length);
 
 	void FinalizeInputGeometry();

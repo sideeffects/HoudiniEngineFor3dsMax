@@ -73,7 +73,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 
 	bool IsINodeAnEditableNode(INode* Node);
 
-	HEMAX_PartId GetPartIdFromCustomAttributes(INode* Node);
+	HAPI_PartId GetPartIdFromCustomAttributes(INode* Node);
 
 	void CreateDisplayGeometry(HEMAX_Hda& Hda,
                                    HEMAX_DisplayGeoNode& DisplayNode);
@@ -98,7 +98,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 	void InitGeometryPluginCustAttribContainer(INode* PluginNode);
 
 	void GenerateBoilerplateGeometryPluginCustomAttributes(
-                INode* PluginNode, HEMAX_PartId Part);
+                INode* PluginNode, HAPI_PartId Part);
 
 	void UpdateInstances(HEMAX_Hda& Hda);
 
@@ -108,7 +108,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 
 	void StampEditableNode(INode* Node,
                                std::string EditableNodeName,
-                               HEMAX_PartId PartNum);
+                               HAPI_PartId PartNum);
 
 	std::string GetEditableNodeName(INode* Node);
 
@@ -119,14 +119,14 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 	void ClearPackedPrimNodes();
 
         void AssignMaterials(HEMAX_Hda& Hda,
-                             HEMAX_NodeId DisplayNodeId,
+                             HAPI_NodeId DisplayNodeId,
                              HEMAX_Part& Part,
                              HEMAX_GeometryPlugin* GeoPlugin);
 
 	void ApplySceneMtlToGeometryPlugin(HEMAX_GeometryPlugin* GeoPlugin);
 
         void UpdateMaterials(HEMAX_Hda& Hda,
-                             HEMAX_NodeId DisplayNodeId,
+                             HAPI_NodeId DisplayNodeId,
                              HEMAX_Part& Part,
                              HEMAX_GeometryPlugin* GeoPlugin);
 

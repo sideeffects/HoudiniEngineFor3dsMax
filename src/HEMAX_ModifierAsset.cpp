@@ -77,7 +77,7 @@ HEMAX_ModifierAsset::SearchModifierStackByNode(HEMAX_Node* TheNode)
 }
 
 HEMAX_Modifier*
-HEMAX_ModifierAsset::SearchModifierStackByNodeId(HEMAX_NodeId TheNode)
+HEMAX_ModifierAsset::SearchModifierStackByNodeId(HAPI_NodeId TheNode)
 {
     for (auto Search = NodeModifierStack.begin(); Search != NodeModifierStack.end(); ++Search)
     {
@@ -91,7 +91,7 @@ HEMAX_ModifierAsset::SearchModifierStackByNodeId(HEMAX_NodeId TheNode)
 }
 
 HEMAX_ModifierBundle
-HEMAX_ModifierAsset::SearchForModifierBundle(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::SearchForModifierBundle(HAPI_NodeId NodeId)
 {
     for (auto Search = NodeModifierStack.begin(); Search != NodeModifierStack.end(); ++Search)
     {
@@ -109,7 +109,7 @@ HEMAX_ModifierAsset::SearchForModifierBundle(HEMAX_NodeId NodeId)
 }
 
 void
-HEMAX_ModifierAsset::UpdateNodeParameterIntValues(HEMAX_NodeId NodeId, int ParameterId, std::vector<int> IntValues)
+HEMAX_ModifierAsset::UpdateNodeParameterIntValues(HAPI_NodeId NodeId, int ParameterId, std::vector<int> IntValues)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -125,7 +125,7 @@ HEMAX_ModifierAsset::UpdateNodeParameterIntValues(HEMAX_NodeId NodeId, int Param
 }
 
 void
-HEMAX_ModifierAsset::UpdateNodeParameterFloatValues(HEMAX_NodeId NodeId, int ParameterId, std::vector<float> FloatValues)
+HEMAX_ModifierAsset::UpdateNodeParameterFloatValues(HAPI_NodeId NodeId, int ParameterId, std::vector<float> FloatValues)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -141,7 +141,7 @@ HEMAX_ModifierAsset::UpdateNodeParameterFloatValues(HEMAX_NodeId NodeId, int Par
 }
 
 void
-HEMAX_ModifierAsset::UpdateNodeParameterStringValues(HEMAX_NodeId NodeId, int ParameterId, std::vector<std::string> StringValues)
+HEMAX_ModifierAsset::UpdateNodeParameterStringValues(HAPI_NodeId NodeId, int ParameterId, std::vector<std::string> StringValues)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -157,7 +157,7 @@ HEMAX_ModifierAsset::UpdateNodeParameterStringValues(HEMAX_NodeId NodeId, int Pa
 }
 
 void
-HEMAX_ModifierAsset::UpdateNodeParameterToggleValues(HEMAX_NodeId NodeId, int ParameterId, std::vector<int> ToggleValues)
+HEMAX_ModifierAsset::UpdateNodeParameterToggleValues(HAPI_NodeId NodeId, int ParameterId, std::vector<int> ToggleValues)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -173,7 +173,7 @@ HEMAX_ModifierAsset::UpdateNodeParameterToggleValues(HEMAX_NodeId NodeId, int Pa
 }
 
 void
-HEMAX_ModifierAsset::UpdateInputNode(HEMAX_NodeId NodeId, int ParameterId, HEMAX_Input* InputNode)
+HEMAX_ModifierAsset::UpdateInputNode(HAPI_NodeId NodeId, int ParameterId, HEMAX_Input* InputNode)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -189,7 +189,7 @@ HEMAX_ModifierAsset::UpdateInputNode(HEMAX_NodeId NodeId, int ParameterId, HEMAX
 }
 
 void
-HEMAX_ModifierAsset::UpdateSubnetworkInput(HEMAX_NodeId NodeId, int Subnetwork, HEMAX_Input* InputNode)
+HEMAX_ModifierAsset::UpdateSubnetworkInput(HAPI_NodeId NodeId, int Subnetwork, HEMAX_Input* InputNode)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -205,7 +205,7 @@ HEMAX_ModifierAsset::UpdateSubnetworkInput(HEMAX_NodeId NodeId, int Subnetwork, 
 }
 
 void
-HEMAX_ModifierAsset::UpdateMultiParameterList(HEMAX_NodeId NodeId, int ParameterId)
+HEMAX_ModifierAsset::UpdateMultiParameterList(HAPI_NodeId NodeId, int ParameterId)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -221,7 +221,7 @@ HEMAX_ModifierAsset::UpdateMultiParameterList(HEMAX_NodeId NodeId, int Parameter
 }
 
 void
-HEMAX_ModifierAsset::CookModifier(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::CookModifier(HAPI_NodeId NodeId)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 
@@ -234,7 +234,7 @@ HEMAX_ModifierAsset::CookModifier(HEMAX_NodeId NodeId)
 }
 
 void
-HEMAX_ModifierAsset::RemoveModifierFromStack(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::RemoveModifierFromStack(HAPI_NodeId NodeId)
 {
     for (auto Search = NodeModifierStack.begin(); Search != NodeModifierStack.end(); ++Search)
     {
@@ -248,7 +248,7 @@ HEMAX_ModifierAsset::RemoveModifierFromStack(HEMAX_NodeId NodeId)
 }
 
 void
-HEMAX_ModifierAsset::DeleteAndRemoveModifierFromStack(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::DeleteAndRemoveModifierFromStack(HAPI_NodeId NodeId)
 {
     for (auto Search = NodeModifierStack.begin(); Search != NodeModifierStack.end(); ++Search)
     {
@@ -291,7 +291,7 @@ HEMAX_ModifierAsset::GetNumberOfHDAModifiers()
 }
 
 void
-HEMAX_ModifierAsset::LoadSubnetworkInputsFromCustomAttributes(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::LoadSubnetworkInputsFromCustomAttributes(HAPI_NodeId NodeId)
 {
     HEMAX_ModifierBundle Bundle = SearchForModifierBundle(NodeId);
 
@@ -302,7 +302,7 @@ HEMAX_ModifierAsset::LoadSubnetworkInputsFromCustomAttributes(HEMAX_NodeId NodeI
 }
 
 void
-HEMAX_ModifierAsset::LoadModifierParametersFromCustomAttributes(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::LoadModifierParametersFromCustomAttributes(HAPI_NodeId NodeId)
 {
     HEMAX_ModifierBundle Bundle = SearchForModifierBundle(NodeId);
 
@@ -334,7 +334,7 @@ HEMAX_ModifierAsset::GetModifierByIndex(int Index)
 }
 
 HEMAX_MaxHoudiniAsset*
-HEMAX_ModifierAsset::GetMaxHoudiniAssetForModifier(HEMAX_NodeId NodeId)
+HEMAX_ModifierAsset::GetMaxHoudiniAssetForModifier(HAPI_NodeId NodeId)
 {
     HEMAX_ModifierBundle ModBundle = SearchForModifierBundle(NodeId);
 

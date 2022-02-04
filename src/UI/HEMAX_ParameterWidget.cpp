@@ -266,7 +266,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
     if (CurrentNode)
     {
-	if (CurrentNode->Type == HEMAX_NODE_SOP)
+	if (CurrentNode->Type == HAPI_NODETYPE_SOP)
 	{
 	    for (int s = 0; s < CurrentNode->Info.inputCount; ++s)
 	    {
@@ -301,7 +301,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		ParametersIter != CurrentNodeParameters.end(); ++ParametersIter)
 	{
 	    HEMAX_Parameter *CurrentParameter = &(*ParametersIter);
-	    HEMAX_ParameterInfo ParmInfo = CurrentParameter->Info;
+	    HAPI_ParmInfo ParmInfo = CurrentParameter->Info;
 	    HEMAX_ParameterType CurrentParameterType = CurrentParameter->Type;
 
 	    if (CurrentParameterType != HEMAX_PARAM_FOLDER &&
@@ -807,7 +807,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 	}
 
 	NodeOptionsBox->setVisible(true);
-	if (CurrentNode->Type == HEMAX_NODE_SOP && CurrentNode->Info.inputCount > 0)
+	if (CurrentNode->Type == HAPI_NODETYPE_SOP && CurrentNode->Info.inputCount > 0)
 	{
 	    NodeInputBox->setVisible(true);
 	}

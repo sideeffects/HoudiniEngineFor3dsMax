@@ -28,13 +28,13 @@ HEMAX_3dsmaxHda::Cook3dsmaxHda()
 }
 
 void
-HEMAX_3dsmaxHda::SetParameterInput(HEMAX_ParameterId ParamId, HEMAX_InputInstance* Input)
+HEMAX_3dsmaxHda::SetParameterInput(HAPI_ParmId ParamId, HEMAX_InputInstance* Input)
 {
     InputNodeMap.insert_or_assign(ParamId, Input);
 }
 
 HEMAX_InputInstance*
-HEMAX_3dsmaxHda::FindParameterInput(HEMAX_ParameterId ParamId)
+HEMAX_3dsmaxHda::FindParameterInput(HAPI_ParmId ParamId)
 {
     auto Search = InputNodeMap.find(ParamId);
 
@@ -76,7 +76,7 @@ HEMAX_3dsmaxHda::GetAllParameter3dsmaxInputs()
 }
 
 void
-HEMAX_3dsmaxHda::UpdateParameterInputNode(HEMAX_ParameterId ParamId)
+HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
 {
     HEMAX_Input* InputNode = nullptr;
 
@@ -95,7 +95,7 @@ HEMAX_3dsmaxHda::UpdateParameterInputNode(HEMAX_ParameterId ParamId)
 }
 
 void
-HEMAX_3dsmaxHda::ClearParameterInputNode(HEMAX_ParameterId ParamId)
+HEMAX_3dsmaxHda::ClearParameterInputNode(HAPI_ParmId ParamId)
 {
     auto Search = InputNodeMap.find(ParamId);
 
