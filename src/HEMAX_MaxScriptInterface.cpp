@@ -1281,31 +1281,31 @@ HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda, HEMAX_Paramet
 }
 
 HEMAX_MaxScriptArgType
-HEMAX_MaxScriptInterface::ResolveParameterTypeToMaxScriptType(HEMAX_ParameterType Type)
+HEMAX_MaxScriptInterface::ResolveParameterTypeToMaxScriptType(HAPI_ParmType Type)
 {
     switch (Type)
     {
-        case HEMAX_PARAM_BUTTON:
-	case HEMAX_PARAM_INTEGER:
-	case HEMAX_PARAM_TOGGLE:
-	case HEMAX_PARAM_MULTIPARMLIST:
+        case HAPI_PARMTYPE_BUTTON:
+	case HAPI_PARMTYPE_INT:
+	case HAPI_PARMTYPE_TOGGLE:
+	case HAPI_PARMTYPE_MULTIPARMLIST:
 	{
 	    return HEMAX_MS_ARG_INT_TYPE;
 	} break;
-	case HEMAX_PARAM_STRING:
-	case HEMAX_PARAM_PATH_FILE:
-	case HEMAX_PARAM_PATH_FILE_DIR:
-	case HEMAX_PARAM_PATH_FILE_GEO:
-	case HEMAX_PARAM_PATH_FILE_IMAGE:
+	case HAPI_PARMTYPE_STRING:
+	case HAPI_PARMTYPE_PATH_FILE:
+	case HAPI_PARMTYPE_PATH_FILE_DIR:
+	case HAPI_PARMTYPE_PATH_FILE_GEO:
+	case HAPI_PARMTYPE_PATH_FILE_IMAGE:
 	{
 	    return HEMAX_MS_ARG_STRING_TYPE;
 	} break;
-	case HEMAX_PARAM_FLOAT:
-        case HEMAX_PARAM_COLOR:
+	case HAPI_PARMTYPE_FLOAT:
+        case HAPI_PARMTYPE_COLOR:
 	{
 	    return HEMAX_MS_ARG_FLOAT_TYPE;
 	} break;
-	case HEMAX_PARAM_NODE:
+	case HAPI_PARMTYPE_NODE:
 	{
 	    return HEMAX_MS_ARG_NODE_TYPE;
 	} break;

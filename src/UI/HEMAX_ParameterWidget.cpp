@@ -302,9 +302,9 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 	{
 	    HEMAX_Parameter *CurrentParameter = &(*ParametersIter);
 	    HAPI_ParmInfo ParmInfo = CurrentParameter->Info;
-	    HEMAX_ParameterType CurrentParameterType = CurrentParameter->Type;
+	    HAPI_ParmType CurrentParameterType = CurrentParameter->Type;
 
-	    if (CurrentParameterType != HEMAX_PARAM_FOLDER &&
+	    if (CurrentParameterType != HAPI_PARMTYPE_FOLDER &&
 		    !CurrentParameter->Info.invisible)
 	    {
 		std::string CurrentParameterName = CurrentParameter->GetLabel();
@@ -317,7 +317,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 		switch (CurrentParameterType)
 		{
-		    case (HEMAX_PARAM_FOLDERLIST):
+		    case (HAPI_PARMTYPE_FOLDERLIST):
 		    {
 			WidgetToAdd = new HEMAX_ParameterWidget_Folderlist(
 				CurrentParameter->Info.id);
@@ -402,7 +402,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_MULTIPARMLIST):
+		    case (HAPI_PARMTYPE_MULTIPARMLIST):
 		    {
 			int MultiParamCount = CurrentParameter->Info.instanceCount;
 			WidgetToAdd = new HEMAX_ParameterWidget_MultiParameter(
@@ -424,14 +424,14 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_LABEL):
+		    case (HAPI_PARMTYPE_LABEL):
 		    {
 			WidgetToAdd = new HEMAX_ParameterWidget_Label(
 				CurrentParameter->Info.id,
 				CurrentParameter->GetLabel());
 			break;
 		    }
-		    case (HEMAX_PARAM_INTEGER):
+		    case (HAPI_PARMTYPE_INT):
 		    {
 			if (CurrentParameter->IsChoiceList())
 			{
@@ -506,7 +506,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 			}
 			break;
 		    }
-		    case (HEMAX_PARAM_STRING):
+		    case (HAPI_PARMTYPE_STRING):
 		    {
 			if (CurrentParameter->IsChoiceList())
 			{
@@ -563,7 +563,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_FLOAT):
+		    case (HAPI_PARMTYPE_FLOAT):
 		    {
 			std::vector<float> ParamFloatValues =
 			    CurrentParameter->GetFloatVals();
@@ -606,7 +606,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 			}
 			break;
 		    }
-		    case (HEMAX_PARAM_TOGGLE):
+		    case (HAPI_PARMTYPE_TOGGLE):
 		    {
 			std::vector<int> ParamIntValues =
 			    CurrentParameter->GetIntVals();
@@ -622,7 +622,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_BUTTON):
+		    case (HAPI_PARMTYPE_BUTTON):
 		    {
 			if (CurrentParameter->IsChoiceList())
 			{
@@ -652,10 +652,10 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_PATH_FILE):
-		    case (HEMAX_PARAM_PATH_FILE_DIR):
-		    case (HEMAX_PARAM_PATH_FILE_GEO):
-		    case (HEMAX_PARAM_PATH_FILE_IMAGE):
+		    case (HAPI_PARMTYPE_PATH_FILE):
+		    case (HAPI_PARMTYPE_PATH_FILE_DIR):
+		    case (HAPI_PARMTYPE_PATH_FILE_GEO):
+		    case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 		    {
 			std::vector<std::string> ParamStringValues =
 			    CurrentParameter->GetStringVals();
@@ -690,7 +690,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_NODE):
+		    case (HAPI_PARMTYPE_NODE):
 		    {
 			std::string InputNodeName =
 			    CurrentParameter->GetInputNodeName();
@@ -711,7 +711,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
 			break;
 		    }
-		    case (HEMAX_PARAM_COLOR):
+		    case (HAPI_PARMTYPE_COLOR):
 		    {
 			WidgetToAdd = CreateParameterWidget_Color(*CurrentParameter, CurrentParameterName);
 		    } break;
@@ -2457,7 +2457,7 @@ HEMAX_ParameterWidget_Button_Choice::~HEMAX_ParameterWidget_Button_Choice()
 
 HEMAX_ParameterWidget_FilePath::HEMAX_ParameterWidget_FilePath(
 	int ParameterId, std::string Label,
-	std::string CurrentPathValue, HEMAX_ParameterType ParmType,
+	std::string CurrentPathValue, HAPI_ParmType ParmType,
         HAPI_Permissions BrowseMode)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
 {
@@ -2485,7 +2485,7 @@ HEMAX_ParameterWidget_FilePath::HEMAX_ParameterWidget_FilePath(
 
 HEMAX_ParameterWidget_FilePath::HEMAX_ParameterWidget_FilePath(int ParameterId,
         std::string Label, std::string CurrentPathValue,
-        HEMAX_ParameterType ParmType, std::vector<HEMAX_ParmChoice> Choices,
+        HAPI_ParmType ParmType, std::vector<HEMAX_ParmChoice> Choices,
         HAPI_Permissions BrowseMode)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
 {
@@ -2551,9 +2551,9 @@ HEMAX_ParameterWidget_FilePath::Slot_BrowseButton_Clicked()
 {
     switch (Type)
     {
-	case (HEMAX_PARAM_PATH_FILE):
-	case (HEMAX_PARAM_PATH_FILE_GEO):
-	case (HEMAX_PARAM_PATH_FILE_IMAGE):
+	case (HAPI_PARMTYPE_PATH_FILE):
+	case (HAPI_PARMTYPE_PATH_FILE_GEO):
+	case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 	{
             if (MyBrowseMode == HAPI_PERMISSIONS_READ_ONLY)
             {
@@ -2573,7 +2573,7 @@ HEMAX_ParameterWidget_FilePath::Slot_BrowseButton_Clicked()
                 }
             }
 	} break;
-	case (HEMAX_PARAM_PATH_FILE_DIR):
+	case (HAPI_PARMTYPE_PATH_FILE_DIR):
 	{
             QString Result = QFileDialog::getExistingDirectory();
             if (!Result.isEmpty())

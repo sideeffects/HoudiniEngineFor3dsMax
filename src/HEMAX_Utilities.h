@@ -57,8 +57,8 @@ struct HEMAX_Utilities
 
     static std::string WideStringToStringUnsafe(const std::wstring& In);
 
-    static bool ParmIsIntType(HEMAX_ParameterType Type);
-    static bool ParmIsFloatType(HEMAX_ParameterType Type);
-    static bool ParmIsStringType(HEMAX_ParameterType Type);
-    static bool ParmIsNodeType(HEMAX_ParameterType Type);
+    static bool ParmIsIntType(HAPI_ParmType Type);
+    static bool ParmIsFloatType(HAPI_ParmType Type);
+    static bool ParmIsStringType(HAPI_ParmType Type);
+    static bool ParmIsNodeType(HAPI_ParmType Type);
 };

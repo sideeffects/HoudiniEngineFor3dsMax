@@ -372,7 +372,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
 
     HEMAX_Parameter* CoordParam = Node->GetParameter("coords");
 
-    if (CoordParam->Type != HEMAX_PARAM_INVALID)
+    if (CoordParam)
     {
 	std::vector<std::string> StringValues = { PointString };
 	CoordParam->UpdateStringVals(StringValues);

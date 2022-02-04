@@ -1611,11 +1611,8 @@ HEMAX_Plugin::Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda,
 
     for (int i = 0; i < ParameterInputs.size(); i++)
     {
-	if (ParameterInputs[i].Type != HEMAX_PARAM_INVALID)
-	{
-	    HandleParameterInputCleared(&Hda->Hda.MainNode, ParameterInputs[i],
-                                        UpdateHda);
-	}
+        HandleParameterInputCleared(&Hda->Hda.MainNode, ParameterInputs[i],
+                                    UpdateHda);
     }
 }
 
@@ -1949,7 +1946,7 @@ HEMAX_Plugin::CloneGeometryHda(HEMAX_GeometryHda* MaxHda)
 		    HEMAX_Parameter* CloneParameter =
                         Clone->Hda.MainNode.GetParameter(SourceParmName);
 		    if (CloneParameter
-                        && CloneParameter->Type == HEMAX_PARAM_NODE)
+                        && CloneParameter->Type == HAPI_PARMTYPE_NODE)
 		    {
 			Set3dsmaxHdaParameterInput(
                             Clone,
@@ -2007,7 +2004,7 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
 		std::string SourceParmName = SourceParameter->GetName();
 
 		HEMAX_Parameter* CloneParameter = Clone->Hda.MainNode.GetParameter(SourceParmName);
-		if (CloneParameter->Type == HEMAX_PARAM_NODE)
+		if (CloneParameter->Type == HAPI_PARMTYPE_NODE)
 		{
 		    Set3dsmaxHdaParameterInput(Clone, CloneParameter, GetCOREInterface()->GetINodeByHandle(MaxInputNodeHandle));
 		}

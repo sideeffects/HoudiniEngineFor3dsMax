@@ -38,7 +38,7 @@ HEMAX_InputMerge::MergeInput(HEMAX_Input& InputNode)
 	ObjMergeNode.Cook();
 	HEMAX_Parameter* XformParm = ObjMergeNode.GetParameter(HEMAX_INPUT_MERGE_XFORM_PARAM_NAME);
 
-	if (XformParm->Type != HEMAX_PARAM_INVALID)
+	if (XformParm)
 	{
 	    std::vector<int> IntValues = { 0 };
 	    XformParm->UpdateIntVals(IntValues);

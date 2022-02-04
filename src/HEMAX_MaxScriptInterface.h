@@ -37,5 +37,5 @@ struct HEMAX_MaxScriptInterface
                                 int StartIndex);
 
     static HEMAX_MaxScriptArgType ResolveParameterTypeToMaxScriptType(
-                                        HEMAX_ParameterType Type);
+                                        HAPI_ParmType Type);
 };

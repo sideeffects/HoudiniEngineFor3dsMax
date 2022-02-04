@@ -477,12 +477,12 @@ HEMAX_Utilities::WideStringToStringUnsafe(const std::wstring& In)
 }
 
 bool
-HEMAX_Utilities::ParmIsIntType(HEMAX_ParameterType Type)
+HEMAX_Utilities::ParmIsIntType(HAPI_ParmType Type)
 {
-    if (Type == HEMAX_PARAM_INTEGER ||
-        Type == HEMAX_PARAM_BUTTON ||
-        Type == HEMAX_PARAM_TOGGLE ||
-        Type == HEMAX_PARAM_MULTIPARMLIST)
+    if (Type == HAPI_PARMTYPE_INT ||
+        Type == HAPI_PARMTYPE_BUTTON ||
+        Type == HAPI_PARMTYPE_TOGGLE ||
+        Type == HAPI_PARMTYPE_MULTIPARMLIST)
     {
         return true;
     }
@@ -493,10 +493,10 @@ HEMAX_Utilities::ParmIsIntType(HEMAX_ParameterType Type)
 }
 
 bool
-HEMAX_Utilities::ParmIsFloatType(HEMAX_ParameterType Type)
+HEMAX_Utilities::ParmIsFloatType(HAPI_ParmType Type)
 {
-    if (Type == HEMAX_PARAM_FLOAT ||
-        Type == HEMAX_PARAM_COLOR)
+    if (Type == HAPI_PARMTYPE_FLOAT ||
+        Type == HAPI_PARMTYPE_COLOR)
     {
         return true;
     }
@@ -507,13 +507,13 @@ HEMAX_Utilities::ParmIsFloatType(HEMAX_ParameterType Type)
 }
 
 bool
-HEMAX_Utilities::ParmIsStringType(HEMAX_ParameterType Type)
+HEMAX_Utilities::ParmIsStringType(HAPI_ParmType Type)
 {
-    if (Type == HEMAX_PARAM_STRING ||
-        Type == HEMAX_PARAM_PATH_FILE ||
-        Type == HEMAX_PARAM_PATH_FILE_DIR ||
-        Type == HEMAX_PARAM_PATH_FILE_GEO ||
-        Type == HEMAX_PARAM_PATH_FILE_IMAGE)
+    if (Type == HAPI_PARMTYPE_STRING ||
+        Type == HAPI_PARMTYPE_PATH_FILE ||
+        Type == HAPI_PARMTYPE_PATH_FILE_DIR ||
+        Type == HAPI_PARMTYPE_PATH_FILE_GEO ||
+        Type == HAPI_PARMTYPE_PATH_FILE_IMAGE)
     {
         return true;
     }
@@ -524,9 +524,9 @@ HEMAX_Utilities::ParmIsStringType(HEMAX_ParameterType Type)
 }
 
 bool
-HEMAX_Utilities::ParmIsNodeType(HEMAX_ParameterType Type)
+HEMAX_Utilities::ParmIsNodeType(HAPI_ParmType Type)
 {
-    if (Type == HEMAX_PARAM_NODE)
+    if (Type == HAPI_PARMTYPE_NODE)
         return true;
     else
         return false;

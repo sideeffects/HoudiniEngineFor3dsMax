@@ -322,7 +322,7 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
 
 	HEMAX_Parameter* CoordParam = Node->GetParameter("coords");
 
-	if (CoordParam && CoordParam->Type != HEMAX_PARAM_INVALID)
+	if (CoordParam)
 	{
 	    std::vector<std::string> StringValues = { PointString };
 	    CoordParam->UpdateStringVals(StringValues);

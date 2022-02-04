@@ -205,7 +205,7 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 
 	switch (Parameter->Type)
 	{
-	    case (HEMAX_PARAM_INTEGER):
+	    case (HAPI_PARMTYPE_INT):
 	    {
 		std::vector<int> ParameterValues = Parameter->GetIntVals();
 
@@ -232,11 +232,11 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		    }
 		}
 	    } break;
-	    case (HEMAX_PARAM_STRING):
-	    case (HEMAX_PARAM_PATH_FILE):
-	    case (HEMAX_PARAM_PATH_FILE_DIR):
-	    case (HEMAX_PARAM_PATH_FILE_GEO):
-	    case (HEMAX_PARAM_PATH_FILE_IMAGE):
+	    case (HAPI_PARMTYPE_STRING):
+	    case (HAPI_PARMTYPE_PATH_FILE):
+	    case (HAPI_PARMTYPE_PATH_FILE_DIR):
+	    case (HAPI_PARMTYPE_PATH_FILE_GEO):
+	    case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 	    {
 		std::vector<std::string> ParameterValues = Parameter->GetStringVals();
 
@@ -265,8 +265,8 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		    }
 		}
 	    } break;
-	    case (HEMAX_PARAM_FLOAT):
-	    case (HEMAX_PARAM_COLOR):
+	    case (HAPI_PARMTYPE_FLOAT):
+	    case (HAPI_PARMTYPE_COLOR):
 	    {
 		std::vector<float> ParameterValues = Parameter->GetFloatVals();
 
@@ -293,7 +293,7 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		    }
 		}
 	    } break;
-	    case (HEMAX_PARAM_TOGGLE):
+	    case (HAPI_PARMTYPE_TOGGLE):
 	    {
 		std::vector<int> ParameterValues = Parameter->GetIntVals();
 
@@ -321,14 +321,14 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		    }
 		}
 	    } break;
-	    case (HEMAX_PARAM_NODE):
+	    case (HAPI_PARMTYPE_NODE):
 	    {
 		HEMAX_NodeParameterAttrib* ParamCustAttrib = new HEMAX_NodeParameterAttrib;
 		ParamCustAttrib->SetParameterName(Parameter->GetName());
 		CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
 		CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
 	    } break;
-	    case (HEMAX_PARAM_MULTIPARMLIST):
+	    case (HAPI_PARMTYPE_MULTIPARMLIST):
 	    {
 		HEMAX_MultiParameterAttrib* ParamCustAttrib = new HEMAX_MultiParameterAttrib;
 		ParamCustAttrib->SetParameterName(Parameter->GetName());
@@ -366,27 +366,27 @@ HEMAX_3dsmaxHda::UpdateAllCustomAttributes()
 
 	switch (Parameter.Type)
 	{
-	    case (HEMAX_PARAM_INTEGER):
+	    case (HAPI_PARMTYPE_INT):
 	    {
 		std::vector<int> IntValues = Parameter.GetIntVals();
 		UpdateIntCustomAttribute(Parameter, IntValues);
 	    } break;
-	    case (HEMAX_PARAM_STRING):
-	    case (HEMAX_PARAM_PATH_FILE):
-	    case (HEMAX_PARAM_PATH_FILE_DIR):
-	    case (HEMAX_PARAM_PATH_FILE_GEO):
-	    case (HEMAX_PARAM_PATH_FILE_IMAGE):
+	    case (HAPI_PARMTYPE_STRING):
+	    case (HAPI_PARMTYPE_PATH_FILE):
+	    case (HAPI_PARMTYPE_PATH_FILE_DIR):
+	    case (HAPI_PARMTYPE_PATH_FILE_GEO):
+	    case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 	    {
 		std::vector<std::string> StringValues = Parameter.GetStringVals();
 		UpdateStringCustomAttribute(Parameter, StringValues);
 	    } break;
-	    case (HEMAX_PARAM_FLOAT):
-	    case (HEMAX_PARAM_COLOR):
+	    case (HAPI_PARMTYPE_FLOAT):
+	    case (HAPI_PARMTYPE_COLOR):
 	    {
 		std::vector<float> FloatValues = Parameter.GetFloatVals();
 		UpdateFloatCustomAttribute(Parameter, FloatValues);
 	    } break;
-	    case (HEMAX_PARAM_TOGGLE):
+	    case (HAPI_PARMTYPE_TOGGLE):
 	    {
 		std::vector<int> ToggleValues = Parameter.GetIntVals();
 		UpdateToggleCustomAttribute(Parameter, ToggleValues);
@@ -667,36 +667,36 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 		{
 		    switch (Parameter.Type)
 		    {
-			case (HEMAX_PARAM_INTEGER):
+			case (HAPI_PARMTYPE_INT):
 			{
 			    RemakeIntParameterFromCustAttrib(Parameter, *CustomAttributeMap);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
-			case (HEMAX_PARAM_STRING):
-			case (HEMAX_PARAM_PATH_FILE):
-			case (HEMAX_PARAM_PATH_FILE_DIR):
-			case (HEMAX_PARAM_PATH_FILE_GEO):
-			case (HEMAX_PARAM_PATH_FILE_IMAGE):
+			case (HAPI_PARMTYPE_STRING):
+			case (HAPI_PARMTYPE_PATH_FILE):
+			case (HAPI_PARMTYPE_PATH_FILE_DIR):
+			case (HAPI_PARMTYPE_PATH_FILE_GEO):
+			case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 			{
 			    RemakeStringParameterFromCustAttrib(Parameter, *CustomAttributeMap);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
-			case (HEMAX_PARAM_FLOAT):
-			case (HEMAX_PARAM_COLOR):
+			case (HAPI_PARMTYPE_FLOAT):
+			case (HAPI_PARMTYPE_COLOR):
 			{
 			    RemakeFloatParameterFromCustAttrib(Parameter, *CustomAttributeMap);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
-			case (HEMAX_PARAM_TOGGLE):
+			case (HAPI_PARMTYPE_TOGGLE):
 			{
 			    RemakeToggleParameterFromCustAttrib(Parameter, *CustomAttributeMap);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
-			case (HEMAX_PARAM_NODE):
+			case (HAPI_PARMTYPE_NODE):
 			{
 			    HEMAX_ParameterInputMapping InputEntry = RemakeInputParameterFromCustAttrib(Parameter, *CustomAttributeMap);
 			    if (InputEntry.Node)
@@ -706,7 +706,7 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
-			case (HEMAX_PARAM_MULTIPARMLIST):
+			case (HAPI_PARMTYPE_MULTIPARMLIST):
 			{
 			    AnotherPassRequired = true;
 			    RemakeMultiParameter(Parameter, *CustomAttributeMap);

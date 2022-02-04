@@ -3,38 +3,11 @@
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 
-HEMAX_Parameter::HEMAX_Parameter()
-{
-    Node = -1;
-    Type = HEMAX_PARAM_INVALID;
-}
-
 HEMAX_Parameter::HEMAX_Parameter(const HAPI_NodeId& NodeId, const HAPI_ParmInfo& ParameterInfo)
 {
     Node = NodeId;
     Info = ParameterInfo;
-
-    switch (Info.type)
-    {
-	case (HAPI_PARMTYPE_INT): Type = HEMAX_PARAM_INTEGER; break;
-	case (HAPI_PARMTYPE_STRING): Type = HEMAX_PARAM_STRING; break;
-	case (HAPI_PARMTYPE_FLOAT): Type = HEMAX_PARAM_FLOAT; break;
-	case (HAPI_PARMTYPE_MULTIPARMLIST): Type = HEMAX_PARAM_MULTIPARMLIST; break;
-	case (HAPI_PARMTYPE_TOGGLE): Type = HEMAX_PARAM_TOGGLE; break;
-	case (HAPI_PARMTYPE_BUTTON): Type = HEMAX_PARAM_BUTTON; break;
-	case (HAPI_PARMTYPE_COLOR): Type = HEMAX_PARAM_COLOR; break;
-	case (HAPI_PARMTYPE_PATH_FILE): Type = HEMAX_PARAM_PATH_FILE; break;
-	case (HAPI_PARMTYPE_PATH_FILE_DIR): Type = HEMAX_PARAM_PATH_FILE_DIR; break;
-	case (HAPI_PARMTYPE_PATH_FILE_GEO): Type = HEMAX_PARAM_PATH_FILE_GEO; break;
-	case (HAPI_PARMTYPE_PATH_FILE_IMAGE): Type = HEMAX_PARAM_PATH_FILE_IMAGE; break;
-	case (HAPI_PARMTYPE_NODE): Type = HEMAX_PARAM_NODE; break;
-	case (HAPI_PARMTYPE_FOLDERLIST): Type = HEMAX_PARAM_FOLDERLIST; break;
-	case (HAPI_PARMTYPE_FOLDERLIST_RADIO): Type = HEMAX_PARAM_FOLDERLIST_RADIO; break;
-	case (HAPI_PARMTYPE_FOLDER): Type = HEMAX_PARAM_FOLDER; break;
-	case (HAPI_PARMTYPE_LABEL): Type = HEMAX_PARAM_LABEL; break;
-	case (HAPI_PARMTYPE_SEPARATOR): Type = HEMAX_PARAM_SEPARATOR; break;
-	default: Type = HEMAX_PARAM_NOTDEFINED; break;
-    }   
+    Type = Info.type;
 }
 
 HEMAX_Parameter&
@@ -193,7 +166,7 @@ HEMAX_Parameter::GetStringParameterChoiceLists()
 HAPI_NodeId
 HEMAX_Parameter::GetInputNodeId()
 {
-    if (Type == HEMAX_PARAM_NODE)
+    if (Type == HAPI_PARMTYPE_NODE)
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
@@ -282,7 +255,7 @@ HEMAX_Parameter::HasUIConstraints()
 bool
 HEMAX_Parameter::IsMultiParameter()
 {
-    return Type == HEMAX_PARAM_MULTIPARMLIST;    
+    return Type == HAPI_PARMTYPE_MULTIPARMLIST;    
 }
 
 int
@@ -318,28 +291,28 @@ HEMAX_Parameter::CopyValuesFrom(const HEMAX_Parameter& Other)
 {
     switch (Other.Type)
     {
-	case HEMAX_PARAM_INTEGER:
-	case HEMAX_PARAM_TOGGLE:
+	case HAPI_PARMTYPE_INT:
+	case HAPI_PARMTYPE_TOGGLE:
 	{
 	    std::vector<int> Values = Other.GetIntVals();
 	    UpdateIntVals(Values);
 	} break;
-	case HEMAX_PARAM_FLOAT:
-	case HEMAX_PARAM_COLOR:
+	case HAPI_PARMTYPE_FLOAT:
+	case HAPI_PARMTYPE_COLOR:
 	{
 	    std::vector<float> Values = Other.GetFloatVals();
 	    UpdateFloatVals(Values);
 	} break;
-	case HEMAX_PARAM_STRING:
-	case HEMAX_PARAM_PATH_FILE:
-	case HEMAX_PARAM_PATH_FILE_DIR:
-	case HEMAX_PARAM_PATH_FILE_GEO:
-	case HEMAX_PARAM_PATH_FILE_IMAGE:
+	case HAPI_PARMTYPE_STRING:
+	case HAPI_PARMTYPE_PATH_FILE:
+	case HAPI_PARMTYPE_PATH_FILE_DIR:
+	case HAPI_PARMTYPE_PATH_FILE_GEO:
+	case HAPI_PARMTYPE_PATH_FILE_IMAGE:
 	{
 	    std::vector<std::string> Values = Other.GetStringVals();
 	    UpdateStringVals(Values);
 	} break;
-	case HEMAX_PARAM_MULTIPARMLIST:
+	case HAPI_PARMTYPE_MULTIPARMLIST:
 	{
 	    int InstCount = Info.instanceCount;
 	    int OtherInstCount = Other.Info.instanceCount;

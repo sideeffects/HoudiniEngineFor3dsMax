@@ -21,7 +21,7 @@ struct HEMAX_MultiParameterChangeInfo
 class HEMAX_Parameter
 {
     public:
-	HEMAX_Parameter();
+	HEMAX_Parameter() = delete;
 	HEMAX_Parameter(const HAPI_NodeId& NodeId, const HAPI_ParmInfo& ParameterInfo);
 
 	HEMAX_Parameter& operator=(const HEMAX_Parameter& Other);
@@ -61,8 +61,7 @@ class HEMAX_Parameter
 
 	HAPI_NodeId Node;
 	HAPI_ParmInfo Info;
-	HEMAX_ParameterType Type;
-
+	HAPI_ParmType Type;
 
     private:
 	std::string Name;

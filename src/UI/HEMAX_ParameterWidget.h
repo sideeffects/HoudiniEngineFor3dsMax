@@ -453,10 +453,10 @@ class HEMAX_ParameterWidget_FilePath : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_FilePath(int ParameterId, std::string Label,
-		std::string CurrentPathValue, HEMAX_ParameterType ParmType,
+		std::string CurrentPathValue, HAPI_ParmType ParmType,
                 HAPI_Permissions BrowseMode);
         HEMAX_ParameterWidget_FilePath(int ParameterId, std::string Label,
-                std::string CurrentPathValue, HEMAX_ParameterType ParmType,
+                std::string CurrentPathValue, HAPI_ParmType ParmType,
                 std::vector<HEMAX_ParmChoice> Choices,
                 HAPI_Permissions BrowseMode);
 	~HEMAX_ParameterWidget_FilePath();
@@ -471,7 +471,7 @@ class HEMAX_ParameterWidget_FilePath : public HEMAX_ParameterWidget_Parameter
 	QPushButton* BrowseButton;
         QComboBox* ChoiceValues;
 
-	HEMAX_ParameterType Type;
+	HAPI_ParmType Type;
         HAPI_Permissions MyBrowseMode;
 
     private slots:
