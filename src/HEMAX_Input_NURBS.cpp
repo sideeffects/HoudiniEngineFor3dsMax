@@ -162,6 +162,7 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 	CurveInfo.knotCount = NumKnots;
 	CurveInfo.order = Degree;
 	CurveInfo.vertexCount = NumCVs;
+        CurveInfo.isClosed = TheCurve->IsClosed();
 
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
@@ -249,6 +250,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     CurveInfo.knotCount = KnotCount;
     CurveInfo.order = CurveOrder;
     CurveInfo.vertexCount = CVCount;
+    CurveInfo.isClosed = TheCurve->IsClosed();
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
@@ -330,6 +332,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
     CurveInfo.knotCount = KnotCount;
     CurveInfo.order = CurveOrder;
     CurveInfo.vertexCount = CVCount;
+    CurveInfo.isClosed = TheCurve->IsClosed();
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
