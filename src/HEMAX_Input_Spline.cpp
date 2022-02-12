@@ -166,6 +166,7 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             CurveInfo.knotCount = 0;
             CurveInfo.order = 0;
             CurveInfo.vertexCount = PointCount;
+            CurveInfo.isClosed = false;
 
             SM.Session->SetCurveInfo(Node->Info.id, 0, &CurveInfo);
             SM.Session->SetCurveCounts(Node->Info.id, 0, &CountsArray.front(),
