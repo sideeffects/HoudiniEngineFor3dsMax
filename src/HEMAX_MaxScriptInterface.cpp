@@ -1,5 +1,9 @@
 #include "HEMAX_MaxScriptInterface.h"
 
+#ifdef USE_HAPI_VERSION_HEADER
+#include <HAPI_Version.h>
+#endif
+
 #include <maxscript/foundation/numbers.h>
 #include <maxscript/foundation/strings.h>
 #include <maxscript/maxwrapper/mxsobjects.h>
@@ -1195,9 +1199,9 @@ GetHoudiniVersion_cf(Value** ArgList, int Count)
 {
     check_arg_count(GetHoudiniVersion, 0, Count);
 
-    std::wstring VersionMajor(std::to_wstring(HEMAX_HAPI_VERSION_HOUDINI_MAJOR));
-    std::wstring VersionMinor(std::to_wstring(HEMAX_HAPI_VERSION_HOUDINI_MINOR));
-    std::wstring VersionBuild(std::to_wstring(HEMAX_HAPI_VERSION_HOUDINI_BUILD));
+    std::wstring VersionMajor(std::to_wstring(HAPI_VERSION_HOUDINI_MAJOR));
+    std::wstring VersionMinor(std::to_wstring(HAPI_VERSION_HOUDINI_MINOR));
+    std::wstring VersionBuild(std::to_wstring(HAPI_VERSION_HOUDINI_BUILD));
 
     Array* VersionNums = new Array(0);
     VersionNums->append(new String(VersionMajor.c_str()));
