@@ -12,6 +12,10 @@
 #include "UI/HEMAX_UI.h"
 #include "UI/HEMAX_VersionDialog.h"
 
+#ifdef USE_HAPI_VERSION_HEADER
+#include <HAPI_Version.h>
+#endif
+
 #include <fstream>
 #include <sstream>
 
@@ -71,10 +75,10 @@ GetHEMAXLauncherDesc() {
 HEMAXLauncher::HEMAXLauncher()
     : FoundHAPIDLL(false)
 {
-    HoudiniMajorVersion = HEMAX_HAPI_VERSION_HOUDINI_MAJOR;
-    HoudiniMinorVersion = HEMAX_HAPI_VERSION_HOUDINI_MINOR;
-    HoudiniBuildVersion = HEMAX_HAPI_VERSION_HOUDINI_BUILD;
-    HoudiniPatchNumber = HEMAX_HAPI_VERSION_HOUDINI_PATCH;
+    HoudiniMajorVersion = HAPI_VERSION_HOUDINI_MAJOR;
+    HoudiniMinorVersion = HAPI_VERSION_HOUDINI_MINOR;
+    HoudiniBuildVersion = HAPI_VERSION_HOUDINI_BUILD;
+    HoudiniPatchNumber = HAPI_VERSION_HOUDINI_PATCH;
 
     HMODULE HAPIL = FindHoudiniEngineLibs();
 
