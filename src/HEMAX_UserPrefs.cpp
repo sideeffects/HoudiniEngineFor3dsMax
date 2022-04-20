@@ -45,6 +45,9 @@ HEMAX_UserPrefs::HEMAX_UserPrefs()
     AddUserSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
                    HEMAX_SETTING_TYPE_STRING,
                    "");
+    AddUserSetting(HEMAX_SETTING_OVERRIDE_HFS,
+                   HEMAX_SETTING_TYPE_STRING,
+                   "");
     AddUserSetting(HEMAX_SETTING_GRAB_ROOT,
                    HEMAX_SETTING_TYPE_BOOL,
                    "1");

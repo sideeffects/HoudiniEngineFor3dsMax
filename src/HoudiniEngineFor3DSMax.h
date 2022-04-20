@@ -16,8 +16,6 @@
 #define HEMAXLauncher_CLASS_ID Class_ID(0x93a752c7, 0x774a3d7f)
 
 #define HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME "InstallPath"
-#define HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY      "bin"
-#define HEMAX_HOUDINI_TOOLS_SUBDIRECTORY         "engine\\tools"
 
 const TCHAR* const OPEN_HEMAX_MENU_STRING =    _T("Open");
 const TCHAR* const HIDE_HEMAX_MENU_STRING =    _T("Hide");
@@ -71,7 +69,7 @@ class HEMAXLauncher : public GUP, ActionCallback
 	}
 
 	bool WasHAPIDLLFound();
-	static std::string GetLibHAPILDirectory();
+	std::wstring GetLibHAPILDirectory();
 
         void UpdateOptionsDialog();
 
@@ -83,14 +81,16 @@ class HEMAXLauncher : public GUP, ActionCallback
 	HEMAX_VersionDialog* VersionDialog;
         HEMAX_Events* PluginEvents;
 
-	HMODULE LoadLibHAPIL();
+	HMODULE LoadLibHAPIL(const std::wstring& HFS);
 
 	HMODULE FindHoudiniEngineLibs();
-	void SetHoudiniSubDirectories(std::wstring HoudiniDir);
+        void SetHoudiniDirectories(const std::wstring& HFS);
 
 	bool FoundHAPIDLL;
-	static std::string LibHAPILDirectory;
-	static std::string HAPIToolsDirectory;
+
+        std::wstring HFSDirectory;
+	std::wstring LibHAPILDirectory;
+	std::wstring HAPIToolsDirectory;
 
 	int HoudiniMajorVersion;
 	int HoudiniMinorVersion;

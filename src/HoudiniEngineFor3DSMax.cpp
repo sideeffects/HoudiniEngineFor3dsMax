@@ -6,6 +6,7 @@
 #include "HEMAX_Path.h"
 #include "HEMAX_Plugin.h"
 #include "HEMAX_SessionManager.h"
+#include "HEMAX_UserPrefs.h"
 #include "HEMAX_Utilities.h"
 
 #include "UI/HEMAX_OptionsDialog.h"
@@ -27,8 +28,11 @@
 #define OPTIONS_HEMAX_ACTION 3
 #define VERSION_HEMAX_ACTION 4
 
-std::string HEMAXLauncher::LibHAPILDirectory = "";
-std::string HEMAXLauncher::HAPIToolsDirectory = "";
+const wchar_t* const LIB_HAPIL_NAME = L"libHAPIL.dll";
+const wchar_t* const LIB_HAPIL_SUBDIRECTORY = L"bin";
+const wchar_t* const HOUDINI_TOOLS_SUBDIRECTORY = L"engine\\tools";
+const wchar_t* const HOUDINI_HARS_LOCATION_ENV_VAR = L"HOUDINI_HARS_LOCATION";
+const wchar_t* const HOUDINI_HFS_ENV_VAR = L"HFS";
 
 static ActionDescription MenuActions[] = {
     OPEN_HEMAX_ACTION,
@@ -85,22 +89,23 @@ HEMAXLauncher::HEMAXLauncher()
     if (HAPIL)
     {
         // Set HOUDINI_HARS_LOCATION   
-        std::string HARSProgram = std::string(LibHAPILDirectory) +
-                                  "\\" +
-                                  "HARS.exe"; 
+        std::wstring HARSProgram = std::wstring(LibHAPILDirectory) +
+                                  L"\\" +
+                                  L"HARS.exe"; 
 
-        if (GetFileAttributesA(HARSProgram.c_str()) != INVALID_FILE_ATTRIBUTES)
+        if (GetFileAttributes(HARSProgram.c_str()) != INVALID_FILE_ATTRIBUTES)
         {
-            int CallResult = SetEnvironmentVariableA("HOUDINI_HARS_LOCATION",
-                                                     HARSProgram.c_str());
+            int CallResult = SetEnvironmentVariable(
+                HOUDINI_HARS_LOCATION_ENV_VAR, HARSProgram.c_str());
 
             if (!CallResult)
             {
-                mprintf(L"Failed to set the HOUDINI_HARS_LOCATION environment "
-                        "variable\n");
-                mflush();
-                mprintf(L"Windows Error Message: %d\n", GetLastError());
-                mflush();
+                std::wstring LogMsg = std::wstring(L"Failed to set the ") +
+                    HOUDINI_HARS_LOCATION_ENV_VAR + L" environment variable.";
+                HEMAX_Logger::Instance().AddEntry(LogMsg, HEMAX_LOG_LEVEL_ERROR);
+                LogMsg = L"Windows Error Message: " +
+                    std::to_wstring(GetLastError());
+                HEMAX_Logger::Instance().AddEntry(LogMsg, HEMAX_LOG_LEVEL_ERROR);
             }
         }
 
@@ -127,7 +132,8 @@ HEMAXLauncher::HEMAXLauncher()
         ThePlugin->SetEventHub(PluginEvents);
         HEMAX_SessionManager::GetSessionManager().SetEventHub(PluginEvents);
 
-        ThePlugin->Init(HAPIToolsDirectory);
+        ThePlugin->Init(std::string(HAPIToolsDirectory.begin(),
+            HAPIToolsDirectory.end()));
 
         OptionsDialog = new HEMAX_OptionsDialog(ThePlugin);
         OptionsDialog->hide();
@@ -140,67 +146,72 @@ HEMAXLauncher::HEMAXLauncher()
 HEMAXLauncher::~HEMAXLauncher() {}
 
 HMODULE
-HEMAXLauncher::LoadLibHAPIL()
+HEMAXLauncher::LoadLibHAPIL(const std::wstring& HFS)
 {
-    SetDllDirectoryA(LibHAPILDirectory.c_str());
-    HMODULE libHAPIL = LoadLibraryA("libHAPIL.dll");
-    SetDllDirectoryA("");
+    std::wstring HFSBinDir = HFS + L"\\" + LIB_HAPIL_SUBDIRECTORY;
+    SetDllDirectory(HFSBinDir.c_str());
+
+    HMODULE libHAPIL = LoadLibrary(LIB_HAPIL_NAME);
+    FoundHAPIDLL = (libHAPIL != 0);
 
     if (libHAPIL)
     {
-        // Since we found libHAPIL
-	// Update %PATH% for this process
-	std::stringstream PathStream;
-	PathStream << LibHAPILDirectory;
-	PathStream << ";";
+        // Prepend HFS to PATH so we can invoke HARS later
+        std::wstringstream PathStream;
+        PathStream << HFSBinDir << L";";
 
-	char SystemPath[4096];
-	int Count = GetEnvironmentVariableA("PATH", SystemPath, 4096);
+        wchar_t SystemPath[4096];
+        int Count = GetEnvironmentVariable(L"PATH", SystemPath, 4096);
 
-	if (Count <= 4096)
-	{
-	    PathStream << SystemPath;
-	}
-	else
-	{
-	    char* SystemPathLong = new char[Count];
-	    GetEnvironmentVariableA("PATH", SystemPathLong, Count);
-	    PathStream << SystemPathLong;
-	    delete[] SystemPathLong;
-	}
-
-	PathStream << "\0";
-	std::string PluginSystemPath = PathStream.str();
-
-	int CallResult = SetEnvironmentVariableA("PATH",
-                                                 PluginSystemPath.c_str());
-        
-        if (!CallResult)
+        if (Count <= 4096)
         {
-            mprintf(L"Failed to prepend the $HFS/bin directory to the %%PATH%% "
-                    "variable.\n");
-            mflush();
-            mprintf(L"Windows Error Message: %d\n", GetLastError());
-            mflush();
+            PathStream << SystemPath;
+        }
+        else
+        {
+            wchar_t* SystemPathLong = new wchar_t[Count];
+            GetEnvironmentVariable(L"PATH", SystemPathLong, Count);
+            PathStream << SystemPathLong;
+            delete [] SystemPathLong;
         }
 
-	FoundHAPIDLL = true;
+        PathStream << "\0";
 
-	return libHAPIL;
+        std::wstring PathVar = PathStream.str();
+        int CallResult = SetEnvironmentVariable(L"PATH", PathVar.c_str());
+
+        if (!CallResult)
+        {
+            HEMAX_Logger::Instance().AddEntry(
+                "Failed to prepend the $HFS/bin directory to the %%PATH%% "
+                "variable.",
+                HEMAX_LOG_LEVEL_ERROR);
+        }
     }
-    else
-    {
-	FoundHAPIDLL = false;
-	return nullptr;
-    }
+
+    SetDllDirectoryA(nullptr);
+    return libHAPIL;
 }
 
 HMODULE
 HEMAXLauncher::FindHoudiniEngineLibs()
 {
     // This is the process of tracking down HFS
+    
+    // Option 1: Check for HFS Override
+    std::string HFSOverride;
+    if (HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_OVERRIDE_HFS, HFSOverride))
+    {
+        std::wstring HFSOverrideWide(HFSOverride.begin(), HFSOverride.end());
+        HMODULE libHAPILModule = LoadLibHAPIL(HFSOverrideWide);
+        if (libHAPILModule)
+        {
+            SetHoudiniDirectories(HFSOverrideWide);
+            return libHAPILModule;
+        }     
+    }
 
-    // Start with the REGISTRY
+    // Option 2: Find HFS in the Registry
 
     std::string HoudiniVersionString =
         HEMAX_Utilities::CreateHoudiniVersionString(HoudiniMajorVersion,
@@ -231,14 +242,16 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
 	if (Result == ERROR_SUCCESS)
 	{
-	    SetHoudiniSubDirectories(std::wstring(StringValue));
-	    HMODULE libHAPILModule = LoadLibHAPIL();
+	    HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
 	    if (libHAPILModule)
 	    {
+                SetHoudiniDirectories(StringValue);
 		return libHAPILModule;
 	    }
 	}
     }
+
+    // Option 3: Find HFS in the Steam Registry location
 
     std::string HoudiniSteamRegPath =
         HEMAX_Utilities::GetHoudiniSteamRegistryPath(HoudiniVersionString);
@@ -262,61 +275,55 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
 	if (Result == ERROR_SUCCESS)
 	{
-	    SetHoudiniSubDirectories(std::wstring(StringValue));
-	    HMODULE libHAPILModule = LoadLibHAPIL();
+	    HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
 	    if (libHAPILModule)
 	    {
+                SetHoudiniDirectories(StringValue);
 		return libHAPILModule;
 	    }
 	}
     }
 
-    // Worst case, try looking where Houdini usually is
-    HAPIToolsDirectory = "C:\\Program Files\\Side Effects Software\\" +
-                         HoudiniVersionString + "\\" +
-                         HEMAX_HOUDINI_TOOLS_SUBDIRECTORY;
+    // Option 4: Use the path stored in the HFS environment variable if it exists
 
-    LibHAPILDirectory = "C:\\Program Files\\Side Effects Software\\" +
-                        HoudiniVersionString + "\\" +
-                        HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY;
+    wchar_t HFSEnvVal[4096];
+    int Count = GetEnvironmentVariable(HOUDINI_HFS_ENV_VAR, HFSEnvVal, 4096);
 
-    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = 
-        "C:\\Program Files\\Side Effects Software\\" + HoudiniVersionString;
+    if (Count > 0 && Count <= 4096)
+    {
+        std::wstring HFSEnvValStr(HFSEnvVal);
+        HMODULE libHAPILModule = LoadLibHAPIL(HFSEnvValStr);
+        if (libHAPILModule)
+        {
+            SetHoudiniDirectories(HFSEnvValStr);
+            return libHAPILModule; 
+        } 
+    }
+    else if (Count > 4096)
+    {
+        wchar_t* HFSEnvValLong = new wchar_t[Count];
+        GetEnvironmentVariable(HOUDINI_HFS_ENV_VAR, HFSEnvValLong, Count);
+        std::wstring HFSEnvValStr(HFSEnvValLong);
+        delete [] HFSEnvValLong;
+        HMODULE libHAPILModule = LoadLibHAPIL(HFSEnvValStr);
+        if (libHAPILModule)
+        {
+            SetHoudiniDirectories(HFSEnvValStr);
+            return libHAPILModule;
+        }
+    }
 
-    HMODULE libHAPILModule = LoadLibHAPIL();
+    // Option 5: As a worst case, try looking where Houdini usually is
 
+    std::wstring DefaultHoudiniLocation =
+        L"C:\\Program Files\\Side Effects Software\\" +
+        std::wstring(HoudiniVersionString.begin(), HoudiniVersionString.end());
+    HMODULE libHAPILModule = LoadLibHAPIL(DefaultHoudiniLocation);
     if (libHAPILModule)
     {
-	return libHAPILModule;
+        SetHoudiniDirectories(DefaultHoudiniLocation);
+        return libHAPILModule;
     }
-
-    // Ultra worst case, they can specify a houdini_path.txt
-
-    std::ifstream HoudiniBinaryPathFile("houdini_path.txt");
-
-    if (HoudiniBinaryPathFile.good())
-    {
-	char HoudiniPath[1024];
-	HoudiniBinaryPathFile.getline(HoudiniPath, 1024);
-
-	LibHAPILDirectory = HoudiniPath;
-	LibHAPILDirectory += "\\";
-	LibHAPILDirectory += HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY;
-	HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = HoudiniPath;
-
-	HAPIToolsDirectory = HoudiniPath;
-	HAPIToolsDirectory += "\\";
-	HAPIToolsDirectory += HEMAX_HOUDINI_TOOLS_SUBDIRECTORY;
-
-	libHAPILModule = LoadLibHAPIL();
-
-	if (libHAPILModule)
-	{
-	    return libHAPILModule;
-	}
-    }
-
-    HoudiniBinaryPathFile.close();
 
     // If we are here, it means that we couldn't find the .dlls
 
@@ -329,19 +336,14 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 }
 
 void
-HEMAXLauncher::SetHoudiniSubDirectories(std::wstring HoudiniDir)
+HEMAXLauncher::SetHoudiniDirectories(const std::wstring& HFS)
 {
-    std::wstring HAPIToolsDir = HoudiniDir + L"\\" + 
-        _T(HEMAX_HOUDINI_TOOLS_SUBDIRECTORY);
-    HAPIToolsDirectory = std::string(HAPIToolsDir.begin(), HAPIToolsDir.end());
+    HFSDirectory = HFS;
+    HAPIToolsDirectory = HFS + L"\\" + HOUDINI_TOOLS_SUBDIRECTORY;
+    LibHAPILDirectory = HFS + L"\\" + LIB_HAPIL_SUBDIRECTORY;
 
-    std::wstring LibHAPILPath = HoudiniDir + L"\\" +
-        _T(HEMAX_HOUDINI_LIBHAPIL_SUBDIRECTORY);
-    LibHAPILDirectory = std::string(LibHAPILPath.begin(), LibHAPILPath.end());
-
-    std::wstring WStrValue = HoudiniDir;
-    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = std::string(WStrValue.begin(),
-        WStrValue.end());
+    std::string HFS_String(HFS.begin(), HFS.end());
+    HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = HFS_String;
 }
 
 void
@@ -393,7 +395,7 @@ HEMAXLauncher::WasHAPIDLLFound()
     return FoundHAPIDLL;
 }
 
-std::string
+std::wstring
 HEMAXLauncher::GetLibHAPILDirectory()
 {
     return LibHAPILDirectory;

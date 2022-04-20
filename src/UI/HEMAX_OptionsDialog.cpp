@@ -54,6 +54,20 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
 
     GeneralOptions->setLayout(GeneralOptionsLayout);
 
+    InstallationOptions = new QGroupBox("Installation");
+    InstallationOptionsLayout = new QGridLayout;
+    OverrideHoudiniInstallPathLabel = new QLabel("Override Houdini Install Path:");
+    OverrideHoudiniInstallPath = new QLineEdit;
+    OverrideHoudiniInstallPathDirBrowse = new QPushButton("...");
+    RestartApplicationInstruction = new QLabel(
+        "<font color=\"red\">3ds Max must be restarted for the changes to take effect.</font>");
+    RestartApplicationInstruction->setHidden(true);
+    InstallationOptionsLayout->addWidget(OverrideHoudiniInstallPathLabel, 0, 0, 1, 2);
+    InstallationOptionsLayout->addWidget(OverrideHoudiniInstallPath, 1, 0);
+    InstallationOptionsLayout->addWidget(OverrideHoudiniInstallPathDirBrowse, 1, 1);
+    InstallationOptionsLayout->addWidget(RestartApplicationInstruction, 2, 0, 1, 2);
+    InstallationOptions->setLayout(InstallationOptionsLayout);
+
     SelectionOptions = new QGroupBox("Selection");
     SelectionOptionsLayout = new QVBoxLayout;
     AutoSelectHDARoot = new QCheckBox("Automatically select HDA root "
@@ -84,13 +98,14 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     HdaSearchPathBrowse = new QPushButton("...");
     
     AssetOptions->setLayout(AssetOptionsLayout);
-    AssetOptionsLayout->addWidget(HdaLoadDirLabel, 0, 0);
-    AssetOptionsLayout->addWidget(HdaLoadDir, 0, 1);
-    AssetOptionsLayout->addWidget(HdaLoadDirBrowse, 0, 2);
-    AssetOptionsLayout->addWidget(HdaSearchPathLabel, 1, 0);
-    AssetOptionsLayout->addWidget(HdaSearchPath, 1, 1);
-    AssetOptionsLayout->addWidget(HdaSearchPathBrowse, 1, 2);
+    AssetOptionsLayout->addWidget(HdaLoadDirLabel, 0, 0, 1, 2);
+    AssetOptionsLayout->addWidget(HdaLoadDir, 1, 0);
+    AssetOptionsLayout->addWidget(HdaLoadDirBrowse, 1, 1);
+    AssetOptionsLayout->addWidget(HdaSearchPathLabel, 2, 0, 1, 2);
+    AssetOptionsLayout->addWidget(HdaSearchPath, 3, 0);
+    AssetOptionsLayout->addWidget(HdaSearchPathBrowse, 3, 1);
     
+    GeneralOptionsLayout->addWidget(InstallationOptions);
     GeneralOptionsLayout->addWidget(SelectionOptions);
     GeneralOptionsLayout->addWidget(OnStartupOptions);
     GeneralOptionsLayout->addWidget(AssetOptions);
@@ -190,6 +205,16 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     this->setMinimumWidth(350);
 
     InitializeOptions();
+
+    QObject::connect(OverrideHoudiniInstallPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotOverrideHoudiniInstallPath()));
+
+    QObject::connect(OverrideHoudiniInstallPathDirBrowse,
+                     SIGNAL(clicked()),
+                     this,
+                     SLOT(SlotOverrideHoudiniInstallPathDirBrowse()));
 
     QObject::connect(AutoSelectHDARoot,
                      SIGNAL(stateChanged(int)),
@@ -299,6 +324,13 @@ HEMAX_OptionsDialog::InitializeOptions()
     bool Checked = false;
     HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
 
+    std::string SVal;
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_OVERRIDE_HFS, SVal))
+    {
+        OverrideHoudiniInstallPath->setText(SVal.c_str());
+    }
+
     if (Prefs.GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Checked))
     {
         AutoSelectHDARoot->setChecked(Checked);
@@ -313,8 +345,6 @@ HEMAX_OptionsDialog::InitializeOptions()
     {
         AutoOpenWindow->setChecked(Checked);
     }
-
-    std::string SVal;
 
     if (Prefs.GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, SVal))
     {
@@ -386,6 +416,29 @@ void
 HEMAX_OptionsDialog::Update()
 {
     InitializeOptions();
+}
+
+void
+HEMAX_OptionsDialog::SlotOverrideHoudiniInstallPath()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_OVERRIDE_HFS,
+        OverrideHoudiniInstallPath->text().toStdString());
+    RestartApplicationInstruction->setHidden(false);
+}
+
+void
+HEMAX_OptionsDialog::SlotOverrideHoudiniInstallPathDirBrowse()
+{
+    QString Dir = QFileDialog::getExistingDirectory(this, "",
+        OverrideHoudiniInstallPath->text());
+
+    if (!Dir.isEmpty())
+    {
+        HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_OVERRIDE_HFS,
+            Dir.toStdString());
+        OverrideHoudiniInstallPath->setText(Dir);
+        RestartApplicationInstruction->setHidden(false);
+    }
 }
 
 void
@@ -578,7 +631,8 @@ HEMAX_OptionsDialog::SlotOpenHoudiniButton()
     ZeroMemory(&ProcessInfo, sizeof(ProcessInfo));
     StartupInfo.cb = sizeof(StartupInfo);
 
-    std::string ExecutablePath = HEMAXLauncher::GetLibHAPILDirectory()
+    std::wstring HAPILDir = HEMAXLauncher::GetInstance()->GetLibHAPILDirectory();
+    std::string ExecutablePath = std::string(HAPILDir.begin(), HAPILDir.end())
                                  + "\\houdinifx.exe";
 
     std::string CommandLine = '"' + ExecutablePath + "\"  \""

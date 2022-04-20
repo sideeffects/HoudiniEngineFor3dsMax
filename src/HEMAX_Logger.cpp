@@ -15,13 +15,14 @@ HEMAX_Logger::~HEMAX_Logger() {}
 HEMAX_Logger::HEMAX_Logger() {}
 
 void
-HEMAX_Logger::AddEntry(std::string Log, HEMAX_LogLevel LogLevel)
+HEMAX_Logger::AddEntry(const std::string& Log, HEMAX_LogLevel LogLevel)
 {
-    GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr, ConvertToWideChar(Log));
+    GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
+        ConvertToWideString(Log).c_str());
 
     if (ShouldPrint(LogLevel))
     {
-	mprintf(ConvertToWideChar(Log + "\n"));
+	mprintf(ConvertToWideString(Log + "\n").c_str());
 	mflush();
     }
 }
@@ -29,26 +30,45 @@ HEMAX_Logger::AddEntry(std::string Log, HEMAX_LogLevel LogLevel)
 void
 HEMAX_Logger::AddEntry(const char* Log, HEMAX_LogLevel LogLevel)
 {
-    GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr, ConvertToWideChar(Log));
+    GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
+        ConvertToWideString(Log).c_str());
 
     if (ShouldPrint(LogLevel))
     {
 	std::string MaxscriptListenerString = std::string(Log) + "\n";
-	mprintf(ConvertToWideChar(MaxscriptListenerString));
+	mprintf(ConvertToWideString(MaxscriptListenerString).c_str());
 	mflush();
+    }
+}
+
+void
+HEMAX_Logger::AddEntry(const std::wstring& Log, HEMAX_LogLevel LogLevel)
+{
+    GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
+        Log.c_str());
+
+    if (ShouldPrint(LogLevel))
+    {
+        std::wstring MaxScriptListenerString = Log + L"\n";
+        mprintf(MaxScriptListenerString.c_str());
+        mflush();
     }
 }
 
 void
 HEMAX_Logger::ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel)
 {
-    GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG, ConvertToWideChar(Title), ConvertToWideChar(Message));
+    GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG,
+        ConvertToWideString(Title).c_str(),
+        ConvertToWideString(Message).c_str());
 }
 
 void
 HEMAX_Logger::ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel)
 {
-    GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG, ConvertToWideChar(Title), ConvertToWideChar(Message));
+    GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG,
+        ConvertToWideString(Title).c_str(),
+        ConvertToWideString(Message).c_str());
 }
 
 void
@@ -70,18 +90,11 @@ HEMAX_Logger::ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print)
     }
 }
 
-const wchar_t*
-HEMAX_Logger::ConvertToWideChar(std::string Msg)
+std::wstring
+HEMAX_Logger::ConvertToWideString(const std::string& Msg)
 {
     std::wstring WideString(Msg.begin(), Msg.end());
-    return WideString.c_str();
-}
-
-const wchar_t*
-HEMAX_Logger::ConvertToWideChar(const char* Msg)
-{
-    std::string AString(Msg);
-    return ConvertToWideChar(AString);
+    return WideString;
 }
 
 bool

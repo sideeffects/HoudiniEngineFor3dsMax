@@ -18,8 +18,10 @@ class HEMAX_Logger
     public:
 	static HEMAX_Logger& Instance();
 
-	void AddEntry(std::string Log, HEMAX_LogLevel LogLevel);
+	void AddEntry(const std::string& Log, HEMAX_LogLevel LogLevel);
 	void AddEntry(const char* Log, HEMAX_LogLevel LogLevel);
+
+        void AddEntry(const std::wstring& Log, HEMAX_LogLevel LogLevel);
 
 	void ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel);
 	void ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel);
@@ -30,8 +32,7 @@ class HEMAX_Logger
     private:
 	HEMAX_Logger();
 
-	const wchar_t* ConvertToWideChar(std::string Msg);
-	const wchar_t* ConvertToWideChar(const char* Msg);
+        std::wstring ConvertToWideString(const std::string& Msg);
 
 	bool ShouldPrint(HEMAX_LogLevel Level);
 

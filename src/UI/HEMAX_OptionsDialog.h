@@ -43,6 +43,13 @@ class HEMAX_OptionsDialog : public QDialog
         QWidget* GeneralOptions;
         QVBoxLayout* GeneralOptionsLayout;
 
+        QGroupBox* InstallationOptions;
+        QGridLayout* InstallationOptionsLayout;
+        QLabel* OverrideHoudiniInstallPathLabel;
+        QLineEdit* OverrideHoudiniInstallPath;
+        QPushButton* OverrideHoudiniInstallPathDirBrowse;
+        QLabel* RestartApplicationInstruction;
+
         QGroupBox* SelectionOptions;
         QVBoxLayout* SelectionOptionsLayout;
         QCheckBox* AutoSelectHDARoot;
@@ -112,6 +119,8 @@ class HEMAX_OptionsDialog : public QDialog
 
     private slots:
 
+        void SlotOverrideHoudiniInstallPath();
+        void SlotOverrideHoudiniInstallPathDirBrowse();
         void SlotAutoSelectHDARoot(int State);
         void SlotAutoStartSession(int State);
         void SlotAutoOpenWindow(int State);

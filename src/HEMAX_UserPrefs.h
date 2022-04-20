@@ -22,6 +22,7 @@
 #define HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH  "Session\\ImageDsoSearchPath"
 #define HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH  "Session\\AudioDsoSearchPath"
 
+#define HEMAX_SETTING_OVERRIDE_HFS "Installation\\OverrideHFS"
 #define HEMAX_SETTING_GRAB_ROOT       "Selection\\GrabHDARootNode"
 #define HEMAX_SETTING_AUTO_START_SESSION "OnStart\\AutoStartSession"
 #define HEMAX_SETTING_AUTO_START_WINDOW "OnStart\\AutoStartWindow"
