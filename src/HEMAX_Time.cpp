@@ -51,7 +51,7 @@ GetCurrentHAPITime()
     float OldTime = CurrentHAPITime;
     SM.Session->GetTime(&CurrentHAPITime);
 
-    if (OldTime < CurrentHAPITime)
+    if (OldTime != CurrentHAPITime)
     {
 	HasTimeChanged = true;
     }
