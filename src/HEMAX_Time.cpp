@@ -53,7 +53,7 @@ GetCurrentHAPITime()
     float OldTime = CurrentHAPITime;
     HEMAX_HoudiniApi::GetTime(SM.Session, &CurrentHAPITime);
 
-    if (OldTime < CurrentHAPITime)
+    if (OldTime != CurrentHAPITime)
     {
 	HasTimeChanged = true;
     }
