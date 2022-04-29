@@ -1,5 +1,6 @@
 #include "HEMAX_Node.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_UserPrefs.h"
@@ -29,9 +30,10 @@ HEMAX_Node::Init(const std::string& Asset)
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.Session->CreateNode(-1, AssetName.c_str(), nullptr, false, &Info.id))
+    if (HEMAX_HoudiniApi::CreateNode(SM.Session, -1, AssetName.c_str(), nullptr,
+            false, &Info.id))
     {
-	SM.Session->GetNodeInfo(Info.id, &Info);
+        HEMAX_HoudiniApi::GetNodeInfo(SM.Session, Info.id, &Info);
         Type = Info.type;
 
 	NodeName = SM.Session->GetHAPIString(Info.nameSH);
@@ -41,7 +43,8 @@ HEMAX_Node::Init(const std::string& Asset)
 	    HAPI_StringHandle Handle;
 	    for (int j = 0; j < Info.inputCount; j++)
 	    {
-		SM.Session->GetNodeInputName(Info.id, j, &Handle);
+                HEMAX_HoudiniApi::GetNodeInputName(SM.Session, Info.id, j,
+                    &Handle);
 		InputLabels.push_back(SM.Session->GetHAPIString(Handle));	
 	    }
 	}
@@ -55,17 +58,18 @@ HEMAX_Node::Cook()
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	SM.Session->CookNode(Info.id);
+        HEMAX_HoudiniApi::CookNode(SM.Session, Info.id, SM.Session->GetCookOptions());
 	while (SM.Session->IsCookFinished() != COOK_FINISHED)
 	{
 	    // Wait
 	}
-	SM.Session->GetNodeInfo(Info.id, &Info);
+        HEMAX_HoudiniApi::GetNodeInfo(SM.Session, Info.id, &Info);
 
 	if (Info.parmCount > 0)
 	{
 	    std::vector<HAPI_ParmInfo> ParmInfos(Info.parmCount);
-	    SM.Session->GetParameters(Info.id, &ParmInfos.front(), 0, Info.parmCount);
+            HEMAX_HoudiniApi::GetParameters(SM.Session, Info.id,
+                &ParmInfos.front(), 0, Info.parmCount);
 
 	    Parameters.clear();
 
@@ -85,7 +89,8 @@ HEMAX_Node::Cook()
 void
 HEMAX_Node::Delete()
 {
-    HEMAX_SessionManager::GetSessionManager().Session->DeleteNode(Info.id);
+    HEMAX_HoudiniApi::DeleteNode(HEMAX_SessionManager::GetSessionManager().Session,
+        Info.id);
     Type = HAPI_NODETYPE_NONE;
 }
 
@@ -150,7 +155,8 @@ HEMAX_Node::SetTransform(HEMAX_MaxTransform& Xform)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->SetObjectTransform(Info.id, &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform));
+    HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session, Info.id,
+        &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform));
 }
 
 void
@@ -158,7 +164,8 @@ HEMAX_Node::SetParentTransform(HEMAX_MaxTransform& Xform)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->SetObjectTransform(Info.parentId, &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HAPI_SRT));
+    HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session, Info.parentId,
+        &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HAPI_SRT));
 }
 
 void
@@ -166,7 +173,8 @@ HEMAX_Node::ConnectInputNode(HAPI_NodeId NodeToConnect, int InputIndex)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->ConnectNodeInput(Info.id, InputIndex, NodeToConnect);
+    HEMAX_HoudiniApi::ConnectNodeInput(SessionManager.Session, Info.id,
+        InputIndex, NodeToConnect, 0);
 }
 
 void
@@ -174,17 +182,19 @@ HEMAX_Node::DisconnectInputNode(int InputIndex)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->DisconnectNodeInput(Info.id, InputIndex);
+    HEMAX_HoudiniApi::DisconnectNodeInput(SessionManager.Session, Info.id,
+        InputIndex);
 }
 
 HAPI_NodeId
 HEMAX_Node::QueryNodeInput(int InputIndex)
 {
-    HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_NodeId ConnectedNode;
 
-    if (SessionManager.Session->QueryNodeInput(Info.id, InputIndex, &ConnectedNode))
+    if (HEMAX_HoudiniApi::QueryNodeInput(SM.Session, Info.id, InputIndex,
+            &ConnectedNode))
     {
 	return ConnectedNode;
     }

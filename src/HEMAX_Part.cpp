@@ -1,5 +1,6 @@
 #include "HEMAX_Part.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
@@ -92,7 +93,7 @@ HEMAX_Part::Update(HAPI_NodeId Node, int PartNum)
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    Valid = SM.Session->GetPartInfo(Node, PartNum, &Info);
+    Valid = HEMAX_HoudiniApi::GetPartInfo(SM.Session, Node, PartNum, &Info);
 
     if (Info.type == HAPI_PARTTYPE_INSTANCER)
     {
@@ -100,14 +101,16 @@ HEMAX_Part::Update(HAPI_NodeId Node, int PartNum)
 	PackedPrimInfo.InstancedPartCount = Info.instancedPartCount;
 
 	PackedPrimInfo.InstancedPartIds.resize(PackedPrimInfo.InstancedPartCount);
-	SM.Session->GetInstancedPartIds(Node, PartNum, &PackedPrimInfo.InstancedPartIds.front(), 0, PackedPrimInfo.InstancedPartCount);
+        HEMAX_HoudiniApi::GetInstancedPartIds(SM.Session, Node, PartNum,
+            &PackedPrimInfo.InstancedPartIds.front(), 0,
+            PackedPrimInfo.InstancedPartCount);
 
 	PackedPrimInfo.InstancedTransforms = GetInstancedPartTransforms();
     }
 
     if (Info.type == HAPI_PARTTYPE_CURVE)
     {
-	SM.Session->GetCurveInfo(Node, PartNum, &CurveInfo);
+        HEMAX_HoudiniApi::GetCurveInfo(SM.Session, Node, PartNum, &CurveInfo);
 	CurvePlugin.SetPart(Node, PartNum, CurveInfo);
     }
 }
@@ -201,26 +204,26 @@ HEMAX_Part::BuildMesh()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_AttributeInfo PointAttributeInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 		    &PointAttributeInfo);
 
     PartMesh = new HEMAX_Mesh(Info.faceCount,
 		    Info.vertexCount, PointAttributeInfo.count);
 
-    SM.Session->GetAttributeFloatData(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
                     HEMAX_POSITION_ATTRIBUTE, &PointAttributeInfo, -1,
                     PartMesh->GetPointListArray(), 0, PointAttributeInfo.count);
 
     // NORMALS //
 
     HAPI_AttributeInfo PointNormalAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_NORMAL_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 		    &PointNormalAttrInfo);
 
     HAPI_AttributeInfo VertexNormalAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_NORMAL_ATTRIBUTE, HAPI_ATTROWNER_VERTEX,
 		    &VertexNormalAttrInfo);
 
@@ -228,7 +231,7 @@ HEMAX_Part::BuildMesh()
     {
 	PartMesh->SetNormalsExist(true);
 	PartMesh->AllocatePointNormalArray();
-        SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
                         HEMAX_NORMAL_ATTRIBUTE, &PointNormalAttrInfo, -1,
                         PartMesh->GetPointNormalsListArray(), 0,
                         PointNormalAttrInfo.count);
@@ -237,7 +240,7 @@ HEMAX_Part::BuildMesh()
     {
 	PartMesh->SetNormalsExist(true);
 	PartMesh->AllocateVertexNormalArray();
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_NORMAL_ATTRIBUTE, &VertexNormalAttrInfo, -1,
 			PartMesh->GetVertexNormalsListArray(), 0,
 			VertexNormalAttrInfo.count);
@@ -252,19 +255,19 @@ HEMAX_Part::BuildMesh()
     // COLORS //
 
     HAPI_AttributeInfo PointColorAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_COLOR_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 		    &PointColorAttrInfo);
 
     HAPI_AttributeInfo VertexColorAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_COLOR_ATTRIBUTE, HAPI_ATTROWNER_VERTEX,
 		    &VertexColorAttrInfo);
 
     if (PointColorAttrInfo.exists)
     {
 	PartMesh->AllocatePointCdArray();
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_COLOR_ATTRIBUTE, &PointColorAttrInfo, -1,
 			PartMesh->GetPointCdArray(), 0,
 			PointColorAttrInfo.count);
@@ -272,7 +275,7 @@ HEMAX_Part::BuildMesh()
     else if (VertexColorAttrInfo.exists)
     {
 	PartMesh->AllocateVertexCdArray();
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_COLOR_ATTRIBUTE, &VertexColorAttrInfo, -1,
 			PartMesh->GetVertexCdArray(), 0,
 			VertexColorAttrInfo.count);
@@ -283,26 +286,26 @@ HEMAX_Part::BuildMesh()
     // ALPHA //
 
     HAPI_AttributeInfo PointAlphaAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 	    HEMAX_ALPHA_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 	    &PointAlphaAttrInfo);
 
     HAPI_AttributeInfo VertexAlphaAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_ALPHA_ATTRIBUTE, HAPI_ATTROWNER_VERTEX,
 		    &VertexAlphaAttrInfo);
 
     if (PointAlphaAttrInfo.exists)
     {
 	PartMesh->AllocateAlphaArray(HAPI_ATTROWNER_POINT);
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_ALPHA_ATTRIBUTE, &PointAlphaAttrInfo, -1,
 			PartMesh->GetAlphaArray(), 0, PointAlphaAttrInfo.count);
     }
     else if (VertexAlphaAttrInfo.exists)
     {
 	PartMesh->AllocateAlphaArray(HAPI_ATTROWNER_VERTEX);
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_ALPHA_ATTRIBUTE, &VertexAlphaAttrInfo, -1,
 			PartMesh->GetAlphaArray(), 0,
 			VertexAlphaAttrInfo.count);
@@ -313,19 +316,19 @@ HEMAX_Part::BuildMesh()
     // ILLUMINATION //
 
     HAPI_AttributeInfo PointIllumeAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_ILLUMINATION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 		    &PointIllumeAttrInfo);
 
     HAPI_AttributeInfo VertexIllumeAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_ILLUMINATION_ATTRIBUTE, HAPI_ATTROWNER_VERTEX,
 		    &VertexIllumeAttrInfo);
 
     if (PointIllumeAttrInfo.exists)
     {
 	PartMesh->AllocateIlluminationArray(HAPI_ATTROWNER_POINT);
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_ILLUMINATION_ATTRIBUTE, &PointIllumeAttrInfo, -1,
 			PartMesh->GetIlluminationArray(), 0,
 			PointIllumeAttrInfo.count);
@@ -333,7 +336,7 @@ HEMAX_Part::BuildMesh()
     else if (VertexIllumeAttrInfo.exists)
     {
 	PartMesh->AllocateIlluminationArray(HAPI_ATTROWNER_VERTEX);
-	SM.Session->GetAttributeFloatData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_ILLUMINATION_ATTRIBUTE, &VertexIllumeAttrInfo, -1,
 			PartMesh->GetIlluminationArray(), 0,
 			VertexIllumeAttrInfo.count);
@@ -344,14 +347,14 @@ HEMAX_Part::BuildMesh()
     // SMOOTHING GROUPS //
 
     HAPI_AttributeInfo SGAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_SMOOTHING_GROUP_ATTRIBUTE, HAPI_ATTROWNER_PRIM,
 		    &SGAttrInfo);
 
     if (SGAttrInfo.exists)
     {
 	PartMesh->AllocateSmoothingGroupsArray();
-	SM.Session->GetAttributeIntData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeIntData(SM.Session, NodeId, Info.id,
 			HEMAX_SMOOTHING_GROUP_ATTRIBUTE, &SGAttrInfo, -1,
 			PartMesh->GetSmoothingGroupArray(), 0,
 			PartMesh->GetFaceCount());
@@ -362,14 +365,14 @@ HEMAX_Part::BuildMesh()
     // MATERIAL IDS //
 
     HAPI_AttributeInfo MatIDAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_ATTROWNER_PRIM,
 		    &MatIDAttrInfo);
 
     if (MatIDAttrInfo.exists)
     {
 	PartMesh->AllocateMaterialIDArray();
-	SM.Session->GetAttributeIntData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeIntData(SM.Session, NodeId, Info.id,
 			HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIDAttrInfo, -1,
 			PartMesh->GetMaterialIDArray(), 0,
 			PartMesh->GetFaceCount());
@@ -380,28 +383,29 @@ HEMAX_Part::BuildMesh()
     if (HasGroup(HEMAX_SELECTION_FACE, HAPI_GROUPTYPE_PRIM))
     {
         PartMesh->AllocateFaceSelectionsArray();
-        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_PRIM,
-            HEMAX_SELECTION_FACE, nullptr, PartMesh->GetFaceSelectionsArray(),
+        HEMAX_HoudiniApi::GetGroupMembership(SM.Session, NodeId, Info.id,
+            HAPI_GROUPTYPE_PRIM, HEMAX_SELECTION_FACE, nullptr,
+            PartMesh->GetFaceSelectionsArray(),
             0, PartMesh->GetFaceCount());
     }
 
     if (HasGroup(HEMAX_SELECTION_VERTEX, HAPI_GROUPTYPE_POINT))
     {
         PartMesh->AllocateVertexSelectionsArray();
-        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_POINT,
-            HEMAX_SELECTION_VERTEX, nullptr,
+        HEMAX_HoudiniApi::GetGroupMembership(SM.Session, NodeId, Info.id,
+            HAPI_GROUPTYPE_POINT, HEMAX_SELECTION_VERTEX, nullptr,
             PartMesh->GetVertexSelectionsArray(), 0, PartMesh->GetPointCount());
     }
 
     if (HasGroup(HEMAX_SELECTION_EDGE, HAPI_GROUPTYPE_EDGE))
     {
         int EdgeCount = 0;
-        SM.Session->GetEdgeCountOfEdgeGroup(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroup(SM.Session, NodeId, Info.id,
             HEMAX_SELECTION_EDGE, &EdgeCount);
         PartMesh->AllocateEdgeSelectionsArray(EdgeCount);
-        SM.Session->GetGroupMembership(NodeId, Info.id, HAPI_GROUPTYPE_EDGE,
-            HEMAX_SELECTION_EDGE, nullptr, PartMesh->GetEdgeSelectionsArray(),
-            0, EdgeCount*2);
+        HEMAX_HoudiniApi::GetGroupMembership(SM.Session, NodeId, Info.id,
+            HAPI_GROUPTYPE_EDGE, HEMAX_SELECTION_EDGE, nullptr,
+            PartMesh->GetEdgeSelectionsArray(), 0, EdgeCount*2);
     }
 
     /////////////////////
@@ -409,14 +413,14 @@ HEMAX_Part::BuildMesh()
     // SHOP MATERIAL PATH //
 
     HAPI_AttributeInfo MatPathAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, Info.id,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 		    HEMAX_MATERIAL_PATH_ATTRIBUTE, HAPI_ATTROWNER_DETAIL,
 		    &MatPathAttrInfo);
 
     if (MatPathAttrInfo.exists)
     {
 	std::vector<HAPI_StringHandle> StringHandles(1);
-	SM.Session->GetAttributeStringData(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeStringData(SM.Session, NodeId, Info.id,
 			HEMAX_MATERIAL_PATH_ATTRIBUTE, &MatPathAttrInfo,
 			StringHandles.data(), 0, 1);
 	PartMesh->MaterialPath = SM.Session->GetHAPIString(StringHandles[0]);
@@ -437,7 +441,7 @@ HEMAX_Part::BuildMesh()
 	std::string MetadataStr(HEMAX_METADATA);
 
 	HAPI_StringHandle* SH_Names = new HAPI_StringHandle[DetailAttribCount];
-	SM.Session->GetAttributeNames(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeNames(SM.Session, NodeId, Info.id,
 			HAPI_ATTROWNER_DETAIL, SH_Names,
 			DetailAttribCount);
 	for (int n = 0; n < DetailAttribCount; n++)
@@ -446,7 +450,8 @@ HEMAX_Part::BuildMesh()
 	    if (AttribName.compare(0, MetadataStr.length(), MetadataStr) == 0)
 	    {
 		HAPI_AttributeInfo AttribInfo;
-		if (SM.Session->GetAttributeInfo(NodeId, Info.id,
+		if (HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId,
+                                    Info.id,
 				    AttribName.c_str(),
 				    HAPI_ATTROWNER_DETAIL, &AttribInfo))
 		{
@@ -461,7 +466,8 @@ HEMAX_Part::BuildMesh()
 					    AttribInfo.tupleSize,
 					    HAPI_ATTROWNER_DETAIL);
 				HEMAX_MeshList<float>& Metadata = PartMesh->GetFloatMetadata(AttribName);
-				SM.Session->GetAttributeFloatData(NodeId,
+                                HEMAX_HoudiniApi::GetAttributeFloatData(
+                                                SM.Session, NodeId,
 						Info.id, AttribName.c_str(),
 						&AttribInfo, -1,
 						Metadata.Data(), 0, 1);
@@ -475,7 +481,8 @@ HEMAX_Part::BuildMesh()
 					    AttribInfo.tupleSize,
 					    HAPI_ATTROWNER_DETAIL);
 				HEMAX_MeshList<int>& Metadata = PartMesh->GetIntMetadata(AttribName);
-				SM.Session->GetAttributeIntData(NodeId,
+                                HEMAX_HoudiniApi::GetAttributeIntData(
+                                                SM.Session, NodeId,
 						Info.id, AttribName.c_str(),
 						&AttribInfo, -1,
 						Metadata.Data(), 0, 1);
@@ -489,7 +496,8 @@ HEMAX_Part::BuildMesh()
 					    HAPI_ATTROWNER_DETAIL);
 				HEMAX_MeshList<std::string>& Metadata = PartMesh->GetStringMetadata(AttribName);
 				std::vector<HAPI_StringHandle> StringHandles(1);
-				if (SM.Session->GetAttributeStringData(NodeId,
+				if (HEMAX_HoudiniApi::GetAttributeStringData(
+                                                    SM.Session, NodeId,
 						    Info.id, AttribName.c_str(),
 						    &AttribInfo,
 						    StringHandles.data(), 0, 1))
@@ -513,33 +521,33 @@ HEMAX_Part::BuildMesh()
 
     if (PartMesh->GetFaceCount() > 0)
     {
-	SM.Session->GetFaceCounts(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetFaceCounts(SM.Session, NodeId, Info.id,
 			PartMesh->GetFaceVertexCountsArray(), 0,
 			Info.faceCount);
-	SM.Session->GetVertexList(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetVertexList(SM.Session, NodeId, Info.id,
 			PartMesh->GetVertexListArray(), 0, Info.vertexCount);
 
 	PartMesh->AllocateMaterialIdsArray();
-	SM.Session->GetMaterialNodeIdsOnFaces(NodeId, Info.id,
-		&PartMesh->AreMaterialIdsSame, PartMesh->GetMaterialIdsArray(),
-		0, Info.faceCount);
+        HEMAX_HoudiniApi::GetMaterialNodeIdsOnFaces(SM.Session, NodeId,
+                Info.id, &PartMesh->AreMaterialIdsSame,
+                PartMesh->GetMaterialIdsArray(), 0, Info.faceCount);
 
 	// Main UV Layer
 
 	HAPI_AttributeInfo UVPointAttributeInfo;
-	SM.Session->GetAttributeInfo(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 			HEMAX_UV_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 			&UVPointAttributeInfo);
 
 	HAPI_AttributeInfo UVVertexAttributeInfo;
-	SM.Session->GetAttributeInfo(NodeId, Info.id,
+        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
 			HEMAX_UV_ATTRIBUTE, HAPI_ATTROWNER_VERTEX,
 			&UVVertexAttributeInfo);
 
 	if (UVPointAttributeInfo.exists)
 	{
 	    PartMesh->AllocatePointUVArray(UVPointAttributeInfo.tupleSize);
-	    SM.Session->GetAttributeFloatData(NodeId, Info.id,
+            HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			    HEMAX_UV_ATTRIBUTE, &UVPointAttributeInfo, -1,
 			    PartMesh->GetPointUVArray(), 0, Info.pointCount);
 	}
@@ -547,7 +555,7 @@ HEMAX_Part::BuildMesh()
 	if (UVVertexAttributeInfo.exists)
 	{
 	    PartMesh->AllocateVertexUVArray(UVVertexAttributeInfo.tupleSize);
-	    SM.Session->GetAttributeFloatData(NodeId, Info.id,
+            HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			    HEMAX_UV_ATTRIBUTE, &UVVertexAttributeInfo, -1,
 			    PartMesh->GetVertexUVArray(), 0, Info.vertexCount);
 	}
@@ -559,30 +567,30 @@ HEMAX_Part::BuildMesh()
 	    std::string UVName = HEMAX_UV_ATTRIBUTE + std::to_string(UVLayer);
 
 	    HAPI_AttributeInfo UVPointInfo;
-	    SM.Session->GetAttributeInfo(NodeId, Info.id, UVName.c_str(),
-			    HAPI_ATTROWNER_POINT, &UVPointInfo);
+            HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
+                            UVName.c_str(), HAPI_ATTROWNER_POINT, &UVPointInfo);
 	    HAPI_AttributeInfo UVVertexInfo;
-	    SM.Session->GetAttributeInfo(NodeId, Info.id, UVName.c_str(),
-			    HAPI_ATTROWNER_VERTEX, &UVVertexInfo);
+            HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, Info.id,
+                            UVName.c_str(), HAPI_ATTROWNER_VERTEX, &UVVertexInfo);
 
 	    if (UVPointInfo.exists)
 	    {
 		PartMesh->CreateSecondaryUVLayer(HAPI_ATTROWNER_POINT,
 				UVLayer, Info.pointCount * 3);
-		SM.Session->GetAttributeFloatData(NodeId, Info.id,
-				UVName.c_str(), &UVPointInfo, -1,
-				PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_POINT, UVLayer).data(),
-				0, Info.pointCount);
+                HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId,
+                    Info.id, UVName.c_str(), &UVPointInfo, -1,
+		    PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_POINT, UVLayer).data(),
+		    0, Info.pointCount);
 	    }
 
 	    if (UVVertexInfo.exists)
 	    {
 		PartMesh->CreateSecondaryUVLayer(HAPI_ATTROWNER_VERTEX,
 				UVLayer, Info.vertexCount * 3);
-		SM.Session->GetAttributeFloatData(NodeId, Info.id,
-				UVName.c_str(), &UVVertexInfo, -1,
-				PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_VERTEX, UVLayer).data(),
-				0, Info.vertexCount);
+                HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId,
+                    Info.id, UVName.c_str(), &UVVertexInfo, -1,
+		    PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_VERTEX, UVLayer).data(),
+		    0, Info.vertexCount);
 	    }
 	}
     }
@@ -656,7 +664,8 @@ HEMAX_Part::GetInstancedPartTransforms()
 
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	bool Success = SM.Session->GetInstancerPartTransforms(
+	bool Success = HEMAX_HoudiniApi::GetInstancerPartTransforms(
+                            SM.Session,
 			    NodeId, Info.id,
 			    HAPI_RSTORDER_DEFAULT,
 			    &HAPITransforms.front(),
@@ -679,14 +688,13 @@ HEMAX_Part::GetInstancedPartTransforms()
     return MaxTransforms;
 }
 
-
 bool
 HEMAX_Part::HasGroup(const std::string& GroupName,
     HAPI_GroupType GroupType) const
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HAPI_GeoInfo GeometryInfo;
-    SM.Session->GetGeometryInfo(NodeId, &GeometryInfo);
+    HEMAX_HoudiniApi::GetGeometryInfo(SM.Session, NodeId, &GeometryInfo);
 
     std::vector<HAPI_StringHandle> GroupNameHandles;
 
@@ -703,8 +711,8 @@ HEMAX_Part::HasGroup(const std::string& GroupName,
         GroupNameHandles.resize(GeometryInfo.edgeGroupCount);
     }
 
-    SM.Session->GetGroupNames(NodeId, GroupType, GroupNameHandles.data(),
-        (int)GroupNameHandles.size());
+    HEMAX_HoudiniApi::GetGroupNames(SM.Session, NodeId, GroupType,
+        GroupNameHandles.data(), (int)GroupNameHandles.size());
 
     for (int i = 0; i < GroupNameHandles.size(); i++)
     {

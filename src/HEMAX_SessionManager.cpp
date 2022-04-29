@@ -1,6 +1,7 @@
 #include "HEMAX_SessionManager.h"
 
 #include "HEMAX_Events.h"
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 
 const char* const HAPI_CLIENT_NAME_ENV_VAR = "HAPI_CLIENT_NAME";
@@ -36,7 +37,7 @@ HEMAX_SessionManager::~HEMAX_SessionManager()
 bool
 HEMAX_SessionManager::StartSession()
 {
-    Session->ClearConnectionError();
+    HEMAX_HoudiniApi::ClearConnectionError();
     if (Session->CreateSession())
     {
 	if (Session->InitializeHAPI(
@@ -58,8 +59,8 @@ HEMAX_SessionManager::StartSession()
 		CopyHEngineEnv(EnvMap);
 	    }
 
-	    Session->SetServerEnvString(HAPI_CLIENT_NAME_ENV_VAR,
-					HAPI_CLIENT_NAME_ENV_VAL);
+            HEMAX_HoudiniApi::SetServerEnvString(Session,
+                HAPI_CLIENT_NAME_ENV_VAR, HAPI_CLIENT_NAME_ENV_VAL);
 	}
 
         PluginEvents->SessionChanged();
@@ -67,12 +68,12 @@ HEMAX_SessionManager::StartSession()
     else
     {
         int ErrLen = 0;
-        Session->GetConnectionErrorLength(&ErrLen);
+        HEMAX_HoudiniApi::GetConnectionErrorLength(&ErrLen);
 
         if (ErrLen > 0)
         {
             char* ErrMsg = new char[ErrLen];
-            Session->GetConnectionError(ErrMsg, ErrLen);
+            HEMAX_HoudiniApi::GetConnectionError(ErrMsg, ErrLen, false);
             HEMAX_Logger::Instance().AddEntry(ErrMsg, HEMAX_LOG_LEVEL_ERROR);
             delete [] ErrMsg;
         }
@@ -86,11 +87,11 @@ HEMAX_SessionManager::StopSession()
 {
     if (IsSessionInitialized && IsActiveSession)
     {
-	Session->Cleanup();
+        HEMAX_HoudiniApi::Cleanup(Session);
 	IsSessionInitialized = false;
     }
 
-    if (Session->CloseSession())
+    if (HEMAX_HoudiniApi::CloseSession(Session))
     {
 	IsActiveSession = false;
     }
@@ -167,10 +168,10 @@ HEMAX_SessionManager::GetEnvMap()
     std::unordered_map<std::string, std::string> EnvMap;
 
     int EnvVarCount;
-    if (Session->GetServerEnvVarCount(&EnvVarCount))
+    if (HEMAX_HoudiniApi::GetServerEnvVarCount(Session, &EnvVarCount))
     {
 	HAPI_StringHandle* EnvSH = new HAPI_StringHandle[EnvVarCount];
-	if (Session->GetServerEnvVarList(EnvSH, 0, EnvVarCount))
+	if (HEMAX_HoudiniApi::GetServerEnvVarList(Session, EnvSH, 0, EnvVarCount))
 	{
 	    std::vector<std::string> EnvList(EnvVarCount);
 	    for (int v = 0; v < EnvVarCount; v++)
@@ -263,19 +264,17 @@ HEMAX_SessionManager::StartThriftNamedPipeThinClient()
         ServerOptions.verbosity = HAPI_STATUSVERBOSITY_ALL;
 	HAPI_ProcessId ServerProcessId;
 
-        TheSession->ClearConnectionError();
-	TheSession->StartThriftNamedPipeServer(&ServerOptions,
-                                               HEMAX_AUTO_PIPE_NAME,
-                                               &ServerProcessId,
-                                               nullptr);
+        HEMAX_HoudiniApi::ClearConnectionError();
+        HEMAX_HoudiniApi::StartThriftNamedPipeServer(&ServerOptions,
+            HEMAX_AUTO_PIPE_NAME, &ServerProcessId, nullptr);
 
         int ErrLen = 0;
-        TheSession->GetConnectionErrorLength(&ErrLen);
+        HEMAX_HoudiniApi::GetConnectionErrorLength(&ErrLen);
 
         if (ErrLen > 0)
         {
             char* ErrMsg = new char[ErrLen];
-            TheSession->GetConnectionError(ErrMsg, ErrLen);
+            HEMAX_HoudiniApi::GetConnectionError(ErrMsg, ErrLen, false);
             HEMAX_Logger::Instance().AddEntry(ErrMsg, HEMAX_LOG_LEVEL_ERROR);
             delete [] ErrMsg;
 

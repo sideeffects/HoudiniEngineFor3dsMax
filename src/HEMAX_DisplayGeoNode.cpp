@@ -1,5 +1,6 @@
 #include "HEMAX_DisplayGeoNode.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 #include <set>
@@ -29,10 +30,10 @@ HEMAX_DisplayGeoNode::Init(HAPI_NodeId NodeId)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_NodeInfo NodeInfo;
-    SM.Session->GetNodeInfo(NodeId, &NodeInfo);
+    HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeId, &NodeInfo);
     Name = SM.Session->GetHAPIString(NodeInfo.nameSH);
 
-    if (SM.Session->GetDisplayGeoInfo(NodeId, &Info))
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, NodeId, &Info))
     {
 	Parts.resize(Info.partCount);
 	for (int p = 0; p < Info.partCount; p++)
@@ -49,10 +50,10 @@ HEMAX_DisplayGeoNode::Update(bool Cook)
 
     if (Cook)
     {
-        SM.Session->CookNode(Node);
+        HEMAX_HoudiniApi::CookNode(SM.Session, Node, SM.Session->GetCookOptions());
     }
 
-    if (SM.Session->GetDisplayGeoInfo(Node, &Info))
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, Node, &Info))
     {
 	if (Parts.size() != Info.partCount)
 	{

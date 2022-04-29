@@ -296,8 +296,8 @@ HEMAX_HoudiniApi::GetFaceCountsImpl = &HEMAX_HoudiniApi::GetFaceCountsEmptyStub;
 HEMAX_HoudiniApi::GetFirstVolumeTileFuncPtr
 HEMAX_HoudiniApi::GetFirstVolumeTileImpl = &HEMAX_HoudiniApi::GetFirstVolumeTileEmptyStub;
 
-HEMAX_HoudiniApi::GetGeoInfoFuncPtr
-HEMAX_HoudiniApi::GetGeoInfoImpl = &HEMAX_HoudiniApi::GetGeoInfoEmptyStub;
+HEMAX_HoudiniApi::GetGeometryInfoFuncPtr
+HEMAX_HoudiniApi::GetGeometryInfoImpl = &HEMAX_HoudiniApi::GetGeometryInfoEmptyStub;
 
 HEMAX_HoudiniApi::GetGeoSizeFuncPtr
 HEMAX_HoudiniApi::GetGeoSizeImpl = &HEMAX_HoudiniApi::GetGeoSizeEmptyStub;
@@ -1008,7 +1008,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetEnvIntImpl = (GetEnvIntFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetEnvInt");
     HEMAX_HoudiniApi::GetFaceCountsImpl = (GetFaceCountsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetFaceCounts");
     HEMAX_HoudiniApi::GetFirstVolumeTileImpl = (GetFirstVolumeTileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetFirstVolumeTile");
-    HEMAX_HoudiniApi::GetGeoInfoImpl = (GetGeoInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetGeoInfo");
+    HEMAX_HoudiniApi::GetGeometryInfoImpl = (GetGeometryInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetGeoInfo");
     HEMAX_HoudiniApi::GetGeoSizeImpl = (GetGeoSizeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetGeoSize");
     HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePartImpl = (GetGroupCountOnPackedInstancePartFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetGroupCountOnPackedInstancePart");
     HEMAX_HoudiniApi::GetGroupMembershipImpl = (GetGroupMembershipFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetGroupMembership");
@@ -1308,7 +1308,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetEnvIntImpl = &HEMAX_HoudiniApi::GetEnvIntEmptyStub;
     HEMAX_HoudiniApi::GetFaceCountsImpl = &HEMAX_HoudiniApi::GetFaceCountsEmptyStub;
     HEMAX_HoudiniApi::GetFirstVolumeTileImpl = &HEMAX_HoudiniApi::GetFirstVolumeTileEmptyStub;
-    HEMAX_HoudiniApi::GetGeoInfoImpl = &HEMAX_HoudiniApi::GetGeoInfoEmptyStub;
+    HEMAX_HoudiniApi::GetGeometryInfoImpl = &HEMAX_HoudiniApi::GetGeometryInfoEmptyStub;
     HEMAX_HoudiniApi::GetGeoSizeImpl = &HEMAX_HoudiniApi::GetGeoSizeEmptyStub;
     HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePartImpl = &HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePartEmptyStub;
     HEMAX_HoudiniApi::GetGroupMembershipImpl = &HEMAX_HoudiniApi::GetGroupMembershipEmptyStub;
@@ -2253,9 +2253,9 @@ HEMAX_HoudiniApi::GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId n
 
 
 bool
-HEMAX_HoudiniApi::GetGeoInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info)
+HEMAX_HoudiniApi::GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::GetGeoInfoImpl(session, node_id, geo_info);
+    HAPI_Result Result = HEMAX_HoudiniApi::GetGeometryInfoImpl(session, node_id, geo_info);
     return HandleHAPIResult(session, Result);
 }
 
@@ -4605,9 +4605,9 @@ HEMAX_HoudiniApi::GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId n
 
 
 bool
-HEMAX_HoudiniApi::GetGeoInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result)
+HEMAX_HoudiniApi::GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result)
 {
-    result = HEMAX_HoudiniApi::GetGeoInfoImpl(session, node_id, geo_info);
+    result = HEMAX_HoudiniApi::GetGeometryInfoImpl(session, node_id, geo_info);
     return HandleHAPIResult(session, result);
 }
 
@@ -6869,7 +6869,7 @@ HEMAX_HoudiniApi::GetFirstVolumeTileEmptyStub(const HAPI_Session * session, HAPI
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetGeoInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info)
+HEMAX_HoudiniApi::GetGeometryInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info)
 {
     return HAPI_RESULT_FAILURE;
 }

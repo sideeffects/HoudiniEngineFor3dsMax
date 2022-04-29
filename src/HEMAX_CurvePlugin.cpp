@@ -1,5 +1,6 @@
 #include "HEMAX_CurvePlugin.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
@@ -87,27 +88,28 @@ HEMAX_CurvePlugin::BuildLinearShape()
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
 	std::vector<int> SegmentsCVCount(CurveInfo.curveCount);
-	SM.Session->GetCurveCounts(NodeId, PartId, SegmentsCVCount.data(), 0, CurveInfo.curveCount); 
+        HEMAX_HoudiniApi::GetCurveCounts(SM.Session, NodeId, PartId,
+            SegmentsCVCount.data(), 0, CurveInfo.curveCount); 
 
 	std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
         std::vector<int> MatIds(CurveInfo.vertexCount);
 
 	HAPI_AttributeInfo PositionAttributeInfo;
-	SM.Session->GetAttributeInfo(NodeId, PartId,
+        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, PartId,
 			HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 			&PositionAttributeInfo);
 
-        SM.Session->GetAttributeFloatData(NodeId, PartId,
+        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, PartId,
             HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
             -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
         HAPI_AttributeInfo MatIdAttrInfo;
-        SM.Session->GetAttributeInfo(NodeId, PartId,
+        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, PartId,
             HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_ATTROWNER_POINT,
             &MatIdAttrInfo);
         if (MatIdAttrInfo.exists)
         {
-            SM.Session->GetAttributeIntData(NodeId, PartId,
+            HEMAX_HoudiniApi::GetAttributeIntData(SM.Session, NodeId, PartId,
                 HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, MatIds.data(), 0,
                 CurveInfo.vertexCount);
         }
@@ -176,32 +178,36 @@ HEMAX_CurvePlugin::BuildNURBSObject()
     std::vector<float> CurvePoints(CurveInfo.vertexCount * 3);
 
     HAPI_AttributeInfo PositionAttributeInfo;
-    SM.Session->GetAttributeInfo(NodeId, PartId,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, PartId,
 	HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
         &PositionAttributeInfo);
 
-    SM.Session->GetAttributeFloatData(NodeId, PartId,
+    HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, PartId,
 		    HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
 		    -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
     HAPI_AttributeInfo MatIdAttrInfo;
-    SM.Session->GetAttributeInfo(NodeId, PartId, HEMAX_MATERIAL_ID_ATTRIBUTE,
+    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId, PartId,
+        HEMAX_MATERIAL_ID_ATTRIBUTE,
         HAPI_ATTROWNER_DETAIL, &MatIdAttrInfo);
     int MatId = -1;
     if (MatIdAttrInfo.exists)
     {
-        SM.Session->GetAttributeIntData(NodeId, PartId,
+        HEMAX_HoudiniApi::GetAttributeIntData(SM.Session, NodeId, PartId,
             HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, &MatId, 0, 1);
     }
 
     std::vector<int> CurvesCVCount(CurveInfo.curveCount);
-    SM.Session->GetCurveCounts(NodeId, PartId, CurvesCVCount.data(), 0, CurveInfo.curveCount);
+    HEMAX_HoudiniApi::GetCurveCounts(SM.Session, NodeId, PartId,
+        CurvesCVCount.data(), 0, CurveInfo.curveCount);
 
     std::vector<int> CurvesOrder(CurveInfo.curveCount);
-    SM.Session->GetCurveOrders(NodeId, PartId, CurvesOrder.data(), 0, CurveInfo.curveCount);
+    HEMAX_HoudiniApi::GetCurveOrders(SM.Session, NodeId, PartId,
+        CurvesOrder.data(), 0, CurveInfo.curveCount);
 
     std::vector<float> CurvesKnots(CurveInfo.knotCount);
-    SM.Session->GetCurveKnots(NodeId, PartId, CurvesKnots.data(), 0, CurveInfo.knotCount);
+    HEMAX_HoudiniApi::GetCurveKnots(SM.Session, NodeId, PartId,
+        CurvesKnots.data(), 0, CurveInfo.knotCount);
 
     int CVIndex = 0;
     int KnotIndex = 0;

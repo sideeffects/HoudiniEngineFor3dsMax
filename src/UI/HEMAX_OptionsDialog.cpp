@@ -2,6 +2,7 @@
 
 #include "moc_HEMAX_OptionsDialog.cpp"
 
+#include "../HEMAX_HoudiniApi.h"
 #include "../HEMAX_Logger.h"
 #include "../HEMAX_SessionManager.h"
 #include "../HEMAX_Plugin.h"
@@ -564,10 +565,9 @@ HEMAX_OptionsDialog::SlotTempFilesFolderBrowse()
 void
 HEMAX_OptionsDialog::SlotSaveHipButton()
 {
-    HEMAX_SessionManager& SessionManager =
-                            HEMAX_SessionManager::GetSessionManager();
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SessionManager.IsSessionActive())
+    if (SM.IsSessionActive())
     {
 	QFileDialog SaveHIPDialog;
 
@@ -585,8 +585,8 @@ HEMAX_OptionsDialog::SlotSaveHipButton()
 	    if (PathInfo.completeSuffix() == "hip")
 	    {
 		std::string SelectedPath = Selected[0].toStdString();
-		SessionManager.Session->SaveHIPFile(SelectedPath.c_str(),
-                                                    false);
+                HEMAX_HoudiniApi::SaveHIPFile(SM.Session, SelectedPath.c_str(),
+                    false);
 	    }
 	}
     }
@@ -622,7 +622,8 @@ HEMAX_OptionsDialog::SlotOpenHoudiniButton()
 
     std::string TempHIPPath = TempFilesFolder->text().toStdString()
         + "\\" + HEMAX_DEBUG_DEFAULT_HIP_NAME;
-    SessionManager.Session->SaveHIPFile(TempHIPPath.c_str(), false);
+    HEMAX_HoudiniApi::SaveHIPFile(SessionManager.Session, TempHIPPath.c_str(),
+        false);
 
     STARTUPINFOA StartupInfo;
     PROCESS_INFORMATION ProcessInfo;

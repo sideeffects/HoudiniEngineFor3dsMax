@@ -1,5 +1,6 @@
 #include "HEMAX_Asset.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
@@ -25,9 +26,10 @@ HEMAX_Asset::LoadAsset(bool AllowOverwrite)
 
     if (SM.Session->LoadHoudiniDigitalAsset(Path.c_str(), AllowOverwrite, &Id, &LoadStatus))
     {
-	SM.Session->GetAvailableAssetCount(Id, &AssetCount);
+        HEMAX_HoudiniApi::GetAvailableAssetCount(SM.Session, Id, &AssetCount);
 	std::vector<HAPI_StringHandle> AssetNamesSH(AssetCount);
-	SM.Session->GetAvailableAssets(Id, &AssetNamesSH.front(), AssetCount);
+        HEMAX_HoudiniApi::GetAvailableAssets(SM.Session, Id,
+            &AssetNamesSH.front(), AssetCount);
 	for (int i = 0; i < AssetCount; i++)
 	{
 	    Names.push_back(SM.Session->GetHAPIString(AssetNamesSH[i]));

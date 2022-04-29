@@ -1,4 +1,6 @@
 #include "HEMAX_Input_Transform.h"
+
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 
 HEMAX_Input_Transform::HEMAX_Input_Transform(HEMAX_InputType Type, int Id, ULONG MaxNode) : HEMAX_Input(Type, Id, MaxNode)
@@ -13,7 +15,8 @@ HEMAX_Input_Transform::HEMAX_Input_Transform(HEMAX_InputType Type, int Id, ULONG
 
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->SetObjectTransform(Node->Info.id, &HAPITransformEuler);
+    HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session,
+        Node->Info.id, &HAPITransformEuler);
 }
 
 HEMAX_Input_Transform::~HEMAX_Input_Transform()
@@ -33,7 +36,8 @@ HEMAX_Input_Transform::RebuildAfterChange()
 
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
-    SessionManager.Session->SetObjectTransform(Node->Info.id, &HAPITransformEuler);
+    HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session,
+        Node->Info.id, &HAPITransformEuler);
 }
 
 HAPI_TransformEuler

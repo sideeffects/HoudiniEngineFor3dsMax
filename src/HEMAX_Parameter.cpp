@@ -1,5 +1,6 @@
 #include "HEMAX_Parameter.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 
@@ -79,8 +80,8 @@ HEMAX_Parameter::GetIntVals() const
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     std::vector<int> IntVals(Info.size);
 
-    SM.Session->GetParameterIntValues(Node, &IntVals.front(),
-		    Info.intValuesIndex, Info.size);
+    HEMAX_HoudiniApi::GetParmIntValues(SM.Session, Node, &IntVals.front(),
+	Info.intValuesIndex, Info.size);
 
     return IntVals;
 }
@@ -93,8 +94,8 @@ HEMAX_Parameter::GetFloatVals() const
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     std::vector<float> FloatVals(Info.size);
 
-    SM.Session->GetParameterFloatValues(Node, &FloatVals.front(),
-		    Info.floatValuesIndex, Info.size);
+    HEMAX_HoudiniApi::GetParmFloatValues(SM.Session, Node,
+        &FloatVals.front(), Info.floatValuesIndex, Info.size);
 
     return FloatVals;
 }
@@ -108,8 +109,8 @@ HEMAX_Parameter::GetStringVals() const
     std::vector<HAPI_StringHandle> Handles(Info.size);
     std::vector<std::string> StringVals(Info.size);
 
-    SM.Session->GetParameterStringValues(Node, true, &Handles.front(),
-		    Info.stringValuesIndex, Info.size); 
+    HEMAX_HoudiniApi::GetParmStringValues(SM.Session, Node, true,
+        &Handles.front(), Info.stringValuesIndex, Info.size); 
 
     for (int i = 0; i < Info.size; i++)
     {
@@ -129,8 +130,8 @@ HEMAX_Parameter::GetIntParameterChoiceLists()
     std::vector<HAPI_ParmChoiceInfo> Choices(Info.choiceCount);
     std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
-    SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
-		    Info.choiceIndex, Info.choiceCount);
+    HEMAX_HoudiniApi::GetParmChoiceLists(SM.Session, Node, &Choices.front(),
+        Info.choiceIndex, Info.choiceCount);
 
     for (int i = 0; i < Info.choiceCount; i++)
     {
@@ -151,8 +152,8 @@ HEMAX_Parameter::GetStringParameterChoiceLists()
     std::vector<HAPI_ParmChoiceInfo> Choices(Info.choiceCount);
     std::vector<HEMAX_ParmChoice> ParmChoices(Info.choiceCount);
 
-    SM.Session->GetParameterChoiceLists(Node, &Choices.front(),
-		    Info.choiceIndex, Info.choiceCount);
+    HEMAX_HoudiniApi::GetParmChoiceLists(SM.Session, Node, &Choices.front(),
+        Info.choiceIndex, Info.choiceCount);
 
     for (int i = 0; i < Info.choiceCount; i++)
     {
@@ -171,7 +172,8 @@ HEMAX_Parameter::GetInputNodeId()
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
 	HAPI_NodeId InputNodeId;
-	if (SM.Session->GetParameterNodeValue(Node, Name.c_str(), &InputNodeId))
+	if (HEMAX_HoudiniApi::GetParmNodeValue(SM.Session, Node,
+                Name.c_str(), &InputNodeId))
 	{
 	    return InputNodeId;
 	}
@@ -191,7 +193,7 @@ HEMAX_Parameter::GetInputNodeName()
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	HAPI_NodeInfo InputNodeInfo;
-	if (SM.Session->GetNodeInfo(InputNodeId, &InputNodeInfo))
+        if (HEMAX_HoudiniApi::GetNodeInfo(SM.Session, InputNodeId, &InputNodeInfo))
 	{
 	    InputNodeName = SM.Session->GetHAPIString(InputNodeInfo.nameSH);
 	}
@@ -204,16 +206,16 @@ void
 HEMAX_Parameter::UpdateIntVals(std::vector<int>& Vals)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.Session->SetParameterIntValues(Node, &Vals.front(),
-		    Info.intValuesIndex, Info.size);
+    HEMAX_HoudiniApi::SetParmIntValues(SM.Session, Node, &Vals.front(),
+        Info.intValuesIndex, Info.size);
 }
 
 void
 HEMAX_Parameter::UpdateFloatVals(std::vector<float>& Vals)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.Session->SetParameterFloatValues(Node, &Vals.front(),
-		    Info.floatValuesIndex, Info.size);
+    HEMAX_HoudiniApi::SetParmFloatValues(SM.Session, Node, &Vals.front(),
+        Info.floatValuesIndex, Info.size);
 }
 
 void
@@ -222,8 +224,8 @@ HEMAX_Parameter::UpdateStringVals(std::vector<std::string>& Vals)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     for (int i = 0; i < Vals.size(); i++)
     {
-	SM.Session->SetParameterStringValue(Node, Vals[i].c_str(),
-			Info.id, i);
+        HEMAX_HoudiniApi::SetParmStringValue(SM.Session, Node, Vals[i].c_str(),
+	    Info.id, i);
     }
 }
 
@@ -231,7 +233,8 @@ void
 HEMAX_Parameter::UpdateInputNode(HAPI_NodeId InputNode)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.Session->SetParameterNodeValue(Node, Name.c_str(), InputNode);
+    HEMAX_HoudiniApi::SetParmNodeValue(SM.Session, Node, Name.c_str(),
+        InputNode);
 }
 
 bool
@@ -274,7 +277,7 @@ void
 HEMAX_Parameter::InsertInstance(int Position)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.Session->InsertMultiParameterInstance(Node, Info.id,
+    HEMAX_HoudiniApi::InsertMultiparmInstance(SM.Session, Node, Info.id,
 		    Position + GetInstanceStartOffset());
 }
 
@@ -282,7 +285,7 @@ void
 HEMAX_Parameter::RemoveInstance(int Position)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.Session->RemoveMultiParameterInstance(Node, Info.id,
+    HEMAX_HoudiniApi::RemoveMultiparmInstance(SM.Session, Node, Info.id,
 		    Position + GetInstanceStartOffset());
 }
 

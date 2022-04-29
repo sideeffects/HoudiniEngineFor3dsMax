@@ -127,7 +127,7 @@ public:
     typedef HAPI_Result (*GetEnvIntFuncPtr)(HAPI_EnvIntType int_type, int * value);
     typedef HAPI_Result (*GetFaceCountsFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length);
     typedef HAPI_Result (*GetFirstVolumeTileFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile);
-    typedef HAPI_Result (*GetGeoInfoFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
+    typedef HAPI_Result (*GetGeometryInfoFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
     typedef HAPI_Result (*GetGeoSizeFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size);
     typedef HAPI_Result (*GetGroupCountOnPackedInstancePartFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount);
     typedef HAPI_Result (*GetGroupMembershipFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length);
@@ -423,7 +423,7 @@ public:
     static bool GetEnvInt(HAPI_EnvIntType int_type, int * value);
     static bool GetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length);
     static bool GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile);
-    static bool GetGeoInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
+    static bool GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
     static bool GetGeoSize(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size);
     static bool GetGroupCountOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount);
     static bool GetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length);
@@ -719,7 +719,7 @@ public:
     static bool GetEnvInt(HAPI_EnvIntType int_type, int * value, HAPI_Result& result);
     static bool GetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length, HAPI_Result& result);
     static bool GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile, HAPI_Result& result);
-    static bool GetGeoInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result);
+    static bool GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result);
     static bool GetGeoSize(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size, HAPI_Result& result);
     static bool GetGroupCountOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount, HAPI_Result& result);
     static bool GetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length, HAPI_Result& result);
@@ -1016,7 +1016,7 @@ public:
     static GetEnvIntFuncPtr GetEnvIntImpl;
     static GetFaceCountsFuncPtr GetFaceCountsImpl;
     static GetFirstVolumeTileFuncPtr GetFirstVolumeTileImpl;
-    static GetGeoInfoFuncPtr GetGeoInfoImpl;
+    static GetGeometryInfoFuncPtr GetGeometryInfoImpl;
     static GetGeoSizeFuncPtr GetGeoSizeImpl;
     static GetGroupCountOnPackedInstancePartFuncPtr GetGroupCountOnPackedInstancePartImpl;
     static GetGroupMembershipFuncPtr GetGroupMembershipImpl;
@@ -1313,7 +1313,7 @@ public:
     static HAPI_Result GetEnvIntEmptyStub(HAPI_EnvIntType int_type, int * value);
     static HAPI_Result GetFaceCountsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length);
     static HAPI_Result GetFirstVolumeTileEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile);
-    static HAPI_Result GetGeoInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
+    static HAPI_Result GetGeometryInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info);
     static HAPI_Result GetGeoSizeEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size);
     static HAPI_Result GetGroupCountOnPackedInstancePartEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount);
     static HAPI_Result GetGroupMembershipEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length);

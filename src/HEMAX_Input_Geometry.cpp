@@ -1,5 +1,6 @@
 #include "HEMAX_Input_Geometry.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
@@ -45,7 +46,7 @@ HEMAX_Input_Geometry::~HEMAX_Input_Geometry()
     {
 	HAPI_NodeId ParentNodeId = Node->Info.parentId;
 	Node->Delete();
-	SessionManager.Session->DeleteNode(ParentNodeId);
+        HEMAX_HoudiniApi::DeleteNode(SessionManager.Session, ParentNodeId);
     }
 }
 
@@ -57,7 +58,7 @@ HEMAX_Input_Geometry::RebuildAfterChange()
 
     HAPI_NodeId ParentNodeId = Node->Info.parentId;
     Node->Delete();
-    SessionManager.Session->DeleteNode(ParentNodeId);
+    HEMAX_HoudiniApi::DeleteNode(SessionManager.Session, ParentNodeId);
     BuildInputNode();
 }
 
@@ -262,28 +263,30 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     if (HasFaceSelections)
     {
         HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_PRIM,
-            HEMAX_SELECTION_FACE);
-        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_PRIM,
-            HEMAX_SELECTION_FACE, FaceSelections.data(), 0, FaceCount);
+        HEMAX_HoudiniApi::AddGroup(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_PRIM, HEMAX_SELECTION_FACE);
+        HEMAX_HoudiniApi::SetGroupMembership(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_PRIM, HEMAX_SELECTION_FACE, FaceSelections.data(), 0,
+            FaceCount);
     }
 
     if (HasVertexSelections)
     {
         HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_POINT,
-            HEMAX_SELECTION_VERTEX);
-        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_POINT,
-            HEMAX_SELECTION_VERTEX, VertexSelections.data(), 0, VertCount);
+        HEMAX_HoudiniApi::AddGroup(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_POINT, HEMAX_SELECTION_VERTEX);
+        HEMAX_HoudiniApi::SetGroupMembership(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_POINT, HEMAX_SELECTION_VERTEX,
+            VertexSelections.data(), 0, VertCount);
     }
 
     if (HasEdgeSelections)
     {
         HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-        SM.Session->AddGroup(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
-            HEMAX_SELECTION_EDGE);
-        SM.Session->SetGroupMembership(Node->Info.id, 0, HAPI_GROUPTYPE_EDGE,
-            HEMAX_SELECTION_EDGE, EdgeSelections.data(), 0,
+        HEMAX_HoudiniApi::AddGroup(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_EDGE, HEMAX_SELECTION_EDGE);
+        HEMAX_HoudiniApi::SetGroupMembership(SM.Session, Node->Info.id, 0,
+            HAPI_GROUPTYPE_EDGE, HEMAX_SELECTION_EDGE, EdgeSelections.data(), 0,
             static_cast<int>(EdgeSelections.size()));
     }
 
