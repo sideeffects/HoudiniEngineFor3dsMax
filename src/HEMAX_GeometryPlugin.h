@@ -35,7 +35,8 @@ class HEMAX_GeometryPluginClassDesc : public ClassDesc2
     public:
 	virtual int IsPublic() { return TRUE; }
 	virtual void* Create(BOOL) { return new HEMAX_GeometryPlugin(false); }
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         virtual const TCHAR* NonLocalizedClassName() override
             { return L"HDA"; }
 #endif

@@ -167,7 +167,8 @@ HEMAX_Utilities::GetHoudiniToMaxScale()
 {
     int SystemUnitType;
     float SystemUnitScale;
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
     GetSystemUnitInfo(&SystemUnitType, &SystemUnitScale);
 #else
     GetMasterUnitInfo(&SystemUnitType, &SystemUnitScale);
@@ -396,7 +397,8 @@ HEMAX_Utilities::IsOnlyClosedSplines(LinearShape* Curve)
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
     defined(HEMAX_VERSION_2021) || \
-    defined(HEMAX_VERSION_2022)
+    defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -419,7 +421,8 @@ HEMAX_Utilities::IsOnlyOpenSplines(LinearShape* Curve)
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
     defined(HEMAX_VERSION_2021) || \
-    defined(HEMAX_VERSION_2022)
+    defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017

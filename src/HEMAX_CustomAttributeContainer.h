@@ -75,7 +75,8 @@ class HEMAX_ParameterAttrib : public CustAttrib
 	std::string GetParameterName();
 
 	void SetParameterName(std::string Name);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* GetName(bool Localized = false) override;
 #else
         const TCHAR* GetName() override;
@@ -121,7 +122,8 @@ class HEMAX_IntegerParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -153,7 +155,8 @@ class HEMAX_StringParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -182,7 +185,8 @@ class HEMAX_FloatParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -211,7 +215,8 @@ class HEMAX_ToggleParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -250,7 +255,8 @@ class HEMAX_NodeParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -278,7 +284,8 @@ class HEMAX_MultiParameterAttrib_ClassDesc : public ClassDesc2
 
 	int IsPublic();
 	void* Create(BOOL Loading);
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
