@@ -191,7 +191,8 @@ HEMAX_ParameterAttrib::SetParameterName(std::string Name)
     WideParameterName = std::wstring(ParameterName.begin(), ParameterName.end());
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_ParameterAttrib::GetName(bool Localized)
 {
@@ -371,7 +372,8 @@ HEMAX_IntegerParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_IntegerParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_IntegerParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -475,7 +477,8 @@ HEMAX_StringParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_StringParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_StringParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -556,7 +559,8 @@ HEMAX_FloatParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_FloatParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_FloatParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -637,7 +641,8 @@ HEMAX_ToggleParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_ToggleParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_ToggleParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -756,7 +761,8 @@ HEMAX_NodeParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_NodeParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_NodeParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -838,7 +844,8 @@ HEMAX_MultiParameterAttrib_ClassDesc::Create(BOOL Loading)
     return new HEMAX_MultiParameterAttrib;
 }
 
-#ifdef HEMAX_VERSION_2022
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023)
 const TCHAR*
 HEMAX_MultiParameterAttrib_ClassDesc::NonLocalizedClassName()
 {

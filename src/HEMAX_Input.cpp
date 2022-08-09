@@ -5,7 +5,13 @@
 
 #include "surf_api.h"
 #include "triobj.h"
+
+#ifdef HEMAX_VERSION_2023
+#include "geom/VertexNormal.h"
+#else
 #include "VertexNormal.h"
+#endif
+
 #include "MeshNormalSpec.h"
 #include "MNNormalSpec.h"
 #include "HEMAX_Input_Transform.h"
