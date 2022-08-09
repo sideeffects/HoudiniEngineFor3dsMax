@@ -8,7 +8,13 @@
 #include "polyobj.h"
 #include "MeshNormalSpec.h"
 #include "MNNormalSpec.h"
+
+#ifdef HEMAX_VERSION_2023
+#include "geom/VertexNormal.h"
+#else
 #include "VertexNormal.h"
+#endif
+
 #include "stdmat.h"
 
 HEMAX_Input_Geometry::HEMAX_Input_Geometry(ULONG MaxNode)
