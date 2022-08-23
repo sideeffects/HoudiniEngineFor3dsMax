@@ -119,6 +119,7 @@ HEMAX_Hda::UpdateShopNodes()
 bool
 HEMAX_Hda::HasTimeDependentNodes()
 {
+    CheckForTimeDependentNodes();
     return MyHasTimeDependentNodes; 
 }
 
@@ -250,6 +251,8 @@ HEMAX_Hda::GetAllEditableNodes()
 void
 HEMAX_Hda::CheckForTimeDependentNodes()
 {
+    MainNode.UpdateInfo();
+
     if (MainNode.Info.isTimeDependent)
     {
         MyHasTimeDependentNodes = true;

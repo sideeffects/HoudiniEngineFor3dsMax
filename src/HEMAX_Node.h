@@ -18,6 +18,8 @@ class HEMAX_Node
 	void Cook();
 	void Delete();
 
+        void UpdateInfo();
+
 	std::vector<HEMAX_Parameter>& GetParameters();
 	HEMAX_Parameter* GetParameter(HAPI_ParmId ParmId);
 	HEMAX_Parameter* GetParameter(std::string ParmName);
