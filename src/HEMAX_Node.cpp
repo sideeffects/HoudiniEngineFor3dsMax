@@ -94,6 +94,13 @@ HEMAX_Node::Delete()
     Type = HAPI_NODETYPE_NONE;
 }
 
+void
+HEMAX_Node::UpdateInfo()
+{
+    HEMAX_HoudiniApi::GetNodeInfo(HEMAX_SessionManager::GetSessionManager().Session,
+        Info.id, &Info);
+}
+
 std::vector<HEMAX_Parameter>&
 HEMAX_Node::GetParameters()
 {
