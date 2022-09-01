@@ -471,10 +471,10 @@ HEMAX_Store::Delete3dsmaxHda(ULONG NodeHandle, std::vector<ULONG>& ScheduledDele
 		DeleteMaxNode(GeometryHda->InstanceClones[i]->GetHandle(), ScheduledDeletionList);
 	    }
 
-	    for (int i = 0; i < GeometryHda->PackedPrimClones.size(); i++)
-	    {
-		DeleteMaxNode(GeometryHda->PackedPrimClones[i]->GetHandle(), ScheduledDeletionList);
-	    }
+            for (auto It = GeometryHda->PackedPrimClones.begin(); It != GeometryHda->PackedPrimClones.end(); It++)
+            {
+                DeleteMaxNode(It->first->GetHandle(), ScheduledDeletionList);
+            }
 
 	    bool ContainerNodeAlreadyBeingDeleted = false;
 	    for (int s = 0; s < ScheduledDeletionList.size(); s++)

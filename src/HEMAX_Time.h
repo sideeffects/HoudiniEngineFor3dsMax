@@ -9,6 +9,9 @@ PushTimelineSettings();
 void
 PushCurrentTime(TimeValue Time);
 
+void
+PushCurrentFrame(int Frame);
+
 static void
 GetCurrentHAPITime();
 

@@ -15,6 +15,15 @@
 
 class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 {
+    private:
+        struct PackedPrimInfo
+        {
+            HAPI_NodeId Node;
+            HAPI_PartId InstancingPart;
+            int InstanceNum;
+            HAPI_PartId InstancedPartId;
+        };
+    
     public:
 	HEMAX_GeometryHda();
 
@@ -62,7 +71,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
         std::unordered_map<INode*, INode*> InstanceCloneToSourceMap;
 
         std::unordered_set<INode*> PackedPrimSources;
-	std::vector<INode*> PackedPrimClones;
+        std::unordered_map<INode*, PackedPrimInfo> PackedPrimClones;
         std::unordered_map<INode*, INode*> PackedPrimCloneToSourceMap;
 
 	std::vector<HEMAX_EditableCurve> EditableCurves;

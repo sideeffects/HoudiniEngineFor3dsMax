@@ -23,6 +23,7 @@ class HEMAX_GeometryPlugin : public SimplePolyObject
 
 	void SetFaceMaterialId(int Face, int MatId);
 
+        HAPI_NodeId HAPINode;
 	INode* MaxNode;
 	HEMAX_Mesh* Mesh;
 

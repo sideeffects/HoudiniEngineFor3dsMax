@@ -5,6 +5,7 @@
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Input_NURBS.h"
 #include "HEMAX_Input_Spline.h"
+#include "HEMAX_Time.h"
 #include "HEMAX_UserPrefs.h"
 #include "HEMAX_Utilities.h"
 
@@ -630,7 +631,7 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 if (CollapsedChildNodeObj)
                 {
                     BakedNode = GetCOREInterface()->CreateObjectNode(
-                                                        CollapsedChildNodeObj);
+                        CollapsedChildNodeObj);
                 }
             }
             else
@@ -727,6 +728,8 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         }
     }
 
+    std::unordered_map<INode*, INode*> SourceToBakedNodeMap;
+
     // Do another pass to create the actual instances
     for (int c = 0; c < SkippedNodes.size(); ++c)
     {
@@ -766,6 +769,8 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                         GetCOREInterface()->GetRootNode()->AttachChild(BakedInstance);
 
                     BakedInstance->Hide(false);
+
+                    SourceToBakedNodeMap.insert({SkippedNodes[c], BakedInstance});
                 }
             }
         }
@@ -776,6 +781,92 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         for (int i = 0; i < BakeResults.size(); i++)
         {
             Layer->AddToLayer(BakeResults[i]);
+        }
+    }
+
+    if (Hda.HdaType == SOP_LEVEL_HDA && Hda.HasTimeDependentNodes())
+    {
+        Interval TickInterval = GetCOREInterface()->GetAnimRange();
+        TimeValue Start = TickInterval.Start();
+        TimeValue End = TickInterval.End();
+
+        int StartFrame = Start/GetTicksPerFrame();
+        int EndFrame = End/GetTicksPerFrame();
+
+        std::unordered_set<HAPI_NodeId> AlreadyCooked;
+
+        for (int f = StartFrame; f < EndFrame; f++)
+        {
+            AlreadyCooked.clear();
+            PushCurrentFrame(f);
+            
+            for (auto It = PackedPrimClones.begin(); It != PackedPrimClones.end(); It++)
+            {
+                auto NodeSearch = SourceToBakedNodeMap.find(It->first);
+                if (NodeSearch != SourceToBakedNodeMap.end())
+                {
+                    INode* SourceINode = NodeSearch->first;
+                    INode* BakedINode = NodeSearch->second;
+                    const PackedPrimInfo& PrimInfo = It->second;
+
+                    if (AlreadyCooked.find(PrimInfo.Node) == AlreadyCooked.end())
+                    {
+                        HEMAX_Node GeoNode(PrimInfo.Node, HAPI_NODETYPE_SOP);
+                        GeoNode.Cook();
+                        AlreadyCooked.insert(PrimInfo.Node);
+                    }
+
+                    HAPI_Transform Xform;
+
+                    HEMAX_HoudiniApi::GetInstancerPartTransforms(
+                        HEMAX_SessionManager::GetSessionManager().Session,
+                        PrimInfo.Node, PrimInfo.InstancingPart,
+                        HAPI_RSTORDER_DEFAULT, &Xform,
+                        PrimInfo.InstanceNum, 1);
+
+                    Control* TMController = BakedINode->GetTMController();
+                    
+                    if (TMController)
+                    {
+                        Control* PController = TMController->GetPositionController();
+                        Control* RController = TMController->GetRotationController();
+                        Control* SController = TMController->GetScaleController();
+
+                        HEMAX_MaxTransform MaxTransform =
+                            HEMAX_Utilities::HAPITransformToMaxTransform(Xform);
+
+                        SuspendAnimate();
+                        AnimateOn();
+
+                        Point3 Position(
+                            MaxTransform.Position[0],
+                            MaxTransform.Position[1],
+                            MaxTransform.Position[2]);
+
+                        Quat Quaternion(
+                            MaxTransform.Quaternion[0],
+                            MaxTransform.Quaternion[1],
+                            MaxTransform.Quaternion[2],
+                            MaxTransform.Quaternion[3]);
+
+                        ScaleValue Scale(Point3(
+                            MaxTransform.Scale[0],
+                            MaxTransform.Scale[1],
+                            MaxTransform.Scale[2]));
+
+                        PController->SetValue(Start + f*GetTicksPerFrame(),
+                            (void*)&Position);
+
+                        RController->SetValue(Start + f*GetTicksPerFrame(),
+                            (void*)&Quaternion);
+
+                        SController->SetValue(Start + f*GetTicksPerFrame(),
+                            (void*)&Scale);
+
+                        ResumeAnimate();
+                    }
+                }
+            }
         }
     }
 
@@ -969,12 +1060,14 @@ HEMAX_GeometryHda::CreateDisplayGeometry(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& D
 }
 
 void
-HEMAX_GeometryHda::CreateMeshPluginPart(HEMAX_Hda& Hda, HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part)
+HEMAX_GeometryHda::CreateMeshPluginPart(HEMAX_Hda& Hda,
+    HEMAX_DisplayGeoNode& DisplayNode, HEMAX_Part& Part)
 {
     HEMAX_GeometryPlugin* NewPlugin = new HEMAX_GeometryPlugin(
                                         Hda.HasTimeDependentNodes());
     NewPlugin->IsStranded = false;
     INode* PluginNode = GetCOREInterface()->CreateObjectNode(NewPlugin);
+    NewPlugin->HAPINode = DisplayNode.Node;
     NewPlugin->MaxNode = PluginNode;
     
     bool UseUniqueName = false;
@@ -1223,7 +1316,15 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 			    InstanceInfo.InstancedTransforms[i]);
 		    ClonedNode->Hide(false);
 		    StampPackedPrimitiveNode(ClonedNode);
-		    PackedPrimClones.push_back(ClonedNode);
+
+                    PackedPrimInfo PrimInfo;
+                    PrimInfo.Node = DisplayNode.Node;
+                    PrimInfo.InstancingPart = Part.Info.id;
+                    PrimInfo.InstanceNum = i;
+                    PrimInfo.InstancedPartId = SourcePartId;
+
+                    PackedPrimClones.insert({ClonedNode, PrimInfo});
+
                     PackedPrimCloneToSourceMap.insert(
                         {ClonedNode, ClonedNodeSource});
 
@@ -1528,14 +1629,14 @@ HEMAX_GeometryHda::ClearInstances()
 void
 HEMAX_GeometryHda::ClearPackedPrimNodes()
 {
-    for (int p = 0; p < PackedPrimClones.size(); p++)
+    for (auto It = PackedPrimClones.begin(); It != PackedPrimClones.end(); It++)
     {
-	if (PackedPrimClones[p])
-	{
-	    GetCOREInterface()->DeleteNode(PackedPrimClones[p]);
-	    PackedPrimClones[p] = nullptr;
-	}
+        if (It->first)
+        {
+            GetCOREInterface()->DeleteNode(It->first);
+        }        
     }
+
     PackedPrimClones.clear();
     PackedPrimSources.clear();
     PackedPrimCloneToSourceMap.clear();
@@ -2077,8 +2178,8 @@ HEMAX_GeometryHda::IsInstance(INode* Node)
 bool
 HEMAX_GeometryHda::IsPackedPrim(INode* Node)
 {
-    auto It = std::find(PackedPrimClones.begin(), PackedPrimClones.end(), Node);
-    return It != PackedPrimClones.end();
+    auto Search = PackedPrimClones.find(Node);
+    return Search != PackedPrimClones.end();
 }
 
 INode*
