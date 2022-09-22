@@ -575,22 +575,22 @@ HEMAX_Part::BuildMesh()
 
 	    if (UVPointInfo.exists)
 	    {
-		PartMesh->CreateSecondaryUVLayer(HAPI_ATTROWNER_POINT,
-				UVLayer, Info.pointCount * 3);
+                PartMesh->CreateSecondaryUVLayer(UVLayer, UVPointInfo);
+
                 HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId,
                     Info.id, UVName.c_str(), &UVPointInfo, -1,
-		    PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_POINT, UVLayer).data(),
-		    0, Info.pointCount);
+                    PartMesh->GetSecondaryPointUVArray(UVLayer),
+                    0, UVPointInfo.count);
 	    }
 
 	    if (UVVertexInfo.exists)
 	    {
-		PartMesh->CreateSecondaryUVLayer(HAPI_ATTROWNER_VERTEX,
-				UVLayer, Info.vertexCount * 3);
+                PartMesh->CreateSecondaryUVLayer(UVLayer, UVVertexInfo);
+
                 HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId,
                     Info.id, UVName.c_str(), &UVVertexInfo, -1,
-		    PartMesh->GetSecondaryUVLayer(HAPI_ATTROWNER_VERTEX, UVLayer).data(),
-		    0, Info.vertexCount);
+                    PartMesh->GetSecondaryVertexUVArray(UVLayer),
+                    0, UVVertexInfo.count);
 	    }
 	}
     }

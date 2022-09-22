@@ -439,6 +439,26 @@ HEMAX_Mesh::GetVertexUVArray()
 }
 
 float*
+HEMAX_Mesh::GetSecondaryPointUVArray(int Layer)
+{
+    auto&& Search = SecondaryPointUVs.find(Layer);
+    if (Search != SecondaryPointUVs.end())
+        return Search->second.Data();
+
+    return nullptr;
+}
+
+float*
+HEMAX_Mesh::GetSecondaryVertexUVArray(int Layer)
+{
+    auto&& Search = SecondaryVertexUVs.find(Layer);
+    if (Search != SecondaryVertexUVs.end())
+        return Search->second.Data();
+
+    return nullptr;
+}
+
+float*
 HEMAX_Mesh::GetPointCdArray()
 {
     return CdList.Data();
@@ -552,16 +572,6 @@ HEMAX_Mesh::GetVertex( int Index )
 
 void
 HEMAX_Mesh::GetPointUVAtIndex(int Index, float* UVVals)
-{
-    std::vector<float> UV = UVList.Value(Index);
-    for (int i = 0; i < UV.size(); ++i)
-    {
-	UVVals[i] = UV[i];
-    }
-}
-
-void
-HEMAX_Mesh::GetVertexUVAtIndex(int Index, float* UVVals)
 {
     std::vector<float> UV = UVList.Value(Index);
     for (int i = 0; i < UV.size(); ++i)
@@ -724,37 +734,39 @@ HEMAX_Mesh::GetPostTriangulationFaceCount()
 }
 
 void
-HEMAX_Mesh::CreateSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer, size_t Size)
+HEMAX_Mesh::CreateSecondaryUVLayer(int Layer, const HAPI_AttributeInfo& Attr)
 {
-    std::vector<float> SizedList;
-    SizedList.resize(Size);
-
-    if (Owner == HAPI_ATTROWNER_POINT)
+    if (Attr.owner == HAPI_ATTROWNER_POINT)
     {
-	SecondaryPointUVs.insert({ Layer, SizedList });
-	SecondaryUVCount++;
+        auto&& Item = SecondaryPointUVs.emplace(Layer, HEMAX_MeshList<float>()); 
+        Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
+        ++SecondaryUVCount;
     }
-    else if (Owner == HAPI_ATTROWNER_VERTEX)
+    else if (Attr.owner == HAPI_ATTROWNER_VERTEX)
     {
-	SecondaryVertexUVs.insert({ Layer, SizedList });
-	SecondaryUVCount++;
-    }
+        auto&& Item = SecondaryVertexUVs.emplace(Layer, HEMAX_MeshList<float>());
+        Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
+        ++SecondaryUVCount;
+    } 
 }
 
-std::vector<float>&
+HEMAX_MeshList<float>*
 HEMAX_Mesh::GetSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer)
 {
     if (Owner == HAPI_ATTROWNER_POINT)
     {
-	auto Search = SecondaryPointUVs.find(Layer);
-	return Search->second;
+        auto&& Search = SecondaryPointUVs.find(Layer);
+        if (Search != SecondaryPointUVs.end())
+            return &Search->second;
     }
-    else
+    else if (Owner == HAPI_ATTROWNER_VERTEX)
     {
-	// (Owner == HAPI_ATTROWNER_VERTEX)
-	auto Search = SecondaryVertexUVs.find(Layer);
-	return Search->second;
+        auto&& Search = SecondaryVertexUVs.find(Layer);
+        if (Search != SecondaryVertexUVs.end())
+            return &Search->second;
     }
+
+    return nullptr;
 }
 
 bool
@@ -1272,28 +1284,35 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 	    if (UVMap)
 	    {
-		UVMap->ClearAllFlags();
+                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
+                    HAPI_ATTROWNER_POINT, Layer);
+
+                if (!UVValues)
+                    continue;
+
+                UVMap->ClearAllFlags();
 		UVMap->setNumFaces(GetFaceCount());
 		UVMap->setNumVerts(GetPointCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HAPI_ATTROWNER_POINT, Layer);
-
 		for (int p = 0; p < GetPointCount(); p++)
 		{
-		    UVMap->v[p].x = UVWValues[(p * 3)];
-		    UVMap->v[p].y = UVWValues[(p * 3) + 1];
-		    UVMap->v[p].z = UVWValues[(p * 3) + 2];
+                    std::vector<float> UV = UVValues->Value(p);
+                    UVMap->v[p].x = UV[0];
+                    UVMap->v[p].y = UV[1];
+                    UVMap->v[p].z = UV[2];
 		}
 
-		for (int f = 0; f < GetFaceCount(); f++)
-		{
-		    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
+                int VIndex = 0;
 
-		    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-		    {
-			UVMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-		    }
-		}
+                for (int f = 0; f < GetFaceCount(); f++)
+                {
+                    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
+
+                    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
+                    {
+                        UVMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
+                    }
+                }
 	    }
 	}
 	else if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_VERTEX, Layer))
@@ -1308,28 +1327,39 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 	    if (UVMap)
 	    {
+                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
+                        HAPI_ATTROWNER_VERTEX, Layer);
+
+                if (!UVValues)
+                    continue;
+
+                UVValues->MergeEqualTuples();
+
 		UVMap->ClearAllFlags();
-		UVMap->setNumFaces(GetFaceCount());
-		UVMap->setNumVerts(GetVertexCount());
+                UVMap->setNumFaces(GetFaceCount());
+                UVMap->setNumVerts(GetVertexCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HAPI_ATTROWNER_VERTEX, Layer);
-		int VertexIndex = 0;
+                std::vector<float> UVSet = UVValues->MergedValues();
 
-		for (int f = 0; f < GetFaceCount(); f++)
-		{
-		    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
+                for (unsigned int z = 0; z < UVValues->MergedDataSize(); z++)
+                {
+                    UVMap->v[z].x = UVSet[z * UVValues->DataTupleSize()];
+                    UVMap->v[z].y = UVSet[z * UVValues->DataTupleSize()+1];
+                    UVMap->v[z].z = UVSet[z * UVValues->DataTupleSize()+2];
+                }
 
-		    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-		    {
-			UVMap->v[VertexIndex].x = UVWValues[(VertexIndex * 3)];
-			UVMap->v[VertexIndex].y = UVWValues[(VertexIndex * 3) + 1];
-			UVMap->v[VertexIndex].z = UVWValues[(VertexIndex * 3) + 2];
+                int VIndex = 0;
 
-			UVMap->F(f)->tv[v] = VertexIndex;
+                for (int f = 0; f < GetFaceCount(); f++)
+                {
+                    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
 
-			VertexIndex++;
-		    }
-		}
+                    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
+                    {
+                        UVMap->F(f)->tv[v] = UVValues->GetMergedIndex(VIndex);
+                        ++VIndex;
+                    }
+                }
 	    }
 	}
     }
