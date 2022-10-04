@@ -3,6 +3,7 @@
 #include "HEMAX_Events.h"
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
+#include "HEMAX_UserPrefs.h"
 
 const char* const HAPI_CLIENT_NAME_ENV_VAR = "HAPI_CLIENT_NAME";
 const char* const HAPI_CLIENT_NAME_ENV_VAL = "3dsmax";
@@ -40,6 +41,25 @@ HEMAX_SessionManager::StartSession()
     HEMAX_HoudiniApi::ClearConnectionError();
     if (Session->CreateSession())
     {
+        HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
+
+        std::string HoudiniEnvFiles,
+                    OtlSearchPath,
+                    DsoSearchPath,
+                    ImageDsoSearchPath,
+                    AudioDsoSearchPath;
+
+        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+                               HoudiniEnvFiles);
+        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+                               OtlSearchPath);
+        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+                               DsoSearchPath);
+        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+                               ImageDsoSearchPath);
+        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+                               AudioDsoSearchPath);
+
 	if (Session->InitializeHAPI(
 			HoudiniEnvFiles.c_str(),
 			OtlSearchPath.c_str(),
@@ -285,34 +305,4 @@ HEMAX_SessionManager::StartThriftNamedPipeThinClient()
 
 	AutoSession = true;
     }
-}
-
-void
-HEMAX_SessionManager::SetHoudiniEnvFiles(std::string Files)
-{
-    HoudiniEnvFiles = Files;
-}
-
-void
-HEMAX_SessionManager::SetOtlSearchPath(std::string Path)
-{
-    OtlSearchPath = Path;
-}
-
-void
-HEMAX_SessionManager::SetDsoSearchPath(std::string Path)
-{
-    DsoSearchPath = Path;
-}
-
-void
-HEMAX_SessionManager::SetImageDsoSearchPath(std::string Path)
-{
-    ImageDsoSearchPath = Path;
-}
-
-void
-HEMAX_SessionManager::SetAudioDsoSearchPath(std::string Path)
-{
-    AudioDsoSearchPath = Path;
 }

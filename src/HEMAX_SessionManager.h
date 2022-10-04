@@ -41,12 +41,6 @@ class HEMAX_SessionManager
 
 	void StartThriftNamedPipeThinClient();
 
-	void SetHoudiniEnvFiles(std::string Files);
-	void SetOtlSearchPath(std::string Path);
-	void SetDsoSearchPath(std::string Path);
-	void SetImageDsoSearchPath(std::string Path);
-	void SetAudioDsoSearchPath(std::string Path);
-
     private:
 	HEMAX_SessionManager();
 
@@ -59,10 +53,4 @@ class HEMAX_SessionManager
 	bool IsActiveSession;
 	bool IsSessionInitialized;
 	bool AutoSession;
-
-	std::string HoudiniEnvFiles;
-	std::string OtlSearchPath;
-	std::string DsoSearchPath;
-	std::string ImageDsoSearchPath;
-	std::string AudioDsoSearchPath;
 };
