@@ -208,5 +208,5 @@ class HEMAX_Mesh
         std::unordered_map<int, HEMAX_MeshList<float>> SecondaryVertexUVs;
         std::unordered_map<int, HEMAX_MeshList<float>> SecondaryPointUVs;
 
-	int SecondaryUVCount;
+        int MaxMapLayer;
 };
