@@ -11,6 +11,9 @@ const int HEMAX_Mesh_PointTupleSize = 3;
 const int HEMAX_Mesh_VectorTupleSize = 3;
 const int HEMAX_Mesh_SingularTuple = 1;
 
+const int UvMapId = 1;
+const int CdMapId = 0;
+
 template<typename T>
 HEMAX_MeshList<T>::HEMAX_MeshList()
 {
@@ -173,7 +176,7 @@ HEMAX_Mesh::HEMAX_Mesh()
     , FaceSelectionsExist(false)
     , VertexSelectionsExist(false)
     , EdgeSelectionsExist(false)
-    , SecondaryUVCount(0)
+    , MaxMapLayer(-1)
     , AreMaterialIdsSame(false)
 {
 }
@@ -196,7 +199,7 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , FaceSelectionsExist(false)
     , VertexSelectionsExist(false)
     , EdgeSelectionsExist(false)
-    , SecondaryUVCount(0)
+    , MaxMapLayer(-1)
     , AreMaterialIdsSame(false)
 {
     FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
@@ -231,6 +234,9 @@ HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_POINT_UV;
+
+    if (MaxMapLayer < UvMapId)
+        MaxMapLayer = UvMapId;
 }
 
 void
@@ -240,6 +246,9 @@ HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_VERTEX_UV;
+
+    if (MaxMapLayer < UvMapId)
+        MaxMapLayer = UvMapId;
 }
 
 void
@@ -248,6 +257,9 @@ HEMAX_Mesh::AllocatePointCdArray()
     CdList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_POINT);
     ColorAttrExists = true;
     ColorAttrOwner = HAPI_ATTROWNER_POINT;
+
+    if (MaxMapLayer < CdMapId)
+        MaxMapLayer = CdMapId;
 }
 
 void
@@ -256,6 +268,9 @@ HEMAX_Mesh::AllocateVertexCdArray()
     CdList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_VERTEX);
     ColorAttrExists = true;
     ColorAttrOwner = HAPI_ATTROWNER_VERTEX;
+
+    if (MaxMapLayer < CdMapId)
+        MaxMapLayer = CdMapId;
 }
 
 void
@@ -740,13 +755,15 @@ HEMAX_Mesh::CreateSecondaryUVLayer(int Layer, const HAPI_AttributeInfo& Attr)
     {
         auto&& Item = SecondaryPointUVs.emplace(Layer, HEMAX_MeshList<float>()); 
         Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
-        ++SecondaryUVCount;
+        if (Layer > MaxMapLayer)
+            MaxMapLayer = Layer;
     }
     else if (Attr.owner == HAPI_ATTROWNER_VERTEX)
     {
         auto&& Item = SecondaryVertexUVs.emplace(Layer, HEMAX_MeshList<float>());
         Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
-        ++SecondaryUVCount;
+        if (Layer > MaxMapLayer)
+            MaxMapLayer = Layer;
     } 
 }
 
@@ -997,17 +1014,9 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     }
 
     // MNMesh requires we outright declare the number of maps
-    int TotalMapCount = 0;
-
-    if (DoUVsExist())
-    {
-	// Cd = 0, uv = 1, hence the += 2.
-	TotalMapCount += 2;
-    }
-
-    TotalMapCount += SecondaryUVCount;
-
-    MaxMesh.SetMapNum(TotalMapCount);
+    // It has to be set to the highest UV layer, otherwise it won't initialize
+    // the map, even if inbetween maps are empty.
+    MaxMesh.SetMapNum(MaxMapLayer+1);
 
     MNMap* UVMap;
     MNMap* CdMap;
@@ -1270,7 +1279,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
     }
 
-    for (int Layer = 2; Layer < MAX_MESHMAPS; Layer++)
+    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
     {
 	if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_POINT, Layer))
 	{
@@ -1362,10 +1371,47 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
                 }
 	    }
 	}
+        else
+        {
+            MaxMesh.ClearMap(Layer);
+        }
     }
 
     MaxMesh.InvalidateGeomCache();
     MaxMesh.InvalidateTopoCache();
+
+    if (!DoesAlphaAttrExist())
+    {
+        MaxMesh.freeMap(-2);
+        MaxMesh.ClearMap(-2);
+    }
+
+    if (!DoesIlluminationAttrExist())
+    {
+        MaxMesh.freeMap(-1);
+        MaxMesh.ClearMap(-1);
+    }
+
+    if (!DoesCdAttrExist())
+    {
+        MaxMesh.freeMap(0);
+        MaxMesh.ClearMap(0);
+    }
+
+    if (!DoUVsExist())
+    {
+        MaxMesh.freeMap(1);
+        MaxMesh.ClearMap(1);
+    }
+
+    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
+    {
+        if (!DoesSecondaryUVLayerExist(HAPI_ATTROWNER_POINT, Layer) &&
+            !DoesSecondaryUVLayerExist(HAPI_ATTROWNER_VERTEX, Layer))
+        {
+            MaxMesh.ClearMap(Layer);
+        }
+    }
 
     MaxMesh.FillInMesh();
 
