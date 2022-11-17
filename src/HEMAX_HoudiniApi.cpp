@@ -686,8 +686,8 @@ HEMAX_HoudiniApi::RemoveParmExpressionImpl = &HEMAX_HoudiniApi::RemoveParmExpres
 HEMAX_HoudiniApi::RenameNodeFuncPtr
 HEMAX_HoudiniApi::RenameNodeImpl = &HEMAX_HoudiniApi::RenameNodeEmptyStub;
 
-HEMAX_HoudiniApi::RenderCOPToImageFuncPtr
-HEMAX_HoudiniApi::RenderCOPToImageImpl = &HEMAX_HoudiniApi::RenderCOPToImageEmptyStub;
+HEMAX_HoudiniApi::RenderCOP2ToImageFuncPtr
+HEMAX_HoudiniApi::RenderCOP2ToImageImpl = &HEMAX_HoudiniApi::RenderCOP2ToImageEmptyStub;
 
 HEMAX_HoudiniApi::RenderTextureToImageFuncPtr
 HEMAX_HoudiniApi::RenderTextureToImageImpl = &HEMAX_HoudiniApi::RenderTextureToImageEmptyStub;
@@ -1138,7 +1138,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl = (RemoveMultiparmInstanceFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RemoveMultiparmInstance");
     HEMAX_HoudiniApi::RemoveParmExpressionImpl = (RemoveParmExpressionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RemoveParmExpression");
     HEMAX_HoudiniApi::RenameNodeImpl = (RenameNodeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenameNode");
-    HEMAX_HoudiniApi::RenderCOPToImageImpl = (RenderCOPToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderCOPToImage");
+    HEMAX_HoudiniApi::RenderCOP2ToImageImpl = (RenderCOP2ToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderCOP2ToImage");
     HEMAX_HoudiniApi::RenderTextureToImageImpl = (RenderTextureToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderTextureToImage");
     HEMAX_HoudiniApi::ResetSimulationImpl = (ResetSimulationFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_ResetSimulation");
     HEMAX_HoudiniApi::RevertGeoImpl = (RevertGeoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RevertGeo");
@@ -1438,7 +1438,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl = &HEMAX_HoudiniApi::RemoveMultiparmInstanceEmptyStub;
     HEMAX_HoudiniApi::RemoveParmExpressionImpl = &HEMAX_HoudiniApi::RemoveParmExpressionEmptyStub;
     HEMAX_HoudiniApi::RenameNodeImpl = &HEMAX_HoudiniApi::RenameNodeEmptyStub;
-    HEMAX_HoudiniApi::RenderCOPToImageImpl = &HEMAX_HoudiniApi::RenderCOPToImageEmptyStub;
+    HEMAX_HoudiniApi::RenderCOP2ToImageImpl = &HEMAX_HoudiniApi::RenderCOP2ToImageEmptyStub;
     HEMAX_HoudiniApi::RenderTextureToImageImpl = &HEMAX_HoudiniApi::RenderTextureToImageEmptyStub;
     HEMAX_HoudiniApi::ResetSimulationImpl = &HEMAX_HoudiniApi::ResetSimulationEmptyStub;
     HEMAX_HoudiniApi::RevertGeoImpl = &HEMAX_HoudiniApi::RevertGeoEmptyStub;
@@ -3293,9 +3293,9 @@ HEMAX_HoudiniApi::RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, 
 
 
 bool
-HEMAX_HoudiniApi::RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id)
+HEMAX_HoudiniApi::RenderCOP2ToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::RenderCOPToImageImpl(session, cop_node_id);
+    HAPI_Result Result = HEMAX_HoudiniApi::RenderCOP2ToImageImpl(session, cop_node_id);
     return HandleHAPIResult(session, Result);
 }
 
@@ -5645,9 +5645,9 @@ HEMAX_HoudiniApi::RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, 
 
 
 bool
-HEMAX_HoudiniApi::RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, HAPI_Result& result)
+HEMAX_HoudiniApi::RenderCOP2ToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, HAPI_Result& result)
 {
-    result = HEMAX_HoudiniApi::RenderCOPToImageImpl(session, cop_node_id);
+    result = HEMAX_HoudiniApi::RenderCOP2ToImageImpl(session, cop_node_id);
     return HandleHAPIResult(session, result);
 }
 
@@ -7779,7 +7779,7 @@ HEMAX_HoudiniApi::RenameNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId 
 
 
 HAPI_Result
-HEMAX_HoudiniApi::RenderCOPToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId cop_node_id)
+HEMAX_HoudiniApi::RenderCOP2ToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId cop_node_id)
 {
     return HAPI_RESULT_FAILURE;
 }

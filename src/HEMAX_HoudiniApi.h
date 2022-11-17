@@ -257,7 +257,7 @@ public:
     typedef HAPI_Result (*RemoveMultiparmInstanceFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position);
     typedef HAPI_Result (*RemoveParmExpressionFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index);
     typedef HAPI_Result (*RenameNodeFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name);
-    typedef HAPI_Result (*RenderCOPToImageFuncPtr)(const HAPI_Session * session, HAPI_NodeId cop_node_id);
+    typedef HAPI_Result (*RenderCOP2ToImageFuncPtr)(const HAPI_Session * session, HAPI_NodeId cop_node_id);
     typedef HAPI_Result (*RenderTextureToImageFuncPtr)(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id);
     typedef HAPI_Result (*ResetSimulationFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id);
     typedef HAPI_Result (*RevertGeoFuncPtr)(const HAPI_Session * session, HAPI_NodeId node_id);
@@ -553,7 +553,7 @@ public:
     static bool RemoveMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position);
     static bool RemoveParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index);
     static bool RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name);
-    static bool RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id);
+    static bool RenderCOP2ToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id);
     static bool RenderTextureToImage(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id);
     static bool ResetSimulation(const HAPI_Session * session, HAPI_NodeId node_id);
     static bool RevertGeo(const HAPI_Session * session, HAPI_NodeId node_id);
@@ -849,7 +849,7 @@ public:
     static bool RemoveMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position, HAPI_Result& result);
     static bool RemoveParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index, HAPI_Result& result);
     static bool RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name, HAPI_Result& result);
-    static bool RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, HAPI_Result& result);
+    static bool RenderCOP2ToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, HAPI_Result& result);
     static bool RenderTextureToImage(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id, HAPI_Result& result);
     static bool ResetSimulation(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result);
     static bool RevertGeo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result);
@@ -1146,7 +1146,7 @@ public:
     static RemoveMultiparmInstanceFuncPtr RemoveMultiparmInstanceImpl;
     static RemoveParmExpressionFuncPtr RemoveParmExpressionImpl;
     static RenameNodeFuncPtr RenameNodeImpl;
-    static RenderCOPToImageFuncPtr RenderCOPToImageImpl;
+    static RenderCOP2ToImageFuncPtr RenderCOP2ToImageImpl;
     static RenderTextureToImageFuncPtr RenderTextureToImageImpl;
     static ResetSimulationFuncPtr ResetSimulationImpl;
     static RevertGeoFuncPtr RevertGeoImpl;
@@ -1443,7 +1443,7 @@ public:
     static HAPI_Result RemoveMultiparmInstanceEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position);
     static HAPI_Result RemoveParmExpressionEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index);
     static HAPI_Result RenameNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name);
-    static HAPI_Result RenderCOPToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId cop_node_id);
+    static HAPI_Result RenderCOP2ToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId cop_node_id);
     static HAPI_Result RenderTextureToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id);
     static HAPI_Result ResetSimulationEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id);
     static HAPI_Result RevertGeoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id);
