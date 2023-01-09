@@ -1437,4 +1437,6 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     // Set selections
     MaxMesh.FaceSelect(FaceSelections);
     MaxMesh.VertexSelect(VertexSelections);
+
+    MaxMesh.CollapseDeadStructs();
 }
