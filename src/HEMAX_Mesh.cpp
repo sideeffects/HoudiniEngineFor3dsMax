@@ -11,6 +11,9 @@ const int HEMAX_Mesh_PointTupleSize = 3;
 const int HEMAX_Mesh_VectorTupleSize = 3;
 const int HEMAX_Mesh_SingularTuple = 1;
 
+const int UvMapId = 1;
+const int CdMapId = 0;
+
 template<typename T>
 HEMAX_MeshList<T>::HEMAX_MeshList()
 {
@@ -31,7 +34,8 @@ HEMAX_MeshList<T>::~HEMAX_MeshList()
 
 template<typename T>
 void
-HEMAX_MeshList<T>::Init(unsigned int _Size, unsigned int _TupleSize, HEMAX_AttributeOwner _Owner)
+HEMAX_MeshList<T>::Init(unsigned int _Size,
+    unsigned int _TupleSize, const HEMAX_AttributeOwner _Owner)
 {
     if (!List)
     {
@@ -173,7 +177,7 @@ HEMAX_Mesh::HEMAX_Mesh()
     , FaceSelectionsExist(false)
     , VertexSelectionsExist(false)
     , EdgeSelectionsExist(false)
-    , SecondaryUVCount(0)
+    , MaxMapLayer(-1)
     , AreMaterialIdsSame(false)
 {
 }
@@ -196,7 +200,7 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , FaceSelectionsExist(false)
     , VertexSelectionsExist(false)
     , EdgeSelectionsExist(false)
-    , SecondaryUVCount(0)
+    , MaxMapLayer(-1)
     , AreMaterialIdsSame(false)
 {
     FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HEMAX_ATTRIBUTEOWNER_PRIM);
@@ -231,6 +235,9 @@ HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_POINT_UV;
+
+    if (MaxMapLayer < UvMapId)
+        MaxMapLayer = UvMapId;
 }
 
 void
@@ -240,6 +247,9 @@ HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
     UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_VERTEX_UV;
+
+    if (MaxMapLayer < UvMapId)
+        MaxMapLayer = UvMapId;
 }
 
 void
@@ -248,6 +258,9 @@ HEMAX_Mesh::AllocatePointCdArray()
     CdList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_POINT);
     ColorAttrExists = true;
     ColorAttrOwner = HEMAX_ATTRIBUTEOWNER_POINT;
+
+    if (MaxMapLayer < CdMapId)
+        MaxMapLayer = CdMapId;
 }
 
 void
@@ -256,6 +269,9 @@ HEMAX_Mesh::AllocateVertexCdArray()
     CdList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HEMAX_ATTRIBUTEOWNER_VERTEX);
     ColorAttrExists = true;
     ColorAttrOwner = HEMAX_ATTRIBUTEOWNER_VERTEX;
+
+    if (MaxMapLayer < CdMapId)
+        MaxMapLayer = CdMapId;
 }
 
 void
@@ -439,6 +455,26 @@ HEMAX_Mesh::GetVertexUVArray()
 }
 
 float*
+HEMAX_Mesh::GetSecondaryPointUVArray(int Layer)
+{
+    auto&& Search = SecondaryPointUVs.find(Layer);
+    if (Search != SecondaryPointUVs.end())
+        return Search->second.Data();
+
+    return nullptr;
+}
+
+float*
+HEMAX_Mesh::GetSecondaryVertexUVArray(int Layer)
+{
+    auto&& Search = SecondaryVertexUVs.find(Layer);
+    if (Search != SecondaryVertexUVs.end())
+        return Search->second.Data();
+
+    return nullptr;
+}
+
+float*
 HEMAX_Mesh::GetPointCdArray()
 {
     return CdList.Data();
@@ -552,16 +588,6 @@ HEMAX_Mesh::GetVertex( int Index )
 
 void
 HEMAX_Mesh::GetPointUVAtIndex(int Index, float* UVVals)
-{
-    std::vector<float> UV = UVList.Value(Index);
-    for (int i = 0; i < UV.size(); ++i)
-    {
-	UVVals[i] = UV[i];
-    }
-}
-
-void
-HEMAX_Mesh::GetVertexUVAtIndex(int Index, float* UVVals)
 {
     std::vector<float> UV = UVList.Value(Index);
     for (int i = 0; i < UV.size(); ++i)
@@ -724,37 +750,43 @@ HEMAX_Mesh::GetPostTriangulationFaceCount()
 }
 
 void
-HEMAX_Mesh::CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size)
+HEMAX_Mesh::CreateSecondaryUVLayer(int Layer, const HEMAX_AttributeInfo& Attr)
 {
-    std::vector<float> SizedList;
-    SizedList.resize(Size);
-
-    if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
+    if (Attr.owner == HAPI_ATTROWNER_POINT)
     {
-	SecondaryPointUVs.insert({ Layer, SizedList });
-	SecondaryUVCount++;
+        auto&& Item = SecondaryPointUVs.emplace(Layer, HEMAX_MeshList<float>());
+        Item.first->second.Init(Attr.count, Attr.tupleSize, 
+            (HEMAX_AttributeOwner)Attr.owner);
+        if (Layer > MaxMapLayer)
+            MaxMapLayer = Layer;
     }
-    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
+    else if (Attr.owner == HAPI_ATTROWNER_VERTEX)
     {
-	SecondaryVertexUVs.insert({ Layer, SizedList });
-	SecondaryUVCount++;
+        auto&& Item = SecondaryVertexUVs.emplace(Layer, HEMAX_MeshList<float>());
+        Item.first->second.Init(Attr.count, Attr.tupleSize,
+            (HEMAX_AttributeOwner)Attr.owner);
+        if (Layer > MaxMapLayer)
+            MaxMapLayer = Layer;
     }
 }
 
-std::vector<float>&
+HEMAX_MeshList<float>*
 HEMAX_Mesh::GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer)
 {
     if (Owner == HEMAX_ATTRIBUTEOWNER_POINT)
     {
-	auto Search = SecondaryPointUVs.find(Layer);
-	return Search->second;
+        auto&& Search = SecondaryPointUVs.find(Layer);
+        if (Search != SecondaryPointUVs.end())
+            return &Search->second;
     }
-    else
+    else if (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
     {
-	// (Owner == HEMAX_ATTRIBUTEOWNER_VERTEX)
-	auto Search = SecondaryVertexUVs.find(Layer);
-	return Search->second;
+        auto&& Search = SecondaryVertexUVs.find(Layer);
+        if (Search != SecondaryVertexUVs.end())
+            return &Search->second;
     }
+
+    return nullptr;
 }
 
 bool
@@ -985,17 +1017,9 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     }
 
     // MNMesh requires we outright declare the number of maps
-    int TotalMapCount = 0;
-
-    if (DoUVsExist())
-    {
-	// Cd = 0, uv = 1, hence the += 2.
-	TotalMapCount += 2;
-    }
-
-    TotalMapCount += SecondaryUVCount;
-
-    MaxMesh.SetMapNum(TotalMapCount);
+    // It has to be set to the highest UV layer, otherwise it won't initialize
+    // the map, even if inbetween maps are empty.
+    MaxMesh.SetMapNum(MaxMapLayer+1);
 
     MNMap* UVMap;
     MNMap* CdMap;
@@ -1258,7 +1282,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
     }
 
-    for (int Layer = 2; Layer < MAX_MESHMAPS; Layer++)
+    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
     {
 	if (DoesSecondaryUVLayerExist(HEMAX_ATTRIBUTEOWNER_POINT, Layer))
 	{
@@ -1272,17 +1296,23 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 	    if (UVMap)
 	    {
+                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
+                    HEMAX_ATTRIBUTEOWNER_POINT, Layer);
+
+                if (!UVValues)
+                    continue;
+
 		UVMap->ClearAllFlags();
 		UVMap->setNumFaces(GetFaceCount());
 		UVMap->setNumVerts(GetPointCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_POINT, Layer);
-
 		for (int p = 0; p < GetPointCount(); p++)
 		{
-		    UVMap->v[p].x = UVWValues[(p * 3)];
-		    UVMap->v[p].y = UVWValues[(p * 3) + 1];
-		    UVMap->v[p].z = UVWValues[(p * 3) + 2];
+                    std::vector<float> UV = UVValues->Value(p);
+
+                    UVMap->v[p].x = UV[0];
+                    UVMap->v[p].y = UV[1];
+                    UVMap->v[p].z = UV[2];
 		}
 
 		for (int f = 0; f < GetFaceCount(); f++)
@@ -1308,12 +1338,28 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 	    if (UVMap)
 	    {
+                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
+                    HEMAX_ATTRIBUTEOWNER_VERTEX, Layer);
+
+                if (!UVValues)
+                    continue;
+
+                UVValues->MergeEqualTuples();
+
 		UVMap->ClearAllFlags();
 		UVMap->setNumFaces(GetFaceCount());
 		UVMap->setNumVerts(GetVertexCount());
 
-		std::vector<float>& UVWValues = GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_VERTEX, Layer);
-		int VertexIndex = 0;
+                std::vector<float> UVSet = UVValues->MergedValues();
+
+                for (unsigned int z = 0; z < UVValues->MergedDataSize(); z++)
+                {
+                    UVMap->v[z].x = UVSet[z * UVValues->DataTupleSize()];
+                    UVMap->v[z].y = UVSet[z * UVValues->DataTupleSize()+1];
+                    UVMap->v[z].z = UVSet[z * UVValues->DataTupleSize()+2];
+                }
+
+                int VIndex = 0;
 
 		for (int f = 0; f < GetFaceCount(); f++)
 		{
@@ -1321,21 +1367,52 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 		    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
 		    {
-			UVMap->v[VertexIndex].x = UVWValues[(VertexIndex * 3)];
-			UVMap->v[VertexIndex].y = UVWValues[(VertexIndex * 3) + 1];
-			UVMap->v[VertexIndex].z = UVWValues[(VertexIndex * 3) + 2];
-
-			UVMap->F(f)->tv[v] = VertexIndex;
-
-			VertexIndex++;
+                        UVMap->F(f)->tv[v] = UVValues->GetMergedIndex(VIndex++);
 		    }
 		}
 	    }
 	}
+        else
+        {
+            MaxMesh.ClearMap(Layer);
+        }
     }
 
     MaxMesh.InvalidateGeomCache();
     MaxMesh.InvalidateTopoCache();
+
+    if (!DoesAlphaAttrExist())
+    {
+        MaxMesh.freeMap(-2);
+        MaxMesh.ClearMap(-2);
+    }
+
+    if (!DoesIlluminationAttrExist())
+    {
+        MaxMesh.freeMap(-1);
+        MaxMesh.ClearMap(-1);
+    }
+
+    if (!DoesCdAttrExist())
+    {
+        MaxMesh.freeMap(0);
+        MaxMesh.ClearMap(0);
+    }
+
+    if (!DoUVsExist())
+    {
+        MaxMesh.freeMap(1);
+        MaxMesh.ClearMap(1);
+    }
+
+    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
+    {
+        if (!DoesSecondaryUVLayerExist(HEMAX_ATTRIBUTEOWNER_POINT, Layer) &&
+            !DoesSecondaryUVLayerExist(HEMAX_ATTRIBUTEOWNER_VERTEX, Layer))
+        {
+            MaxMesh.ClearMap(Layer);
+        }
+    }
 
     MaxMesh.FillInMesh();
 

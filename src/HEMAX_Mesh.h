@@ -21,7 +21,9 @@ class HEMAX_MeshList
 	HEMAX_MeshList();
 	~HEMAX_MeshList();
 
-	void                        Init(unsigned int _Size, unsigned int _TupleSize, HEMAX_AttributeOwner _Owner);
+	void                        Init(unsigned int _Size,
+                                         unsigned int _TupleSize,
+                                         const HEMAX_AttributeOwner _Owner);
 	T*                          Data();
 	std::vector<T>              Value(int Index);
 	unsigned int                DataSize();
@@ -70,6 +72,8 @@ class HEMAX_Mesh
 	HEMAX_NodeId* GetMaterialIdsArray();
 	float* GetPointUVArray();
 	float* GetVertexUVArray();
+        float* GetSecondaryPointUVArray(int Layer);
+        float* GetSecondaryVertexUVArray(int Layer);
 	float* GetPointCdArray();
 	float* GetVertexCdArray();
 	float* GetAlphaArray();
@@ -86,7 +90,6 @@ class HEMAX_Mesh
 	void GetVertexNormalAtIndex(int Index, float* Normal);
 	int GetVertex( int Index );
 	void GetPointUVAtIndex(int Index, float* UVVals);
-	void GetVertexUVAtIndex(int Index, float* UVVals);
 
 	void GetPointCdAtIndex(int Index, float* CdVals);
 	void GetVertexCdAtIndex(int Index, float* CdVals);
@@ -139,8 +142,9 @@ class HEMAX_Mesh
 
 	int GetPostTriangulationFaceCount();
 
-	void CreateSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer, size_t Size);
-	std::vector<float>& GetSecondaryUVLayer(HEMAX_AttributeOwner Owner, int Layer);
+	void CreateSecondaryUVLayer(int Layer, const HEMAX_AttributeInfo& Attr);
+	HEMAX_MeshList<float>* GetSecondaryUVLayer(HEMAX_AttributeOwner Owner,
+            int Layer);
 	bool DoesSecondaryUVLayerExist(HEMAX_AttributeOwner Owner, int Layer);
 
 	void AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HEMAX_AttributeOwner Owner);
@@ -204,8 +208,8 @@ class HEMAX_Mesh
         bool VertexSelectionsExist;
         bool EdgeSelectionsExist;
 
-	std::unordered_map<int, std::vector<float>> SecondaryVertexUVs;
-	std::unordered_map<int, std::vector<float>> SecondaryPointUVs;
+	std::unordered_map<int, HEMAX_MeshList<float>> SecondaryVertexUVs;
+	std::unordered_map<int, HEMAX_MeshList<float>> SecondaryPointUVs;
 
-	int SecondaryUVCount;
+	int MaxMapLayer;
 };

@@ -567,22 +567,20 @@ HEMAX_Part::BuildMesh()
 
 	    if (UVPointInfo.exists)
 	    {
-		PartMesh->CreateSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_POINT,
-				UVLayer, Info.pointCount * 3);
-		SM.Session->GetAttributeFloatData(NodeId, Info.id,
-				UVName.c_str(), &UVPointInfo, -1,
-				PartMesh->GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_POINT, UVLayer).data(),
-				0, Info.pointCount);
+                PartMesh->CreateSecondaryUVLayer(UVLayer, UVPointInfo);
+                SM.Session->GetAttributeFloatData(NodeId, Info.id,
+                    UVName.c_str(), &UVPointInfo, -1,
+                    PartMesh->GetSecondaryPointUVArray(UVLayer),
+                    0, UVPointInfo.count);
 	    }
 
 	    if (UVVertexInfo.exists)
 	    {
-		PartMesh->CreateSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_VERTEX,
-				UVLayer, Info.vertexCount * 3);
-		SM.Session->GetAttributeFloatData(NodeId, Info.id,
-				UVName.c_str(), &UVVertexInfo, -1,
-				PartMesh->GetSecondaryUVLayer(HEMAX_ATTRIBUTEOWNER_VERTEX, UVLayer).data(),
-				0, Info.vertexCount);
+                PartMesh->CreateSecondaryUVLayer(UVLayer, UVVertexInfo);
+                SM.Session->GetAttributeFloatData(NodeId, Info.id,
+                    UVName.c_str(), &UVVertexInfo, -1,
+                    PartMesh->GetSecondaryVertexUVArray(UVLayer),
+                    0, UVVertexInfo.count);
 	    }
 	}
     }
