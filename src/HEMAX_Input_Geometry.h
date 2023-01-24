@@ -2,8 +2,10 @@
 
 #include "HEMAX_Input.h"
 
-#include "triobj.h"
-#include "polyobj.h"
+#pragma warning(push, 0)
+#include <triobj.h>
+#include <polyobj.h>
+#pragma warning(pop)
 
 class HEMAX_Input_Geometry : public HEMAX_Input
 {

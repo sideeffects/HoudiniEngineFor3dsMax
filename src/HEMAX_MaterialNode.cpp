@@ -3,8 +3,11 @@
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
+
+#pragma warning(push, 0)
 #include <IPathConfigMgr.h>
 #include <bitmap.h>
+#pragma warning(pop)
 
 HEMAX_MaterialNode::HEMAX_MaterialNode(HAPI_NodeId Id)
     : NodeId(Id)

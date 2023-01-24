@@ -1,8 +1,12 @@
 #include "HEMAX_CustomAttributeContainer.h"
 
 #include "resource.h"
-#include "icustattribcontainer.h"
-#include "simpobj.h"
+
+#pragma warning(push, 0)
+#include <icustattribcontainer.h>
+#include <simpobj.h>
+#pragma warning(pop)
+
 #include "HEMAX_3dsmaxHda.h"
 #include "HEMAX_Utilities.h"
 

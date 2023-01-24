@@ -6,8 +6,10 @@
 #include "HEMAX_Types.h"
 #include "HEMAX_Utilities.h"
 
-#include "inode.h"
-#include "ref.h"
+#pragma warning(push, 0)
+#include <inode.h>
+#include <ref.h>
+#pragma pop
 
 #include <vector>
 #include <string>

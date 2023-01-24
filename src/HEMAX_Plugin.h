@@ -7,8 +7,10 @@
 #include "HEMAX_ModifierAsset.h"
 #include "HEMAX_Shelf.h"
 
-#include "notify.h"
+#pragma warning(push, 0)
+#include <notify.h>
 #include <maxapi.h>
+#pragma warning(pop)
 
 #include <unordered_map>
 #include <string>

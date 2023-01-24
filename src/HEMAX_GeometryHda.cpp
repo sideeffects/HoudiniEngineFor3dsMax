@@ -9,10 +9,12 @@
 #include "HEMAX_UserPrefs.h"
 #include "HEMAX_Utilities.h"
 
+#pragma warning(push, 0)
 #include <icustattribcontainer.h>
 #include <ilayer.h>
 #include <ilayermanager.h>
 #include <custattrib.h>
+#pragma warning(pop)
 
 #include <algorithm>
 #include <list>

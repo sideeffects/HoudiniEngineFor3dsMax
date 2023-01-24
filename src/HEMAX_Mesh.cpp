@@ -1,8 +1,11 @@
 #include "HEMAX_Mesh.h"
 
 #include "HEMAX_Utilities.h"
-#include "MeshNormalSpec.h"
-#include "MNNormalSpec.h"
+
+#pragma warning(push, 0)
+#include <MeshNormalSpec.h>
+#include <MNNormalSpec.h>
+#pragma warning(pop)
 
 #include <unordered_map>
 #include <deque>

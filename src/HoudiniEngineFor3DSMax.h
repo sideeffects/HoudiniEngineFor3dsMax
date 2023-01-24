@@ -1,15 +1,18 @@
 #pragma once
 
 #include "resource.h"
+
+#pragma warning(push, 0)
 #include <istdplug.h>
 #include <iparamb2.h>
 #include <iparamm2.h>
 #include <maxtypes.h>
 #include <utilapi.h>
-#include "actiontable.h"
-#include "imenuman.h"
-#include "guplib.h"
-#include "notify.h"
+#include <actiontable.h>
+#include <imenuman.h>
+#include <guplib.h>
+#include <notify.h>
+#pragma warning(pop)
 
 #include <string>
 

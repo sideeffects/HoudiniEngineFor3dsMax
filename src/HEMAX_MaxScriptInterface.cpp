@@ -4,11 +4,13 @@
 #include <HAPI_Version.h>
 #endif
 
+#pragma warning(push, 0)
 #include <maxscript/foundation/numbers.h>
 #include <maxscript/foundation/strings.h>
 #include <maxscript/maxwrapper/mxsobjects.h>
 #include <maxscript/maxscript.h>
 #include <maxscript/macros/define_instantiation_functions.h>
+#pragma warning(pop)
 
 #include "HoudiniEngineFor3dsMax.h"
 

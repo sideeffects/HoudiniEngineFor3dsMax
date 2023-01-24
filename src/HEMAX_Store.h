@@ -4,8 +4,11 @@
 #include "HEMAX_Asset.h"
 
 #include <list>
-#include <simpmod.h>
 #include <unordered_map>
+
+#pragma warning(push, 0)
+#include <simpmod.h>
+#pragma warning(pop)
 
 class HEMAX_3dsmaxHda;
 class HEMAX_GeometryHda;

@@ -1,9 +1,11 @@
 #pragma once
 
+#pragma warning(push, 0)
 #include <istdplug.h>
 #include <iparamb2.h>
 #include <maxtypes.h>
 #include <simpmod.h>
+#pragma warning(pop)
 
 #include "HEMAX_Node.h"
 #include "HEMAX_Input_Geometry.h"

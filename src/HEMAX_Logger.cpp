@@ -1,7 +1,9 @@
 #include "HEMAX_Logger.h"
 
+#pragma warning(push, 0)
 #include <maxapi.h>
 #include <maxscript/maxscript.h>
+#pragma warning(pop)
 
 HEMAX_Logger&
 HEMAX_Logger::Instance()

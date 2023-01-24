@@ -10,12 +10,14 @@
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Types.h"
 
+#pragma warning(push, 0)
 #include <linshape.h>
 #include <mnmesh.h>
 #include <modstack.h>
 #include <polyobj.h>
 #include <surf_api.h>
 #include <triobj.h>
+#pragma warning(pop)
 
 ClassDesc2*
 GetHEMAX_ModifierClassDesc() {

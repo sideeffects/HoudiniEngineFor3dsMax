@@ -3,7 +3,10 @@
 #include "HEMAX_Types.h"
 
 #include <string>
+
+#pragma warning(push, 0)
 #include <stdmat.h>
+#pragma warning(pop)
 
 #define HEMAX_MAT_DIFFUSE_COLOR_MAP_0 "ogl_tex1"
 #define HEMAX_MAT_DIFFUSE_COLOR_MAP_1 "basecolor_texture"

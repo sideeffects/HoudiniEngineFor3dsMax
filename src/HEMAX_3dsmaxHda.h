@@ -5,7 +5,11 @@
 #include "HEMAX_Modifier.h"
 #include "HEMAX_InputInstance.h"
 #include "HEMAX_Types.h"
+
+#pragma warning(push, 0)
 #include <icustattribcontainer.h>
+#pragma warning(pop)
+
 #include <unordered_map>
 
 struct HEMAX_SubnetworkInputMapping

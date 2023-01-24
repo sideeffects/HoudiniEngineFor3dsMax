@@ -1,9 +1,13 @@
 #pragma once
 
 #include "HEMAX_GeometryPlugin.h"
+
 #include "resource.h"
+
+#pragma warning(push, 0)
 #include <istdplug.h>
 #include <mouseman.h>
+#pragma warning(pop)
 
 class HEMAX_GeometryMouseCallback : public CreateMouseCallBack {
 

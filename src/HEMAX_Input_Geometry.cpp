@@ -4,18 +4,20 @@
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
 
-#include "triobj.h"
-#include "polyobj.h"
-#include "MeshNormalSpec.h"
-#include "MNNormalSpec.h"
+#pragma warning(push, 0)
+#include <triobj.h>
+#include <polyobj.h>
+#include <MeshNormalSpec.h>
+#include <MNNormalSpec.h>
 
 #ifdef HEMAX_VERSION_2023
-#include "geom/VertexNormal.h"
+#include <geom/VertexNormal.h>
 #else
-#include "VertexNormal.h"
+#include <VertexNormal.h>
 #endif
 
-#include "stdmat.h"
+#include <stdmat.h>
+#pragma warning(pop)
 
 HEMAX_Input_Geometry::HEMAX_Input_Geometry(ULONG MaxNode)
     : HEMAX_Input(MaxNode)

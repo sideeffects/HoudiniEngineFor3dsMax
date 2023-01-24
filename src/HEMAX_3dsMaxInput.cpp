@@ -1,7 +1,10 @@
 #include "HEMAX_3dsMaxInput.h"
 
-#include "surf_api.h"
-#include "linshape.h"
+#pragma warning(push, 0)
+#include <surf_api.h>
+#include <linshape.h>
+#pragma warning(pop)
+
 #include "HEMAX_Input_Spline.h"
 #include "HEMAX_Input_NURBS.h"
 #include "HEMAX_Input_Geometry.h"

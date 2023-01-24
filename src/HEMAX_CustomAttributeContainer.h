@@ -1,7 +1,10 @@
 #pragma once
 
+#pragma warning(push, 0)
 #include <custattrib.h>
 #include <iparamb2.h>
+#pragma warning(pop)
+
 #include "HEMAX_Types.h"
 
 class HEMAX_3dsmaxHda;

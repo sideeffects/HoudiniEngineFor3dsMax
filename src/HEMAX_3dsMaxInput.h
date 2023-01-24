@@ -1,7 +1,10 @@
 #pragma once
 
-#include "inode.h"
-#include "ref.h"
+#pragma warning(push, 0)
+#include <inode.h>
+#include <ref.h>
+#pragma warning(pop)
+
 #include <vector>
 #include <string>
 #include "HEMAX_Input.h"

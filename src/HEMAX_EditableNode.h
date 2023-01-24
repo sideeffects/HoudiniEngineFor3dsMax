@@ -3,8 +3,12 @@
 #include "HEMAX_Types.h"
 #include "HEMAX_Node.h"
 #include "HEMAX_Part.h"
-#include <inode.h>
+
 #include <vector>
+
+#pragma warning(push, 0)
+#include <inode.h>
+#pragma warning(pop)
 
 const char* const EditableNodeCurveClosedParm = "close";
 

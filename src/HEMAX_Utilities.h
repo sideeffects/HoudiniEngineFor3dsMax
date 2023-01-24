@@ -1,10 +1,13 @@
 #pragma once
 
 #include <HAPI.h>
-#include <istdplug.h>
 #include <string>
 #include <vector>
+
+#pragma warning(push, 0)
+#include <istdplug.h>
 #include <linshape.h>
+#pragma warning(pop)
 
 #include "HEMAX_Types.h"
 

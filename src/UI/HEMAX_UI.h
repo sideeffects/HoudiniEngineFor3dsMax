@@ -28,7 +28,9 @@
 #define HEMAX_2017_WINDOW_START_HEIGHT 600
 #define HEMAX_2017_WINDOW_START_WIDTH 600
 
+#pragma warning(push, 0)
 #include <maxapi.h>
+#pragma warning(pop)
 
 class HEMAX_Plugin;
 class HEMAX_3dsmaxHda;

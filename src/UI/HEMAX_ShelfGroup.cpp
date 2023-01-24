@@ -19,8 +19,6 @@
 #include <QtGui\qmenu.h>
 #endif
 
-#include <dbgprint.h>
-
 HEMAX_ShelfGroup::HEMAX_ShelfGroup()
 {
     Layout = new QGridLayout;

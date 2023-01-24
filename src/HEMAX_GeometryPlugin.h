@@ -1,10 +1,13 @@
 #pragma once
 
+#pragma warning(push, 0)
 #include <istdplug.h>
 #include <iparamb2.h>
 #include <mnmesh.h>
 #include <polyobj.h>
 #include <SimplePolyObj.h>
+#pragma warning(pop)
+
 #include "HEMAX_Mesh.h"
 
 #define HEMAX_GeometryPlugin_CLASS_ID Class_ID(0xcb0204a, 0x5d3a60e4)

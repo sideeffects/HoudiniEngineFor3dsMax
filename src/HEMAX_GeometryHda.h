@@ -1,8 +1,10 @@
 #pragma once
 
-#include "dummy.h"
-#include "inode.h"
-#include "linshape.h"
+#pragma warning(push, 0)
+#include <dummy.h>
+#include <inode.h>
+#include <linshape.h>
+#pragma warning(pop)
 
 #include "HEMAX_3dsmaxHda.h"
 #include "HEMAX_CustomAttributeContainer.h"

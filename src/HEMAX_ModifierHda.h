@@ -5,7 +5,9 @@
 #include "HEMAX_3dsmaxHda.h"
 #include "HEMAX_CustomAttributeContainer.h"
 
+#pragma warning(push, 0)
 #include <icustattribcontainer.h>
+#pragma warning(pop)
 
 class HEMAX_Modifier;
 

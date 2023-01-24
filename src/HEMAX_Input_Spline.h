@@ -2,7 +2,9 @@
 
 #include "HEMAX_Input.h"
 
-#include "linshape.h"
+#pragma warning(push, 0)
+#include <linshape.h>
+#pragma warning(pop)
 
 class HEMAX_Input_Spline : public HEMAX_Input
 {

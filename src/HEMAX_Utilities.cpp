@@ -2,8 +2,10 @@
 
 #include "HEMAX_Types.h"
 
-#include "simpobj.h"
-#include "units.h"
+#pragma warning(push, 0)
+#include <simpobj.h>
+#include <units.h>
+#pragma warning(pop)
 
 #include <iostream>
 #include <sstream>

@@ -3,7 +3,10 @@
 #include "HEMAX_Parameter.h"
 
 #include <string>
+
+#pragma warning(push, 0)
 #include <inode.h>
+#pragma warning(pop)
 
 class HEMAX_UI;
 class HEMAX_Plugin;

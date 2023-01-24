@@ -4,8 +4,11 @@
 #include "HEMAX_MaterialNode.h"
 #include <unordered_map>
 #include <unordered_set>
+
+#pragma warning(push, 0)
 #include <inode.h>
-#include "mnmesh.h"
+#include <mnmesh.h>
+#pragma warning(pop)
 
 enum HEMAX_Mesh_MetadataType
 {

@@ -1,6 +1,8 @@
 #pragma once
 
+#pragma warning(push, 0)
 #include <maxapi.h>
+#pragma warning(pop)
 
 class HEMAX_Plugin;
 

@@ -2,8 +2,10 @@
 
 #include "HEMAX_Types.h"
 
-#include "linshape.h"
-#include "surf_api.h"
+#pragma warning(push, 0)
+#include <linshape.h>
+#include <surf_api.h>
+#pragma warning(pop)
 
 class HEMAX_CurvePlugin
 {

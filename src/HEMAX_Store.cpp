@@ -5,7 +5,10 @@
 #include "HEMAX_GeometryHda.h"
 #include "HEMAX_Modifier.h"
 #include "HEMAX_ModifierHda.h"
+
+#pragma warning(push, 0)
 #include <icustattribcontainer.h>
+#pragma warning(pop)
 
 #include <QtCore\qfileinfo.h>
 #include <QtCore\qdir.h>

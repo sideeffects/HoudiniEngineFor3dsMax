@@ -20,8 +20,10 @@
 #include <fstream>
 #include <sstream>
 
+#pragma warning(push, 0)
 #include <maxapi.h>
 #include <maxscript/maxscript.h>
+#pragma warning(pop)
 
 #define OPEN_HEMAX_ACTION    1
 #define HIDE_HEMAX_ACTION    2

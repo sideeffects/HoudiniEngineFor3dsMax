@@ -3,8 +3,11 @@
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
+
+#pragma warning(push, 0)
 #include <surf_api.h>
 #include <linshape.h>
+#pragma warning(pop)
 
 INode*
 MarshallDataInto3dsMaxLinearCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_EditableNode& EditableNode, int PartNum)

@@ -2,7 +2,9 @@
 
 #include "HEMAX_Input.h"
 
-#include "surf_api.h"
+#pragma warning(push, 0)
+#include <surf_api.h>
+#pragma warning(pop)
 
 class HEMAX_Input_NURBS : public HEMAX_Input
 {

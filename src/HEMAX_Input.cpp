@@ -5,17 +5,20 @@
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 
-#include "surf_api.h"
-#include "triobj.h"
+#pragma warning(push, 0)
+#include <surf_api.h>
+#include <triobj.h>
 
 #ifdef HEMAX_VERSION_2023
-#include "geom/VertexNormal.h"
+#include <geom/VertexNormal.h>
 #else
-#include "VertexNormal.h"
+#include <VertexNormal.h>
 #endif
 
-#include "MeshNormalSpec.h"
-#include "MNNormalSpec.h"
+#include <MeshNormalSpec.h>
+#include <MNNormalSpec.h>
+#pragma warning(pop)
+
 #include "HEMAX_Input_Transform.h"
 #include "HEMAX_Input_Geometry.h"
 #include "HEMAX_Input_NURBS.h"

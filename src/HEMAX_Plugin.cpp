@@ -19,9 +19,11 @@
 #include "UI/HEMAX_AssetSelection.h"
 #include "UI/HEMAX_HDASelectionDialog.h"
 
-#include "icustattribcontainer.h"
-#include "custattrib.h"
-#include "modstack.h"
+#pragma warning(push, 0)
+#include <icustattribcontainer.h>
+#include <custattrib.h>
+#include <modstack.h>
+#pragma warning(pop)
 
 #include <string>
 
