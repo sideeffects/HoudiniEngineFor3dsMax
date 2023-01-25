@@ -210,17 +210,22 @@ HEMAX_Utilities::ApplyTransformToINode(INode* Node,
 Matrix3
 HEMAX_Utilities::MaxTransformToMatrix3(HEMAX_MaxTransform& Transform)
 {
-    Matrix3 TransformationMatrix(1);
+#if defined(HEMAX_VERSION_2017) || \
+    defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
+    Matrix3 TransformationMatrix(1), Scale(1), Rotation(1), Translate(1);
+#else
+    Matrix3 TransformationMatrix, Scale, Rotation, Translate;
+#endif
 
-    Matrix3 Scale(1);
     Scale.SetScale(Point3(Transform.Scale[0],
                     Transform.Scale[1], Transform.Scale[2]));
 
-    Matrix3 Rotation(1);
     Rotation.SetRotate(Quat(Transform.Quaternion[0], Transform.Quaternion[1],
 		Transform.Quaternion[2], Transform.Quaternion[3]));
 
-    Matrix3 Translate(1);
     Translate.Translate(Point3(Transform.Position[0], Transform.Position[1],
         Transform.Position[2]));
 

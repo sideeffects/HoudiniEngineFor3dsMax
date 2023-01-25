@@ -252,7 +252,16 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 	CurveSet.AppendObject(Curve);
     } 
 
+#if defined(HEMAX_VERSION_2017) || \
+    defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
     Matrix3 Mat(1);
+#else
+    Matrix3 Mat;
+#endif
+
     Object* Obj = CreateNURBSObject(GetCOREInterface()->GetIObjParam(), &CurveSet, Mat);
 
     if (!NurbsCurveNode)
