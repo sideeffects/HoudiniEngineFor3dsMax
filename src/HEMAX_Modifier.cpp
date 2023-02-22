@@ -211,7 +211,10 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	else if (MaxObject->CanConvertToType(polyObjectClassID))
 	{
 	    MaxPolyObject = (PolyObject*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), polyObjectClassID);
-	    InputNode = new HEMAX_Input_Geometry(HEMAX_INPUT_SUBNETWORK, MaxPolyObject, MaxNode);
+            ULONG NodeHandle = -1;
+            if (MaxNode)
+                NodeHandle = MaxNode->GetHandle();
+	    InputNode = new HEMAX_Input_Geometry(HEMAX_INPUT_SUBNETWORK, MaxPolyObject, NodeHandle);
 	}
 	else
 	{
