@@ -31,14 +31,14 @@ HEMAX_Input_Geometry::HEMAX_Input_Geometry(HEMAX_InputType Type,
 
 HEMAX_Input_Geometry::HEMAX_Input_Geometry(HEMAX_InputType Type,
                                            PolyObject* MaxPolyObject,
-                                           INode* MaxNode)
-    : HEMAX_Input(Type, -1, -1)
+                                           ULONG MaxNode)
+    : HEMAX_Input(Type, -1, MaxNode)
 {
     if (MaxPolyObject)
     {
-	BuildPolyGeometryForInputNode(Node, MaxPolyObject->GetMesh(),
-                "modifier_input", HEMAX_Utilities::GetIdentityTransform(),
-                MaxNode);
+        BuildPolyGeometryForInputNode(Node, MaxPolyObject->GetMesh(),
+            "modifier_input", HEMAX_Utilities::GetIdentityTransform(),
+            GetCOREInterface()->GetINodeByHandle(MaxNode));
     }
 }
 
