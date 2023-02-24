@@ -247,6 +247,9 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
                     MNEdge* Edge = MaxMesh.E(EdgeNum);
                     EdgeSelections.push_back(Edge->v1);
                     EdgeSelections.push_back(Edge->v2);
+
+                    // Prevent adding the same edge multiple times.
+                    EdgeSelectionsArray.Clear(EdgeNum);
                 }
             }
 	}
