@@ -11,7 +11,8 @@
     defined(HEMAX_VERSION_2020) || \
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023)
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024)
 #include <Qt/QmaxMainWindow.h>
 #include <Qt/QmaxDockWidget.h>
 #include <QtWidgets/qscrollarea.h>

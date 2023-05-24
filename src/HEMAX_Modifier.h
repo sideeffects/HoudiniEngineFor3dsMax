@@ -96,7 +96,8 @@ class HEMAX_ModifierClassDesc : public ClassDesc2
 	int IsPublic();
 	void* Create(BOOL Loading = false);
 #if defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023)
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024)
         const TCHAR* NonLocalizedClassName() override;
 #endif
 	const TCHAR* ClassName();
