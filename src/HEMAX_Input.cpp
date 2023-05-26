@@ -8,7 +8,8 @@
 #include "surf_api.h"
 #include "triobj.h"
 
-#ifdef HEMAX_VERSION_2023
+#if defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024)
 #include "geom/VertexNormal.h"
 #else
 #include "VertexNormal.h"

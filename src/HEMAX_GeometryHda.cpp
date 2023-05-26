@@ -9,10 +9,11 @@
 #include "HEMAX_UserPrefs.h"
 #include "HEMAX_Utilities.h"
 
+#include <custattrib.h>
 #include <icustattribcontainer.h>
 #include <ilayer.h>
 #include <ilayermanager.h>
-#include <custattrib.h>
+#include <ref.h>
 
 #include <algorithm>
 #include <list>
@@ -724,6 +725,37 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                     InstanceSourceToBakedInstanceSource.insert({
                         SkippedNodes[c], BakedNode});
                 }
+            }
+            else
+            {
+                INode* BakedNode = nullptr;
+                TimeValue CurrentTime = GetCOREInterface()->GetTime();
+                
+                ReferenceTarget* CopiedObjRef = CloneRefHierarchy(SourceObj);
+                CopiedObj = dynamic_cast<Object*>(CopiedObjRef);
+
+                Object* CollapsedObj = CopiedObj ? SourceObj->CollapseObject() : nullptr;
+
+                if (CollapsedObj)
+                {
+                    INode* BakedNode = GetCOREInterface()->CreateObjectNode(
+                        CollapsedObj);
+                    BakedNode->SetName(SkippedNodes[c]->GetName());
+                    BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
+                    BakedNode->SetNodeTM(CurrentTime,
+                        SkippedNodes[c]->GetNodeTM(CurrentTime));
+                    BakeResults.push_back(BakedNode);
+
+                    if (BakedParent && BakeDummyObj)
+                        BakedParent->AttachChild(BakedNode);
+                    else
+                        GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
+
+                    BakedNode->Hide(true);
+                    
+                    InstanceSourceToBakedInstanceSource.insert({
+                        SkippedNodes[c], BakedNode});
+                }  
             }
         }
     }

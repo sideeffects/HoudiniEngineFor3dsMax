@@ -113,17 +113,11 @@ HEMAXLauncher::HEMAXLauncher()
 
 	ThePlugin = new HEMAX_Plugin(TheInterface, HAPIL);
 
-#if defined(HEMAX_VERSION_2018) || \
-    defined(HEMAX_VERSION_2019) || \
-    defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021) || \
-    defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023)
-	PluginUserInterface = new HEMAX_UI(TheInterface->GetQmaxMainWindow(),
-                                           ThePlugin);
-#endif
 #ifdef HEMAX_VERSION_2017
-	PluginUserInterface = new HEMAX_UI(nullptr, ThePlugin);
+        PluginUserInterface = new HEMAX_UI(nullptr, ThePlugin);
+#else
+        PluginUserInterface = new HEMAX_UI(TheInterface->GetQmaxMainWindow(),
+                                           ThePlugin);
 #endif
 
         HEMAX_MaxScriptInterface::PluginInstance = ThePlugin;

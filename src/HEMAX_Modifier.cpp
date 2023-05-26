@@ -485,7 +485,8 @@ HEMAX_ModifierClassDesc::Create(BOOL Loading)
 }
 
 #if defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023)
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024)
 const TCHAR*
 HEMAX_ModifierClassDesc::NonLocalizedClassName()
 {
