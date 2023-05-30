@@ -96,24 +96,25 @@ HEMAX_MeshList<T>::MergeEqualTuples()
     if (IsMerged)
         return;
 
-    struct vec3Hash {
-	size_t operator()(const std::tuple<T, T, T> &Tuple) const {
-	    size_t hash1 = std::hash<T>()(std::get<0>(Tuple));
-	    size_t hash2 = std::hash<T>()(std::get<1>(Tuple));
-	    size_t hash3 = std::hash<T>()(std::get<2>(Tuple));
-	    return ((hash1 << 1) ^ (hash2 << 2) ^ (hash3 << 3));
-	}
+    struct vecHash {
+        size_t operator()(const std::vector<T>& Tuple) const
+        {
+            size_t hash = (std::hash<T>()(Tuple[0]) << 1);
+            for (int i = 1; i < Tuple.size(); ++i)
+            {
+                hash ^= (std::hash<T>()(Tuple[i]) << (i+1));
+            }
+            return hash;
+        }
     };
 
-    std::unordered_map<std::tuple<T, T, T>, int, vec3Hash> SetIndexMap;
+    std::unordered_map<std::vector<T>, int, vecHash> SetIndexMap;
 
     for (unsigned int i = 0; i < Size; i++)
     {
 	unsigned int SetIndex = -1;
 
-	std::tuple<T, T, T> vecTuple = std::make_tuple(List[i*3],
-						       List[i*3+1],
-						       List[i*3+2]);
+        std::vector<T> vecTuple(&List[i*TupleSize], &List[i*TupleSize + TupleSize]);
 
 	auto Search = SetIndexMap.find(vecTuple);
 
@@ -167,7 +168,6 @@ HEMAX_Mesh::HEMAX_Mesh()
     , PointCount( 0 )
     , NormalType(HEMAX_NO_NORMAL)
     , NormalsExist( false )
-    , UVTupleSize( 0 )
     , HasUVs( false )
     , UVType(HEMAX_NO_UV)
     , ColorAttrExists(false)
@@ -190,7 +190,6 @@ HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
     , PointCount(PCount)
     , NormalType(HEMAX_NO_NORMAL)
     , NormalsExist( false )
-    , UVTupleSize ( 0 )
     , HasUVs( false )
     , UVType(HEMAX_NO_UV)
     , ColorAttrExists(false)
@@ -234,7 +233,6 @@ void
 HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
 {
     UVList.Init(PointCount, TupleSize, HAPI_ATTROWNER_POINT);
-    UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_POINT_UV;
 
@@ -246,7 +244,6 @@ void
 HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
 {
     UVList.Init(VertexCount, TupleSize, HAPI_ATTROWNER_VERTEX);
-    UVTupleSize = TupleSize;
     HasUVs = true;
     UVType = HEMAX_VERTEX_UV;
 
@@ -255,9 +252,9 @@ HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
 }
 
 void
-HEMAX_Mesh::AllocatePointCdArray()
+HEMAX_Mesh::AllocatePointCdArray(int TupleSize)
 {
-    CdList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_POINT);
+    CdList.Init(PointCount, TupleSize, HAPI_ATTROWNER_POINT);
     ColorAttrExists = true;
     ColorAttrOwner = HAPI_ATTROWNER_POINT;
 
@@ -266,9 +263,9 @@ HEMAX_Mesh::AllocatePointCdArray()
 }
 
 void
-HEMAX_Mesh::AllocateVertexCdArray()
+HEMAX_Mesh::AllocateVertexCdArray(int TupleSize)
 {
-    CdList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_VERTEX);
+    CdList.Init(VertexCount, TupleSize, HAPI_ATTROWNER_VERTEX);
     ColorAttrExists = true;
     ColorAttrOwner = HAPI_ATTROWNER_VERTEX;
 
@@ -380,12 +377,6 @@ int
 HEMAX_Mesh::GetVertexUVCount()
 {
     return VertexCount;
-}
-
-int
-HEMAX_Mesh::GetUVTupleSize()
-{
-    return UVTupleSize;
 }
 
 int
@@ -1057,8 +1048,17 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		for (unsigned int z = 0; z < UVList.MergedDataSize(); z++)
 		{
 		    UVMap->v[z].x = UVSet[z * UVList.DataTupleSize()];
-		    UVMap->v[z].y = UVSet[z * UVList.DataTupleSize()+1];
-		    UVMap->v[z].z = UVSet[z * UVList.DataTupleSize()+2];
+
+                    if (UVList.DataTupleSize() >= 2)
+		        UVMap->v[z].y = UVSet[z * UVList.DataTupleSize()+1];
+                    else
+                        UVMap->v[z].y = 0.0f;
+
+                    if (UVList.DataTupleSize() >= 3)
+		        UVMap->v[z].z = UVSet[z * UVList.DataTupleSize()+2];
+                    else
+                        UVMap->v[z].z = 0.0f;
+
 		}
 	    }
 	}
@@ -1144,12 +1144,8 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 	}
     }
 
-    float UVVals[3];
-    UVVals[0] = 0;
-    UVVals[1] = 0;
-    UVVals[2] = 0;
+    std::vector<float> UVVals(UVList.DataTupleSize());
 
-    float CdVals[3];
     float AlphaVal;
     float IlluminationVals[3];
 
@@ -1157,16 +1153,26 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     {
 	if (UVMap && DoUVsExist() && GetUVType() == HEMAX_POINT_UV)
 	{
-	    GetPointUVAtIndex(p, UVVals);
+	    GetPointUVAtIndex(p, UVVals.data());
+
 	    UVMap->v[p].x = UVVals[0];
-	    UVMap->v[p].y = UVVals[1];
-	    UVMap->v[p].z = UVVals[2];
+
+            if (UVVals.size() >= 2)
+	        UVMap->v[p].y = UVVals[1];
+            else
+                UVMap->v[p].y = 0.0f;
+
+            if (UVVals.size() >= 3)
+	        UVMap->v[p].z = UVVals[2];
+            else
+                UVMap->v[p].z = 0.0f;
 	}
 	if (CdMap &&
             DoesCdAttrExist() &&
             GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
 	{
-	    GetPointCdAtIndex(p, CdVals);
+            std::vector<float> CdVals(CdList.DataTupleSize());
+	    GetPointCdAtIndex(p, CdVals.data());
 	    CdMap->v[p].x = CdVals[0];
 	    CdMap->v[p].y = CdVals[1];
 	    CdMap->v[p].z = CdVals[2];
@@ -1238,7 +1244,8 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		}
 		else if (GetCdAttrOwner() == HAPI_ATTROWNER_VERTEX)
 		{
-		    GetVertexCdAtIndex(VertexIndex, CdVals);
+                    std::vector<float> CdVals(CdList.DataTupleSize());
+		    GetVertexCdAtIndex(VertexIndex, CdVals.data());
 		    CdMap->v[VertexIndex].x = CdVals[0];
 		    CdMap->v[VertexIndex].y = CdVals[1];
 		    CdMap->v[VertexIndex].z = CdVals[2];
@@ -1310,8 +1317,16 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 		{
                     std::vector<float> UV = UVValues->Value(p);
                     UVMap->v[p].x = UV[0];
-                    UVMap->v[p].y = UV[1];
-                    UVMap->v[p].z = UV[2];
+
+                    if (UVValues->DataTupleSize() >= 2)
+                        UVMap->v[p].y = UV[1];
+                    else
+                        UVMap->v[p].y = 0.0f;
+
+                    if (UVValues->DataTupleSize() >= 3)
+                        UVMap->v[p].z = UV[2];
+                    else
+                        UVMap->v[p].z = 0.0f;
 		}
 
                 int VIndex = 0;
@@ -1356,8 +1371,16 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
                 for (unsigned int z = 0; z < UVValues->MergedDataSize(); z++)
                 {
                     UVMap->v[z].x = UVSet[z * UVValues->DataTupleSize()];
-                    UVMap->v[z].y = UVSet[z * UVValues->DataTupleSize()+1];
-                    UVMap->v[z].z = UVSet[z * UVValues->DataTupleSize()+2];
+
+                    if (UVValues->DataTupleSize() >= 2)
+                        UVMap->v[z].y = UVSet[z * UVValues->DataTupleSize()+1];
+                    else
+                        UVMap->v[z].y = 0.0f;
+
+                    if (UVValues->DataTupleSize() >= 3)
+                        UVMap->v[z].z = UVSet[z * UVValues->DataTupleSize()+2];
+                    else
+                        UVMap->v[z].z = 0.0f;
                 }
 
                 int VIndex = 0;

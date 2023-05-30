@@ -266,7 +266,7 @@ HEMAX_Part::BuildMesh()
 
     if (PointColorAttrInfo.exists)
     {
-	PartMesh->AllocatePointCdArray();
+	PartMesh->AllocatePointCdArray(PointColorAttrInfo.tupleSize);
         HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_COLOR_ATTRIBUTE, &PointColorAttrInfo, -1,
 			PartMesh->GetPointCdArray(), 0,
@@ -274,7 +274,7 @@ HEMAX_Part::BuildMesh()
     }
     else if (VertexColorAttrInfo.exists)
     {
-	PartMesh->AllocateVertexCdArray();
+	PartMesh->AllocateVertexCdArray(VertexColorAttrInfo.tupleSize);
         HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, NodeId, Info.id,
 			HEMAX_COLOR_ATTRIBUTE, &VertexColorAttrInfo, -1,
 			PartMesh->GetVertexCdArray(), 0,

@@ -62,7 +62,6 @@ class HEMAX_Mesh
 	int GetPointCount();
 	int GetPointUVCount();
 	int GetVertexUVCount();
-	int GetUVTupleSize();
 	int GetNumMaterials();
 
 	int* GetFaceVertexCountsArray();
@@ -108,8 +107,8 @@ class HEMAX_Mesh
 	void AllocatePointUVArray(int TupleSize);
 	void AllocateVertexUVArray(int TupleSize);
 
-	void AllocatePointCdArray();
-	void AllocateVertexCdArray();
+	void AllocatePointCdArray(int TupleSize);
+	void AllocateVertexCdArray(int TupleSize);
 
 	void AllocateAlphaArray(HAPI_AttributeOwner Owner);
 	void AllocateIlluminationArray(HAPI_AttributeOwner Owner);
@@ -189,7 +188,6 @@ class HEMAX_Mesh
 	std::unordered_map<std::string, HEMAX_MeshList<float>> FloatMetadata;
 	std::unordered_map<std::string, HEMAX_MeshList<std::string>> StringMetadata;
 
-	int UVTupleSize;
 	bool HasUVs;
 	HEMAX_UVType UVType;
 
