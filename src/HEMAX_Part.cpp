@@ -122,15 +122,9 @@ HEMAX_Part::SetMeshPlugin(HEMAX_GeometryPlugin* GeomPlugin)
 }
 
 void
-HEMAX_Part::SetCurvePlugin(LinearShape* Shape)
+HEMAX_Part::SetCurvePlugin(INode* CurveNode)
 {
-    CurvePlugin.SetLinearShape(Shape);
-}
-
-void
-HEMAX_Part::SetCurvePlugin(INode* NurbsObject)
-{
-    CurvePlugin.SetNurbsCurve(NurbsObject);
+    CurvePlugin.SetCurveNode(CurveNode);
 }
 
 HEMAX_GeometryPlugin*
