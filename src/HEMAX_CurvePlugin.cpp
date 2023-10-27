@@ -31,7 +31,6 @@ HEMAX_CurvePlugin::SetCurveNode(INode* Node)
         }
         else if (CurveNode->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
         {
-            DebugPrint(L"NURBS CV Curve RESTORED!\n");
             GetNURBSSet(CurveNode->GetObjectRef(), 
                 GetCOREInterface()->GetTime(),
                 CurveSet,
