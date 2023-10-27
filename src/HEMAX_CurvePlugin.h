@@ -13,9 +13,7 @@ class HEMAX_CurvePlugin
 
 	void SetPart(HAPI_NodeId _NodeId, HAPI_PartId _PartId, HAPI_CurveInfo _CurveInfo);
 
-	void SetLinearShape(LinearShape* _Shape);
-	void SetNurbsCurve(INode* Node);
-
+        void SetCurveNode(INode* Node);
 	INode* GetINode();
 
 	bool BuildCurve();
@@ -29,8 +27,8 @@ class HEMAX_CurvePlugin
 	HAPI_PartId PartId;
 	HAPI_CurveInfo CurveInfo;
 
-	LinearShape* Shape;
+	INode* CurveNode;
 
-	INode* NurbsCurveNode;
-	NURBSSet CurveSet;
+	LinearShape* Shape;
+        NURBSSet CurveSet;
 };
