@@ -158,13 +158,9 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 
 				Part->SetMeshPlugin(GeoPlugin);
 			    }
-			    else if (Shape)
+			    else if (Shape || Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
 			    {
-				Part->SetCurvePlugin(Shape);
-			    }
-			    else if (Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
-			    {
-				Part->SetCurvePlugin(Child);
+                                Part->SetCurvePlugin(Child);
 			    }
 			}
 		    }
@@ -207,7 +203,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 			if (Part)
 			{
 			    HEMAX_GeometryPlugin* GeoPlugin = dynamic_cast<HEMAX_GeometryPlugin*>(Child->GetObjectRef());
-			    LinearShape* Shape = dynamic_cast<LinearShape*>(Child->GetObjectRef());
+			    LinearShape* Shape = dynamic_cast<LinearShape*>(Child->GetObjectRef()); 
 
 			    if (GeoPlugin)
 			    {
@@ -216,11 +212,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 				
 				Part->SetMeshPlugin(GeoPlugin);
 			    }
-			    else if (Shape)
-			    {
-				Part->SetCurvePlugin(Shape);		
-			    }
-			    else if (Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
+			    else if (Shape || Child->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
 			    {
 				Part->SetCurvePlugin(Child);
 			    }
@@ -687,18 +679,25 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
             || IsPackedPrimSource(SkippedNodes[c]))
         {
             Object* SourceObj = SkippedNodes[c]->GetObjectRef();
-            Object* CopiedObj = nullptr;
 
             HEMAX_GeometryPlugin* Geometry =
                 dynamic_cast<HEMAX_GeometryPlugin*>(SourceObj);
+            LinearShape* LinearCurveSrc =
+                dynamic_cast<LinearShape*>(SourceObj);
+            NURBSSet CurveSet;
+            bool NURBSCurveSrcExists = GetNURBSSet(SourceObj,
+                GetCOREInterface()->GetTime(), CurveSet, false);
+
+            if (!Geometry && !LinearCurveSrc && !NURBSCurveSrcExists)
+                continue;
+
+            INode* BakedNode = nullptr;
+            TimeValue CurrentTime = GetCOREInterface()->GetTime();
 
             if (Geometry)
             {
-                INode* BakedNode = nullptr;
-                TimeValue CurrentTime = GetCOREInterface()->GetTime(); 
+                Object* CopiedObj = SourceObj->ConvertToType(CurrentTime, polyObjectClassID);
 
-                CopiedObj = SourceObj->ConvertToType(CurrentTime,
-                    polyObjectClassID);
                 Object* CollapsedObj = CopiedObj->CollapseObject();
                 if ((void*)SourceObj != (void*)CopiedObj &&
                     (void*)CopiedObj != (void*)CollapsedObj)
@@ -709,56 +708,45 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
 
                 if (CollapsedObj)
                 {
-                    INode* BakedNode =
-                        GetCOREInterface()->CreateObjectNode(CollapsedObj);
-                    BakedNode->SetName(SkippedNodes[c]->GetName());
-                    BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
-                    BakedNode->SetNodeTM(CurrentTime,
-                        SkippedNodes[c]->GetNodeTM(CurrentTime));
-                    BakeResults.push_back(BakedNode);
-
-                    if (BakedParent && BakeDummyObj)
-                        BakedParent->AttachChild(BakedNode);
-                    else
-                        GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
-
-                    BakedNode->Hide(true);
-
-                    InstanceSourceToBakedInstanceSource.insert({
-                        SkippedNodes[c], BakedNode});
+                    BakedNode = GetCOREInterface()->CreateObjectNode(CollapsedObj);
                 }
             }
             else
             {
-                INode* BakedNode = nullptr;
-                TimeValue CurrentTime = GetCOREInterface()->GetTime();
-                
-                ReferenceTarget* CopiedObjRef = CloneRefHierarchy(SourceObj);
-                CopiedObj = dynamic_cast<Object*>(CopiedObjRef);
+                INodeTab NodeToBake;
+                NodeToBake.AppendNode(SkippedNodes[c]);
+                INodeTab BakedNodeTab;
 
-                Object* CollapsedObj = CopiedObj ? SourceObj->CollapseObject() : nullptr;
+                bool Success = GetCOREInterface()->CloneNodes(NodeToBake,
+                    Point3(0,0,0), false, NODE_COPY, nullptr, &BakedNodeTab);
 
-                if (CollapsedObj)
-                {
-                    INode* BakedNode = GetCOREInterface()->CreateObjectNode(
-                        CollapsedObj);
-                    BakedNode->SetName(SkippedNodes[c]->GetName());
-                    BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
-                    BakedNode->SetNodeTM(CurrentTime,
-                        SkippedNodes[c]->GetNodeTM(CurrentTime));
-                    BakeResults.push_back(BakedNode);
-
-                    if (BakedParent && BakeDummyObj)
-                        BakedParent->AttachChild(BakedNode);
-                    else
-                        GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
-
-                    BakedNode->Hide(true);
-                    
-                    InstanceSourceToBakedInstanceSource.insert({
-                        SkippedNodes[c], BakedNode});
-                }  
+                if (Success)
+                    BakedNode = BakedNodeTab[0];
             }
+
+            if (!BakedNode)
+            {
+                HEMAX_Logger::Instance().AddEntry(
+                    "Failed to bake node.",
+                    HEMAX_LOG_LEVEL_WARN);
+                continue;
+            }
+
+            BakedNode->SetName(SkippedNodes[c]->GetName());
+            BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
+            BakedNode->SetNodeTM(CurrentTime,
+                SkippedNodes[c]->GetNodeTM(CurrentTime));
+            BakeResults.push_back(BakedNode);
+
+            if (BakedParent && BakeDummyObj)
+                BakedParent->AttachChild(BakedNode);
+            else
+                GetCOREInterface()->GetRootNode()->AttachChild(BakedNode);
+
+            BakedNode->Hide(true);
+
+            InstanceSourceToBakedInstanceSource.insert({
+                SkippedNodes[c], BakedNode});
         }
     }
 

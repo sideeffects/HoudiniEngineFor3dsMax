@@ -53,7 +53,6 @@ PushCurrentFrame(int Frame)
     float Seconds = (float)Frame/(float)FPS;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    DebugPrint(L"Setting Houdini Time to %f seconds\n", Seconds);
     HEMAX_HoudiniApi::SetTime(SM.Session, Seconds);
 
     GetCurrentHAPITime();

@@ -34,8 +34,7 @@ class HEMAX_Part
 	void Update(HAPI_NodeId Node, int PartNum);
 
 	void SetMeshPlugin(HEMAX_GeometryPlugin* GeomPlugin);
-	void SetCurvePlugin(LinearShape* Shape);
-	void SetCurvePlugin(INode* NurbsObject);
+	void SetCurvePlugin(INode* CurveNode);
 
 	HEMAX_GeometryPlugin* GetMeshPlugin();
 	HEMAX_CurvePlugin* GetCurvePlugin();

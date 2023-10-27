@@ -5,9 +5,9 @@
 #include "HEMAX_SessionManager.h"
 
 HEMAX_CurvePlugin::HEMAX_CurvePlugin()
+    : Shape(nullptr)
+    , CurveNode(nullptr)
 {
-    Shape = nullptr;
-    NurbsCurveNode = nullptr;
 }
 
 void
@@ -19,34 +19,34 @@ HEMAX_CurvePlugin::SetPart(HAPI_NodeId _NodeId, HAPI_PartId _PartId, HAPI_CurveI
 }
 
 void
-HEMAX_CurvePlugin::SetLinearShape(LinearShape* _Shape)
+HEMAX_CurvePlugin::SetCurveNode(INode* Node)
 {
-    Shape = _Shape;
-}
+    CurveNode = Node;
 
-void
-HEMAX_CurvePlugin::SetNurbsCurve(INode* Node)
-{
-    NurbsCurveNode = Node;
+    if (CurveNode)
+    {
+        if (CurveNode->GetObjectRef()->CanConvertToType(linearShapeClassID))
+        {
+            Shape = dynamic_cast<LinearShape*>(CurveNode->GetObjectRef());
+        }
+        else if (CurveNode->GetObjectRef()->CanConvertToType(EDITABLE_SURF_CLASS_ID))
+        {
+            GetNURBSSet(CurveNode->GetObjectRef(), 
+                GetCOREInterface()->GetTime(),
+                CurveSet,
+                false);
+        }
+    }
+    else
+    {
+        Shape = nullptr;
+    }
 }
 
 INode*
 HEMAX_CurvePlugin::GetINode()
 {
-    INode* Node = nullptr;
-
-    if (CurveInfo.curveType == HAPI_CURVETYPE_LINEAR && Shape)
-    {
-	ULONG Handle = 0;
-	Shape->NotifyDependents(FOREVER, (PartID)&Handle, REFMSG_GET_NODE_HANDLE);
-	Node = GetCOREInterface()->GetINodeByHandle(Handle);
-    }
-    else if (CurveInfo.curveType == HAPI_CURVETYPE_NURBS && NurbsCurveNode)
-    {
-	Node = NurbsCurveNode;
-    }
-
-    return Node;
+    return CurveNode;
 }
 
 bool
@@ -78,7 +78,7 @@ HEMAX_CurvePlugin::BuildLinearShape()
     {
 	Shape = new LinearShape;
 
-	INode* CurveNode = GetCOREInterface()->CreateObjectNode(Shape);
+	CurveNode = GetCOREInterface()->CreateObjectNode(Shape);
 	if (!CurveNode)
 	    Success = false;
     }
@@ -264,13 +264,13 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     Object* Obj = CreateNURBSObject(GetCOREInterface()->GetIObjParam(), &CurveSet, Mat);
 
-    if (!NurbsCurveNode)
+    if (!CurveNode)
     {
 	INode* Node = GetCOREInterface()->CreateObjectNode(Obj);
 
 	if (Node)
 	{
-	    NurbsCurveNode = Node;
+	    CurveNode = Node;
 	}
 	else
 	{
@@ -279,9 +279,9 @@ HEMAX_CurvePlugin::BuildNURBSObject()
     }
     else
     {
-	Object* OldCurve = NurbsCurveNode->GetObjectRef();
+	Object* OldCurve = CurveNode->GetObjectRef();
 	delete OldCurve;
-	NurbsCurveNode->SetObjectRef(Obj);
+	CurveNode->SetObjectRef(Obj);
     }
 
     return Success;
