@@ -44,7 +44,9 @@ HEMAX_HAPISession::IsCookFinished()
 bool
 HEMAX_HAPISession::CreateSession()
 {
-    return HEMAX_HoudiniApi::CreateInProcessSession(this);
+    HAPI_SessionInfo SessionInfo;
+    SessionInfo.connectionCount = 0;
+    return HEMAX_HoudiniApi::CreateInProcessSession(this, &SessionInfo);
 }
 
 bool
@@ -83,8 +85,10 @@ HEMAX_HAPISession::InitializeHAPI(const char* HoudiniEnvFiles,
 bool
 HEMAX_HAPIThriftSocketSession::CreateSession()
 {
+    HAPI_SessionInfo SessionInfo;
+    SessionInfo.connectionCount = 0;
     bool Result = HEMAX_HoudiniApi::CreateThriftSocketSession(this,
-        HostName.c_str(), Port);
+        HostName.c_str(), Port, &SessionInfo);
 
     if (!Result)
     {
@@ -99,8 +103,10 @@ HEMAX_HAPIThriftSocketSession::CreateSession()
 bool
 HEMAX_HAPIThriftPipeSession::CreateSession()
 {
+    HAPI_SessionInfo SessionInfo;
+    SessionInfo.connectionCount = 0;
     bool Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(this,
-        PipeName.c_str());
+        PipeName.c_str(), &SessionInfo);
 
     if (!Result)
     {
