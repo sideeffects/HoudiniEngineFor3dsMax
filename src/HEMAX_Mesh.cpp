@@ -1447,7 +1447,7 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
         EdgeSelections.SetSize(MaxMesh.ENum());
         EdgeSelections.ClearAll();
 
-        for (unsigned int e = 0; e < EdgeSelectionsList.DataSize() - 1; e += 2)
+        for (long long int e = 0; e < static_cast<int>(EdgeSelectionsList.DataSize()) - 1; e += 2)
         {
             int EdgeToSelect = MaxMesh.FindEdgeFromVertToVert(
                 EdgeSelectionsList.Data()[e], EdgeSelectionsList.Data()[e+1]);
