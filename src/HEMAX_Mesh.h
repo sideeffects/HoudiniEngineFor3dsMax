@@ -26,7 +26,7 @@ class HEMAX_MeshList
 	std::vector<T>              Value(int Index);
 	unsigned int                DataSize();
 	unsigned int                DataTupleSize();
-	HAPI_AttributeOwner        DataOwner();
+	HAPI_AttributeOwner         DataOwner();
 
 	void			    MergeEqualTuples();
 
