@@ -1,5 +1,5 @@
 /*
- * Copyright (c) <2023> Side Effects Software Inc. *
+ * Copyright (c) <2024> Side Effects Software Inc. *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -124,6 +124,9 @@ HEMAX_HoudiniApi::CreateNodeImpl = &HEMAX_HoudiniApi::CreateNodeEmptyStub;
 
 HEMAX_HoudiniApi::CreateThriftNamedPipeSessionFuncPtr
 HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl = &HEMAX_HoudiniApi::CreateThriftNamedPipeSessionEmptyStub;
+
+HEMAX_HoudiniApi::CreateThriftSharedMemorySessionFuncPtr
+HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl = &HEMAX_HoudiniApi::CreateThriftSharedMemorySessionEmptyStub;
 
 HEMAX_HoudiniApi::CreateThriftSocketSessionFuncPtr
 HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = &HEMAX_HoudiniApi::CreateThriftSocketSessionEmptyStub;
@@ -451,6 +454,12 @@ HEMAX_HoudiniApi::GetMessageNodeIdsImpl = &HEMAX_HoudiniApi::GetMessageNodeIdsEm
 
 HEMAX_HoudiniApi::GetNextVolumeTileFuncPtr
 HEMAX_HoudiniApi::GetNextVolumeTileImpl = &HEMAX_HoudiniApi::GetNextVolumeTileEmptyStub;
+
+HEMAX_HoudiniApi::GetNodeCookResultFuncPtr
+HEMAX_HoudiniApi::GetNodeCookResultImpl = &HEMAX_HoudiniApi::GetNodeCookResultEmptyStub;
+
+HEMAX_HoudiniApi::GetNodeCookResultLengthFuncPtr
+HEMAX_HoudiniApi::GetNodeCookResultLengthImpl = &HEMAX_HoudiniApi::GetNodeCookResultLengthEmptyStub;
 
 HEMAX_HoudiniApi::GetNodeFromPathFuncPtr
 HEMAX_HoudiniApi::GetNodeFromPathImpl = &HEMAX_HoudiniApi::GetNodeFromPathEmptyStub;
@@ -1028,6 +1037,9 @@ HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
 HEMAX_HoudiniApi::StartThriftNamedPipeServerFuncPtr
 HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = &HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub;
 
+HEMAX_HoudiniApi::StartThriftSharedMemoryServerFuncPtr
+HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = &HEMAX_HoudiniApi::StartThriftSharedMemoryServerEmptyStub;
+
 HEMAX_HoudiniApi::StartThriftSocketServerFuncPtr
 HEMAX_HoudiniApi::StartThriftSocketServerImpl = &HEMAX_HoudiniApi::StartThriftSocketServerEmptyStub;
 
@@ -1068,6 +1080,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::CreateInputNodeImpl = (CreateInputNodeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateInputNode");
     HEMAX_HoudiniApi::CreateNodeImpl = (CreateNodeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateNode");
     HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl = (CreateThriftNamedPipeSessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateThriftNamedPipeSession");
+    HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl = (CreateThriftSharedMemorySessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateThriftSharedMemorySession");
     HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = (CreateThriftSocketSessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateThriftSocketSession");
     HEMAX_HoudiniApi::CreateWorkItemImpl = (CreateWorkItemFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateWorkItem");
     HEMAX_HoudiniApi::CreateWorkitemImpl = (CreateWorkitemFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateWorkitem");
@@ -1177,6 +1190,8 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetMessageNodeCountImpl = (GetMessageNodeCountFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetMessageNodeCount");
     HEMAX_HoudiniApi::GetMessageNodeIdsImpl = (GetMessageNodeIdsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetMessageNodeIds");
     HEMAX_HoudiniApi::GetNextVolumeTileImpl = (GetNextVolumeTileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNextVolumeTile");
+    HEMAX_HoudiniApi::GetNodeCookResultImpl = (GetNodeCookResultFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeCookResult");
+    HEMAX_HoudiniApi::GetNodeCookResultLengthImpl = (GetNodeCookResultLengthFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeCookResultLength");
     HEMAX_HoudiniApi::GetNodeFromPathImpl = (GetNodeFromPathFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeFromPath");
     HEMAX_HoudiniApi::GetNodeInfoImpl = (GetNodeInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeInfo");
     HEMAX_HoudiniApi::GetNodeInputNameImpl = (GetNodeInputNameFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeInputName");
@@ -1369,6 +1384,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::SetWorkitemStringDataImpl = (SetWorkitemStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemStringData");
     HEMAX_HoudiniApi::ShutdownImpl = (ShutdownFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_Shutdown");
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = (StartThriftNamedPipeServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftNamedPipeServer");
+    HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = (StartThriftSharedMemoryServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftSharedMemoryServer");
     HEMAX_HoudiniApi::StartThriftSocketServerImpl = (StartThriftSocketServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftSocketServer");
 }
 
@@ -1407,6 +1423,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::CreateInputNodeImpl = &HEMAX_HoudiniApi::CreateInputNodeEmptyStub;
     HEMAX_HoudiniApi::CreateNodeImpl = &HEMAX_HoudiniApi::CreateNodeEmptyStub;
     HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl = &HEMAX_HoudiniApi::CreateThriftNamedPipeSessionEmptyStub;
+    HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl = &HEMAX_HoudiniApi::CreateThriftSharedMemorySessionEmptyStub;
     HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = &HEMAX_HoudiniApi::CreateThriftSocketSessionEmptyStub;
     HEMAX_HoudiniApi::CreateWorkItemImpl = &HEMAX_HoudiniApi::CreateWorkItemEmptyStub;
     HEMAX_HoudiniApi::CreateWorkitemImpl = &HEMAX_HoudiniApi::CreateWorkitemEmptyStub;
@@ -1516,6 +1533,8 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetMessageNodeCountImpl = &HEMAX_HoudiniApi::GetMessageNodeCountEmptyStub;
     HEMAX_HoudiniApi::GetMessageNodeIdsImpl = &HEMAX_HoudiniApi::GetMessageNodeIdsEmptyStub;
     HEMAX_HoudiniApi::GetNextVolumeTileImpl = &HEMAX_HoudiniApi::GetNextVolumeTileEmptyStub;
+    HEMAX_HoudiniApi::GetNodeCookResultImpl = &HEMAX_HoudiniApi::GetNodeCookResultEmptyStub;
+    HEMAX_HoudiniApi::GetNodeCookResultLengthImpl = &HEMAX_HoudiniApi::GetNodeCookResultLengthEmptyStub;
     HEMAX_HoudiniApi::GetNodeFromPathImpl = &HEMAX_HoudiniApi::GetNodeFromPathEmptyStub;
     HEMAX_HoudiniApi::GetNodeInfoImpl = &HEMAX_HoudiniApi::GetNodeInfoEmptyStub;
     HEMAX_HoudiniApi::GetNodeInputNameImpl = &HEMAX_HoudiniApi::GetNodeInputNameEmptyStub;
@@ -1708,6 +1727,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::SetWorkitemStringDataImpl = &HEMAX_HoudiniApi::SetWorkitemStringDataEmptyStub;
     HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = &HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub;
+    HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = &HEMAX_HoudiniApi::StartThriftSharedMemoryServerEmptyStub;
     HEMAX_HoudiniApi::StartThriftSocketServerImpl = &HEMAX_HoudiniApi::StartThriftSocketServerEmptyStub;
 }
 
@@ -1960,17 +1980,17 @@ HEMAX_HoudiniApi::CreateInProcessSession(HAPI_Session * session, const HAPI_Sess
 
 
 bool
-HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name)
+HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, node_id, name);
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, Result);
 }
 
 
 bool
-HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name)
+HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, node_id, name);
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, Result);
 }
 
@@ -1987,6 +2007,14 @@ bool
 HEMAX_HoudiniApi::CreateThriftNamedPipeSession(HAPI_Session * session, const char * pipe_name, const HAPI_SessionInfo * session_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl(session, pipe_name, session_info);
+    return HandleHAPIResult(session, Result);
+}
+
+
+bool
+HEMAX_HoudiniApi::CreateThriftSharedMemorySession(HAPI_Session * session, const char * shared_mem_name, const HAPI_SessionInfo * session_info)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl(session, shared_mem_name, session_info);
     return HandleHAPIResult(session, Result);
 }
 
@@ -2859,6 +2887,22 @@ bool
 HEMAX_HoudiniApi::GetNextVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNextVolumeTileImpl(session, node_id, part_id, tile);
+    return HandleHAPIResult(session, Result);
+}
+
+
+bool
+HEMAX_HoudiniApi::GetNodeCookResult(const HAPI_Session * session, char * string_value, int length)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetNodeCookResultImpl(session, string_value, length);
+    return HandleHAPIResult(session, Result);
+}
+
+
+bool
+HEMAX_HoudiniApi::GetNodeCookResultLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetNodeCookResultLengthImpl(session, node_id, verbosity, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
@@ -4400,6 +4444,14 @@ HEMAX_HoudiniApi::StartThriftNamedPipeServer(const HAPI_ThriftServerOptions * op
 
 
 bool
+HEMAX_HoudiniApi::StartThriftSharedMemoryServer(const HAPI_ThriftServerOptions * options, const char * shared_mem_name, HAPI_ProcessId * process_id, const char * log_file)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl(options, shared_mem_name, process_id, log_file);
+    return HandleHAPIResult(nullptr, Result);
+}
+
+
+bool
 HEMAX_HoudiniApi::StartThriftSocketServer(const HAPI_ThriftServerOptions * options, int port, HAPI_ProcessId * process_id, const char * log_file)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServerImpl(options, port, process_id, log_file);
@@ -4624,17 +4676,17 @@ HEMAX_HoudiniApi::CreateInProcessSession(HAPI_Session * session, const HAPI_Sess
 
 
 bool
-HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
+HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
 {
-    result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, node_id, name);
+    result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, result);
 }
 
 
 bool
-HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
+HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
 {
-    result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, node_id, name);
+    result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, result);
 }
 
@@ -4651,6 +4703,14 @@ bool
 HEMAX_HoudiniApi::CreateThriftNamedPipeSession(HAPI_Session * session, const char * pipe_name, const HAPI_SessionInfo * session_info, HAPI_Result& result)
 {
     result = HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl(session, pipe_name, session_info);
+    return HandleHAPIResult(session, result);
+}
+
+
+bool
+HEMAX_HoudiniApi::CreateThriftSharedMemorySession(HAPI_Session * session, const char * shared_mem_name, const HAPI_SessionInfo * session_info, HAPI_Result& result)
+{
+    result = HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl(session, shared_mem_name, session_info);
     return HandleHAPIResult(session, result);
 }
 
@@ -5523,6 +5583,22 @@ bool
 HEMAX_HoudiniApi::GetNextVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile, HAPI_Result& result)
 {
     result = HEMAX_HoudiniApi::GetNextVolumeTileImpl(session, node_id, part_id, tile);
+    return HandleHAPIResult(session, result);
+}
+
+
+bool
+HEMAX_HoudiniApi::GetNodeCookResult(const HAPI_Session * session, char * string_value, int length, HAPI_Result& result)
+{
+    result = HEMAX_HoudiniApi::GetNodeCookResultImpl(session, string_value, length);
+    return HandleHAPIResult(session, result);
+}
+
+
+bool
+HEMAX_HoudiniApi::GetNodeCookResultLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length, HAPI_Result& result)
+{
+    result = HEMAX_HoudiniApi::GetNodeCookResultLengthImpl(session, node_id, verbosity, buffer_length);
     return HandleHAPIResult(session, result);
 }
 
@@ -7064,6 +7140,14 @@ HEMAX_HoudiniApi::StartThriftNamedPipeServer(const HAPI_ThriftServerOptions * op
 
 
 bool
+HEMAX_HoudiniApi::StartThriftSharedMemoryServer(const HAPI_ThriftServerOptions * options, const char * shared_mem_name, HAPI_ProcessId * process_id, const char * log_file, HAPI_Result& result)
+{
+    result = HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl(options, shared_mem_name, process_id, log_file);
+    return HandleHAPIResult(nullptr, result);
+}
+
+
+bool
 HEMAX_HoudiniApi::StartThriftSocketServer(const HAPI_ThriftServerOptions * options, int port, HAPI_ProcessId * process_id, const char * log_file, HAPI_Result& result)
 {
     result = HEMAX_HoudiniApi::StartThriftSocketServerImpl(options, port, process_id, log_file);
@@ -7261,14 +7345,14 @@ HEMAX_HoudiniApi::CreateInProcessSessionEmptyStub(HAPI_Session * session, const 
 
 
 HAPI_Result
-HEMAX_HoudiniApi::CreateInputCurveNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name)
+HEMAX_HoudiniApi::CreateInputCurveNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
     return HAPI_RESULT_FAILURE;
 }
 
 
 HAPI_Result
-HEMAX_HoudiniApi::CreateInputNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId * node_id, const char * name)
+HEMAX_HoudiniApi::CreateInputNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -7283,6 +7367,13 @@ HEMAX_HoudiniApi::CreateNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId 
 
 HAPI_Result
 HEMAX_HoudiniApi::CreateThriftNamedPipeSessionEmptyStub(HAPI_Session * session, const char * pipe_name, const HAPI_SessionInfo * session_info)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::CreateThriftSharedMemorySessionEmptyStub(HAPI_Session * session, const char * shared_mem_name, const HAPI_SessionInfo * session_info)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -8046,6 +8137,20 @@ HEMAX_HoudiniApi::GetMessageNodeIdsEmptyStub(const HAPI_Session * session, HAPI_
 
 HAPI_Result
 HEMAX_HoudiniApi::GetNextVolumeTileEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::GetNodeCookResultEmptyStub(const HAPI_Session * session, char * string_value, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::GetNodeCookResultLengthEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9390,6 +9495,13 @@ HEMAX_HoudiniApi::ShutdownEmptyStub(const HAPI_Session * session)
 
 HAPI_Result
 HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub(const HAPI_ThriftServerOptions * options, const char * pipe_name, HAPI_ProcessId * process_id, const char * log_file)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::StartThriftSharedMemoryServerEmptyStub(const HAPI_ThriftServerOptions * options, const char * shared_mem_name, HAPI_ProcessId * process_id, const char * log_file)
 {
     return HAPI_RESULT_FAILURE;
 }

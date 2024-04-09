@@ -153,7 +153,7 @@ void
 HEMAX_Input::CreateInputNode(std::string Name)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::CreateInputNode(SM.Session, &Node->Info.id, Name.c_str());
+    HEMAX_HoudiniApi::CreateInputNode(SM.Session, -1, &Node->Info.id, Name.c_str());
     Node->Type = HAPI_NODETYPE_SOP;
     Node->Cook();
 
