@@ -90,17 +90,17 @@ HEMAX_Input_Spline::BuildInputNode()
 
 	    if (InputNode)
 	    {
-		HAPI_Transform HAPITransform =
-                    HEMAX_Utilities::MaxTransformToHAPITransform(
-                            HEMAX_Utilities::BuildMaxTransformFromINode(
-                                InputNode));
+                HEMAX_MaxTransform MaxXform =
+                    HEMAX_Utilities::BuildMaxTransformFromINode(InputNode);
+                HAPI_Transform HapiXform =
+                    HEMAX_Utilities::MaxTransformToHAPITransform(MaxXform);
+
+                HAPI_TransformEuler HapiEulerXform =
+                    HEMAX_Utilities::HAPITransformToHAPITransformEuler(HapiXform);
 
 		HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
                 HEMAX_HoudiniApi::SetObjectTransform(SM.Session,
-                    Node->Info.parentId,
-                    &HEMAX_Utilities::HAPITransformToHAPITransformEuler(
-                        HAPITransform));
+                    Node->Info.parentId, &HapiEulerXform);
 	    }
 	}
     }
@@ -122,7 +122,8 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     int CurveCount = TheShape->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -270,7 +271,8 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     int CurveCount = TheShape->NumberOfCurves(HEMAX_FRAME_ZERO);
 #endif
 #ifdef HEMAX_VERSION_2017

@@ -171,8 +171,9 @@ void
 HEMAX_UI::Update()
 {
     ShelfToolsWidget->Update();
-    HDAWidget->UpdateLoadedAssetList(
-                    &ActivePlugin->GetPluginStore()->GetListOfLoadedAssets());
+    std::vector<std::string> LoadedAssetList =
+        ActivePlugin->GetPluginStore()->GetListOfLoadedAssets();
+    HDAWidget->UpdateLoadedAssetList(&LoadedAssetList);
     SessionWidget->Update();
     MHAWidget->RefreshParameterUI(false);
 

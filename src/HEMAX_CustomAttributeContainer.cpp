@@ -27,7 +27,11 @@ DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int Cus
 
 	    if (Attrib)
 	    {
+#ifdef HEMAX_VERSION_2025
+                std::wstring AttribName(Attrib->GetName(false));
+#else
 		std::wstring AttribName(Attrib->GetName());
+#endif
                 std::wstring WCustomAttributeName(CustomAttributeName.begin(),
                     CustomAttributeName.end());
 
@@ -54,9 +58,13 @@ GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::st
 
 	    if (Attrib)
 	    {
-		std::string AttribName
-			= HEMAX_Utilities::WideStringToStringUnsafe(
-							Attrib->GetName());
+#ifdef HEMAX_VERSION_2025
+                std::string AttribName =
+                    HEMAX_Utilities::WideStringToStringUnsafe(Attrib->GetName(false));
+#else
+		std::string AttribName =
+                    HEMAX_Utilities::WideStringToStringUnsafe(Attrib->GetName());
+#endif
 
 		if (AttribName == ParameterName)
 		{
@@ -197,7 +205,8 @@ HEMAX_ParameterAttrib::SetParameterName(std::string Name)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_ParameterAttrib::GetName(bool Localized)
 {
@@ -379,7 +388,8 @@ HEMAX_IntegerParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_IntegerParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -485,7 +495,8 @@ HEMAX_StringParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_StringParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -568,7 +579,8 @@ HEMAX_FloatParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_FloatParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -651,7 +663,8 @@ HEMAX_ToggleParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_ToggleParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -752,7 +765,8 @@ HEMAX_NodeParameterAttrib::NotifyRefChanged(const Interval& ChangeInt, RefTarget
     return REF_SUCCEED;
 }
 
-#ifdef HEMAX_VERSION_2024
+#if defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 void
 HEMAX_NodeParameterAttrib::RefDeletedUndoRedo(RefMakerHandle oldOwner)
 {
@@ -780,7 +794,8 @@ HEMAX_NodeParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_NodeParameterAttrib_ClassDesc::NonLocalizedClassName()
 {
@@ -864,7 +879,8 @@ HEMAX_MultiParameterAttrib_ClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_MultiParameterAttrib_ClassDesc::NonLocalizedClassName()
 {

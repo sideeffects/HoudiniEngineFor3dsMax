@@ -125,8 +125,8 @@ HAPI_TransformEuler
 HEMAX_Utilities::MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform,
         HAPI_RSTOrder RSTOrder)
 {
-    return HAPITransformToHAPITransformEuler(MaxTransformToHAPITransform(
-                                                Transform, RSTOrder), RSTOrder);
+    HAPI_Transform HapiXform = MaxTransformToHAPITransform(Transform, RSTOrder);
+    return HAPITransformToHAPITransformEuler(HapiXform, RSTOrder);
 }
 
 HEMAX_MaxTransform
@@ -171,7 +171,8 @@ HEMAX_Utilities::GetHoudiniToMaxScale()
     float SystemUnitScale;
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     GetSystemUnitInfo(&SystemUnitType, &SystemUnitScale);
 #else
     GetMasterUnitInfo(&SystemUnitType, &SystemUnitScale);
@@ -407,7 +408,8 @@ HEMAX_Utilities::IsOnlyClosedSplines(LinearShape* Curve)
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -432,7 +434,8 @@ HEMAX_Utilities::IsOnlyOpenSplines(LinearShape* Curve)
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     int CurveCount = Curve->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017

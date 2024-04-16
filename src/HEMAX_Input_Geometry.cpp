@@ -11,7 +11,8 @@
 #include <MNNormalSpec.h>
 
 #if defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 #include <geom/VertexNormal.h>
 #else
 #include <VertexNormal.h>
@@ -138,7 +139,11 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	    // We have a multi-material
 	    if (MeshMat->NumSubMtls() > 0)
 	    {
+#ifdef HEMAX_VERSION_2025
+                MultiMaterialName = MeshMat->GetName().ToCStr().data();
+#else
                 MultiMaterialName = MeshMat->GetName().ToCStr();
+#endif
 		FaceMaterialNames.resize(MaxMesh.FNum());
 		for (int m = 0; m < MeshMat->NumSubMtls(); m++)
 		{
@@ -146,14 +151,22 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 
 		    if (SubMat)
 		    {
-			SubMatNames.insert({ m, SubMat->GetName().ToCStr() });
+#ifdef HEMAX_VERSION_2025
+                        SubMatNames.insert({m, SubMat->GetName().ToCStr().data()});
+#else
+			SubMatNames.insert({m, SubMat->GetName().ToCStr()});
+#endif
 		    }
 		}
 	    }
 	    else
 	    {
 		SingleMaterial = true;
+#ifdef HEMAX_VERSION_2025
+                SingleMaterialName = MeshMat->GetName().ToCStr().data();
+#else
 		SingleMaterialName = MeshMat->GetName().ToCStr();
+#endif
 		SingleMaterialNameData = std::vector<const char*>(MaxMesh.FNum(),
                                             SingleMaterialName);
 	    }

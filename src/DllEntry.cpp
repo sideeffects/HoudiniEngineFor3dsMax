@@ -85,6 +85,10 @@ LibVersion()
 __declspec( dllexport ) int
 LibInitialize(void)
 {
+#ifdef HEMAX_VERSION_2025
+    RegisterNotification(&HEMAXLauncher::OnCUIRegisterMenus,
+        HEMAXLauncher::GetInstance(), NOTIFY_CUI_REGISTER_MENUS); 
+#endif
     return TRUE;
 }
 
@@ -94,7 +98,17 @@ LibInitialize(void)
 __declspec( dllexport ) int
 LibShutdown(void)
 {
+#ifdef HEMAX_VERSION_2025
+    UnRegisterNotification(&HEMAXLauncher::OnCUIRegisterMenus,
+        HEMAXLauncher::GetInstance(), NOTIFY_CUI_REGISTER_MENUS);
+#endif
     return TRUE;
+}
+
+__declspec( dllexport ) BOOL
+CanAutoDefer()
+{
+    return FALSE;
 }
 
 TCHAR* 

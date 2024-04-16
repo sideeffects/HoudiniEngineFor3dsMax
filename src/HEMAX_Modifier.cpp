@@ -329,15 +329,15 @@ HEMAX_Modifier::ApplyMaterialsToNode()
 				std::wstring MatLibPath = WideMatName.substr(0, SplitIndex);
 				std::wstring MatName = WideMatName.substr(SplitIndex + 1, WideMatName.size() - SplitIndex - 1);
 
-				MtlBaseLib CustomMatLib;
-				int Result = GetCOREInterface()->LoadMaterialLib(MatLibPath.c_str(), &CustomMatLib);
+				MtlBaseLib& CurrentMatLib = GetCOREInterface()->GetMaterialLibrary();
+				int Result = GetCOREInterface()->LoadMaterialLib(MatLibPath.c_str(), &CurrentMatLib);
 
 				if (Result)
 				{
-				    int CustomMatNum = CustomMatLib.FindMtlByName(WStr(MatName.c_str()));
+				    int CustomMatNum = CurrentMatLib.FindMtlByName(WStr(MatName.c_str()));
 				    if (CustomMatNum > -1)
 				    {
-					MtlBase* Mat = CustomMatLib[CustomMatNum];
+					MtlBase* Mat = CurrentMatLib[CustomMatNum];
 					Mtl* MtlMat = (Mtl*)Mat;
 					MaxNode->SetMtl(MtlMat);
 				    }
@@ -488,7 +488,8 @@ HEMAX_ModifierClassDesc::Create(BOOL Loading)
 
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 const TCHAR*
 HEMAX_ModifierClassDesc::NonLocalizedClassName()
 {

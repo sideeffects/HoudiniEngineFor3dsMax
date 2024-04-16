@@ -101,7 +101,8 @@ HEMAX_ModifierHda::UpdateModifierHda()
     if (DisplayGeometry)
     {
 	DisplayGeometry->SetHda(&Hda);
-	DisplayGeometry->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
+        Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
+	DisplayGeometry->ForceNotify(Now);
     }
 }
 

@@ -513,8 +513,9 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         NodesToClone.AppendNode(ContainerNode);
 
         INodeTab ClonedNodeTab;
+        Point3 ClonePoint(0,0,0);
         bool CloneResult = GetCOREInterface()->CloneNodes(NodesToClone,
-                                                          Point3(0, 0, 0),
+                                                          ClonePoint,
                                                           false,
                                                           NODE_COPY,
                                                           nullptr,
@@ -634,10 +635,11 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 INodeTab NodeToBake;
                 NodeToBake.AppendNode(ChildNode);
                 INodeTab BakedNodeTab;
+                Point3 ClonePoint(0,0,0);
 
                 bool CloneResult = GetCOREInterface()->CloneNodes(
                                         NodeToBake,
-                                        Point3(0, 0, 0),
+                                        ClonePoint,
                                         false,
                                         NODE_COPY,
                                         nullptr,
@@ -716,9 +718,10 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 INodeTab NodeToBake;
                 NodeToBake.AppendNode(SkippedNodes[c]);
                 INodeTab BakedNodeTab;
+                Point3 ClonePoint(0,0,0);
 
                 bool Success = GetCOREInterface()->CloneNodes(NodeToBake,
-                    Point3(0,0,0), false, NODE_COPY, nullptr, &BakedNodeTab);
+                    ClonePoint, false, NODE_COPY, nullptr, &BakedNodeTab);
 
                 if (Success)
                     BakedNode = BakedNodeTab[0];
@@ -765,10 +768,11 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 INodeTab NodeToBake;
                 NodeToBake.AppendNode(BakedSource);
                 INodeTab BakedNodeTab;
+                Point3 ClonePoint(0,0,0);
 
                 bool Success = GetCOREInterface()->CloneNodes(
                     NodeToBake,
-                    Point3(0, 0, 0),
+                    ClonePoint,
                     false,
                     NODE_INSTANCE,
                     nullptr,
@@ -1196,8 +1200,9 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 		    }
 
 		    INodeTab ClonedNodeTab, ClonedNodeSourceTab;
+                    Point3 ClonePoint(0,0,0);
 		    bool CloneResult = GetCOREInterface()->CloneNodes(
-                        CloneableNodeTab, Point3(0, 0, 0), true, NODE_INSTANCE,
+                        CloneableNodeTab, ClonePoint, true, NODE_INSTANCE,
                         &ClonedNodeSourceTab, &ClonedNodeTab);
 
 		    if (CloneResult)
@@ -1248,9 +1253,10 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 		    }
 
 		    INodeTab ClonedNodeTab, ClonedNodeSourceTab;
+                    Point3 ClonePoint(0,0,0);
 		    bool CloneResult = GetCOREInterface()->CloneNodes(
                         CloneableNodeTab,
-		        Point3(0, 0, 0),
+		        ClonePoint,
 			true,
 			NODE_INSTANCE,
 			&ClonedNodeSourceTab,
@@ -1318,9 +1324,10 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
                 PackedPrimSources.insert(SourceNode);
 		
 		INodeTab ClonedNodeTab, ClonedNodeSourceTab;
+                Point3 ClonePoint(0,0,0);
 		bool CloneResult = GetCOREInterface()->CloneNodes(
                     CloneableNodeTab,
-		    Point3(0, 0, 0),
+		    ClonePoint,
 		    true,
 		    NODE_INSTANCE,
 		    &ClonedNodeSourceTab,
@@ -1828,18 +1835,18 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
                                         SplitIndex + 1,
                                         WideMatName.size() - SplitIndex - 1);
 
-		MtlBaseLib CustomMatLib;
+		MtlBaseLib& CurrentMatLib = GetCOREInterface()->GetMaterialLibrary();
 		int Result = GetCOREInterface()->LoadMaterialLib(
                                         MatLibPath.c_str(),
-                                        &CustomMatLib);
+                                        &CurrentMatLib);
 
 		if (Result)
 		{
-		    int CustomMatNum = CustomMatLib.FindMtlByName(
+		    int CustomMatNum = CurrentMatLib.FindMtlByName(
                                                         WStr(MatName.c_str()));
 		    if (CustomMatNum > -1)
 		    {
-			MtlBase* Mat = CustomMatLib[CustomMatNum];
+			MtlBase* Mat = CurrentMatLib[CustomMatNum];
 			Mtl* MtlMat = (Mtl*)Mat;
 			GeoPlugin->MaxNode->SetMtl(MtlMat);
 		    }

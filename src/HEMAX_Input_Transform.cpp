@@ -47,7 +47,10 @@ HEMAX_Input_Transform::BuildTransform()
 
     if (InputNode)
     {
-	HAPI_Transform HAPITransform = HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_Utilities::BuildMaxTransformFromINode(InputNode));
+        HEMAX_MaxTransform MaxTransform =
+            HEMAX_Utilities::BuildMaxTransformFromINode(InputNode);
+        HAPI_Transform HAPITransform =
+            HEMAX_Utilities::MaxTransformToHAPITransform(MaxTransform);
 
 	return HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPITransform);
     }
