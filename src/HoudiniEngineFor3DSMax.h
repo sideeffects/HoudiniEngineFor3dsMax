@@ -31,6 +31,15 @@ const ActionContextId HEMAX_Context_Id = 0x626b4e5c;
 extern TCHAR *GetString( int id );
 extern HINSTANCE hInstance;
 
+#ifdef HEMAX_VERSION_2025
+namespace MaxSDK::CUI
+{
+class ICuiMenuManager;
+}
+#else
+class IMenuManager;
+#endif
+
 class HEMAX_Events;
 class HEMAX_OptionsDialog;
 class HEMAX_Plugin;
@@ -55,16 +64,16 @@ class HEMAXLauncher : public GUP, ActionCallback
 	virtual DWORD_PTR Control(DWORD parameter);
 	virtual void      DeleteThis();
 
-	void InstallMenu();
+#ifdef HEMAX_VERSION_2025
+        void InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager);
+#else
+	void InstallMenu(IMenuManager* MenuManager);
+#endif
 	void RemoveMenu();
 
 	int kContextIdHEMAXMenu;
 
 	BOOL ExecuteAction(int id) override;
-
-	static void OnCUIMenusLoaded(void* param, NotifyInfo* info);
-	static void OnCUIMenusPreSaved(void* param, NotifyInfo* info);
-	static void OnCUIMenusPostSaved(void* param, NotifyInfo* info);
 
 	static HEMAXLauncher* GetInstance() {
 	    static HEMAXLauncher theHEMAXLauncher;
@@ -75,6 +84,14 @@ class HEMAXLauncher : public GUP, ActionCallback
 	std::wstring GetLibHAPILDirectory();
 
         void UpdateOptionsDialog();
+
+#ifdef HEMAX_VERSION_2025
+        static void OnCUIRegisterMenus(void* Param, NotifyInfo* Info);
+#else
+        static void OnCUIMenusLoaded(void* param, NotifyInfo* info);
+        static void OnCUIMenusPreSaved(void* param, NotifyInfo* info);
+        static void OnCUIMenusPostSaved(void* param, NotifyInfo* info);
+#endif
 
     private:
 
@@ -108,7 +125,8 @@ class HEMAXLauncherClassDesc : public ClassDesc2
 	virtual void* Create(BOOL) { return HEMAXLauncher::GetInstance(); }
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
         virtual const TCHAR* NonLocalizedClassName() override
             { return GetString(IDS_CLASS_NAME); }
 #endif

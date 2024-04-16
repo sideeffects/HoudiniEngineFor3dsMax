@@ -162,8 +162,10 @@ HEMAX_Node::SetTransform(HEMAX_MaxTransform& Xform)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
+    HAPI_TransformEuler HapiEulerXform =
+        HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform);
     HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session, Info.id,
-        &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform));
+        &HapiEulerXform);
 }
 
 void
@@ -171,8 +173,10 @@ HEMAX_Node::SetParentTransform(HEMAX_MaxTransform& Xform)
 {
     HEMAX_SessionManager& SessionManager = HEMAX_SessionManager::GetSessionManager();
 
+    HAPI_TransformEuler HapiEulerXform =
+        HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HAPI_SRT);
     HEMAX_HoudiniApi::SetObjectTransform(SessionManager.Session, Info.parentId,
-        &HEMAX_Utilities::MaxTransformToHAPITransformEuler(Xform, HAPI_SRT));
+        &HapiEulerXform);
 }
 
 void

@@ -346,8 +346,15 @@ HEMAX_MaterialNode::Update3dsmaxMaterial()
     if (HasTexture && HasTextureBeenRendered)
     {
 	MaterialBitMapTex = NewDefaultBitmapTex();
-	std::wstring FinalPath = IPathConfigMgr::GetPathConfigMgr()->GetDir(
-                                                                APP_IMAGE_DIR);
+
+#ifdef HEMAX_VERSION_2025
+        std::wstring FinalPath(
+            IPathConfigMgr::GetPathConfigMgr()->GetDir(APP_IMAGE_DIR).data());
+#else
+        std::wstring FinalPath(
+            IPathConfigMgr::GetPathConfigMgr()->GetDir(APP_IMAGE_DIR));
+#endif
+
 	FinalPath.append(L"\\");
 
 	std::wstring ImageFileName = std::wstring(ImagePath.begin(),

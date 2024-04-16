@@ -10,7 +10,8 @@
 #include <triobj.h>
 
 #if defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 #include <geom/VertexNormal.h>
 #else
 #include <VertexNormal.h>
@@ -145,7 +146,9 @@ HEMAX_Input::PushMaxTransform()
 
     if (MaxInputNode)
     {
-	Node->SetParentTransform(HEMAX_Utilities::BuildMaxTransformFromINode(MaxInputNode));
+        HEMAX_MaxTransform MaxTransform =
+            HEMAX_Utilities::BuildMaxTransformFromINode(MaxInputNode);
+        Node->SetParentTransform(MaxTransform);
     }
 }
 

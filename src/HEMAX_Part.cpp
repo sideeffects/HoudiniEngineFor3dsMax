@@ -726,7 +726,8 @@ HEMAX_Part::BuildGeometryPlugin()
     MeshPlugin->Mesh->ApplyDetailMetadata(MeshPlugin->MaxNode);
     
     TimeValue CurTime = GetCOREInterface()->GetTime();
-    MeshPlugin->ForceNotify(Interval(CurTime, CurTime));
+    Interval Now(CurTime, CurTime);
+    MeshPlugin->ForceNotify(Now);
 
     return true;
 }

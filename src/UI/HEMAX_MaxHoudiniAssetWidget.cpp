@@ -15,7 +15,8 @@
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 #include <QtWidgets/qmessagebox.h>
 #endif
 
@@ -271,7 +272,7 @@ HEMAX_MaxHoudiniAssetWidget::UpdateWidget()
 
     if (!Selection)
     {
-	SelectHDA(false);
+	SelectHDA(nullptr);
     }
     else if (Selection->Type == HEMAX_GEOMETRY_HDA)
     {

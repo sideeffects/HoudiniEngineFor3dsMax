@@ -14,7 +14,8 @@
     defined(HEMAX_VERSION_2021) || \
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024)
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
 #include <QtWidgets/qabstractitemview.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qcolordialog.h>

@@ -296,15 +296,25 @@ HEMAX_UserPrefs::GetSettingType(const std::string& Key) const
 std::string
 HEMAX_UserPrefs::GetPluginConfigFolder()
 {
+#ifdef HEMAX_VERSION_2025
+    return HEMAX_Utilities::WideStringToStringUnsafe(
+        GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY).data());
+#else
     return HEMAX_Utilities::WideStringToStringUnsafe(
     		GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY));
+#endif
 }
 
 std::wstring
 HEMAX_UserPrefs::GetConfigFilePath()
 {
+#ifdef HEMAX_VERSION_2025
+    std::wstring CfgDir(
+        GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY).data());
+#else
     std::wstring CfgDir(GetCOREInterface()->GetDir(
                                             HEMAX_SETTINGS_FILE_DIRECTORY));
+#endif
 
     std::wstring FullPluginCfgPath = L"";
 

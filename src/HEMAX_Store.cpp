@@ -625,7 +625,11 @@ HEMAX_Store::Find3dsmaxHdaViaChildGeometry(ULONG NodeHandle)
 	if (CustomAttributes->GetNumCustAttribs() > HEMAX_MAX_GEO_MAX_INDEX)
 	{
 	    CustAttrib* StampLookup = CustomAttributes->GetCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX);
+#ifdef HEMAX_VERSION_2025
+            std::wstring CustAttribName = StampLookup->GetName(false);
+#else
 	    std::wstring CustAttribName = StampLookup->GetName();
+#endif
 	    std::string Name = std::string(CustAttribName.begin(), CustAttribName.end());
 	    std::string GeoStampName = std::string(HEMAX_MAX_GEO_STAMP_NAME);
 

@@ -557,7 +557,11 @@ HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
     if (!ManualModifierAddInProgress)
     {
 	std::wstring ModStackPluginName(_T(HEMAX_MODIFIER_STACK_PLUGIN_NAME));
+#ifdef HEMAX_VERSION_2025
+        std::wstring ModifierName(ModEvent->mod->GetName(false).data());
+#else
 	std::wstring ModifierName(ModEvent->mod->GetName());
+#endif
 
 	if (ModifierName == ModStackPluginName)
 	{
@@ -582,7 +586,8 @@ HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
 			    PluginStore->Add3dsmaxHda(ModEvent->node->GetHandle(), ModifierHda);
 			    GetCOREInterface()->ForceCompleteRedraw();
 			    ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
-			    ModifierHda->DisplayGeometry->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
+                            Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
+			    ModifierHda->DisplayGeometry->ForceNotify(Now);
 			}
 			else
 			{
@@ -611,7 +616,8 @@ HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
 					PluginStore->Add3dsmaxHda(ModEvent->node->GetHandle(), ModifierHda);
 					GetCOREInterface()->ForceCompleteRedraw();
 					ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
-					ModifierHda->DisplayGeometry->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
+                                        Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
+					ModifierHda->DisplayGeometry->ForceNotify(Now);
 				    }
 				    else
 				    {
@@ -836,7 +842,11 @@ HEMAX_Plugin::ReengageModifierHda(INode* Node, HEMAX_Modifier* Modifier, ICustAt
 
 	if (AssetPathAttrib)
 	{
+#ifdef HEMAX_VERSION_2025
+            std::wstring WideName(AssetPathAttrib->GetName(false));
+#else
 	    std::wstring WideName(AssetPathAttrib->GetName());
+#endif
 	    std::string AttribName(WideName.begin(), WideName.end());
 	    std::string AssetPathName(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME);
 
@@ -911,7 +921,11 @@ HEMAX_Plugin::ReengageGeometryHda(INode* Node, ICustAttribContainer* CustAttribs
 
     if (AssetPathAttrib)
     {
+#ifdef HEMAX_VERSION_2025
+        std::wstring WideName(AssetPathAttrib->GetName(false));
+#else
 	std::wstring WideName(AssetPathAttrib->GetName());
+#endif
 	std::string AttribName(WideName.begin(), WideName.end());
 	std::string AssetPathName(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME);
 
@@ -1729,7 +1743,11 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 			    NewModifierHda->CopyAllParameterValues(*ModifierHda);
 			    UpdateEntireHda(NewModifierHda);
 
+#ifdef HEMAX_VERSION_2025
+                            std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
+#else
 			    std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
+#endif
 			    NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
 			}
 			else
@@ -1851,7 +1869,8 @@ HEMAX_Plugin::UpdateEntireHda(HEMAX_3dsmaxHda* Hda, bool ForceRedraw)
 		if (ModifierHda->DisplayGeometry->CheckIfTopOfStack(ModifierHda->ContainerNode))
 		{
 		    ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
-		    ModifierHda->DisplayGeometry->ForceNotify(Interval(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime()));
+                    Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
+		    ModifierHda->DisplayGeometry->ForceNotify(Now);
 		}
 	    }
 	}
