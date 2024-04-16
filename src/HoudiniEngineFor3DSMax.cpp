@@ -385,7 +385,7 @@ HEMAXLauncher::Start()
     RegisterNotification(&HEMAXLauncher::OnCUIMenusLoaded, this, NOTIFY_CUI_MENUS_POST_LOAD);
     RegisterNotification(&HEMAXLauncher::OnCUIMenusPreSaved, this, NOTIFY_CUI_MENUS_PRE_SAVE);
     RegisterNotification(&HEMAXLauncher::OnCUIMenusPostSaved, this, NOTIFY_CUI_MENUS_POST_SAVE);
-    InstallMenu(nullptr);
+    InstallMenu(GetCOREInterface()->GetMenuManager());
 #endif
 
     return GUPRESULT_KEEP;
