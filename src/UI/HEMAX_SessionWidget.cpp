@@ -518,10 +518,13 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     std::string SharedMemType;
     if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE, SharedMemType))
     {
+        // TODO: temp fix for the nightlies
+        /*
         if (SharedMemType == "RING")
             SessionsSharedMemoryBufferType->setCurrentText("Ring");
         else if (SharedMemType == "FIXED")
             SessionsSharedMemoryBufferType->setCurrentText("Fixed Length");
+        */
     }
 
     std::string HoudiniEnvFilePath;
