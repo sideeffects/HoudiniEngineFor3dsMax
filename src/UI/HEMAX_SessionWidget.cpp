@@ -83,7 +83,9 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsSharedMemoryLabel = new QLabel("Shared Memory Name ");
     SessionsSharedMemoryName = new QLineEdit;
     SessionsSharedMemoryBufferSizeLabel = new QLabel("Buffer Size (MB)");
-    int MaxMB = std::numeric_limits<int>::max()/(1024*1024);
+    //int MaxMB = std::numeric_limits<int>::max()/(1024*1024);
+    // Temp fix until I can figure out why this fails on the build machines
+    int MaxMB = 2000;
     SessionsSharedMemoryBufferSizeValidator = new QIntValidator(1, MaxMB);
     SessionsSharedMemoryBufferSize = new QLineEdit;
     SessionsSharedMemoryBufferSize->setValidator(
