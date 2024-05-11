@@ -49,6 +49,7 @@ typedef enum
     HEMAX_IN_PROCESS,
     HEMAX_THRIFT_SOCKET,
     HEMAX_THRIFT_PIPE,
+    HEMAX_THRIFT_SHARED_MEMORY
 } HEMAX_SessionType;
 
 typedef enum

@@ -4,8 +4,13 @@
 #include "../HEMAX_Plugin.h"
 #include "../HEMAX_SessionManager.h"
 #include "../HEMAX_UserPrefs.h"
+#include "../HEMAX_Logger.h"
 
 #include "moc_HEMAX_SessionWidget.cpp"
+
+#include <limits>
+#include <sstream>
+#include <string>
 
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
@@ -16,10 +21,28 @@
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
 #include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qgroupbox.h>
+#include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qcombobox.h>
+#include <QtGui/qvalidator.h>
 #endif
 
 #ifdef HEMAX_VERSION_2017
 #include <QtGui/qfiledialog.h>
+#include <QtGui/qlayout.h>
+#include <QtGui/qradiobutton.h>
+#include <QtGui/qgroupbox.h>
+#include <QtGui/qradiobutton.h>
+#include <QtGui/qlabel.h>
+#include <QtGui/qlineedit.h>
+#include <QtGui/qpushbutton.h>
+#include <QtGui/qcombobox.h>
+#include <QtGui/qvalidator.h>
 #endif
 
 HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
@@ -35,6 +58,7 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsTypeLayout = new QVBoxLayout;
     SessionsPipeLayout = new QHBoxLayout;
     SessionsSocketLayout = new QHBoxLayout;
+    SessionsSharedMemoryLayout = new QHBoxLayout;
 
     SessionsStartButton = new QPushButton("Start Session");
     SessionsStopButton = new QPushButton("Stop Session");
@@ -47,31 +71,44 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsOutOfProcessRadioButton = new QRadioButton("Out of Process");
     SessionsPipeRadioButton = new QRadioButton("Thrift Pipe");
     SessionsSocketRadioButton = new QRadioButton("Thrift Socket");
+    SessionsSharedMemoryRadioButton = new QRadioButton("Thrift Shared Memory");
 
-    SessionsHostNameLabel = new QLabel("Host Name:");
+    SessionsHostNameLabel = new QLabel("Host Name");
     SessionsSocketHostName = new QLineEdit;
     
-    SessionsPortNumberLabel = new QLabel("Port Number:");
+    SessionsPortNumberLabel = new QLabel("Port Number");
     SessionsSocketPortNumber = new QLineEdit;
-    SessionsPipeNameLabel = new QLabel("Pipe Name:");
+    SessionsPipeNameLabel = new QLabel("Pipe Name");
     SessionsPipeName = new QLineEdit;
+    SessionsSharedMemoryLabel = new QLabel("Shared Memory Name ");
+    SessionsSharedMemoryName = new QLineEdit;
+    SessionsSharedMemoryBufferSizeLabel = new QLabel("Buffer Size (MB)");
+    int MaxMB = std::numeric_limits<int>().max()/(1024*1024);
+    SessionsSharedMemoryBufferSizeValidator = new QIntValidator(1, MaxMB);
+    SessionsSharedMemoryBufferSize = new QLineEdit;
+    SessionsSharedMemoryBufferSize->setValidator(
+        SessionsSharedMemoryBufferSizeValidator);
+    SessionsSharedMemoryBufferTypeLabel = new QLabel("Buffer Type");
+    SessionsSharedMemoryBufferType = new QComboBox;
+    SessionsSharedMemoryBufferType->addItem("Fixed Length");
+    SessionsSharedMemoryBufferType->addItem("Ring");
 
     SessionsConfigurationBox = new QGroupBox("Session Configuration");
     SessionsConfigurationBoxLayout = new QGridLayout;
 
-    SessionsHoudiniEnvFilesLabel = new QLabel("Houdini Environment Files:");
+    SessionsHoudiniEnvFilesLabel = new QLabel("Houdini Environment Files");
     SessionsHoudiniEnvFiles = new QLineEdit;
     SessionsHoudiniEnvFilesBrowse = new QPushButton("...");
-    SessionsOtlSearchPathLabel = new QLabel("otl Search Path:");
+    SessionsOtlSearchPathLabel = new QLabel("otl Search Path");
     SessionsOtlSearchPath = new QLineEdit;
     SessionsOtlSearchPathBrowse = new QPushButton("...");
-    SessionsDsoSearchPathLabel = new QLabel("dso Search Path: ");
+    SessionsDsoSearchPathLabel = new QLabel("dso Search Path ");
     SessionsDsoSearchPath = new QLineEdit;
     SessionsDsoSearchPathBrowse = new QPushButton("...");
-    SessionsImageDsoSearchPathLabel = new QLabel("Image dso Search Path:");
+    SessionsImageDsoSearchPathLabel = new QLabel("Image dso Search Path");
     SessionsImageDsoSearchPath = new QLineEdit;
     SessionsImageDsoSearchPathBrowse = new QPushButton("...");
-    SessionsAudioDsoSearchPathLabel = new QLabel("Audio dso Search Path:");
+    SessionsAudioDsoSearchPathLabel = new QLabel("Audio dso Search Path");
     SessionsAudioDsoSearchPath = new QLineEdit;
     SessionsAudioDsoSearchPathBrowse = new QPushButton("...");
 
@@ -81,6 +118,7 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsTypeLayout->setAlignment(Qt::AlignTop);
     SessionsPipeLayout->setAlignment(Qt::AlignTop);
     SessionsSocketLayout->setAlignment(Qt::AlignTop);
+    SessionsSharedMemoryLayout->setAlignment(Qt::AlignTop);
     SessionsConfigurationBox->setAlignment(Qt::AlignTop);
 
     SessionsControlLayout->addWidget(SessionsStartButton);
@@ -95,6 +133,7 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
 
     ManualStartOptionsLayout->addWidget(SessionsSocketRadioButton);
     ManualStartOptionsLayout->addWidget(SessionsPipeRadioButton);
+    ManualStartOptionsLayout->addWidget(SessionsSharedMemoryRadioButton);
 
     SessionsTypeLayout->addWidget(SessionsAutoStartLabel);
     SessionsTypeLayout->addLayout(AutoStartOptionsLayout);
@@ -118,6 +157,14 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsPipeLayout->addWidget(SessionsPipeName);
 
     SessionsBoxLayout->addLayout(SessionsPipeLayout);
+
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryLabel);
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryName);
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryBufferSizeLabel);
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryBufferSize);
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryBufferTypeLabel);
+    SessionsSharedMemoryLayout->addWidget(SessionsSharedMemoryBufferType);
+    SessionsBoxLayout->addLayout(SessionsSharedMemoryLayout);
 
     SessionsBox->setLayout(SessionsBoxLayout);
 
@@ -163,6 +210,7 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
 
     SlotSessionsSocketToggle(false);
     SlotSessionsPipeToggle(false);
+    SlotSessionsSharedMemoryToggle(false);
 
     QObject::connect(SessionsStartButton,
                      SIGNAL(clicked()),
@@ -189,6 +237,11 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
                      this,
                      SLOT(SlotSessionsPipeToggle(bool)));
 
+    QObject::connect(SessionsSharedMemoryRadioButton,
+                     SIGNAL(toggled(bool)),
+                     this,
+                     SLOT(SlotSessionsSharedMemoryToggle(bool)));
+
     QObject::connect(SessionsSocketHostName,
                      SIGNAL(editingFinished()),
                      this,
@@ -203,6 +256,21 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
                      SIGNAL(editingFinished()),
                      this,
                      SLOT(SlotSessionsPipeName()));
+
+    QObject::connect(SessionsSharedMemoryName,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsSharedMemoryName()));
+
+    QObject::connect(SessionsSharedMemoryBufferSize,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsSharedMemoryBufferSize()));
+
+    QObject::connect(SessionsSharedMemoryBufferType,
+                     SIGNAL(currentIndexChanged(int)),
+                     this,
+                     SLOT(SlotSessionsSharedMemoryBufferType(int)));
 
     QObject::connect(SessionsHoudiniEnvFilesBrowse,
                      SIGNAL(clicked()),
@@ -279,6 +347,14 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
     delete SessionsPipeName;
     delete SessionsPipeNameLabel;
 
+    delete SessionsSharedMemoryBufferType;
+    delete SessionsSharedMemoryBufferTypeLabel;
+    delete SessionsSharedMemoryBufferSize;
+    delete SessionsSharedMemoryBufferSizeValidator;
+    delete SessionsSharedMemoryBufferSizeLabel;
+    delete SessionsSharedMemoryName;
+    delete SessionsSharedMemoryLabel;
+
     delete SessionsSocketPortNumber;
     delete SessionsPortNumberLabel;
     delete SessionsSocketHostName;
@@ -287,6 +363,7 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
     delete SessionsAutoStartLabel;
     delete SessionsManualStartLabel;
 
+    delete SessionsSharedMemoryRadioButton;
     delete SessionsPipeRadioButton;
     delete SessionsSocketRadioButton;
     delete SessionsOutOfProcessRadioButton;
@@ -294,6 +371,7 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
     delete SessionsStopButton;
     delete SessionsStartButton;
 
+    delete SessionsSharedMemoryLayout;
     delete SessionsSocketLayout;
     delete SessionsPipeLayout;
     delete SessionsTypeLayout;
@@ -327,6 +405,12 @@ HEMAX_SessionWidget::Update()
 	SessionsPipeName->setDisabled(true);
 	SessionsPipeNameLabel->setDisabled(true);
 
+        SessionsSharedMemoryName->setDisabled(true);
+        SessionsSharedMemoryLabel->setDisabled(true);
+        SessionsSharedMemoryBufferSizeLabel->setDisabled(true);
+        SessionsSharedMemoryBufferSize->setDisabled(true);
+        SessionsSharedMemoryBufferTypeLabel->setDisabled(true);
+        SessionsSharedMemoryBufferType->setDisabled(true);
 
 	if (SM.IsAutoSession())
 	{
@@ -353,6 +437,16 @@ HEMAX_SessionWidget::Update()
 	    SessionsPipeName->setDisabled(false);
 	    SessionsPipeNameLabel->setDisabled(false);
 	}
+
+        if (SessionsSharedMemoryRadioButton->isChecked())
+        {
+            SessionsSharedMemoryName->setDisabled(false);
+            SessionsSharedMemoryLabel->setDisabled(false);
+            SessionsSharedMemoryBufferSizeLabel->setDisabled(false);
+            SessionsSharedMemoryBufferSize->setDisabled(false);
+            SessionsSharedMemoryBufferTypeLabel->setDisabled(false);
+            SessionsSharedMemoryBufferType->setDisabled(false);
+        }
     }
 }
 
@@ -382,6 +476,10 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
         {
             SessionsPipeRadioButton->setChecked(true);
         }
+        else if (SessionType == HEMAX_SessionTypePref::SharedMemory)
+        {
+            SessionsSharedMemoryRadioButton->setChecked(true);
+        }
     }
 
     std::string HostName;
@@ -400,6 +498,28 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
     {
         SessionsPipeName->setText(PipeName.c_str());
+    }
+    
+    std::string SharedMemName;
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME, SharedMemName))
+    {
+        SessionsSharedMemoryName->setText(SharedMemName.c_str());
+    }
+
+    int SharedMemSize;
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE, SharedMemSize))
+    {
+        SessionsSharedMemoryBufferSize->setText(
+            std::to_string(SharedMemSize).c_str());
+    }
+
+    std::string SharedMemType;
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE, SharedMemType))
+    {
+        if (SharedMemType == "RING")
+            SessionsSharedMemoryBufferType->setCurrentText("Ring");
+        else if (SharedMemType == "FIXED")
+            SessionsSharedMemoryBufferType->setCurrentText("Fixed Length");
     }
 
     std::string HoudiniEnvFilePath;
@@ -438,6 +558,12 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     }
 }
 
+int
+HEMAX_SessionWidget::MBToBytes(int MB)
+{
+    return MB*1024*1024;
+}
+
 void
 HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
 {
@@ -445,6 +571,8 @@ HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
 
     if (SessionsPipeRadioButton->isChecked())
         SelectedSessionType = HEMAX_THRIFT_PIPE;
+    else if (SessionsSharedMemoryRadioButton->isChecked())
+        SelectedSessionType = HEMAX_THRIFT_SHARED_MEMORY;
     else if (SessionsOutOfProcessRadioButton->isChecked())
         SelectedSessionType = HEMAX_THRIFT_PIPE;
     else
@@ -480,6 +608,46 @@ HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
                         SessionsSocketPortNumber->text().toInt());
 	    break;
 	}
+        case (HEMAX_THRIFT_SHARED_MEMORY):
+        {
+            Manager.SetThriftSharedMemoryName(
+                SessionsSharedMemoryName->text().toStdString());
+
+            if (!SessionsSharedMemoryBufferSize->hasAcceptableInput())
+            {
+                std::stringstream sstream;
+                sstream << "Invalid buffer size. The buffer size must be "
+                    "between " << SessionsSharedMemoryBufferSizeValidator->bottom()
+                    << " and " << SessionsSharedMemoryBufferSizeValidator->top()
+                    << ", inclusive.";
+                HEMAX_Logger::Instance().ShowDialog("Start Session Error",
+                    sstream.str(), HEMAX_LOG_LEVEL_ERROR);
+                return;
+            }
+
+            Manager.SetThriftSharedMemoryBufferSize(
+                MBToBytes(SessionsSharedMemoryBufferSize->text().toInt()));
+            
+            QString BufferType =
+                SessionsSharedMemoryBufferType->currentText();
+            if (BufferType == "Ring")
+            {
+                Manager.SetThriftSharedMemoryBufferType(
+                    HAPI_THRIFT_SHARED_MEMORY_RING_BUFFER);
+            }
+            else if (BufferType == "Fixed Length")
+            {
+                Manager.SetThriftSharedMemoryBufferType(
+                    HAPI_THRIFT_SHARED_MEMORY_FIXED_LENGTH_BUFFER);
+            }
+            else
+            {
+                HEMAX_Logger::Instance().ShowDialog("Start Session Error",
+                    "Invalid buffer type selected. The valid types are: "
+                    "(Ring, Fixed Length)", HEMAX_LOG_LEVEL_ERROR);
+                return;
+            }
+        }
 	default:
 	{
 	    break;
@@ -546,6 +714,32 @@ HEMAX_SessionWidget::SlotSessionsPipeToggle(bool Checked)
 }
 
 void
+HEMAX_SessionWidget::SlotSessionsSharedMemoryToggle(bool Checked)
+{
+    if (Checked)
+    {
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::SharedMemory));
+
+        SessionsSharedMemoryName->setDisabled(false);
+        SessionsSharedMemoryLabel->setDisabled(false); 
+        SessionsSharedMemoryBufferSizeLabel->setDisabled(false);
+        SessionsSharedMemoryBufferSize->setDisabled(false);
+        SessionsSharedMemoryBufferTypeLabel->setDisabled(false);
+        SessionsSharedMemoryBufferType->setDisabled(false);
+    }
+    else
+    {
+        SessionsSharedMemoryName->setDisabled(true);
+        SessionsSharedMemoryLabel->setDisabled(true); 
+        SessionsSharedMemoryBufferSizeLabel->setDisabled(true);
+        SessionsSharedMemoryBufferSize->setDisabled(true);
+        SessionsSharedMemoryBufferTypeLabel->setDisabled(true);
+        SessionsSharedMemoryBufferType->setDisabled(true);
+    }
+}
+
+void
 HEMAX_SessionWidget::SlotSessionsSocketHostName()
 {
     HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME,
@@ -564,6 +758,36 @@ HEMAX_SessionWidget::SlotSessionsPipeName()
 {
     HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME,
         SessionsPipeName->text().toStdString());
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsSharedMemoryName()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME,
+        SessionsSharedMemoryName->text().toStdString());
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsSharedMemoryBufferSize()
+{
+    HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE,
+        SessionsSharedMemoryBufferSize->text().toInt());
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsSharedMemoryBufferType(int)
+{
+    QString BufferTypeChoice = SessionsSharedMemoryBufferType->currentText();
+    std::string BufferType;
+
+    if (BufferTypeChoice == "Ring")
+        BufferType = "RING";
+    else if (BufferTypeChoice == "Fixed Length")
+        BufferType = "FIXED";
+
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE,
+        BufferType);
 }
 
 void

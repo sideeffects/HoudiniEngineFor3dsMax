@@ -177,6 +177,11 @@ HEMAX_SessionManager::InitializeSession()
 		Session = new HEMAX_HAPIThriftPipeSession;
 		break;
 	    }
+        case HEMAX_THRIFT_SHARED_MEMORY:
+            {
+                Session = new HEMAX_HAPIThriftSharedMemorySession;
+                break;
+            }
 	default:
 	    break;
     }
@@ -266,6 +271,34 @@ HEMAX_SessionManager::SetThriftSocketPortNumber(int Port)
     if (SessionType == HEMAX_THRIFT_SOCKET)
     {
 	((HEMAX_HAPIThriftSocketSession*)Session)->SetPortNumber(Port);
+    }
+}
+
+void
+HEMAX_SessionManager::SetThriftSharedMemoryName(const std::string& Name)
+{
+    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
+    {
+        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetName(Name);
+    }
+}
+
+void
+HEMAX_SessionManager::SetThriftSharedMemoryBufferSize(int Size)
+{
+    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
+    {
+        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetBufferSize(Size);
+    }
+}
+
+void
+HEMAX_SessionManager::SetThriftSharedMemoryBufferType(
+        HAPI_ThriftSharedMemoryBufferType Type)
+{
+    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
+    {
+        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetBufferType(Type);
     }
 }
 

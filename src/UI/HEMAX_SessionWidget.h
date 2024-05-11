@@ -9,27 +9,23 @@
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
 #include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qradiobutton.h>
-#include <QtWidgets/qgroupbox.h>
-#include <QtWidgets/qradiobutton.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qpushbutton.h>
 #endif
 
 #ifdef HEMAX_VERSION_2017
 #include <QtGui/qwidget.h>
-#include <QtGui/qlayout.h>
-#include <QtGui/qradiobutton.h>
-#include <QtGui/qgroupbox.h>
-#include <QtGui/qradiobutton.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qlineedit.h>
-#include <QtGui/qpushbutton.h>
 #endif
 
 class HEMAX_Plugin;
+class QVBoxLayout;
+class QHBoxLayout;
+class QPushButton;
+class QGroupBox;
+class QLabel;
+class QRadioButton;
+class QGridLayout;
+class QComboBox;
+class QLineEdit;
+class QIntValidator;
 
 class HEMAX_SessionWidget : public QWidget
 {
@@ -47,6 +43,8 @@ class HEMAX_SessionWidget : public QWidget
 
         void InitFieldsFromPrefs();
 
+        int MBToBytes(int MB);
+
     private:
 
 	Q_OBJECT
@@ -60,6 +58,7 @@ class HEMAX_SessionWidget : public QWidget
 	QVBoxLayout* SessionsTypeLayout;
 	QHBoxLayout* SessionsPipeLayout;
 	QHBoxLayout* SessionsSocketLayout;
+        QHBoxLayout* SessionsSharedMemoryLayout;
 
 	QPushButton* SessionsStartButton;
 	QPushButton* SessionsStopButton;
@@ -72,6 +71,7 @@ class HEMAX_SessionWidget : public QWidget
 	QRadioButton* SessionsOutOfProcessRadioButton;
 	QRadioButton* SessionsSocketRadioButton;
 	QRadioButton* SessionsPipeRadioButton;
+        QRadioButton* SessionsSharedMemoryRadioButton;
 
 	QLabel* SessionsHostNameLabel;
 	QLineEdit* SessionsSocketHostName;
@@ -80,6 +80,14 @@ class HEMAX_SessionWidget : public QWidget
 
 	QLabel* SessionsPipeNameLabel;
 	QLineEdit* SessionsPipeName;
+
+        QLabel* SessionsSharedMemoryLabel;
+        QLineEdit* SessionsSharedMemoryName;
+        QLabel* SessionsSharedMemoryBufferSizeLabel;
+        QIntValidator* SessionsSharedMemoryBufferSizeValidator;
+        QLineEdit* SessionsSharedMemoryBufferSize;
+        QLabel* SessionsSharedMemoryBufferTypeLabel;
+        QComboBox* SessionsSharedMemoryBufferType;
 
 	QGroupBox* SessionsConfigurationBox;
 	QGridLayout* SessionsConfigurationBoxLayout;
@@ -110,10 +118,14 @@ class HEMAX_SessionWidget : public QWidget
         void SlotSessionsAutoToggle(bool Checked);
 	void SlotSessionsSocketToggle(bool Checked);
 	void SlotSessionsPipeToggle(bool Checked);
+        void SlotSessionsSharedMemoryToggle(bool Checked);
 
         void SlotSessionsSocketHostName();
         void SlotSessionsSocketPortNumber();
         void SlotSessionsPipeName();
+        void SlotSessionsSharedMemoryName();
+        void SlotSessionsSharedMemoryBufferSize();
+        void SlotSessionsSharedMemoryBufferType(int);
 
 	void SlotSessionsHoudiniEnvFileBrowse();
 	void SlotSessionsOtlSearchPathBrowse();

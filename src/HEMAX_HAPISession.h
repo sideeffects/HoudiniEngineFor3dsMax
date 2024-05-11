@@ -74,3 +74,22 @@ class HEMAX_HAPIThriftPipeSession : public HEMAX_HAPISession
 
 	std::string PipeName;
 };
+
+class HEMAX_HAPIThriftSharedMemorySession : public HEMAX_HAPISession
+{
+    public:
+
+        HEMAX_HAPIThriftSharedMemorySession();
+        ~HEMAX_HAPIThriftSharedMemorySession() override;
+
+        bool CreateSession() override;
+        void SetName(const std::string& _Name);
+        void SetBufferSize(const int _BufferSize);
+        void SetBufferType(const HAPI_ThriftSharedMemoryBufferType _BufferType);
+
+    private:
+
+        std::string Name;
+        int BufferSize;
+        HAPI_ThriftSharedMemoryBufferType BufferType;
+};

@@ -11,15 +11,19 @@
 #define HEMAX_SETTINGS_FILE           "HoudiniEngine.ini"
 #define HEMAX_SETTINGS_FILE_APPNAME   "Houdini Engine for 3DS Max"
 
-#define HEMAX_SESSION_TYPE_PREF_AUTO            "AutoStart"
-#define HEMAX_SESSION_TYPE_PREF_SOCKET          "Socket"
-#define HEMAX_SESSION_TYPE_PREF_NAMED_PIPE      "NamedPipe"
+#define HEMAX_SESSION_TYPE_PREF_AUTO                "AutoStart"
+#define HEMAX_SESSION_TYPE_PREF_SOCKET              "Socket"
+#define HEMAX_SESSION_TYPE_PREF_NAMED_PIPE          "NamedPipe"
+#define HEMAX_SESSION_TYPE_PREF_SHARED_MEMORY       "SharedMemory"
 
-#define HEMAX_SETTING_SESSION_TYPE              "Session\\Type"
-#define HEMAX_SETTING_SESSION_HOST_NAME         "Session\\Hostname"
-#define HEMAX_SETTING_SESSION_PORT              "Session\\Port"
-#define HEMAX_SETTING_SESSION_PIPE_NAME         "Session\\PipeName"
-#define HEMAX_SETTING_SESSION_ENV_FILES         "Session\\HoudiniEnvironmentFiles"
+#define HEMAX_SETTING_SESSION_TYPE                  "Session\\Type"
+#define HEMAX_SETTING_SESSION_HOST_NAME             "Session\\Hostname"
+#define HEMAX_SETTING_SESSION_PORT                  "Session\\Port"
+#define HEMAX_SETTING_SESSION_PIPE_NAME             "Session\\PipeName"
+#define HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME    "Session\\SharedMemoryName"
+#define HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE "Session\\SharedMemoryBufferSize"
+#define HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE "Session\\SharedMemoryBufferType"
+#define HEMAX_SETTING_SESSION_ENV_FILES             "Session\\HoudiniEnvironmentFiles"
 #define HEMAX_SETTING_SESSION_OTL_SEARCH        "Session\\OtlSearchPath"
 #define HEMAX_SETTING_SESSION_DSO_SEARCH        "Session\\DsoSearchPath"
 #define HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH  "Session\\ImageDsoSearchPath"
@@ -54,7 +58,8 @@ enum class HEMAX_SessionTypePref : int
 {
     AutoStart = 0,
     Socket = 1,
-    NamedPipe = 2
+    NamedPipe = 2,
+    SharedMemory = 3
 };
 
 typedef enum

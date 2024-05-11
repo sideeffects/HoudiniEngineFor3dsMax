@@ -38,6 +38,10 @@ class HEMAX_SessionManager
 	void SetThriftNamedPipeSessionName(std::string PipeName);
 	void SetThriftSocketHostName(std::string HostName);
 	void SetThriftSocketPortNumber(int Port);
+        void SetThriftSharedMemoryName(const std::string& Name);
+        void SetThriftSharedMemoryBufferSize(int Size);
+        void SetThriftSharedMemoryBufferType(
+                HAPI_ThriftSharedMemoryBufferType Type);
 
 	void StartThriftNamedPipeThinClient();
 

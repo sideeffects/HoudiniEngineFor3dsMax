@@ -10,7 +10,9 @@ HEMAX_HAPISession::HEMAX_HAPISession()
 {
 }
 
-HEMAX_HAPISession::~HEMAX_HAPISession() {}
+HEMAX_HAPISession::~HEMAX_HAPISession()
+{
+}
 
 HEMAX_HAPIThriftPipeSession::HEMAX_HAPIThriftPipeSession()
     : HEMAX_HAPISession()
@@ -24,7 +26,18 @@ HEMAX_HAPIThriftSocketSession::HEMAX_HAPIThriftSocketSession()
 {
 }
 
-HEMAX_HAPIThriftSocketSession::~HEMAX_HAPIThriftSocketSession() {}
+HEMAX_HAPIThriftSocketSession::~HEMAX_HAPIThriftSocketSession()
+{
+}
+
+HEMAX_HAPIThriftSharedMemorySession::HEMAX_HAPIThriftSharedMemorySession()
+    : HEMAX_HAPISession()
+{
+}
+
+HEMAX_HAPIThriftSharedMemorySession::~HEMAX_HAPIThriftSharedMemorySession()
+{
+}
 
 HEMAX_CookResult
 HEMAX_HAPISession::IsCookFinished()
@@ -118,6 +131,26 @@ HEMAX_HAPIThriftPipeSession::CreateSession()
 }
 
 bool
+HEMAX_HAPIThriftSharedMemorySession::CreateSession()
+{
+    HAPI_SessionInfo SessionInfo;
+    SessionInfo.connectionCount = 0;
+    SessionInfo.sharedMemoryBufferType = BufferType;
+    SessionInfo.sharedMemoryBufferSize = BufferSize;
+    bool Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(this,
+        Name.c_str(), &SessionInfo);
+
+    if (!Result)
+    {
+        std::string Msg = "Could not create shared memory session with name: "
+            + Name;
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+    }
+
+    return Result;
+}
+
+bool
 HEMAX_HAPISession::LoadHoudiniDigitalAsset(const char* FilePath,
                                            bool AllowOverwrite,
 	                                   HAPI_AssetLibraryId* AssetLibId,
@@ -168,6 +201,25 @@ void
 HEMAX_HAPIThriftPipeSession::SetPipeName(std::string Name)
 {
     PipeName = Name;
+}
+
+void
+HEMAX_HAPIThriftSharedMemorySession::SetName(const std::string& _Name)
+{
+    Name = _Name;
+}
+
+void
+HEMAX_HAPIThriftSharedMemorySession::SetBufferSize(const int _BufferSize)
+{
+    BufferSize = _BufferSize;
+}
+
+void
+HEMAX_HAPIThriftSharedMemorySession::SetBufferType(
+        const HAPI_ThriftSharedMemoryBufferType _BufferType)
+{
+    BufferType = _BufferType;
 }
 
 std::string
