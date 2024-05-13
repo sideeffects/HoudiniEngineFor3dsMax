@@ -180,6 +180,13 @@ GetHEMAX_NodeParameterAttrib_ClassDesc()
 }
 
 ClassDesc2*
+GetHEMAX_NodeListParameterAttrib_ClassDesc()
+{
+    static HEMAX_NodeListParameterAttrib_ClassDesc NodeListParameterAttribDesc;
+    return &NodeListParameterAttribDesc;
+}
+
+ClassDesc2*
 GetHEMAX_MultiParameterAttrib_ClassDesc()
 {
     static HEMAX_MultiParameterAttrib_ClassDesc MultiParameterAttribDesc;
@@ -712,8 +719,20 @@ HEMAX_ToggleParameterAttrib_ClassDesc::HInstance()
 ////////////// NODE /////////////////////////
 /////////////////////////////////////////////
 
-ParamBlockDesc2 NodeParameterAttrib_ParamBlock(0, _T("NodeParameter"), IDS_HEMAX_PARAMATTRIB_VALUE, GetHEMAX_NodeParameterAttrib_ClassDesc(), P_AUTO_CONSTRUCT, 0,
-	0, _T("Value"), TYPE_INODE, P_SUBANIM, IDS_HEMAX_PARAMATTRIB_VALUE, p_end, p_end);
+ParamBlockDesc2 NodeParameterAttrib_ParamBlock(
+        0,
+        _T("NodeParameter"),
+        IDS_HEMAX_PARAMATTRIB_VALUE,
+        GetHEMAX_NodeParameterAttrib_ClassDesc(),
+        P_AUTO_CONSTRUCT,
+        0,
+	0,
+        _T("Value"),
+        TYPE_INODE,
+        P_SUBANIM,
+        IDS_HEMAX_PARAMATTRIB_VALUE,
+        p_end,
+        p_end);
 
 HEMAX_NodeParameterAttrib::HEMAX_NodeParameterAttrib()
 {
@@ -835,6 +854,153 @@ HEMAX_NodeParameterAttrib_ClassDesc::InternalName()
 
 HINSTANCE
 HEMAX_NodeParameterAttrib_ClassDesc::HInstance()
+{
+    return hInstance;
+}
+
+/////////////////////////////////////////////
+////////////// NODE LIST ////////////////////
+/////////////////////////////////////////////
+
+ParamBlockDesc2 NodeListParameterAttrib_ParamBlock(
+        0,
+        _T("NodeListParameter"),
+        IDS_HEMAX_PARAMATTRIB_VALUE,
+        GetHEMAX_NodeListParameterAttrib_ClassDesc(),
+        P_AUTO_CONSTRUCT,
+        0,
+	0,
+        _T("Value"),
+        TYPE_INODE_TAB,
+        0,
+        P_SUBANIM,
+        IDS_HEMAX_PARAMATTRIB_VALUE,
+        p_end,
+        p_end);
+
+HEMAX_NodeListParameterAttrib::HEMAX_NodeListParameterAttrib()
+{
+    PBlock = nullptr;
+    GetHEMAX_NodeListParameterAttrib_ClassDesc()->MakeAutoParamBlocks(this);
+    Owner = nullptr;
+    MessagesBlocked = false;
+}
+
+void
+HEMAX_NodeListParameterAttrib::CreateMaxHoudiniAssetLink(
+        INode* Hda,
+        HEMAX_InputType InputType,
+        int Id)
+{
+    Owner = Hda;
+    this->InputType = InputType;
+
+    if (InputType == HEMAX_INPUT_PARAMETER)
+    {
+	ParameterId = Id;
+	Subnetwork = -1;
+    }
+    else if (InputType == HEMAX_INPUT_SUBNETWORK)
+    {
+	ParameterId = -1;
+	Subnetwork = Id;
+    }
+}
+
+void
+HEMAX_NodeListParameterAttrib::UpdateOwner(INode* Hda)
+{
+    Owner = Hda;
+}
+
+void
+HEMAX_NodeListParameterAttrib::SetMessagesBlocked(bool Block)
+{
+    MessagesBlocked = Block;
+}
+
+Class_ID
+HEMAX_NodeListParameterAttrib::ClassID()
+{
+    return HEMAX_NODELIST_PARAMETER_CLASS_ID;
+}
+
+RefResult
+HEMAX_NodeListParameterAttrib::NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate)
+{
+    return REF_SUCCEED;
+}
+
+#if defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
+void
+HEMAX_NodeListParameterAttrib::RefDeletedUndoRedo(RefMakerHandle oldOwner)
+{
+    Owner = nullptr;
+}
+#else
+void
+HEMAX_NodeListParameterAttrib::RefDeletedUndoRedo()
+{
+    Owner = nullptr;
+}
+#endif
+
+int
+HEMAX_NodeListParameterAttrib_ClassDesc::IsPublic()
+{
+    return 1;
+}
+
+void*
+HEMAX_NodeListParameterAttrib_ClassDesc::Create(BOOL Loading)
+{
+    return new HEMAX_NodeListParameterAttrib;
+}
+
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
+const TCHAR*
+HEMAX_NodeListParameterAttrib_ClassDesc::NonLocalizedClassName()
+{
+    return L"HEMAX_NodeListParameterAttrib_Class";
+}
+#endif
+
+const TCHAR*
+HEMAX_NodeListParameterAttrib_ClassDesc::ClassName()
+{
+    return L"HEMAX_NodeListParameterAttrib_Class";
+}
+
+SClass_ID
+HEMAX_NodeListParameterAttrib_ClassDesc::SuperClassID()
+{
+    return CUST_ATTRIB_CLASS_ID;
+}
+
+Class_ID
+HEMAX_NodeListParameterAttrib_ClassDesc::ClassID()
+{
+    return HEMAX_NODELIST_PARAMETER_CLASS_ID;
+}
+
+const TCHAR*
+HEMAX_NodeListParameterAttrib_ClassDesc::Category()
+{
+    return _T("HEMAX_CustAttrib");
+}
+
+const TCHAR*
+HEMAX_NodeListParameterAttrib_ClassDesc::InternalName()
+{
+    return L"HEMAX_NodeListParameterAttrib";
+}
+
+HINSTANCE
+HEMAX_NodeListParameterAttrib_ClassDesc::HInstance()
 {
     return hInstance;
 }

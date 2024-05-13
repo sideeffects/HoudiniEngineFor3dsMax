@@ -14,6 +14,7 @@ class HEMAX_3dsmaxHda;
 #define HEMAX_FLOAT_PARAMETER_CLASS_ID Class_ID(0x1cc16359, 0x4f631900)
 #define HEMAX_TOGGLE_PARAMETER_CLASS_ID Class_ID(0x733f2108, 0x7fe243e4)
 #define HEMAX_NODE_PARAMETER_CLASS_ID Class_ID(0x25c53c03, 0x54841d80)
+#define HEMAX_NODELIST_PARAMETER_CLASS_ID Class_ID(0x38ea47c6, 0x588a36df)
 #define HEMAX_MULTIPARAMETER_CLASS_ID Class_ID(0xfab4b50, 0xb7076c)
 
 #define HEMAX_PARAMETER_ATTRIB_NAME_LENGTH 900
@@ -68,6 +69,7 @@ ClassDesc2* GetHEMAX_StringParameterAttrib_ClassDesc();
 ClassDesc2* GetHEMAX_FloatParameterAttrib_ClassDesc();
 ClassDesc2* GetHEMAX_ToggleParameterAttrib_ClassDesc();
 ClassDesc2* GetHEMAX_NodeParameterAttrib_ClassDesc();
+ClassDesc2* GetHEMAX_NodeListParameterAttrib_ClassDesc();
 ClassDesc2* GetHEMAX_MultiParameterAttrib_ClassDesc();
 
 class HEMAX_ParameterAttrib : public CustAttrib
@@ -268,6 +270,53 @@ class HEMAX_NodeParameterAttrib : public HEMAX_ParameterAttrib
 };
 
 class HEMAX_NodeParameterAttrib_ClassDesc : public ClassDesc2
+{
+    public:
+
+	int IsPublic();
+	void* Create(BOOL Loading);
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
+        const TCHAR* NonLocalizedClassName();
+#endif
+	const TCHAR* ClassName();
+	SClass_ID SuperClassID();
+	Class_ID ClassID();
+	const TCHAR* Category();
+	const TCHAR* InternalName();
+	HINSTANCE HInstance();
+};
+
+class HEMAX_NodeListParameterAttrib : public HEMAX_ParameterAttrib
+{
+    public:
+
+	HEMAX_NodeListParameterAttrib();
+	void CreateMaxHoudiniAssetLink(INode* Hda, HEMAX_InputType InputType, int Id);
+	void UpdateOwner(INode* Hda);
+	void SetMessagesBlocked(bool Block);
+	Class_ID ClassID();
+	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+
+#if defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
+        void RefDeletedUndoRedo(RefMakerHandle oldOwner) override;
+#else
+	void RefDeletedUndoRedo() override;
+#endif
+
+    private:
+	INode* Owner;
+	HEMAX_InputType InputType;
+	int ParameterId;
+	int Subnetwork;
+	bool MessagesBlocked;
+
+};
+
+class HEMAX_NodeListParameterAttrib_ClassDesc : public ClassDesc2
 {
     public:
 

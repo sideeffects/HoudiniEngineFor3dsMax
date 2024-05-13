@@ -9,6 +9,7 @@ extern ClassDesc2* GetHEMAX_StringParameterAttrib_ClassDesc();
 extern ClassDesc2* GetHEMAX_FloatParameterAttrib_ClassDesc();
 extern ClassDesc2* GetHEMAX_ToggleParameterAttrib_ClassDesc();
 extern ClassDesc2* GetHEMAX_NodeParameterAttrib_ClassDesc();
+extern ClassDesc2* GetHEMAX_NodeListParameterAttrib_ClassDesc();
 extern ClassDesc2* GetHEMAX_MultiParameterAttrib_ClassDesc();
 extern ClassDesc2* GetHEMAX_GeometryPlugin_ClassDesc();
 
@@ -62,8 +63,9 @@ LibClassDesc(int i)
 	case 4: return GetHEMAX_FloatParameterAttrib_ClassDesc(); break;
 	case 5: return GetHEMAX_ToggleParameterAttrib_ClassDesc(); break;
 	case 6: return GetHEMAX_NodeParameterAttrib_ClassDesc(); break;
-	case 7: return GetHEMAX_MultiParameterAttrib_ClassDesc(); break;
-	case 8: return GetHEMAX_GeometryPlugin_ClassDesc(); break;
+        case 7: return GetHEMAX_NodeListParameterAttrib_ClassDesc(); break;
+	case 8: return GetHEMAX_MultiParameterAttrib_ClassDesc(); break;
+	case 9: return GetHEMAX_GeometryPlugin_ClassDesc(); break;
 	default: return 0;
     }
 }
