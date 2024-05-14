@@ -61,7 +61,7 @@ mkdir build-3dsmax &&
 cd build-3dsmax &&
 cmake \
     -DHOUDINI_ENGINE_ROOT="C:/Program Files/Side Effects Software/Houdini 19.0.531" \
-    -D3DSMAX_QT_PLATOFRM_PATH="C:/Qt/5.12.5/msvc2017_64" \
+    -D3DSMAX_QT_PLATFORM_PATH="C:/Qt/5.12.5/msvc2017_64" \
     -D3DSMAX_SDK_PATH="C:/Program Files/Autodesk/3ds Max 2021 SDK" \
     -DHEMAX_VERSION=2021 \
     -D3DSMAX_WINDOWS_ADK_VERSION="10.0.17134.0" \
