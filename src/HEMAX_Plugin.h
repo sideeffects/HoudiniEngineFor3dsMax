@@ -63,7 +63,10 @@ class HEMAX_Plugin : public TimeChangeCallback
 	void LoadNewAsset(std::string Path);
 	void CreateGeometryHDA(std::string Path);
 	HEMAX_GeometryHda* CreateGeometryHDA(std::string Path, int AssetIndex);
-	HEMAX_ModifierHda* CreateModifierHDA(INode* Node, std::string Path, int AssetIndex);
+	HEMAX_ModifierHda* CreateModifierHDA(
+                INode* Node,
+                std::string Path,
+                int AssetIndex);
 	void CreateModifierHDAs(std::string Path);
 	INode* CloneHda(HEMAX_3dsmaxHda* MaxHda);
 	Modifier* CopyHdaToNode(HEMAX_3dsmaxHda* MaxHda, INode* Node);
@@ -96,20 +99,40 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	void DirtyEditableNodes(ULONG ContainerNodeHandle);
 
-	void HandleParameterInputCleared(HEMAX_Node* Node,
-                                         HEMAX_Parameter Parameter,
-                                         bool UpdateHda = true);
-	void HandleParameterInputSelection(HEMAX_Node* Node, HEMAX_Parameter Parameter, INode* InputNodeToUse = nullptr);
-	void HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork,
-                                          bool UpdateHda = true);
-	void HandleSubnetworkInputSelection(HEMAX_Node* Node, int Subnetwork, INode* InputNodeToUse = nullptr);
+	void HandleParameterInputCleared(
+            HEMAX_Node* Node,
+            HEMAX_Parameter Parameter,
+            bool UpdateHda = true);
+	void HandleParameterInputSelection(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter,
+                INode* InputNodeToUse = nullptr);
+	void HandleSubnetworkInputCleared(
+                HEMAX_Node* Node, int Subnetwork,
+                bool UpdateHda = true);
+	void HandleSubnetworkInputSelection(
+                HEMAX_Node* Node,
+                int Subnetwork,
+                INode* InputNodeToUse = nullptr);
 
 	void HandleRecookRequest(HEMAX_Node* Node);
 	void ReloadAssetDefinition(HEMAX_Node* Node);
-	void HandleParameterIntValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<int> IntValues);
-	void HandleParameterFloatValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<float> FloatValues);
-	void HandleParameterStringValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<std::string> StringValues);
-	void HandleMultiParameterUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, HEMAX_MultiParameterChangeInfo ChangeInfo);
+	void HandleParameterIntValuesUpdate(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter,
+                std::vector<int> IntValues);
+	void HandleParameterFloatValuesUpdate(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter,
+                std::vector<float> FloatValues);
+	void HandleParameterStringValuesUpdate(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter,
+                std::vector<std::string> StringValues);
+	void HandleMultiParameterUpdate(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter,
+                HEMAX_MultiParameterChangeInfo ChangeInfo);
 
 	bool RemoveAsset(std::string AssetPath);
 
@@ -133,22 +156,36 @@ class HEMAX_Plugin : public TimeChangeCallback
 	void ReconnectAllStrandedHdas(INode* StartingNode);
 	void ModifierDive(IDerivedObject* DerivedObject, INode* StartingNode);
 
-	void ReengageModifierHda(INode* Node, HEMAX_Modifier* Modifier, ICustAttribContainer* CustAttribs);
-	void ReengageGeometryHda(INode* Node, ICustAttribContainer* CustAttribs);
+	void ReengageModifierHda(
+                INode* Node,
+                HEMAX_Modifier* Modifier,
+                ICustAttribContainer* CustAttribs);
+	void ReengageGeometryHda(
+                INode* Node,
+                ICustAttribContainer* CustAttribs);
 
-	std::unordered_map<INode*, std::vector<HEMAX_ReferenceMaker*>> EditableCurveReferences;
+	std::unordered_map<INode*,
+            std::vector<HEMAX_ReferenceMaker*>> EditableCurveReferences;
 
 	void ConstructReferencesForEditableCurve(HEMAX_GeometryHda* GeoHda);
 	void RemoveReferencesForEditableCurve(INode* Node);
 
 	void DestroyAllEditableNodeReferences();
 
-	void Clear3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda,
-                                          HEMAX_Parameter* Parameter);
-	HEMAX_3dsMaxInput* Set3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* Parameter, INode* InputNodeToUse);
+	void Clear3dsmaxHdaParameterInput(
+                HEMAX_3dsmaxHda* Hda,
+                HEMAX_Parameter* Parameter);
+	HEMAX_3dsMaxInput* Set3dsmaxHdaParameterInput(
+                HEMAX_3dsmaxHda* Hda,
+                HEMAX_Parameter* Parameter,
+                INode* InputNodeToUse);
 
-	void Clear3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork);
-	HEMAX_3dsMaxInput* Set3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork, INode* InputNodeToUse);
+	void Clear3dsmaxHdaSubnetworkInput(
+                HEMAX_3dsmaxHda* Hda, int Subnetwork);
+	HEMAX_3dsMaxInput* Set3dsmaxHdaSubnetworkInput(
+                HEMAX_3dsmaxHda* Hda,
+                int Subnetwork,
+                INode* InputNodeToUse);
 
 	void RefreshInputConnections(HEMAX_3dsmaxHda* Hda);
 	void UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda);

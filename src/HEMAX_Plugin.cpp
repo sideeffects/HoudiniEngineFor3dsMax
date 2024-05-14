@@ -834,7 +834,10 @@ HEMAX_Plugin::ModifierDive(IDerivedObject* DerivedObject, INode* StartingNode)
 }
 
 void
-HEMAX_Plugin::ReengageModifierHda(INode* Node, HEMAX_Modifier* Modifier, ICustAttribContainer* CustAttribs)
+HEMAX_Plugin::ReengageModifierHda(
+        INode* Node,
+        HEMAX_Modifier* Modifier,
+        ICustAttribContainer* CustAttribs)
 {
     if (CustAttribs)
     {
@@ -914,7 +917,9 @@ HEMAX_Plugin::ReengageModifierHda(INode* Node, HEMAX_Modifier* Modifier, ICustAt
 }
 
 void
-HEMAX_Plugin::ReengageGeometryHda(INode* Node, ICustAttribContainer* CustAttribs)
+HEMAX_Plugin::ReengageGeometryHda(
+        INode* Node, 
+        ICustAttribContainer* CustAttribs)
 {
     CustAttrib* AssetPathAttrib = CustAttribs->GetCustAttrib(
                                     HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX);
@@ -1214,7 +1219,10 @@ HEMAX_Plugin::HandleParameterInputCleared(HEMAX_Node* Node,
 }
 
 void
-HEMAX_Plugin::HandleParameterInputSelection(HEMAX_Node* Node, HEMAX_Parameter Parameter, INode* InputNodeToUse)
+HEMAX_Plugin::HandleParameterInputSelection(
+        HEMAX_Node* Node,
+        HEMAX_Parameter Parameter,
+        INode* InputNodeToUse)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1233,8 +1241,10 @@ HEMAX_Plugin::HandleParameterInputSelection(HEMAX_Node* Node, HEMAX_Parameter Pa
 }
 
 void
-HEMAX_Plugin::HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork,
-                                           bool UpdateHda)
+HEMAX_Plugin::HandleSubnetworkInputCleared(
+        HEMAX_Node* Node,
+        int Subnetwork,
+        bool UpdateHda)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1252,7 +1262,10 @@ HEMAX_Plugin::HandleSubnetworkInputCleared(HEMAX_Node* Node, int Subnetwork,
 }
 
 void
-HEMAX_Plugin::HandleSubnetworkInputSelection(HEMAX_Node* Node, int Subnetwork, INode* InputNodeToUse)
+HEMAX_Plugin::HandleSubnetworkInputSelection(
+        HEMAX_Node* Node, 
+        int Subnetwork,
+        INode* InputNodeToUse)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1271,7 +1284,9 @@ HEMAX_Plugin::HandleSubnetworkInputSelection(HEMAX_Node* Node, int Subnetwork, I
 }
 
 void
-HEMAX_Plugin::Clear3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* Parameter)
+HEMAX_Plugin::Clear3dsmaxHdaParameterInput(
+        HEMAX_3dsmaxHda* Hda,
+        HEMAX_Parameter* Parameter)
 {
     if (Hda)
     {
@@ -1304,7 +1319,10 @@ HEMAX_Plugin::Clear3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter
 }
 
 HEMAX_3dsMaxInput*
-HEMAX_Plugin::Set3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* Parameter, INode* InputNodeToUse)
+HEMAX_Plugin::Set3dsmaxHdaParameterInput(
+        HEMAX_3dsmaxHda* Hda,
+        HEMAX_Parameter* Parameter,
+        INode* InputNodeToUse)
 {
     HEMAX_3dsMaxInput* MaxInput = nullptr;
 
@@ -1372,7 +1390,9 @@ HEMAX_Plugin::Set3dsmaxHdaParameterInput(HEMAX_3dsmaxHda* Hda, HEMAX_Parameter* 
 }
 
 void
-HEMAX_Plugin::Clear3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork)
+HEMAX_Plugin::Clear3dsmaxHdaSubnetworkInput(
+        HEMAX_3dsmaxHda* Hda,
+        int Subnetwork)
 {
     if (Hda)
     {
@@ -1408,7 +1428,10 @@ HEMAX_Plugin::Clear3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork
 }
 
 HEMAX_3dsMaxInput*
-HEMAX_Plugin::Set3dsmaxHdaSubnetworkInput(HEMAX_3dsmaxHda* Hda, int Subnetwork, INode* InputNodeToUse)
+HEMAX_Plugin::Set3dsmaxHdaSubnetworkInput(
+        HEMAX_3dsmaxHda* Hda,
+        int Subnetwork,
+        INode* InputNodeToUse)
 {
     HEMAX_3dsMaxInput* MaxInput = nullptr;
 
@@ -1774,7 +1797,10 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 }
 
 void
-HEMAX_Plugin::HandleParameterIntValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<int> IntValues)
+HEMAX_Plugin::HandleParameterIntValuesUpdate(
+        HEMAX_Node* Node,
+        HEMAX_Parameter Parameter,
+        std::vector<int> IntValues)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1791,7 +1817,10 @@ HEMAX_Plugin::HandleParameterIntValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter P
 }
 
 void
-HEMAX_Plugin::HandleParameterFloatValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<float> FloatValues)
+HEMAX_Plugin::HandleParameterFloatValuesUpdate(
+        HEMAX_Node* Node,
+        HEMAX_Parameter Parameter,
+        std::vector<float> FloatValues)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1808,7 +1837,10 @@ HEMAX_Plugin::HandleParameterFloatValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter
 }
 
 void
-HEMAX_Plugin::HandleParameterStringValuesUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, std::vector<std::string> StringValues)
+HEMAX_Plugin::HandleParameterStringValuesUpdate(
+        HEMAX_Node* Node,
+        HEMAX_Parameter Parameter,
+        std::vector<std::string> StringValues)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
@@ -1825,7 +1857,10 @@ HEMAX_Plugin::HandleParameterStringValuesUpdate(HEMAX_Node* Node, HEMAX_Paramete
 }
 
 void
-HEMAX_Plugin::HandleMultiParameterUpdate(HEMAX_Node* Node, HEMAX_Parameter Parameter, HEMAX_MultiParameterChangeInfo ChangeInfo)
+HEMAX_Plugin::HandleMultiParameterUpdate(
+        HEMAX_Node* Node,
+        HEMAX_Parameter Parameter,
+        HEMAX_MultiParameterChangeInfo ChangeInfo)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
