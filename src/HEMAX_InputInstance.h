@@ -3,14 +3,39 @@
 #include "HEMAX_3dsMaxInput.h"
 #include "HEMAX_InputMerge.h"
 
+#include <vector>
+
 struct HEMAX_InputInstance
 {
-    HEMAX_InputInstance();
-    HEMAX_InputInstance(HEMAX_3dsMaxInput* Input, HEMAX_InputMerge* Merge);
-    ~HEMAX_InputInstance();
+    HEMAX_InputInstance(
+            const std::vector<HEMAX_3dsMaxInput*>& Inputs,
+            HEMAX_InputMerge* Merge)
+        : MergeNode(Merge)
+    {
+        for (auto&& Input : Inputs)
+            MaxInputs.push_back(Input);
+    }
 
-    void RefreshConnection();
+    ~HEMAX_InputInstance()
+    {
+    }
 
-    HEMAX_3dsMaxInput* MaxInput;
-    HEMAX_InputMerge* MergeNode;
+    void RefreshConnection()
+    {
+        if (MergeNode)
+        {
+            MergeNode->RemoveAllMergedInputs();
+
+            for (auto&& Input : MaxInputs)
+            {
+                if (!Input)
+                    continue;
+
+                MergeNode->MergeInput(*(Input->GetInputNode()));    
+            }
+        }
+    }
+
+    std::vector<HEMAX_3dsMaxInput*> MaxInputs;
+    HEMAX_InputMerge* MergeNode = nullptr;
 };

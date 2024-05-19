@@ -10,19 +10,18 @@
 class HEMAX_InputMerge
 {
     public:
-	HEMAX_InputMerge(HEMAX_MaxTransform Transform);
+        HEMAX_InputMerge();
 	~HEMAX_InputMerge();
 
-	void PushMaxTransform(HEMAX_MaxTransform NewTransform);
-
-	void RemoveAllMergedInputs();
 	void MergeInput(HEMAX_Input& InputNode);
+        void MergeInputRelativeTo(
+                HEMAX_Input& InputNode,
+                const HEMAX_MaxTransform& MaxTransform);
+	void RemoveAllMergedInputs();
 
 	HEMAX_Node& GetMergedInputs();
 
     private:
 	HEMAX_Node Node;
-	HEMAX_MaxTransform Transform;
-
-	int MergeCount;
+	int MergeCount = 0;
 };

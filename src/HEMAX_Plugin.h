@@ -4,8 +4,8 @@
 #include "HEMAX_Store.h"
 #include "HEMAX_Asset.h"
 #include "HEMAX_Input.h"
-#include "HEMAX_ModifierAsset.h"
 #include "HEMAX_Shelf.h"
+#include "HEMAX_Modifier.h"
 
 #pragma warning(push, 0)
 #include <notify.h>
@@ -86,6 +86,13 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	ULONG DetermineInputNodeSelection(HEMAX_3dsmaxHda* Hda);
 
+        // InputNodes is an output variable where all of the selected input
+        // nodes will be stored. This method will first clear the contents of
+        // InputNodes before adding the input nodes.
+        void GetSelectedInputNodes(
+                const HEMAX_3dsmaxHda* Hda,
+                INodeTab& InputNodes);
+
 	HEMAX_3dsMaxInput* Create3dsMaxInput(ULONG InputNode);
 
 	std::string GetNodeName(ULONG Node);
@@ -103,17 +110,24 @@ class HEMAX_Plugin : public TimeChangeCallback
             HEMAX_Node* Node,
             HEMAX_Parameter Parameter,
             bool UpdateHda = true);
-	void HandleParameterInputSelection(
+        void HandleParameterInputSelection(
+                HEMAX_Node* Node,
+                HEMAX_Parameter Parameter);
+        void HandleParameterInputSelection(
                 HEMAX_Node* Node,
                 HEMAX_Parameter Parameter,
-                INode* InputNodeToUse = nullptr);
+                const INodeTab& InputNodesToUse);
+
 	void HandleSubnetworkInputCleared(
                 HEMAX_Node* Node, int Subnetwork,
                 bool UpdateHda = true);
-	void HandleSubnetworkInputSelection(
+        void HandleSubnetworkInputSelection(
+                HEMAX_Node* Node,
+                int Subnetwork);
+        void HandleSubnetworkInputSelection(
                 HEMAX_Node* Node,
                 int Subnetwork,
-                INode* InputNodeToUse = nullptr);
+                const INodeTab& InputNodesToUse);
 
 	void HandleRecookRequest(HEMAX_Node* Node);
 	void ReloadAssetDefinition(HEMAX_Node* Node);
@@ -172,20 +186,20 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	void DestroyAllEditableNodeReferences();
 
+	void Set3dsmaxHdaParameterInput(
+                HEMAX_3dsmaxHda* Hda,
+                HEMAX_Parameter* Parameter,
+                const INodeTab& InputNodesToUse);
 	void Clear3dsmaxHdaParameterInput(
                 HEMAX_3dsmaxHda* Hda,
                 HEMAX_Parameter* Parameter);
-	HEMAX_3dsMaxInput* Set3dsmaxHdaParameterInput(
-                HEMAX_3dsmaxHda* Hda,
-                HEMAX_Parameter* Parameter,
-                INode* InputNodeToUse);
 
-	void Clear3dsmaxHdaSubnetworkInput(
-                HEMAX_3dsmaxHda* Hda, int Subnetwork);
-	HEMAX_3dsMaxInput* Set3dsmaxHdaSubnetworkInput(
+	void Set3dsmaxHdaSubnetworkInput(
                 HEMAX_3dsmaxHda* Hda,
                 int Subnetwork,
-                INode* InputNodeToUse);
+                const INodeTab& InputNodesToUse);
+        void Clear3dsmaxHdaSubnetworkInput(
+                HEMAX_3dsmaxHda* Hda, int Subnetwork);
 
 	void RefreshInputConnections(HEMAX_3dsmaxHda* Hda);
 	void UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda);

@@ -498,10 +498,13 @@ SetGeometryHdaInput_cf(Value** ArgList, int Count)
 	    {
                 if (InputNode)
                 {
+                    // TODO: mutli input
+                    /*
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
                                                        Subnetwork,
                                                        InputNode);
+                    */
                 }
                 else if (ClearInput)
                 {
@@ -563,10 +566,13 @@ SetModifierHdaInput_cf(Value** ArgList, int Count)
 	    {
                 if (InputNode)
                 {
+                    // TODO: multi input
+                    /*
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
                                                        Subnetwork,
-                                                       InputNode);		   
+                                                       InputNode);
+                    */
                 }
                 else if (ClearInput)
                 {
@@ -623,10 +629,13 @@ SetGeometryHdaOpParmInput_cf(Value** ArgList, int Count)
 	    {
                 if (InputNode)
                 {
+                    // TODO: multi input
+                    /*
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleParameterInputSelection(&Hda->Hda.MainNode,
                                                       *Parm,
-                                                      InputNode);		  
+                                                      InputNode);
+                    */
                 }
                 else if (ClearInput)
                 {
@@ -679,10 +688,13 @@ SetModifierHdaOpParmInput_cf(Value** ArgList, int Count)
 	    {
                 if (InputNode)
                 {
+                    // TODO: multi input
+                    /*
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleParameterInputSelection(&Hda->Hda.MainNode,
                                                       *Parm,
                                                       InputNode);
+                    */
                 }
                 else if (ClearInput)
                 {
@@ -1052,9 +1064,10 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
         if (!InputInst)
             return &undefined;
 
+        // TODO: multi input
         INode* InputNode =
             GetCOREInterface()->GetINodeByHandle(
-                InputInst->MaxInput->Get3dsMaxNodeHandle());
+                InputInst->MaxInputs[0]->Get3dsMaxNodeHandle());
 
         if (InputNode)
         {
@@ -1269,7 +1282,8 @@ HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda, HEMAX_Paramet
 	} break;
 	case HEMAX_MS_ARG_NODE_TYPE:
 	{
-	    HEMAX_MaxScriptInterface::PluginInstance->HandleParameterInputSelection(&MaxHda.Hda.MainNode, Parm, ArgList[StartIndex]->to_node());
+            // TODO: multi input
+	    //HEMAX_MaxScriptInterface::PluginInstance->HandleParameterInputSelection(&MaxHda.Hda.MainNode, Parm, ArgList[StartIndex]->to_node());
 	}
 	default:
 	{

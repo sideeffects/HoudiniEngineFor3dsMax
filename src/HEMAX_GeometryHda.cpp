@@ -1477,7 +1477,8 @@ HEMAX_GeometryHda::GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda)
     // Make custom attributes for the sub-network inputs
     for (int s = 0; s < Hda.MainNode.Info.inputCount; ++s)
     {
-	HEMAX_NodeParameterAttrib* InputCustAttrib = new HEMAX_NodeParameterAttrib;
+	HEMAX_NodeListParameterAttrib* InputCustAttrib =
+            new HEMAX_NodeListParameterAttrib;
 	InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
 	InputCustAttrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK, s);
 	CustomAttributes->AppendCustAttrib(InputCustAttrib);

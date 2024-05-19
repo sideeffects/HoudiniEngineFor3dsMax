@@ -94,8 +94,9 @@ HEMAX_Utilities::HAPITransformToHAPITransformEuler(HAPI_Transform& Transform,
 }
 
 HAPI_Transform
-HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform,
-                    HAPI_RSTOrder RSTOrder)
+HEMAX_Utilities::MaxTransformToHAPITransform(
+        const HEMAX_MaxTransform& Transform,
+        const HAPI_RSTOrder RSTOrder)
 {
     HAPI_Transform HAPITransform;
 
@@ -122,8 +123,9 @@ HEMAX_Utilities::MaxTransformToHAPITransform(HEMAX_MaxTransform& Transform,
 }
 
 HAPI_TransformEuler
-HEMAX_Utilities::MaxTransformToHAPITransformEuler(HEMAX_MaxTransform& Transform,
-        HAPI_RSTOrder RSTOrder)
+HEMAX_Utilities::MaxTransformToHAPITransformEuler(
+        const HEMAX_MaxTransform& Transform,
+        const HAPI_RSTOrder RSTOrder)
 {
     HAPI_Transform HapiXform = MaxTransformToHAPITransform(Transform, RSTOrder);
     return HAPITransformToHAPITransformEuler(HapiXform, RSTOrder);

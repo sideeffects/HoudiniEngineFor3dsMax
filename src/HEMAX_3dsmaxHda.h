@@ -11,17 +11,18 @@
 #pragma warning(pop)
 
 #include <unordered_map>
+#include <vector>
 
 struct HEMAX_SubnetworkInputMapping
 {
     int Subnetwork;
-    INode* Node;
+    std::vector<INode*> Nodes;
 };
 
 struct HEMAX_ParameterInputMapping
 {
-    std::string ParameterName;
-    INode* Node;
+    std::string ParameterName = "";
+    std::vector<INode*> Nodes;
 };
 
 class HEMAX_3dsmaxHda
@@ -54,21 +55,26 @@ class HEMAX_3dsmaxHda
 	void UpdateAllCustomAttributes();
 	void ClearParameterCustomAttributes();
 
-	void UpdateIntCustomAttribute(HEMAX_Parameter& Parameter, std::vector<int>& IntValues);
+	void UpdateIntCustomAttribute(
+                HEMAX_Parameter& Parameter, std::vector<int>& IntValues);
+	void UpdateFloatCustomAttribute(
+                HEMAX_Parameter& Parameter, std::vector<float>& FloatValues);
+	void UpdateStringCustomAttribute(
+                HEMAX_Parameter& Parameter,
+                std::vector<std::string>& StringValues);
+	void UpdateToggleCustomAttribute(
+                HEMAX_Parameter& Parameter, std::vector<int>& ToggleValues);
+	void UpdateInputNodeCustomAttribute(
+                HEMAX_Parameter& Parameter,
+                const INodeTab& InputNodes);
+        void UpdateSubnetworkCustomAttribute(
+                int Subnetwork,
+                const INodeTab& InputNodes);
 
-	void UpdateFloatCustomAttribute(HEMAX_Parameter& Parameter, std::vector<float>& FloatValues);
-
-	void UpdateStringCustomAttribute(HEMAX_Parameter& Parameter, std::vector<std::string>& StringValues);
-
-	void UpdateToggleCustomAttribute(HEMAX_Parameter& Parameter, std::vector<int>& ToggleValues);
-
-	void UpdateInputNodeCustomAttribute(HEMAX_Parameter& Parameter, HEMAX_Input* InputNode);
-
-	void UpdateSubnetworkCustomAttribute(int Subnetwork, HEMAX_Input* InputNode);
-
-	std::vector<HEMAX_SubnetworkInputMapping> ReloadSubnetworkInputsFromCustomAttributes();
-
-	std::vector<HEMAX_ParameterInputMapping> ReloadParametersFromCustomAttributes();
+	std::vector<HEMAX_SubnetworkInputMapping>
+            ReloadSubnetworkInputsFromCustomAttributes();
+	std::vector<HEMAX_ParameterInputMapping> 
+            ReloadParametersFromCustomAttributes();
 
 	std::string GetHardcodedHdaAssetPath();
 
@@ -88,21 +94,36 @@ class HEMAX_3dsmaxHda
 
 	void InitializeSubnetworks();
 
-	void RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	void RemakeIntParameterFromCustAttrib(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	void RemakeStringParameterFromCustAttrib(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	void RemakeFloatParameterFromCustAttrib(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	void RemakeToggleParameterFromCustAttrib(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	HEMAX_ParameterInputMapping RemakeInputParameterFromCustAttrib(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	void RemakeMultiParameter(
+                HEMAX_Parameter Parameter,
+                std::unordered_map<
+                    std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
 
-	void RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
+	ICustAttribContainer* GetCustAttribContainer()
+                              { return CustomAttributes; }
 
-	void RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
-
-	void RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
-
-	HEMAX_ParameterInputMapping RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
-
-	void RemakeMultiParameter(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap);
-
-	ICustAttribContainer* GetCustAttribContainer();
-
-	std::unordered_map<std::string, HEMAX_ParameterAttrib*>* GetCustAttribMap();
+	std::unordered_map<std::string, HEMAX_ParameterAttrib*>*
+                GetCustAttribMap() { return &CustomAttributeMap; }
 
 	ICustAttribContainer* CustomAttributes;
 	std::unordered_map<std::string, HEMAX_ParameterAttrib*> CustomAttributeMap;

@@ -83,14 +83,10 @@ HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
     HEMAX_InputInstance* ParameterInput = FindParameterInput(ParamId);
     HEMAX_Parameter* Parameter = Hda.MainNode.GetParameter(ParamId);
 
-    if (ParameterInput)
+    if (ParameterInput && ParameterInput->MergeNode)
     {
-	InputNode = ParameterInput->MaxInput->GetInputNode();
-
-	if (ParameterInput->MergeNode)
-	{
-	    Parameter->UpdateInputNode(ParameterInput->MergeNode->GetMergedInputs().Info.id);
-	}
+	Parameter->UpdateInputNode(
+            ParameterInput->MergeNode->GetMergedInputs().Info.id);
     }
 }
 
@@ -135,7 +131,6 @@ HEMAX_3dsmaxHda::UpdateSubnetworkInput(int Subnetwork)
     {
 	if (SubnetworkNodeInputs[Subnetwork]->MergeNode)
 	{
-	    InputNode = SubnetworkNodeInputs[Subnetwork]->MaxInput->GetInputNode();
 	    HEMAX_Node HapiInputNode = SubnetworkNodeInputs[Subnetwork]->MergeNode->GetMergedInputs();
 	    Hda.MainNode.ConnectInputNode(HapiInputNode.Info.id, Subnetwork);
 	}
@@ -323,7 +318,8 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 	    } break;
 	    case (HAPI_PARMTYPE_NODE):
 	    {
-		HEMAX_NodeParameterAttrib* ParamCustAttrib = new HEMAX_NodeParameterAttrib;
+		HEMAX_NodeListParameterAttrib* ParamCustAttrib =
+                    new HEMAX_NodeListParameterAttrib;
 		ParamCustAttrib->SetParameterName(Parameter->GetName());
 		CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
 		CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
@@ -355,7 +351,13 @@ HEMAX_3dsmaxHda::UpdateAllCustomAttributes()
 	if (InputIter->second)
 	{
 	    HEMAX_Parameter* TheParameter = Hda.MainNode.GetParameter(InputIter->first);
-	    UpdateInputNodeCustomAttribute(*TheParameter, InputIter->second->MaxInput->GetInputNode());
+            INodeTab InputNodes;
+            for (auto&& Input : InputIter->second->MaxInputs)
+            {
+                InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                    Input->Get3dsMaxNodeHandle()));
+            }
+	    UpdateInputNodeCustomAttribute(*TheParameter, InputNodes);
 	}
     }
 
@@ -559,84 +561,95 @@ HEMAX_3dsmaxHda::UpdateToggleCustomAttribute(HEMAX_Parameter& Parameter, std::ve
 }
 
 void
-HEMAX_3dsmaxHda::UpdateInputNodeCustomAttribute(HEMAX_Parameter& Parameter, HEMAX_Input* InputNode)
+HEMAX_3dsmaxHda::UpdateInputNodeCustomAttribute(
+        HEMAX_Parameter& Parameter,
+        const INodeTab& InputNodes)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
-    std::string ParameterName = Parameter.GetName();
-    auto Search = CustomAttributeMap->find(ParameterName);
+    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
+        GetCustAttribMap();
+    std::string ParmName = Parameter.GetName();
+    
+    auto Search = CustAttribMap->find(ParmName);
 
-    if (Search != CustomAttributeMap->end())
+    if (Search == CustAttribMap->end())
+        return;
+
+    HEMAX_NodeListParameterAttrib* Attrib =
+        dynamic_cast<HEMAX_NodeListParameterAttrib*>(Search->second);
+
+    if (!Attrib)
+        return;
+
+    Attrib->SetMessagesBlocked(true);
+    Attrib->PBlock->ZeroCount(0);
+
+    for (int i = 0; i < InputNodes.Count(); ++i)
     {
-	if (InputNode)
-	{
-	    INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(InputNode->GetMaxNodeHandle());
-	    HEMAX_NodeParameterAttrib* NodeParameterAttribute = (HEMAX_NodeParameterAttrib*)Search->second;
-	    NodeParameterAttribute->SetMessagesBlocked(true);
-	    NodeParameterAttribute->PBlock->SetValue(0, GetCOREInterface()->GetTime(), MaxInputNode);
-	    NodeParameterAttribute->SetMessagesBlocked(false);
-	}
-	else
-	{
-	    INode* NullNode = nullptr;
-	    HEMAX_NodeParameterAttrib* NodeParameterAttribute = (HEMAX_NodeParameterAttrib*)Search->second;
-	    NodeParameterAttribute->SetMessagesBlocked(true);
-	    NodeParameterAttribute->PBlock->SetValue(0, GetCOREInterface()->GetTime(), NullNode);
-	    NodeParameterAttribute->SetMessagesBlocked(false);
-	}
+        Attrib->PBlock->Append(0, 1, &InputNodes[i]);
     }
+
+    Attrib->SetMessagesBlocked(false);
 }
 
 void
-HEMAX_3dsmaxHda::UpdateSubnetworkCustomAttribute(int Subnetwork, HEMAX_Input* InputNode)
+HEMAX_3dsmaxHda::UpdateSubnetworkCustomAttribute(
+        int Subnetwork,
+        const INodeTab& InputNodes)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
+        GetCustAttribMap();
     std::string SubnetworkName = "subnetwork_" + std::to_string(Subnetwork);
-    auto Search = CustomAttributeMap->find(SubnetworkName);
+    auto Search = CustAttribMap->find(SubnetworkName);
 
-    if (Search != CustomAttributeMap->end())
+    if (Search == CustAttribMap->end())
+        return;
+
+    HEMAX_NodeListParameterAttrib* Attrib =
+        dynamic_cast<HEMAX_NodeListParameterAttrib*>(Search->second);
+    
+    if (!Attrib)
+        return;
+
+    Attrib->SetMessagesBlocked(true);
+    Attrib->PBlock->ZeroCount(0);
+
+    for (int i = 0; i < InputNodes.Count(); ++i)
     {
-	if (InputNode)
-	{
-	    INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(InputNode->GetMaxNodeHandle());
-	    HEMAX_NodeParameterAttrib* NodeParameterAttribute = (HEMAX_NodeParameterAttrib*)Search->second;
-	    NodeParameterAttribute->SetMessagesBlocked(true);
-	    NodeParameterAttribute->PBlock->SetValue(0, GetCOREInterface()->GetTime(), MaxInputNode);
-	    NodeParameterAttribute->SetMessagesBlocked(false);
-	}
-	else
-	{
-	    INode* NullNode = nullptr;
-	    HEMAX_NodeParameterAttrib* NodeParameterAttribute = (HEMAX_NodeParameterAttrib*)Search->second;
-	    NodeParameterAttribute->SetMessagesBlocked(true);
-	    NodeParameterAttribute->PBlock->SetValue(0, GetCOREInterface()->GetTime(), NullNode);
-	    NodeParameterAttribute->SetMessagesBlocked(false);
-	}
+        Attrib->PBlock->Append(0, 1, &InputNodes[i]);
     }
+
+    Attrib->SetMessagesBlocked(false);
 }
 
 std::vector<HEMAX_SubnetworkInputMapping>
 HEMAX_3dsmaxHda::ReloadSubnetworkInputsFromCustomAttributes()
 {
-    ICustAttribContainer* CustAttribContainer = GetCustAttribContainer();
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
-
     std::vector<HEMAX_SubnetworkInputMapping> Mapping;
+
+    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
+        GetCustAttribMap();
 
     for (int z = 0; z < Hda.MainNode.Info.inputCount; z++)
     {
-	std::string SubnetworkSearch = "subnetwork_" + std::to_string(z);
-	auto Search = CustomAttributeMap->find(SubnetworkSearch);
+        HEMAX_SubnetworkInputMapping Entry;
+        Entry.Subnetwork = z;
 
-	if (Search != CustomAttributeMap->end())
-	{
-	    INode* InputNode = Search->second->PBlock->GetINode(0);
+        std::string SubnetworkSearch = "subnetwork_" + std::to_string(z);
+        auto Search = CustAttribMap->find(SubnetworkSearch);
 
-	    HEMAX_SubnetworkInputMapping Entry;
-	    Entry.Subnetwork = z;
-	    Entry.Node = InputNode;
+        if (Search != CustAttribMap->end())
+        {
+            for (int i = 0; i < Search->second->PBlock->Count(0); ++i)
+            {
+                INode* Node = nullptr;
+                Interval ValidityInterval;
+                Search->second->PBlock->GetValue(0, 0, Node,
+                    ValidityInterval, i);
+                Entry.Nodes.push_back(Node);
+            }
+        }
 
-	    Mapping.push_back(Entry);
-	}
+        Mapping.push_back(Entry);
     }
 
     return Mapping;
@@ -646,7 +659,8 @@ std::vector<HEMAX_ParameterInputMapping>
 HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 {
     std::vector<HEMAX_ParameterInputMapping> InputMap;
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    std::unordered_map<std::string, HEMAX_ParameterAttrib*>*
+        CustomAttributeMap = GetCustAttribMap();
 
     bool AnotherPassRequired = false;
     std::unordered_map<std::string, bool> CompletionMap;
@@ -698,8 +712,9 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 			}
 			case (HAPI_PARMTYPE_NODE):
 			{
-			    HEMAX_ParameterInputMapping InputEntry = RemakeInputParameterFromCustAttrib(Parameter, *CustomAttributeMap);
-			    if (InputEntry.Node)
+			    HEMAX_ParameterInputMapping InputEntry =
+                                RemakeInputParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+			    if (InputEntry.Nodes.size() > 0)
 			    {
 				InputMap.push_back(InputEntry);
 			    }
@@ -894,22 +909,27 @@ HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 }
 
 HEMAX_ParameterInputMapping
-HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter,
+        std::unordered_map<std::string,
+            HEMAX_ParameterAttrib*>& CustomAttributeMap)
 {
     HEMAX_ParameterInputMapping Entry;
-    Entry.Node = nullptr;
-    Entry.ParameterName = "";
 
     std::string ParameterName = Parameter.GetName();
     auto Search = CustomAttributeMap.find(ParameterName);
 
-    if (Search != CustomAttributeMap.end())
-    {
-	INode* InputNode = Search->second->PBlock->GetINode(0);
+    if (Search == CustomAttributeMap.end())
+        return Entry;
 
-	Entry.Node = InputNode;
-	Entry.ParameterName = ParameterName;
-    }
+    Entry.ParameterName = ParameterName;
+
+    for (int i = 0; i < Search->second->PBlock->Count(0); ++i)
+    {
+        INode* Node = nullptr;
+        Interval ValidityInterval;
+        Search->second->PBlock->GetValue(0, 0, Node, ValidityInterval, i);
+        Entry.Nodes.push_back(Node);
+    } 
 
     return Entry;
 }
@@ -1026,16 +1046,4 @@ void
 HEMAX_3dsmaxHda::SetCustomAttributeContainer(ICustAttribContainer* Container)
 {
     CustomAttributes = Container;
-}
-
-ICustAttribContainer*
-HEMAX_3dsmaxHda::GetCustAttribContainer()
-{
-    return CustomAttributes;
-}
-
-std::unordered_map<std::string, HEMAX_ParameterAttrib*>*
-HEMAX_3dsmaxHda::GetCustAttribMap()
-{
-    return &CustomAttributeMap;
 }

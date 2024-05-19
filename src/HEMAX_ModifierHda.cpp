@@ -152,7 +152,8 @@ HEMAX_ModifierHda::GenerateBoilerplateModifierPluginCustomAttributes(HEMAX_Modif
 	// Make custom attributes for the secondary sub-network inputs. First subnetwork input is reserved for the modifier stack input.
 	for (int s = 1; s < Hda.MainNode.Info.inputCount; s++)
 	{
-	    HEMAX_NodeParameterAttrib* InputCustAttrib = new HEMAX_NodeParameterAttrib;
+	    HEMAX_NodeListParameterAttrib* InputCustAttrib =
+                new HEMAX_NodeListParameterAttrib;
 	    InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
 	    // TODO what is this doing?
 	    //InputCustAttrib->CreateMaxHoudiniAssetLink(this, HEMAX_INPUT_SUBNETWORK, s);

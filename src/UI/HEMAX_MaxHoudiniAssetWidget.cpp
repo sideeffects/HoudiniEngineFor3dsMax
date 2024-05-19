@@ -24,6 +24,8 @@
 #include <QtGui/qmessagebox.h>
 #endif
 
+#include <sstream>
+
 HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
                                 HEMAX_Plugin* ActivePlugin)
     : Plugin(ActivePlugin)
@@ -309,51 +311,79 @@ HEMAX_MaxHoudiniAssetWidget::UpdateWidget()
 void
 HEMAX_MaxHoudiniAssetWidget::PushSubnetworkInputNames()
 {
-    if (Selection)
-    {
-	for (int i = 0; i < SubnetworkInputs.size(); i++)
-	{
-	    if (SubnetworkInputs[i])
-	    {
-		if (Selection->SubnetworkNodeInputs[i])
-		{
-		    INode* InputNode = GetCOREInterface()->GetINodeByHandle(Selection->SubnetworkNodeInputs[i]->MaxInput->Get3dsMaxNodeHandle());
-		    std::wstring WideName = InputNode->GetName();
-		    std::string InputNodeName = std::string(WideName.begin(), WideName.end());
+    if (!Selection)
+        return;
 
-		    HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(SubnetworkInputs[i]);
-		    NodePWidget->SetInputName(InputNodeName);
-		}
-	    }
-	}
+    for (int i = 0; i < SubnetworkInputs.size(); i++)
+    {
+        if (!SubnetworkInputs[i])
+            continue;
+
+        if (!Selection->SubnetworkNodeInputs[i])
+            continue;
+
+        std::wstringstream sstream;
+
+        for (auto&& Input : Selection->SubnetworkNodeInputs[i]->MaxInputs)
+        {
+            INode* Node = GetCOREInterface()->GetINodeByHandle(
+                    Input->Get3dsMaxNodeHandle());
+
+            if (sstream.str().size() > 0)
+                sstream << " ";
+
+            sstream << Node->GetName();
+        }
+
+        std::wstring WideName = sstream.str();
+        std::string InputNodesField = std::string(WideName.begin(), WideName.end());
+
+        HEMAX_ParameterWidget_Node* NodePWidget =
+            dynamic_cast<HEMAX_ParameterWidget_Node*>(SubnetworkInputs[i]);
+        NodePWidget->SetInputName(InputNodesField);
     }
 }
 
 void
 HEMAX_MaxHoudiniAssetWidget::PushParameterInputNames()
 {
-    if (Selection)
+    if (!Selection)
+        return;
+
+    for (int i = 0; i < OpParmWidgets.size(); ++i)
     {
-	for (int i = 0; i < OpParmWidgets.size(); i++)
-	{
-	    if (OpParmWidgets[i])
-	    {
-		HEMAX_ParameterWidget_Parameter* PWidget = dynamic_cast<HEMAX_ParameterWidget_Parameter*>(OpParmWidgets[i]);
-		HAPI_ParmId ParmId = PWidget->GetParameterId();
+        if (!OpParmWidgets[i])
+            continue;
 
-		auto Search = Selection->InputNodeMap.find(ParmId);
+        HEMAX_ParameterWidget_Parameter* PWidget =
+            dynamic_cast<HEMAX_ParameterWidget_Parameter*>(OpParmWidgets[i]);
+        HAPI_ParmId ParmId = PWidget->GetParameterId();
 
-		if (Search != Selection->InputNodeMap.end())
-		{
-		    INode* InputNode = GetCOREInterface()->GetINodeByHandle(Search->second->MaxInput->Get3dsMaxNodeHandle());
-		    std::wstring WideName = InputNode->GetName();
-		    std::string InputNodeName = std::string(WideName.begin(), WideName.end());
+        auto Search = Selection->InputNodeMap.find(ParmId);
 
-		    HEMAX_ParameterWidget_Node* NodePWidget = dynamic_cast<HEMAX_ParameterWidget_Node*>(PWidget);
-		    NodePWidget->SetInputName(InputNodeName);
-		}
-	    }
-	}
+        if (Search == Selection->InputNodeMap.end())
+            continue;
+
+        std::wstringstream sstream;
+
+        for (auto&& Input : Search->second->MaxInputs)
+        {
+            INode* Node = GetCOREInterface()->GetINodeByHandle(
+                Input->Get3dsMaxNodeHandle());
+
+            if (sstream.str().size() > 0)
+                sstream << " ";
+
+            sstream << Node->GetName();
+        }
+
+        std::wstring WideName = sstream.str();
+        std::string InputNodesFieldValue =
+            std::string(WideName.begin(), WideName.end());
+
+        HEMAX_ParameterWidget_Node* NodePWidget =
+            dynamic_cast<HEMAX_ParameterWidget_Node*>(PWidget);
+        NodePWidget->SetInputName(InputNodesFieldValue);
     }
 }
 

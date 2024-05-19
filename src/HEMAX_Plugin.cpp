@@ -1077,6 +1077,27 @@ HEMAX_Plugin::DetermineInputNodeSelection(HEMAX_3dsmaxHda* Hda)
     return 0;
 }
 
+void
+HEMAX_Plugin::GetSelectedInputNodes(
+        const HEMAX_3dsmaxHda* Hda,
+        INodeTab& InputNodes)
+{
+    InputNodes.ZeroCount();
+
+    int SelectedMaxNodeCount = GetCOREInterface()->GetSelNodeCount();
+    for (int i = 0; i < SelectedMaxNodeCount; ++i)
+    {
+        INode* SelectedNode = GetCOREInterface()->GetSelNode(i);
+
+        // Check that the selection is not the HDA that we are inputting to.
+        HEMAX_3dsmaxHda* SelectedAsset =
+            PluginStore->Find3dsmaxHda(SelectedNode->GetHandle());
+
+        if (!SelectedAsset || SelectedAsset != Hda)
+            InputNodes.AppendNode(SelectedNode);
+    }
+}
+
 HEMAX_3dsMaxInput*
 HEMAX_Plugin::Create3dsMaxInput(ULONG InputNode)
 {
@@ -1220,24 +1241,33 @@ HEMAX_Plugin::HandleParameterInputCleared(HEMAX_Node* Node,
 
 void
 HEMAX_Plugin::HandleParameterInputSelection(
+    HEMAX_Node* Node,
+    HEMAX_Parameter Parameter)
+{
+    INodeTab EmptyInputNodeTab;
+    HandleParameterInputSelection(Node, Parameter, EmptyInputNodeTab);
+}
+
+void
+HEMAX_Plugin::HandleParameterInputSelection(
         HEMAX_Node* Node,
         HEMAX_Parameter Parameter,
-        INode* InputNodeToUse)
+        const INodeTab& InputNodesToUse)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
-    if (Hda)
+    if (!Hda)
+        return;
+
+    Set3dsmaxHdaParameterInput(Hda, &Parameter, InputNodesToUse);
+
+    if (Node->AutoRecookOnParameterUpdate)
     {
-	HEMAX_3dsMaxInput* MaxInput = Set3dsmaxHdaParameterInput(Hda, &Parameter, InputNodeToUse);
-
-        if (Node->AutoRecookOnParameterUpdate)
-        {
-            Hda->Cook3dsmaxHda();
-            Hda->Update3dsmaxHda();
-        }
-
-	GetCOREInterface()->ForceCompleteRedraw();
+        Hda->Cook3dsmaxHda();
+        Hda->Update3dsmaxHda();
     }
+
+    GetCOREInterface()->ForceCompleteRedraw();
 }
 
 void
@@ -1263,24 +1293,107 @@ HEMAX_Plugin::HandleSubnetworkInputCleared(
 
 void
 HEMAX_Plugin::HandleSubnetworkInputSelection(
-        HEMAX_Node* Node, 
+        HEMAX_Node* Node,
+        int Subnetwork)
+{
+    INodeTab EmptyInputNodeTab;
+    HandleSubnetworkInputSelection(Node, Subnetwork, EmptyInputNodeTab);
+}
+
+void
+HEMAX_Plugin::HandleSubnetworkInputSelection(
+        HEMAX_Node* Node,
         int Subnetwork,
-        INode* InputNodeToUse)
+        const INodeTab& InputNodesToUse)
 {
     HEMAX_3dsmaxHda* Hda = PluginStore->Find3dsmaxHda(*Node);
 
-    if (Hda)
-    {
-	Set3dsmaxHdaSubnetworkInput(Hda, Subnetwork, InputNodeToUse);
+    if (!Hda)
+        return;
 
-        if (Node->AutoRecookOnParameterUpdate)
+    Set3dsmaxHdaSubnetworkInput(Hda, Subnetwork, InputNodesToUse);
+
+    if (Node->AutoRecookOnParameterUpdate)
+    {
+        Hda->Cook3dsmaxHda();
+        Hda->Update3dsmaxHda();
+    }
+
+    GetCOREInterface()->ForceCompleteRedraw();
+}
+
+void
+HEMAX_Plugin::Set3dsmaxHdaParameterInput(
+        HEMAX_3dsmaxHda* Hda,
+        HEMAX_Parameter* Parameter,
+        const INodeTab& InputNodesToUse)
+{
+    if (!Hda)
+        return;
+
+    HEMAX_InputInstance* PreviousInput =
+        Hda->FindParameterInput(Parameter->Info.id);
+
+    if (PreviousInput)
+    {
+        Clear3dsmaxHdaParameterInput(Hda, Parameter);
+        delete PreviousInput->MergeNode;
+        PreviousInput->MergeNode = nullptr;
+    }
+
+    INodeTab SelectedNodes;
+
+    if (InputNodesToUse.Count() > 0)
+        SelectedNodes = InputNodesToUse;
+    else
+        GetSelectedInputNodes(Hda, SelectedNodes);
+
+    if (SelectedNodes.Count() == 0)
+        return;
+
+    HEMAX_InputMerge* Merge = nullptr;
+    std::vector<HEMAX_3dsMaxInput*> MaxInputs;
+
+    for (int i = 0; i < SelectedNodes.Count(); ++i)
+    {
+        HEMAX_3dsMaxInput* MaxInput =
+            PluginStore->Find3dsMaxInput(SelectedNodes[i]->GetHandle());
+
+        if (!MaxInput)
         {
-            Hda->Cook3dsmaxHda();
-            Hda->Update3dsmaxHda();
+            MaxInput = Create3dsMaxInput(SelectedNodes[i]->GetHandle());
+            PluginStore->Add3dsMaxInput(MaxInput);
         }
 
-	GetCOREInterface()->ForceCompleteRedraw();
+        if (Hda->Type == HEMAX_MODIFIER_HDA)
+        {
+            HEMAX_ModifierHda* ModifierHda =
+                static_cast<HEMAX_ModifierHda*>(Hda);
+            INode* ModifierNode = ModifierHda->ContainerNode;
+            if (!Merge)
+                Merge = new HEMAX_InputMerge();
+            Merge->MergeInputRelativeTo(*MaxInput->GetInputNode(),
+                HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(
+                    ModifierNode, SelectedNodes[i]));
+        }
+        else
+        {
+            if (!Merge)
+                Merge = new HEMAX_InputMerge();
+            Merge->MergeInput(*MaxInput->GetInputNode());
+        }
+        
+        MaxInputs.push_back(MaxInput); 
+        MaxInput->IncrementInputCount();
+        MaxInput->AddParameterUsage(Hda->Hda.MainNode, Parameter->GetName());
     }
+
+    HEMAX_InputInstance* InputInstance =
+        new HEMAX_InputInstance(MaxInputs, Merge);
+    Hda->SetParameterInput(Parameter->Info.id, InputInstance);
+    Hda->UpdateParameterInputNode(Parameter->Info.id);
+
+    Hda->UpdateInputNodeCustomAttribute(*Parameter, SelectedNodes);
 }
 
 void
@@ -1288,206 +1401,97 @@ HEMAX_Plugin::Clear3dsmaxHdaParameterInput(
         HEMAX_3dsmaxHda* Hda,
         HEMAX_Parameter* Parameter)
 {
-    if (Hda)
+    if (!Hda)
+        return;
+
+    HEMAX_InputInstance* Input = Hda->FindParameterInput(Parameter->Info.id);
+
+    if (!Input)
+        return;
+
+    delete Input->MergeNode;
+    Input->MergeNode = nullptr;
+
+    Hda->ClearParameterInputNode(Parameter->Info.id);
+    Parameter->UpdateInputNode(-1);
+    Hda->UpdateParameterInputNode(Parameter->Info.id);
+    INodeTab NoInputNodes;
+    Hda->UpdateInputNodeCustomAttribute(*Parameter, NoInputNodes);
+
+    for (auto&& MaxInput : Input->MaxInputs)
     {
-	HEMAX_InputInstance* OldInput = Hda->FindParameterInput(Parameter->Info.id);
-	ULONG OldInputHandle = -1;
+        if (!MaxInput)
+            continue;
 
-	if (OldInput)
-	{
-	    OldInputHandle = OldInput->MaxInput->Get3dsMaxNodeHandle();
-	    delete OldInput->MergeNode;
-	    OldInput->MergeNode = nullptr;
-	}
+        MaxInput->DecrementInputCount();
+        MaxInput->RemoveParameterUsage(Hda->Hda.MainNode, Parameter->GetName());
 
-	Hda->ClearParameterInputNode(Parameter->Info.id);
-	Parameter->UpdateInputNode(-1);
-	Hda->UpdateParameterInputNode(Parameter->Info.id);
-	Hda->UpdateInputNodeCustomAttribute(*Parameter, nullptr);
-
-	if (OldInput)
-	{
-	    OldInput->MaxInput->DecrementInputCount();
-	    OldInput->MaxInput->RemoveParameterUsage(Hda->Hda.MainNode, Parameter->GetName());
-
-	    if (OldInput->MaxInput->GetInputCount() <= 0)
-	    {
-		PluginStore->Delete3dsMaxInput(OldInputHandle);
-	    }
-	}
-    }
-}
-
-HEMAX_3dsMaxInput*
-HEMAX_Plugin::Set3dsmaxHdaParameterInput(
-        HEMAX_3dsmaxHda* Hda,
-        HEMAX_Parameter* Parameter,
-        INode* InputNodeToUse)
-{
-    HEMAX_3dsMaxInput* MaxInput = nullptr;
-
-    if (Hda)
-    {
-	HEMAX_InputInstance* OldInput = Hda->FindParameterInput(Parameter->Info.id);
-
-	if (OldInput)
-	{
-	    Clear3dsmaxHdaParameterInput(Hda, Parameter);
-	    delete OldInput->MergeNode;
-	    OldInput->MergeNode = nullptr;
-	}
-
-	ULONG SelectedInputNode = 0;
-
-	if (InputNodeToUse)
-	{
-	    SelectedInputNode = InputNodeToUse->GetHandle();
-	}
-	else
-	{
-	    SelectedInputNode = DetermineInputNodeSelection(Hda);
-	}
-
-	if (SelectedInputNode != 0)
-	{
-	    MaxInput = PluginStore->Find3dsMaxInput(SelectedInputNode);
-
-	    if (!MaxInput)
-	    {
-		MaxInput = Create3dsMaxInput(SelectedInputNode);
-		PluginStore->Add3dsMaxInput(MaxInput);
-	    }
-
-	    if (MaxInput)
-	    {
-		HEMAX_InputMerge* Merge;
-
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    INode* HoudiniAssetNode = ModifierHda->ContainerNode;
-		    INode* SelectedInputNode = GetCOREInterface()->GetINodeByHandle(MaxInput->Get3dsMaxNodeHandle());
-		    Merge = new HEMAX_InputMerge(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(HoudiniAssetNode, SelectedInputNode));
-		}
-		else
-		{
-		    Merge = new HEMAX_InputMerge(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(SelectedInputNode)));
-		}
-
-		Merge->MergeInput(*MaxInput->GetInputNode());
-		HEMAX_InputInstance* InputInstance = new HEMAX_InputInstance(MaxInput, Merge);
-
-		Hda->SetParameterInput(Parameter->Info.id, InputInstance);
-		Hda->UpdateParameterInputNode(Parameter->Info.id);
-		Hda->UpdateInputNodeCustomAttribute(*Parameter, MaxInput->GetInputNode());
-		MaxInput->IncrementInputCount();
-		MaxInput->AddParameterUsage(Hda->Hda.MainNode, Parameter->GetName());
-	    }
-	}
-    }
-
-    return MaxInput;
+        if (MaxInput->GetInputCount() <= 0)
+            PluginStore->Delete3dsMaxInput(MaxInput->Get3dsMaxNodeHandle());
+    } 
 }
 
 void
-HEMAX_Plugin::Clear3dsmaxHdaSubnetworkInput(
-        HEMAX_3dsmaxHda* Hda,
-        int Subnetwork)
-{
-    if (Hda)
-    {
-	HEMAX_InputInstance* OldInput = Hda->FindSubnetworkInput(Subnetwork);
-
-	if (OldInput)
-	{
-	    ULONG OldInputHandle = -1;
-
-	    if (OldInput->MaxInput)
-	    {
-		OldInputHandle = OldInput->MaxInput->Get3dsMaxNodeHandle();
-	    }
-
-	    Hda->ClearSubnetworkInput(Subnetwork);
-	    Hda->UpdateSubnetworkInput(Subnetwork);
-	    Hda->UpdateSubnetworkCustomAttribute(Subnetwork, nullptr);
-
-	    if (OldInput)
-	    {
-		delete OldInput->MergeNode;
-
-		OldInput->MaxInput->DecrementInputCount();
-		OldInput->MaxInput->RemoveSubnetworkUsage(Hda->Hda.MainNode, Subnetwork);
-
-		if (OldInput->MaxInput->GetInputCount() <= 0)
-		{
-		    PluginStore->Delete3dsMaxInput(OldInputHandle);
-		}
-	    }
-	}
-    }
-}
-
-HEMAX_3dsMaxInput*
 HEMAX_Plugin::Set3dsmaxHdaSubnetworkInput(
         HEMAX_3dsmaxHda* Hda,
         int Subnetwork,
-        INode* InputNodeToUse)
+        const INodeTab& InputNodesToUse)
 {
-    HEMAX_3dsMaxInput* MaxInput = nullptr;
+    if (!Hda)
+        return;
 
-    if (Hda)
+    INodeTab SelectedInputNodes;
+
+    if (InputNodesToUse.Count() > 0)
+        SelectedInputNodes = InputNodesToUse; 
+    else
+        GetSelectedInputNodes(Hda, SelectedInputNodes);
+
+    HEMAX_InputMerge* Merge = nullptr;
+    std::vector<HEMAX_3dsMaxInput*> MaxInputs;
+
+    for (int i = 0; i < SelectedInputNodes.Count(); ++i)
     {
-	ULONG SelectedInputNode = 0;
+        HEMAX_3dsMaxInput* MaxInput =
+            PluginStore->Find3dsMaxInput(SelectedInputNodes[i]->GetHandle());
 
-	if (InputNodeToUse)
-	{
-	    SelectedInputNode = InputNodeToUse->GetHandle();
-	}
-	else
-	{
-	    SelectedInputNode = DetermineInputNodeSelection(Hda);
-	}
+        if (!MaxInput)
+        {
+            MaxInput = Create3dsMaxInput(SelectedInputNodes[i]->GetHandle());
+            PluginStore->Add3dsMaxInput(MaxInput);
+        }
 
-	if (SelectedInputNode != 0)
-	{
-	    MaxInput = PluginStore->Find3dsMaxInput(SelectedInputNode);
+        if (Hda->Type == HEMAX_MODIFIER_HDA)
+        {
+            HEMAX_ModifierHda* ModifierHda =
+                static_cast<HEMAX_ModifierHda*>(Hda);
+            INode* ModifierNode = ModifierHda->ContainerNode;
 
-	    if (!MaxInput)
-	    {
-		MaxInput = Create3dsMaxInput(SelectedInputNode);
-		PluginStore->Add3dsMaxInput(MaxInput);
-	    }
+            if (!Merge)
+                Merge = new HEMAX_InputMerge();
 
-	    if (MaxInput)
-	    {
-		HEMAX_InputMerge* Merge;
+            Merge->MergeInputRelativeTo(*MaxInput->GetInputNode(),
+                HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(
+                    ModifierNode, SelectedInputNodes[i]));
+        }
+        else
+        {
+            if (!Merge)
+                Merge = new HEMAX_InputMerge();
 
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    INode* HoudiniAssetNode = ModifierHda->ContainerNode;
-		    INode* SelectedInputNode = GetCOREInterface()->GetINodeByHandle(MaxInput->Get3dsMaxNodeHandle());
-		    Merge = new HEMAX_InputMerge(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(HoudiniAssetNode, SelectedInputNode));
-		}
-		else
-		{
-		    Merge = new HEMAX_InputMerge(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(SelectedInputNode)));
-		}
+            Merge->MergeInput(*MaxInput->GetInputNode());
+        }
 
-		Merge->MergeInput(*MaxInput->GetInputNode());
-		HEMAX_InputInstance* InputInstance = new HEMAX_InputInstance(MaxInput, Merge);
-
-		Hda->SetSubnetworkInput(Subnetwork, InputInstance);
-		Hda->UpdateSubnetworkInput(Subnetwork);
-		Hda->UpdateSubnetworkCustomAttribute(Subnetwork, MaxInput->GetInputNode());
-
-		MaxInput->IncrementInputCount();
-		MaxInput->AddSubnetworkUsage(Hda->Hda.MainNode, Subnetwork);
-	    }
-	}
+        MaxInputs.push_back(MaxInput);
+        MaxInput->IncrementInputCount();
+        MaxInput->AddSubnetworkUsage(Hda->Hda.MainNode, Subnetwork);
     }
 
-    return MaxInput;
+    HEMAX_InputInstance* InputInstance = new HEMAX_InputInstance(MaxInputs, Merge);
+
+    Hda->SetSubnetworkInput(Subnetwork, InputInstance);
+    Hda->UpdateSubnetworkInput(Subnetwork);
+    Hda->UpdateSubnetworkCustomAttribute(Subnetwork, SelectedInputNodes);
 }
 
 void
@@ -1510,98 +1514,139 @@ HEMAX_Plugin::RefreshInputConnections(HEMAX_3dsmaxHda* Hda)
 }
 
 void
+HEMAX_Plugin::Clear3dsmaxHdaSubnetworkInput(
+        HEMAX_3dsmaxHda* Hda,
+        int Subnetwork)
+{
+    if (!Hda)
+        return;
+
+    HEMAX_InputInstance* Input = Hda->FindSubnetworkInput(Subnetwork);
+
+    if (!Input)
+        return;
+
+    Hda->ClearSubnetworkInput(Subnetwork);
+    Hda->UpdateSubnetworkInput(Subnetwork);
+    INodeTab NoInputNodes;
+    Hda->UpdateSubnetworkCustomAttribute(Subnetwork, NoInputNodes);
+
+    if (Input)
+        delete Input->MergeNode;
+
+    for (auto&& MaxInput : Input->MaxInputs)
+    {
+        if (!MaxInput)
+            continue;
+
+        MaxInput->DecrementInputCount();
+        MaxInput->RemoveSubnetworkUsage(Hda->Hda.MainNode, Subnetwork);
+
+        if (MaxInput->GetInputCount() <= 0)
+            PluginStore->Delete3dsMaxInput(MaxInput->Get3dsMaxNodeHandle());
+    }
+}
+
+void
 HEMAX_Plugin::UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda)
 {
-    for (int i = 0; i < Hda->Hda.MainNode.Info.inputCount; i++)
+    for (int i = 0; i < Hda->Hda.MainNode.Info.inputCount; ++i)
     {
-	HEMAX_InputInstance* MaxInput = Hda->SubnetworkNodeInputs[i];
+        HEMAX_InputInstance* MaxInput = Hda->SubnetworkNodeInputs[i];
 
-	if (MaxInput)
-	{
-	    if (MaxInput->MaxInput && MaxInput->MaxInput->IsDirty())
-	    {
-		MaxInput->MaxInput->UpdateInputNode();
-		delete MaxInput->MergeNode;
+        if (!MaxInput)
+            continue;
 
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    INode* HoudiniAssetNode = ModifierHda->ContainerNode;
-		    INode* SelectedInputNode = GetCOREInterface()->GetINodeByHandle(MaxInput->MaxInput->Get3dsMaxNodeHandle());
-		    MaxInput->MergeNode = new HEMAX_InputMerge(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(HoudiniAssetNode, SelectedInputNode));
-		}
-		else
-		{
-		    MaxInput->MergeNode = new HEMAX_InputMerge(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(MaxInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
+        delete MaxInput->MergeNode;
+        MaxInput->MergeNode = nullptr;
+        MaxInput->MergeNode = new HEMAX_InputMerge();
 
-		MaxInput->MergeNode->MergeInput(*MaxInput->MaxInput->GetInputNode());
+        INodeTab InputNodes;
 
-		Hda->SetSubnetworkInput(i, MaxInput);
-		Hda->UpdateSubnetworkInput(i);
-		Hda->UpdateSubnetworkCustomAttribute(i, MaxInput->MaxInput->GetInputNode());
+        for (auto&& Input : MaxInput->MaxInputs)
+        {
+            if (Input)
+            {
+                if (Input->IsDirty())
+                    Input->UpdateInputNode();
 
-	    }
-	    else
-	    {
-		// If it's not dirty, the Transform still needs to be updated because 3ds Max does not send
-		// NotifyRefChanged messages for keyframed transforms
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    MaxInput->MergeNode->PushMaxTransform(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(ModifierHda->ContainerNode, GetCOREInterface()->GetINodeByHandle(MaxInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
-		else
-		{
-		    MaxInput->MergeNode->PushMaxTransform(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(MaxInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
-	    }
-	}
+                if (Hda->Type == HEMAX_MODIFIER_HDA)
+                {
+                    HEMAX_ModifierHda* ModifierHda =
+                        static_cast<HEMAX_ModifierHda*>(Hda);
+                    INode* ModifierNode = ModifierHda->ContainerNode;
+                    MaxInput->MergeNode->MergeInputRelativeTo(
+                        *Input->GetInputNode(),
+                        HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(
+                            ModifierNode,
+                            GetCOREInterface()->GetINodeByHandle(
+                                Input->Get3dsMaxNodeHandle())));
+                }
+                else
+                {
+                    MaxInput->MergeNode->MergeInput(*Input->GetInputNode());
+                }
+            }
+
+            InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                Input->Get3dsMaxNodeHandle()));
+        }
+
+        Hda->SetSubnetworkInput(i, MaxInput);
+        Hda->UpdateSubnetworkInput(i);
+        Hda->UpdateSubnetworkCustomAttribute(i, InputNodes);
     }
 
-    for (auto It = Hda->InputNodeMap.begin(); It != Hda->InputNodeMap.end(); It++)
+    for (auto It = Hda->InputNodeMap.begin();
+         It != Hda->InputNodeMap.end();
+         It++)
     {
-	if (It->second)
-	{
-	    HEMAX_InputInstance* ParameterInput = It->second;
-	    if (ParameterInput->MaxInput && ParameterInput->MaxInput->IsDirty())
-	    {
-		ParameterInput->MaxInput->UpdateInputNode();
-		delete ParameterInput->MergeNode;
+        if (!It->second)
+            continue;
 
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    INode* HoudiniAssetNode = ModifierHda->ContainerNode;
-		    INode* SelectedInputNode = GetCOREInterface()->GetINodeByHandle(ParameterInput->MaxInput->Get3dsMaxNodeHandle());
-		    ParameterInput->MergeNode = new HEMAX_InputMerge(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(HoudiniAssetNode, SelectedInputNode));
-		}
-		else
-		{
-		    ParameterInput->MergeNode = new HEMAX_InputMerge(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(ParameterInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
+        HEMAX_InputInstance* ParameterInput = It->second;
+        delete ParameterInput->MergeNode;
+        ParameterInput->MergeNode = nullptr;
+        ParameterInput->MergeNode = new HEMAX_InputMerge();
 
-		ParameterInput->MergeNode->MergeInput(*(ParameterInput->MaxInput->GetInputNode()));
+        INodeTab InputNodes;
 
-		Hda->SetParameterInput(It->first, ParameterInput);
-		Hda->UpdateParameterInputNode(It->first);
-		Hda->UpdateInputNodeCustomAttribute(*(Hda->Hda.MainNode.GetParameter(It->first)), ParameterInput->MaxInput->GetInputNode());
-	    }
-	    else
-	    {
-		// If it's not dirty, the Transform still needs to be updated because 3ds Max does not send
-		// NotifyRefChanged messages for keyframed transforms
-		if (Hda->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(Hda);
-		    ParameterInput->MergeNode->PushMaxTransform(HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(ModifierHda->ContainerNode, GetCOREInterface()->GetINodeByHandle(ParameterInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
-		else
-		{
-		    ParameterInput->MergeNode->PushMaxTransform(HEMAX_Utilities::BuildMaxTransformFromINode(GetCOREInterface()->GetINodeByHandle(ParameterInput->MaxInput->Get3dsMaxNodeHandle())));
-		}
-	    }
-	}
+        for (auto&& Input : ParameterInput->MaxInputs)
+        {
+            if (Input)
+            {
+                if (Input->IsDirty())
+                    Input->UpdateInputNode();
+
+                if (Hda->Type == HEMAX_MODIFIER_HDA)
+                {
+                    HEMAX_ModifierHda* ModifierHda =
+                        static_cast<HEMAX_ModifierHda*>(Hda);
+                    INode* ModifierNode = ModifierHda->ContainerNode;
+                    ParameterInput->MergeNode->MergeInputRelativeTo(
+                        *Input->GetInputNode(),
+                        HEMAX_Utilities::CalculateRelativeTransformBetweenINodes(
+                            ModifierNode,
+                            GetCOREInterface()->GetINodeByHandle(
+                                Input->Get3dsMaxNodeHandle())));
+                }
+                else
+                {
+                    ParameterInput->MergeNode->MergeInput(
+                            *Input->GetInputNode());
+                }
+
+                InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                    Input->Get3dsMaxNodeHandle()));
+            }
+        }
+
+        Hda->SetParameterInput(It->first, ParameterInput);
+        Hda->UpdateParameterInputNode(It->first);
+
+        Hda->UpdateInputNodeCustomAttribute(
+            *(Hda->Hda.MainNode.GetParameter(It->first)),
+            InputNodes);
     }
 }
 
@@ -1671,127 +1716,147 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 {
     HEMAX_3dsmaxHda *Hda = PluginStore->Find3dsmaxHda(*Node);
 
-    if (Hda)
+    if (!Hda)
+        return;
+
+    HEMAX_Asset *Asset = PluginStore->FindAsset(Hda->Hda.HdaAsset.Path);
+
+    if (!Asset)
     {
-	HEMAX_Asset *Asset = PluginStore->FindAsset(Hda->Hda.HdaAsset.Path);
-	if (Asset)
-	{
-	    Asset->UpdateAssetDefinition();
+        std::string Msg = "Could not reload the asset definition of HDA <" +
+            Hda->Hda.HdaAsset.Path + "> because the HDA is not currently "
+            "loaded.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+    }
 
-	    std::vector<HEMAX_3dsmaxHda*> HdasToReload = PluginStore->FindAllHdasUsingAssetDefinition(Asset);
+    Asset->UpdateAssetDefinition();
 
-	    for (int i = 0; i < HdasToReload.size(); i++)
-	    {
-		if (HdasToReload[i]->Type == HEMAX_GEOMETRY_HDA)
-		{
-		    int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
+    std::vector<HEMAX_3dsmaxHda*> HdasToReload =
+        PluginStore->FindAllHdasUsingAssetDefinition(Asset);
 
-		    HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(HdasToReload[i]);
+    for (int i = 0; i < HdasToReload.size(); i++)
+    {
+        if (HdasToReload[i]->Type == HEMAX_GEOMETRY_HDA)
+        {
+            int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
 
-		    HEMAX_GeometryHda* CreatedAsset =
-                        new HEMAX_GeometryHda();
-		    CreatedAsset->Create(*Asset, AssetIndex);
-		    ConstructReferencesForEditableCurve(CreatedAsset);
-		    PluginStore->Add3dsmaxHda(CreatedAsset->ContainerNode->GetHandle(), CreatedAsset);
+            HEMAX_GeometryHda* GeometryHda =
+                static_cast<HEMAX_GeometryHda*>(HdasToReload[i]);
 
-		    // Reconnect the subnetwork inputs
+            HEMAX_GeometryHda* CreatedAsset =
+                new HEMAX_GeometryHda();
+            CreatedAsset->Create(*Asset, AssetIndex);
+            ConstructReferencesForEditableCurve(CreatedAsset);
+            PluginStore->Add3dsmaxHda(
+                    CreatedAsset->ContainerNode->GetHandle(), CreatedAsset);
 
-		    for (int s = 0; s < GeometryHda->SubnetworkNodeInputs.size(); s++)
-		    {
-			if (s < CreatedAsset->Hda.MainNode.Info.inputCount)
-			{
-                            if (!GeometryHda->SubnetworkNodeInputs[s])
-                                continue;
+            // Reconnect the subnetwork inputs
+            
+            for (int s = 0; s < GeometryHda->SubnetworkNodeInputs.size(); ++s)
+            {
+                if (!GeometryHda->SubnetworkNodeInputs[s])
+                    continue;
 
-			    ULONG InputINodeHandle = GeometryHda->SubnetworkNodeInputs[s]->MaxInput->Get3dsMaxNodeHandle();
-			    INode* InputINode = GetCOREInterface()->GetINodeByHandle(InputINodeHandle);
-			    HandleSubnetworkInputSelection(&(CreatedAsset->Hda.MainNode), s, InputINode);
-			}
-		    }
+                INodeTab SubnetInputs;
 
-		    // Reconnect any operator path parameter inputs
+                for (auto&& Input : GeometryHda->SubnetworkNodeInputs[s]->MaxInputs)
+                {
+                    SubnetInputs.AppendNode(
+                        GetCOREInterface()->GetINodeByHandle(
+                            Input->Get3dsMaxNodeHandle()));
+                }
 
-		    for (auto InputMapIt = GeometryHda->InputNodeMap.begin(); InputMapIt != GeometryHda->InputNodeMap.end(); InputMapIt++)
-		    {
-			HAPI_ParmId ParmId = InputMapIt->first;
-			HEMAX_InputInstance* InputInstance = InputMapIt->second;
+                HandleSubnetworkInputSelection(&(CreatedAsset->Hda.MainNode),
+                    s, SubnetInputs);
+            }
 
-			HEMAX_Parameter* OldParm = GeometryHda->Hda.MainNode.GetParameter(ParmId);
-			if (OldParm)
-			{
-			    std::string ParmName = OldParm->GetName();  
-			    HEMAX_Parameter* NewParm = CreatedAsset->Hda.MainNode.GetParameter(ParmName);
-			    if (NewParm)
-			    {
-				ULONG InputINodeHandle = InputInstance->MaxInput->Get3dsMaxNodeHandle();
-				INode* InputINode = GetCOREInterface()->GetINodeByHandle(InputINodeHandle);
-				HandleParameterInputSelection(&(CreatedAsset->Hda.MainNode), *NewParm, InputINode);
-			    }
-			}
-		    }
+            // Reconnect any operator path parameter inputs
+            
+            for (auto InputMapIt = GeometryHda->InputNodeMap.begin();
+                 InputMapIt != GeometryHda->InputNodeMap.end();
+                 InputMapIt++)
+            {
+                HAPI_ParmId ParmId = InputMapIt->first;
+                HEMAX_InputInstance* InputInstance = InputMapIt->second;
 
-		    CreatedAsset->CopyAllParameterValues(*GeometryHda);
-		    UpdateEntireHda(CreatedAsset);
+                HEMAX_Parameter* SourceParm =
+                    GeometryHda->Hda.MainNode.GetParameter(ParmId);
 
-		    Clear3dsmaxHdaInputConnections(HdasToReload[i]);
+                if (!SourceParm)
+                    continue;
 
-		    std::wstring ContainerName = GeometryHda->ContainerNode->GetName();
+                std::string ParmName = SourceParm->GetName();
+                HEMAX_Parameter* NewParm =
+                    CreatedAsset->Hda.MainNode.GetParameter(ParmName);
+                
+                if (!NewParm)
+                    continue;
 
-		    PluginStore->Delete3dsmaxHda(GeometryHda->ContainerNode->GetHandle());
+                INodeTab InputNodes;
 
-		    CreatedAsset->ContainerNode->SetName(ContainerName.c_str());
+                for (auto&& Input : InputInstance->MaxInputs)
+                {
+                    InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                            Input->Get3dsMaxNodeHandle()));
+                }
 
-		    GetCOREInterface()->ForceCompleteRedraw();
-		}
-		else if (HdasToReload[i]->Type == HEMAX_MODIFIER_HDA)
-		{
-		    HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(HdasToReload[i]);
-		    INode* Node = ModifierHda->ContainerNode;
-		    int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
-		    int ModifierIndex, DerivedObjIndex;
+                HandleParameterInputSelection(&(CreatedAsset->Hda.MainNode),
+                    *NewParm, InputNodes);
+            }
+            
+            CreatedAsset->CopyAllParameterValues(*GeometryHda);
+            UpdateEntireHda(CreatedAsset);
 
-		    if (GetCOREInterface7()->FindModifier(*(ModifierHda->ContainerNode), *(ModifierHda->DisplayGeometry), ModifierIndex, DerivedObjIndex))
-		    {
-			ManualModifierAddInProgress = true;
+            Clear3dsmaxHdaInputConnections(HdasToReload[i]);
 
-			HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
-			GetCOREInterface7()->AddModifier(*Node, *ModifierPlugin, ModifierIndex);
+            std::wstring ContainerName = GeometryHda->ContainerNode->GetName();
 
-			HEMAX_ModifierHda* NewModifierHda = new HEMAX_ModifierHda;
+            PluginStore->Delete3dsmaxHda(GeometryHda->ContainerNode->GetHandle());
 
-			if (NewModifierHda->Create(*Asset, AssetIndex, ModifierPlugin, Node))
-			{
-			    ModifierPlugin->RegisterPlugin(this);
-			    PluginStore->Add3dsmaxHda(Node->GetHandle(), NewModifierHda);
-			    NewModifierHda->CopyAllParameterValues(*ModifierHda);
-			    UpdateEntireHda(NewModifierHda);
+            CreatedAsset->ContainerNode->SetName(ContainerName.c_str());
+
+            GetCOREInterface()->ForceCompleteRedraw();
+        }
+        else if (HdasToReload[i]->Type == HEMAX_MODIFIER_HDA)
+        {
+            HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(HdasToReload[i]);
+            INode* Node = ModifierHda->ContainerNode;
+            int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
+            int ModifierIndex, DerivedObjIndex;
+
+            if (GetCOREInterface7()->FindModifier(*(ModifierHda->ContainerNode), *(ModifierHda->DisplayGeometry), ModifierIndex, DerivedObjIndex))
+            {
+                ManualModifierAddInProgress = true;
+
+                HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
+                GetCOREInterface7()->AddModifier(*Node, *ModifierPlugin, ModifierIndex);
+
+                HEMAX_ModifierHda* NewModifierHda = new HEMAX_ModifierHda;
+
+                if (NewModifierHda->Create(*Asset, AssetIndex, ModifierPlugin, Node))
+                {
+                    ModifierPlugin->RegisterPlugin(this);
+                    PluginStore->Add3dsmaxHda(Node->GetHandle(), NewModifierHda);
+                    NewModifierHda->CopyAllParameterValues(*ModifierHda);
+                    UpdateEntireHda(NewModifierHda);
 
 #ifdef HEMAX_VERSION_2025
-                            std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
+                    std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
 #else
-			    std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
+                    std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
 #endif
-			    NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
-			}
-			else
-			{
-			    GetCOREInterface7()->DeleteModifier((*Node), ModifierIndex);
-			    delete ModifierPlugin;
-			}
+                    NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
+                }
+                else
+                {
+                    GetCOREInterface7()->DeleteModifier((*Node), ModifierIndex);
+                    delete ModifierPlugin;
+                }
 
-			ManualModifierAddInProgress = false;
+                ManualModifierAddInProgress = false;
 
-			GetCOREInterface7()->DeleteModifier(*(ModifierHda->ContainerNode), ModifierIndex+1);
-		    }		    
-		}
-	    }
-	}
-        else
-        {
-            std::string Msg = "Could not reload the asset definition of HDA <" +
-                Hda->Hda.HdaAsset.Path + "> because the HDA is not currently "
-                "loaded.";
-            HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+                GetCOREInterface7()->DeleteModifier(*(ModifierHda->ContainerNode), ModifierIndex+1);
+            }		    
         }
     }
 }
@@ -1915,24 +1980,41 @@ HEMAX_Plugin::UpdateEntireHda(HEMAX_3dsmaxHda* Hda, bool ForceRedraw)
 void
 HEMAX_Plugin::ReloadHdaFromCustomAttributes(HEMAX_3dsmaxHda* MaxHda)
 {
-    std::vector<HEMAX_SubnetworkInputMapping> Unconnected = MaxHda->ReloadSubnetworkInputsFromCustomAttributes();
+    std::vector<HEMAX_SubnetworkInputMapping> Unconnected =
+        MaxHda->ReloadSubnetworkInputsFromCustomAttributes();
+
     for (int s = 0; s < Unconnected.size(); s++)
     {
-	if (Unconnected[s].Node)
-	{
-	    Set3dsmaxHdaSubnetworkInput(MaxHda, Unconnected[s].Subnetwork, Unconnected[s].Node);
-	}
+        INodeTab InputNodes;
+
+        for (int i = 0; i < Unconnected[s].Nodes.size(); ++i)
+        {
+            if (Unconnected[s].Nodes[i])
+                InputNodes.AppendNode(Unconnected[s].Nodes[i]);
+
+            Set3dsmaxHdaSubnetworkInput(MaxHda,
+                Unconnected[s].Subnetwork, InputNodes);
+        }
     }
 
-    std::vector<HEMAX_ParameterInputMapping> UnconnectedInputs = MaxHda->ReloadParametersFromCustomAttributes();
-    for (int s = 0; s < UnconnectedInputs.size(); s++)
+    std::vector<HEMAX_ParameterInputMapping> UnconnectedInputs =
+        MaxHda->ReloadParametersFromCustomAttributes();
+
+    for (int s = 0; s < UnconnectedInputs.size(); ++s)
     {
-	if (UnconnectedInputs[s].Node)
-	{
-	    Set3dsmaxHdaParameterInput(MaxHda,
-				       MaxHda->Hda.MainNode.GetParameter(UnconnectedInputs[s].ParameterName),
-				       UnconnectedInputs[s].Node);
-	}
+        INodeTab InputNodes;
+
+        for (int i = 0; i < UnconnectedInputs[s].Nodes.size(); ++i)
+        {
+            if (UnconnectedInputs[s].Nodes[i])
+                InputNodes.AppendNode(UnconnectedInputs[s].Nodes[i]);
+
+            Set3dsmaxHdaParameterInput(
+                MaxHda,
+                MaxHda->Hda.MainNode.GetParameter(
+                    UnconnectedInputs[s].ParameterName),
+                InputNodes);
+        }
     }
 
     MaxHda->Hda.MainNode.Cook();
@@ -1965,68 +2047,70 @@ HEMAX_Plugin::CloneGeometryHda(HEMAX_GeometryHda* MaxHda)
     INode* CloneContainerNode = nullptr;
     HEMAX_GeometryHda* Clone = CreateGeometryHDA(MaxHda->Hda.HdaAsset.Path,
                                                  MaxHda->Hda.HdaAssetIndex);
-    if (Clone)
+
+    if (!Clone)
+        return nullptr;
+
+    // Start with all inputs
+    for (int i = 0; i < MaxHda->SubnetworkNodeInputs.size(); i++)
     {
-        // Start with all inputs
-	for (int i = 0; i < MaxHda->SubnetworkNodeInputs.size(); i++)
-	{
-	    if (MaxHda->SubnetworkNodeInputs[i])
-	    {
-		HEMAX_3dsMaxInput* MaxInput =
-                    MaxHda->SubnetworkNodeInputs[i]->MaxInput;
-		ULONG MaxInputNodeHandle =
-                    MaxInput->GetInputNode()->GetMaxNodeHandle();
-		Set3dsmaxHdaSubnetworkInput(
-                    Clone,
-                    i,
-                    GetCOREInterface()->GetINodeByHandle(MaxInputNodeHandle));
-	    }
-	}
+        if (!MaxHda->SubnetworkNodeInputs[i])
+            continue;
 
-	for (auto InputIt = MaxHda->InputNodeMap.begin();
-             InputIt != MaxHda->InputNodeMap.end();
-             InputIt++)
-	{
-	    if (InputIt->second)
-	    {
-		HEMAX_3dsMaxInput* MaxInput = InputIt->second->MaxInput;
-		ULONG MaxInputNodeHandle =
-                    MaxInput->GetInputNode()->GetMaxNodeHandle();
-		HEMAX_Parameter* SourceParameter =
-                    MaxHda->Hda.MainNode.GetParameter(InputIt->first);
+        INodeTab InputNodes;
 
-		if (SourceParameter)
-		{
-		    std::string SourceParmName = SourceParameter->GetName();
+        for (auto&& Input : MaxHda->SubnetworkNodeInputs[i]->MaxInputs)
+        {
+            InputNodes.AppendNode(
+                GetCOREInterface()->GetINodeByHandle(
+                    Input->GetInputNode()->GetMaxNodeHandle()));
+        }
 
-		    HEMAX_Parameter* CloneParameter =
-                        Clone->Hda.MainNode.GetParameter(SourceParmName);
-		    if (CloneParameter
-                        && CloneParameter->Type == HAPI_PARMTYPE_NODE)
-		    {
-			Set3dsmaxHdaParameterInput(
-                            Clone,
-                            CloneParameter,
-                            GetCOREInterface()->GetINodeByHandle(
-                                                        MaxInputNodeHandle));
-		    }
-		}
-	    }
-	}
-
-	Clone->CopyAllParameterValues(*MaxHda);
-	UpdateEntireHda(Clone);
-
-        CloneContainerNode = Clone->ContainerNode;
-
-        INode* SourceContainerNode = MaxHda->ContainerNode;
-        TimeValue CurTime = GetCOREInterface()->GetTime();
-        CloneContainerNode->SetNodeTM(CurTime,
-                                      SourceContainerNode->GetNodeTM(CurTime));
-
-        PluginEvents->SelectionSetChanged(nullptr);
-        PluginEvents->SelectionSetChanged(Clone);
+        Set3dsmaxHdaSubnetworkInput(Clone, i, InputNodes);
     }
+
+    for (auto InputIt = MaxHda->InputNodeMap.begin();
+         InputIt != MaxHda->InputNodeMap.end();
+         InputIt++)
+    {
+        if (!InputIt->second)
+            continue;
+
+        INodeTab InputNodes;
+
+        for (auto&& Input : InputIt->second->MaxInputs)
+        {
+            InputNodes.AppendNode(
+                GetCOREInterface()->GetINodeByHandle(
+                    Input->GetInputNode()->GetMaxNodeHandle()));
+        }
+
+        HEMAX_Parameter* SourceParm =
+            MaxHda->Hda.MainNode.GetParameter(InputIt->first);
+
+        if (SourceParm)
+        {
+            std::string SourceParmName = SourceParm->GetName();
+            HEMAX_Parameter* CloneParm =
+                Clone->Hda.MainNode.GetParameter(SourceParmName);
+
+            if (CloneParm && CloneParm->Type == HAPI_PARMTYPE_NODE)
+                Set3dsmaxHdaParameterInput(Clone, CloneParm, InputNodes);
+        }
+    }
+
+    Clone->CopyAllParameterValues(*MaxHda);
+    UpdateEntireHda(Clone);
+
+    CloneContainerNode = Clone->ContainerNode;
+
+    INode* SourceContainerNode = MaxHda->ContainerNode;
+    TimeValue CurTime = GetCOREInterface()->GetTime();
+    CloneContainerNode->SetNodeTM(CurTime,
+                                  SourceContainerNode->GetNodeTM(CurTime));
+
+    PluginEvents->SelectionSetChanged(nullptr);
+    PluginEvents->SelectionSetChanged(Clone);
 
     return CloneContainerNode;
 }
@@ -2036,47 +2120,67 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
 {
     ManualModifierAddInProgress = true;
 
-    HEMAX_ModifierHda* Clone = CreateModifierHDA(MaxNode, MaxHda->Hda.HdaAsset.Path, MaxHda->Hda.HdaAssetIndex);
-    if (Clone)
+    HEMAX_ModifierHda* Clone = CreateModifierHDA(MaxNode,
+        MaxHda->Hda.HdaAsset.Path, MaxHda->Hda.HdaAssetIndex);
+
+    if (!Clone)
     {
-	// Start with all inputs
-	for (int i = 0; i < MaxHda->SubnetworkNodeInputs.size(); i++)
-	{
-	    if (MaxHda->SubnetworkNodeInputs[i])
-	    {
-		HEMAX_3dsMaxInput* MaxInput = MaxHda->SubnetworkNodeInputs[i]->MaxInput;
-		ULONG MaxInputNodeHandle = MaxInput->GetInputNode()->GetMaxNodeHandle();
-		Set3dsmaxHdaSubnetworkInput(Clone, i, GetCOREInterface()->GetINodeByHandle(MaxInputNodeHandle));
-	    }
-	}
-
-	for (auto InputIt = MaxHda->InputNodeMap.begin(); InputIt != MaxHda->InputNodeMap.end(); InputIt++)
-	{
-	    if (InputIt->second)
-	    {
-		HEMAX_3dsMaxInput* MaxInput = InputIt->second->MaxInput;
-		ULONG MaxInputNodeHandle = MaxInput->GetInputNode()->GetMaxNodeHandle();
-		HEMAX_Parameter* SourceParameter = MaxHda->Hda.MainNode.GetParameter(InputIt->first);
-		std::string SourceParmName = SourceParameter->GetName();
-
-		HEMAX_Parameter* CloneParameter = Clone->Hda.MainNode.GetParameter(SourceParmName);
-		if (CloneParameter->Type == HAPI_PARMTYPE_NODE)
-		{
-		    Set3dsmaxHdaParameterInput(Clone, CloneParameter, GetCOREInterface()->GetINodeByHandle(MaxInputNodeHandle));
-		}
-	    }
-	}
-
-	Clone->CopyAllParameterValues(*MaxHda);
-	UpdateEntireHda(Clone);
-        PluginEvents->SelectionSetChanged(Clone);
-
-	return Clone->DisplayGeometry;
+        ManualModifierAddInProgress = false;
+        return nullptr;
     }
 
-    ManualModifierAddInProgress = false;
+    for (int i = 0; i < MaxHda->SubnetworkNodeInputs.size(); ++i)
+    {
+        if (!MaxHda->SubnetworkNodeInputs[i])
+            continue;
 
-    return nullptr;
+        INodeTab InputNodes;
+
+        for (auto&& Input : MaxHda->SubnetworkNodeInputs[i]->MaxInputs)
+        {
+            InputNodes.AppendNode(
+                GetCOREInterface()->GetINodeByHandle(
+                    Input->GetInputNode()->GetMaxNodeHandle()));
+        }
+
+        Set3dsmaxHdaSubnetworkInput(Clone, i, InputNodes);
+    }
+
+    for (auto InputIt = MaxHda->InputNodeMap.begin();
+         InputIt != MaxHda->InputNodeMap.end();
+         InputIt++)
+    {
+        if (!InputIt->second)
+            continue;
+
+        INodeTab InputNodes;
+
+        for (auto&& Input : InputIt->second->MaxInputs)
+        {
+            InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                    Input->GetInputNode()->GetMaxNodeHandle()));
+        }
+
+        HEMAX_Parameter* SourceParm =
+            MaxHda->Hda.MainNode.GetParameter(InputIt->first);
+        
+        if (SourceParm)
+        {
+            std::string SourceParmName = SourceParm->GetName();
+            HEMAX_Parameter* CloneParm =
+                Clone->Hda.MainNode.GetParameter(SourceParmName);
+            if (CloneParm && CloneParm->Type == HAPI_PARMTYPE_NODE)
+                Set3dsmaxHdaParameterInput(Clone, CloneParm, InputNodes);
+        }
+    }
+
+    Clone->CopyAllParameterValues(*MaxHda);
+    UpdateEntireHda(Clone);
+    PluginEvents->SelectionSetChanged(Clone);
+
+    ManualModifierAddInProgress = false;
+    
+    return Clone->DisplayGeometry;
 }
 
 void
