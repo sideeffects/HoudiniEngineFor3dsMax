@@ -114,8 +114,6 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
                     std::to_string(rand()) +
                     std::to_string(rand()));
 
-    MarshalNodeNameDetailAttribute();
-
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
     defined(HEMAX_VERSION_2020) || \
@@ -199,6 +197,8 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             if (InputNode)
                 AddNodeTransformAttributes(InputNode);
 
+            SetInputMetadataAttributes(CurveCount);
+
             FinalizeInputGeometry();
         }
         else if (HEMAX_Utilities::IsOnlyClosedSplines(TheShape))
@@ -250,6 +250,8 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             INode* InputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
             if (InputNode)
                 AddNodeTransformAttributes(InputNode);
+
+            SetInputMetadataAttributes(CurveCount);
 
             FinalizeInputGeometry();
         }

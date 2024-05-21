@@ -21,7 +21,6 @@
 #include <MNNormalSpec.h>
 #pragma warning(pop)
 
-#include "HEMAX_Input_Transform.h"
 #include "HEMAX_Input_Geometry.h"
 #include "HEMAX_Input_NURBS.h"
 #include "HEMAX_Input_Spline.h"
@@ -183,7 +182,7 @@ HEMAX_Input::CreateInputNode(std::string Name)
 }
 
 void
-HEMAX_Input::MarshalNodeNameDetailAttribute()
+HEMAX_Input::SetInputMetadataAttributes(int PrimCount)
 {
     INode* SourceNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
 
@@ -191,13 +190,23 @@ HEMAX_Input::MarshalNodeNameDetailAttribute()
         return;
 
     std::string NodeName = HEMAX_Utilities::WideStringToStringUnsafe(
-                                                    SourceNode->GetName());
-    const char *NodeNameC = NodeName.c_str();
+            SourceNode->GetName());
+    const char* CharBuf = NodeName.c_str();
 
     HAPI_AttributeInfo NodeNameAttr = AddNewDetailStringAttribute(
-                                        1, 1, HEMAX_MAX_NODE_NAME);
+            1, 1, HEMAX_MAX_NODE_NAME);
+    SendStringAttributeData(HEMAX_MAX_NODE_NAME, NodeNameAttr,
+            &CharBuf, 1);
 
-    SendStringAttributeData(HEMAX_MAX_NODE_NAME, NodeNameAttr, &NodeNameC, 1);
+    const char* InputNodeNameAttrName = HEMAX_INPUT_NODE_NAME;
+    HAPI_AttributeInfo InputNodeNameAttr = AddNewPrimitiveStringAttribute(
+            PrimCount, 1, HEMAX_INPUT_NODE_NAME);
+
+    HEMAX_HoudiniApi::SetAttributeStringUniqueData(
+            HEMAX_SessionManager::GetSessionManager().Session,
+            Node->Info.id, 0, InputNodeNameAttrName, &InputNodeNameAttr,
+            CharBuf, static_cast<int>(strlen(InputNodeNameAttrName)),
+            0, InputNodeNameAttr.count);
 }
 
 void
@@ -463,128 +472,4 @@ HEMAX_Input::FinalizeInputGeometry()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HEMAX_HoudiniApi::CommitGeo(SM.Session, Node->Info.id);
-}
-
-HEMAX_Input*
-CreateOperatorNodeFromMaxNode(ULONG MaxInput, HEMAX_Parameter* Parameter)
-{
-    HAPI_NodeType InputNodeType = HAPI_NodeType(Parameter->Type);
-    INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxInput);
-    HEMAX_Input* GeneratedInput;
-
-    if (MaxInputNode)
-    {
-	bool InputNodeCreated = false;
-
-	switch (InputNodeType)
-	{
-	    case HAPI_NODETYPE_OBJ:
-	    {
-		GeneratedInput = new HEMAX_Input_Transform(
-                        HEMAX_INPUT_PARAMETER, Parameter->Info.id, MaxInput);
-		InputNodeCreated = true;
-		break;
-	    }
-	    case HAPI_NODETYPE_ANY:
-	    case HAPI_NODETYPE_SOP:
-	    {
-		INode* TheMaxNode =
-                    GetCOREInterface()->GetINodeByHandle(MaxInput);
-
-		if (TheMaxNode)
-		{
-		    ObjectState MaxObjectState = TheMaxNode->EvalWorldState(0);
-		    Object* MaxObject = MaxObjectState.obj;
-
-		    if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
-		    {
-			GeneratedInput = new HEMAX_Input_Spline(
-                                            HEMAX_INPUT_PARAMETER,
-                                            Parameter->Info.id, MaxInput);
-		    }
-		    else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
-		    {
-			GeneratedInput = new HEMAX_Input_NURBS(
-                                            HEMAX_INPUT_PARAMETER,
-                                            Parameter->Info.id, MaxInput);
-		    }
-		    else
-		    {
-			GeneratedInput = new HEMAX_Input_Geometry(
-                                            HEMAX_INPUT_PARAMETER,
-                                            Parameter->Info.id, MaxInput);
-		    }
-		    InputNodeCreated = true;
-		}
-		break;
-	    }
-	    default:
-	    {
-		break;
-	    }
-	}
-
-	if (InputNodeCreated)
-	{
-	    return GeneratedInput;
-	}
-    }
-
-    return nullptr;
-}
-
-HEMAX_Input*
-CreateSubnetworkInputFromMaxNode(ULONG MaxInput, HEMAX_Node* Node)
-{
-    HAPI_NodeType InputNodeType = Node->Type;
-    INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxInput);
-    HEMAX_Input* GeneratedInput = nullptr;
-
-    if (MaxInputNode)
-    {
-	switch (InputNodeType)
-	{
-	    case HAPI_NODETYPE_OBJ:
-	    {
-		GeneratedInput = new HEMAX_Input_Transform(
-                        HEMAX_INPUT_SUBNETWORK, Node->Info.id, MaxInput);
-		break;
-	    }
-	    case HAPI_NODETYPE_SOP:
-	    case HAPI_NODETYPE_ANY:
-	    {
-		INode* TheMaxNode =
-                    GetCOREInterface()->GetINodeByHandle(MaxInput);
-
-		if (TheMaxNode)
-		{
-		    ObjectState MaxObjectState = TheMaxNode->EvalWorldState(0);
-		    Object* MaxObject = MaxObjectState.obj;
-
-		    if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
-		    {
-			GeneratedInput = new HEMAX_Input_Spline(
-                            HEMAX_INPUT_SUBNETWORK, Node->Info.id, MaxInput);
-		    }
-		    else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
-		    {
-			GeneratedInput = new HEMAX_Input_NURBS(
-                            HEMAX_INPUT_SUBNETWORK, Node->Info.id, MaxInput);
-		    }
-		    else
-		    {
-			GeneratedInput = new HEMAX_Input_Geometry(
-                            HEMAX_INPUT_SUBNETWORK, Node->Info.id, MaxInput);
-		    }
-		}
-		break;
-	    }
-	    default:
-	    {
-		break;
-	    }
-	}
-    }
-
-    return GeneratedInput;
 }

@@ -120,8 +120,6 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     // Look up material (if it exists)
     INode* SourceNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
 
-    MarshalNodeNameDetailAttribute();
-
     bool SingleMaterial = false;
     const char* SingleMaterialName;
     std::vector<const char*> SingleMaterialNameData;
@@ -717,6 +715,8 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     {
         AddNodeTransformAttributes(MaxNode);
     }
+
+    SetInputMetadataAttributes(FaceCount);
 
     Node->SetParentTransform(NodeTransform);
     FinalizeInputGeometry();

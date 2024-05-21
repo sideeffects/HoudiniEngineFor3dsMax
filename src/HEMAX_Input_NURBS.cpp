@@ -141,8 +141,6 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 {
     CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
 
-    MarshalNodeNameDetailAttribute();
-
     NURBSPointCurve* TheCurve = dynamic_cast<NURBSPointCurve*>(CurveObj);
 
     if (TheCurve)
@@ -218,6 +216,8 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
         if (MaxInputNode)
             AddNodeTransformAttributes(MaxInputNode);
 
+        SetInputMetadataAttributes(1);
+
 	FinalizeInputGeometry();
 
 	Node->SetParentTransform(NodeTransform);
@@ -237,8 +237,6 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     NURBSCVCurve* TheCurve = (NURBSCVCurve*)CurveObj;
 
     CreateInputNode(InputNodeName + "_" + std::to_string(rand()) + std::to_string(rand()));
-
-    MarshalNodeNameDetailAttribute();
 
     int CurveOrder = TheCurve->GetOrder();
     int KnotCount = TheCurve->GetNumKnots();
@@ -309,6 +307,8 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
     if (MaxInputNode)
         AddNodeTransformAttributes(MaxInputNode);
+
+    SetInputMetadataAttributes(1);
 
     FinalizeInputGeometry();
 

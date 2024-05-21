@@ -19,7 +19,7 @@ class HEMAX_Input
 
 	void CreateInputNode(std::string Name);
 
-        void MarshalNodeNameDetailAttribute();
+        void SetInputMetadataAttributes(int PrimCount);
 
 	void AddNewPart(HAPI_PartType PartType, int FaceCount, int VertexCount,
                 int PointCount);
@@ -84,8 +84,3 @@ class HEMAX_Input
         bool GroupMembership;
         std::string GroupHeadName;
 };
-
-HEMAX_Input* CreateOperatorNodeFromMaxNode(ULONG MaxInput,
-        HEMAX_Parameter* Parameter);
-HEMAX_Input* CreateSubnetworkInputFromMaxNode(ULONG MaxInput,
-        HEMAX_Node* Node);

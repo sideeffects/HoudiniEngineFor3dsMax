@@ -19,6 +19,7 @@
 #define HEMAX_MAX_RAW_TM_LOCAL		"hemax_transform_local"
 #define HEMAX_MAX_NODE_NAME             "hemax_node_name"
 #define HEMAX_MAX_NODE_NAME_OUTPUT      "hemax_node_name_output"
+#define HEMAX_INPUT_NODE_NAME           "hemax_input_node_name"
 #define HEMAX_SOFT_SELECTION_ATTRIBUTE	"soft_selection"
 #define HEMAX_ALPHA_ATTRIBUTE		"Alpha"
 #define HEMAX_ILLUMINATION_ATTRIBUTE	"illumination"
