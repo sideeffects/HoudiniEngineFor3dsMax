@@ -475,19 +475,35 @@ SetGeometryHdaInput_cf(Value** ArgList, int Count)
 
     INode* Node = ArgList[0]->to_node();
     int Subnetwork = ArgList[1]->to_int();
-    INode* InputNode = nullptr;
+    INodeTab InputNodes;
     bool ClearInput = false;
 
     if (ArgList[2]->tag == class_tag(Undefined))
     {
         ClearInput = true; 
     }
+    else if (ArgList[2]->tag == class_tag(MAXNode))
+    {
+        InputNodes.AppendNode(ArgList[2]->to_node());
+    }
+    else if (ArgList[2]->tag == class_tag(Array) &&
+             dynamic_cast<Array*>(ArgList[2]))
+    {
+        Array* NodeList = dynamic_cast<Array*>(ArgList[2]);
+        for (int i = 0; i < (*NodeList).size; ++i)
+        {
+            InputNodes.AppendNode((*NodeList)[i]->to_node());
+        }
+    }
     else
     {
-        InputNode = ArgList[2]->to_node();
+        HEMAX_Logger::Instance().AddEntry("SetGeometryHdaInput: "
+            "Invalid argument provided. Argument must be one of the valid "
+            "options: (Undefined, Node, Array of Nodes)",
+            HEMAX_LOG_LEVEL_ERROR);
     }
 
-    if (Node && (InputNode || ClearInput))
+    if (Node && (InputNodes.Count() > 0 || ClearInput))
     {
 	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->
 				    Find3dsmaxHda(Node->GetHandle());
@@ -496,21 +512,17 @@ SetGeometryHdaInput_cf(Value** ArgList, int Count)
 	    int InputCount = Hda->Hda.MainNode.Info.inputCount; 
 	    if (Subnetwork < InputCount)
 	    {
-                if (InputNode)
-                {
-                    // TODO: mutli input
-                    /*
-                    HEMAX_MaxScriptInterface::PluginInstance->
-                        HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
-                                                       Subnetwork,
-                                                       InputNode);
-                    */
-                }
-                else if (ClearInput)
+                if (ClearInput)
                 {
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleSubnetworkInputCleared(&Hda->Hda.MainNode,
                             Subnetwork);
+                }
+                else
+                {
+                    HEMAX_MaxScriptInterface::PluginInstance->
+                        HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
+                            Subnetwork, InputNodes);
                 }
 
                 HEMAX_MaxScriptInterface::PluginInstance->
@@ -537,19 +549,34 @@ SetModifierHdaInput_cf(Value** ArgList, int Count)
     INode* Node = ArgList[0]->to_node();
     Modifier* Mod = ArgList[1]->to_modifier();
     int Subnetwork = ArgList[2]->to_int();
-    INode* InputNode = nullptr;
+    INodeTab InputNodes;
     bool ClearInput = false;
 
     if (ArgList[3]->tag == class_tag(Undefined))
     {
         ClearInput = true;
     }
+    else if (ArgList[3]->tag == class_tag(MAXNode))
+    {
+        InputNodes.AppendNode(ArgList[3]->to_node());
+    }
+    else if (ArgList[3]->tag == class_tag(Array) &&
+             dynamic_cast<Array*>(ArgList[3]))
+    {
+        Array* NodeList = dynamic_cast<Array*>(ArgList[3]);
+        for (int i = 0; i < (*NodeList).size; ++i)
+        {
+            InputNodes.AppendNode((*NodeList)[i]->to_node());
+        }
+    }
     else
     {
-        InputNode = ArgList[3]->to_node();
+        HEMAX_Logger::Instance().AddEntry("SetModifierHdaInput: Invalid "
+            "argument provided. Argument must be one of the valid options: "
+            "(Undefined, Node, Array of Nodes)", HEMAX_LOG_LEVEL_ERROR);
     }
 
-    if (Node && Mod && (InputNode || ClearInput))
+    if (Node && Mod && (InputNodes.Count() > 0 || ClearInput))
     {
 	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->
 				    Find3dsmaxHda(Node->GetHandle(), Mod);	    
@@ -564,21 +591,17 @@ SetModifierHdaInput_cf(Value** ArgList, int Count)
 	    }
 	    else if (Subnetwork > 0 && Subnetwork < InputCount)
 	    {
-                if (InputNode)
-                {
-                    // TODO: multi input
-                    /*
-                    HEMAX_MaxScriptInterface::PluginInstance->
-                        HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
-                                                       Subnetwork,
-                                                       InputNode);
-                    */
-                }
-                else if (ClearInput)
+                if (ClearInput)
                 {
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleSubnetworkInputCleared(&Hda->Hda.MainNode,
-                                                     Subnetwork);
+                            Subnetwork);
+                }
+                else
+                {
+                    HEMAX_MaxScriptInterface::PluginInstance->
+                        HandleSubnetworkInputSelection(&Hda->Hda.MainNode,
+                            Subnetwork, InputNodes);
                 }
 
                 HEMAX_MaxScriptInterface::PluginInstance->
@@ -605,19 +628,34 @@ SetGeometryHdaOpParmInput_cf(Value** ArgList, int Count)
     INode* Node = ArgList[0]->to_node();
     std::wstring WParamName(ArgList[1]->to_string());
     std::string ParamName(WParamName.begin(), WParamName.end());
-    INode* InputNode = nullptr;
+    INodeTab InputNodes;
     bool ClearInput = false;
 
     if (ArgList[2]->tag == class_tag(Undefined))
     {
         ClearInput = true;
     }
+    else if (ArgList[2]->tag == class_tag(MAXNode))
+    {
+        InputNodes.AppendNode(ArgList[2]->to_node());
+    }
+    else if (ArgList[2]->tag == class_tag(Array) &&
+             dynamic_cast<Array*>(ArgList[2]))
+    {
+        Array* NodeList = dynamic_cast<Array*>(ArgList[2]);
+        for (int i = 0; i < (*NodeList).size; ++i)
+        {
+            InputNodes.AppendNode((*NodeList)[i]->to_node());
+        } 
+    }
     else
     {
-        InputNode = ArgList[2]->to_node();
+        HEMAX_Logger::Instance().AddEntry("SetGeometryHdaOpParmInput: Invalid "
+            "argument provided. Argument must be one of the valid options: "
+            "(Undefined, Nodes, Array of Nodes)", HEMAX_LOG_LEVEL_ERROR);
     }
 
-    if (Node && (InputNode || ClearInput))
+    if (Node && (InputNodes.Count() > 0 || ClearInput))
     {
 	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
 				GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
@@ -627,21 +665,16 @@ SetGeometryHdaOpParmInput_cf(Value** ArgList, int Count)
 	    HEMAX_Parameter* Parm = Hda->Hda.MainNode.GetParameter(ParamName);
 	    if (Parm)
 	    {
-                if (InputNode)
+                if (ClearInput)
                 {
-                    // TODO: multi input
-                    /*
+                    HEMAX_MaxScriptInterface::PluginInstance->
+                        HandleParameterInputCleared(&Hda->Hda.MainNode, *Parm);
+                }
+                else
+                {
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleParameterInputSelection(&Hda->Hda.MainNode,
-                                                      *Parm,
-                                                      InputNode);
-                    */
-                }
-                else if (ClearInput)
-                {
-                    HEMAX_MaxScriptInterface::PluginInstance->
-                        HandleParameterInputCleared(&Hda->Hda.MainNode,
-                                                    *Parm);
+                            *Parm, InputNodes);
                 }
 
                 HEMAX_MaxScriptInterface::PluginInstance->
@@ -664,19 +697,34 @@ SetModifierHdaOpParmInput_cf(Value** ArgList, int Count)
     Modifier* Mod = ArgList[1]->to_modifier();
     std::wstring WParamName(ArgList[2]->to_string());
     std::string ParamName(WParamName.begin(), WParamName.end());
-    INode* InputNode = nullptr;
+    INodeTab InputNodes;
     bool ClearInput = false;
 
     if (ArgList[3]->tag == class_tag(Undefined))
     {
         ClearInput = true;
     }
+    else if (ArgList[3]->tag == class_tag(MAXNode))
+    {
+        InputNodes.AppendNode(ArgList[3]->to_node());
+    }
+    else if (ArgList[3]->tag == class_tag(Array) &&
+             dynamic_cast<Array*>(ArgList[3]))
+    {
+        Array* NodeList = dynamic_cast<Array*>(ArgList[3]);
+        for (int i = 0; i < (*NodeList).size; ++i)
+        {
+            InputNodes.AppendNode((*NodeList)[i]->to_node());
+        } 
+    }
     else
     {
-        InputNode = ArgList[3]->to_node();
+        HEMAX_Logger::Instance().AddEntry("SetModifierHdaOpParmInput: Invalid "
+            "argument provided. Argument must be one of the valid options: "
+            "(Undefined, Node, Array of Nodes)", HEMAX_LOG_LEVEL_ERROR);
     }
 
-    if (Node && Mod && (InputNode || ClearInput))
+    if (Node && Mod && (InputNodes.Count() > 0 || ClearInput))
     {
 	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
 				GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Mod);
@@ -686,21 +734,16 @@ SetModifierHdaOpParmInput_cf(Value** ArgList, int Count)
 	    HEMAX_Parameter* Parm = Hda->Hda.MainNode.GetParameter(ParamName);
 	    if (Parm)
 	    {
-                if (InputNode)
+                if (ClearInput)
                 {
-                    // TODO: multi input
-                    /*
+                    HEMAX_MaxScriptInterface::PluginInstance->
+                        HandleParameterInputCleared(&Hda->Hda.MainNode, *Parm);
+                }
+                else
+                {
                     HEMAX_MaxScriptInterface::PluginInstance->
                         HandleParameterInputSelection(&Hda->Hda.MainNode,
-                                                      *Parm,
-                                                      InputNode);
-                    */
-                }
-                else if (ClearInput)
-                {
-                    HEMAX_MaxScriptInterface::PluginInstance->
-                        HandleParameterInputCleared(&Hda->Hda.MainNode,
-                                                    *Parm);
+                            *Parm, InputNodes);
                 }
 
                 HEMAX_MaxScriptInterface::PluginInstance->
@@ -1064,19 +1107,19 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
         if (!InputInst)
             return &undefined;
 
-        // TODO: multi input
-        INode* InputNode =
-            GetCOREInterface()->GetINodeByHandle(
-                InputInst->MaxInputs[0]->Get3dsMaxNodeHandle());
-
-        if (InputNode)
-        {
-            return MAXNode::intern(InputNode);
-        }
-        else
-        {
+        if (InputInst->MaxInputs.size() <= 0)
             return &undefined;
-        }
+
+        Array* NodeList = new Array(0);
+
+        for (auto&& Input : InputInst->MaxInputs)
+        {
+            NodeList->append(MAXNode::intern(
+                GetCOREInterface()->GetINodeByHandle(
+                    Input->Get3dsMaxNodeHandle())));
+        } 
+
+        return NodeList;
     }
     else
     {
@@ -1244,7 +1287,8 @@ HEMAX_MaxScriptInterface::CreateModifierHda(INode* Node, std::string AssetPath, 
 }
 
 bool
-HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda, HEMAX_Parameter Parm, Value** ArgList, int Count, int StartIndex)
+HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda,
+        HEMAX_Parameter Parm, Value** ArgList, int Count, int StartIndex)
 {
     bool Success = true;
 
@@ -1282,9 +1326,15 @@ HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda, HEMAX_Paramet
 	} break;
 	case HEMAX_MS_ARG_NODE_TYPE:
 	{
-            // TODO: multi input
-	    //HEMAX_MaxScriptInterface::PluginInstance->HandleParameterInputSelection(&MaxHda.Hda.MainNode, Parm, ArgList[StartIndex]->to_node());
-	}
+            INodeTab InputNodes;
+            for (int i = StartIndex; i < Count; ++i)
+            {
+                InputNodes.AppendNode(ArgList[i]->to_node());
+            }
+            HEMAX_MaxScriptInterface::PluginInstance->
+                HandleParameterInputSelection(&MaxHda.Hda.MainNode, Parm,
+                    InputNodes);
+	} break;
 	default:
 	{
 	    Success = false;
