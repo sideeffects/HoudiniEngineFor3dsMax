@@ -55,6 +55,13 @@ class HEMAX_3dsmaxHda
 	void UpdateAllCustomAttributes();
 	void ClearParameterCustomAttributes();
 
+protected:
+
+        virtual HEMAX_NodeListParameterAttrib* CreateNodeListCustAttrib(
+                int Subnetwork) = 0;
+
+public:
+
 	void UpdateIntCustomAttribute(
                 HEMAX_Parameter& Parameter, std::vector<int>& IntValues);
 	void UpdateFloatCustomAttribute(

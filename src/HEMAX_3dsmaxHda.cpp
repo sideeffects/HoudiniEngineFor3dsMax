@@ -637,7 +637,40 @@ HEMAX_3dsmaxHda::ReloadSubnetworkInputsFromCustomAttributes()
         std::string SubnetworkSearch = "subnetwork_" + std::to_string(z);
         auto Search = CustAttribMap->find(SubnetworkSearch);
 
-        if (Search != CustAttribMap->end())
+        if (Search == CustAttribMap->end())
+        {
+            Mapping.push_back(Entry);
+            continue;
+        }
+
+        // If this is true, this means that an old scene file from before multi
+        // inputs were supported is being loaded. We must load the input node
+        // and then convert the custom attribute from a
+        // HEMAX_NodeParameterAttrib to a HEMAX_NodeListParameterAttrib
+        if (dynamic_cast<HEMAX_NodeParameterAttrib*>(Search->second))
+        {
+            INode* Node = Search->second->PBlock->GetINode(0);
+            Entry.Nodes.push_back(Node);
+
+            HEMAX_NodeListParameterAttrib* ReplacementAttrib =
+                CreateNodeListCustAttrib(z);
+
+            if (Node)
+                ReplacementAttrib->PBlock->Append(0, 1, &Node);
+
+            for (int p = 0; p < CustomAttributes->GetNumCustAttribs(); ++p)
+            {
+                if (CustomAttributes->GetCustAttrib(p) == Search->second)
+                {
+                    CustomAttributes->SetCustAttrib(p, ReplacementAttrib);
+                    break;
+                }
+            }
+
+            delete Search->second;
+            Search->second = ReplacementAttrib; 
+        }
+        else
         {
             for (int i = 0; i < Search->second->PBlock->Count(0); ++i)
             {
@@ -923,13 +956,44 @@ HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter,
 
     Entry.ParameterName = ParameterName;
 
-    for (int i = 0; i < Search->second->PBlock->Count(0); ++i)
+    // If this is true, this means that an old scene file from before multi
+    // inputs were supported is being loaded. We must load the input node and
+    // then convert the custom attribute from a HEMAX_NodeParameterAttrib to a
+    // HEMAX_NodeListParameterAttrib
+    if (dynamic_cast<HEMAX_NodeParameterAttrib*>(Search->second))
     {
-        INode* Node = nullptr;
-        Interval ValidityInterval;
-        Search->second->PBlock->GetValue(0, 0, Node, ValidityInterval, i);
+        INode* Node = Search->second->PBlock->GetINode(0);
         Entry.Nodes.push_back(Node);
-    } 
+
+        HEMAX_NodeListParameterAttrib* ReplacementAttrib =
+            new HEMAX_NodeListParameterAttrib;
+        ReplacementAttrib->SetParameterName(ParameterName);
+
+        if (Node)
+            ReplacementAttrib->PBlock->Append(0, 1, &Node);
+
+        for (int p = 0; p < CustomAttributes->GetNumCustAttribs(); ++p)
+        {
+            if (CustomAttributes->GetCustAttrib(p) == Search->second)
+            {
+                CustomAttributes->SetCustAttrib(p, ReplacementAttrib);
+                break;
+            }
+        }
+
+        delete Search->second;
+        Search->second = ReplacementAttrib;
+    }
+    else
+    {
+        for (int i = 0; i < Search->second->PBlock->Count(0); ++i)
+        {
+            INode* Node = nullptr;
+            Interval ValidityInterval;
+            Search->second->PBlock->GetValue(0, 0, Node, ValidityInterval, i);
+            Entry.Nodes.push_back(Node);
+        } 
+    }
 
     return Entry;
 }

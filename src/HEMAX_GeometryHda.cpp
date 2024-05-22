@@ -1517,6 +1517,16 @@ HEMAX_GeometryHda::GenerateBoilerplateGeometryPluginCustomAttributes(INode* Plug
     }
 }
 
+HEMAX_NodeListParameterAttrib*
+HEMAX_GeometryHda::CreateNodeListCustAttrib(int Subnetwork)
+{
+    HEMAX_NodeListParameterAttrib* Attrib = new HEMAX_NodeListParameterAttrib;
+    Attrib->SetParameterName("subnetwork_" + std::to_string(Subnetwork));
+    Attrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK,
+        Subnetwork);
+    return Attrib;
+}
+
 void
 HEMAX_GeometryHda::UpdateInstances(HEMAX_Hda& Hda)
 {

@@ -165,6 +165,16 @@ HEMAX_ModifierHda::GenerateBoilerplateModifierPluginCustomAttributes(HEMAX_Modif
     }
 }
 
+HEMAX_NodeListParameterAttrib*
+HEMAX_ModifierHda::CreateNodeListCustAttrib(int Subnetwork)
+{
+    HEMAX_NodeListParameterAttrib* Attrib = new HEMAX_NodeListParameterAttrib;
+    Attrib->SetParameterName("subnetwork_" + std::to_string(Subnetwork));
+    Attrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK,
+        Subnetwork);
+    return Attrib;
+}
+
 void
 HEMAX_ModifierHda::Update3dsmaxHda()
 {

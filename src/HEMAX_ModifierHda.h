@@ -41,6 +41,8 @@ class HEMAX_ModifierHda : public HEMAX_3dsmaxHda
 
 	void			GenerateBoilerplateModifierPluginCustomAttributes(HEMAX_Modifier* ModifierPlugin, HEMAX_Hda& Hda);
 
+        virtual HEMAX_NodeListParameterAttrib* CreateNodeListCustAttrib(
+                int Subnetwork) override;
 };
 
 

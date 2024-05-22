@@ -111,6 +111,9 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 	void GenerateBoilerplateGeometryPluginCustomAttributes(
                 INode* PluginNode, HAPI_PartId Part);
 
+        virtual HEMAX_NodeListParameterAttrib* CreateNodeListCustAttrib(
+                int Subnetwork) override;
+
 	void UpdateInstances(HEMAX_Hda& Hda);
 
 	void StampInstanceNode(INode* Node);
