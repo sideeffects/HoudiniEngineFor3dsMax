@@ -43,8 +43,6 @@ class HEMAX_SessionWidget : public QWidget
 
         void InitFieldsFromPrefs();
 
-        int MBToBytes(int MB);
-
     private:
 
 	Q_OBJECT

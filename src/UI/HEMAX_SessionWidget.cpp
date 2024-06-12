@@ -558,12 +558,6 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
     }
 }
 
-int
-HEMAX_SessionWidget::MBToBytes(int MB)
-{
-    return MB*1024*1024;
-}
-
 void
 HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
 {
@@ -626,7 +620,7 @@ HEMAX_SessionWidget::SlotSessionsStartButtonClicked()
             }
 
             Manager.SetThriftSharedMemoryBufferSize(
-                MBToBytes(SessionsSharedMemoryBufferSize->text().toInt()));
+                SessionsSharedMemoryBufferSize->text().toInt());
             
             QString BufferType =
                 SessionsSharedMemoryBufferType->currentText();
