@@ -1891,6 +1891,15 @@ HEMAX_HoudiniApi::HandleHAPIResult(const HAPI_Session* session, HAPI_Result Resu
         if (!session)
             return Result;
 
+        if (HEMAX_HoudiniApi::IsSessionValid(session) != HAPI_RESULT_SUCCESS)
+        {
+            HEMAX_Logger::Instance().AddEntry("Could not get the status string "
+                "for failed HAPI call because the session is no longer valid. "
+                "Houdini Engine may have crashed.", HEMAX_LOG_LEVEL_ERROR);
+
+            return Result;
+        }
+
         int StrBufLen;
         HEMAX_HoudiniApi::GetStatusStringBufLength(session,
             HAPI_STATUS_CALL_RESULT, HAPI_STATUSVERBOSITY_ERRORS, &StrBufLen);
