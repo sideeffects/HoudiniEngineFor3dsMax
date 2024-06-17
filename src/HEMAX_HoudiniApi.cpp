@@ -299,9 +299,6 @@ HEMAX_HoudiniApi::GetAttributeUInt8DataImpl = &HEMAX_HoudiniApi::GetAttributeUIn
 HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncFuncPtr
 HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncImpl = &HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncEmptyStub;
 
-HEMAX_HoudiniApi::GetAttributeWaitFuncPtr
-HEMAX_HoudiniApi::GetAttributeWaitImpl = &HEMAX_HoudiniApi::GetAttributeWaitEmptyStub;
-
 HEMAX_HoudiniApi::GetAvailableAssetCountFuncPtr
 HEMAX_HoudiniApi::GetAvailableAssetCountImpl = &HEMAX_HoudiniApi::GetAvailableAssetCountEmptyStub;
 
@@ -433,6 +430,9 @@ HEMAX_HoudiniApi::GetInstancedPartIdsImpl = &HEMAX_HoudiniApi::GetInstancedPartI
 
 HEMAX_HoudiniApi::GetInstancerPartTransformsFuncPtr
 HEMAX_HoudiniApi::GetInstancerPartTransformsImpl = &HEMAX_HoudiniApi::GetInstancerPartTransformsEmptyStub;
+
+HEMAX_HoudiniApi::GetJobStatusFuncPtr
+HEMAX_HoudiniApi::GetJobStatusImpl = &HEMAX_HoudiniApi::GetJobStatusEmptyStub;
 
 HEMAX_HoudiniApi::GetLoadedAssetLibraryCountFuncPtr
 HEMAX_HoudiniApi::GetLoadedAssetLibraryCountImpl = &HEMAX_HoudiniApi::GetLoadedAssetLibraryCountEmptyStub;
@@ -815,83 +815,164 @@ HEMAX_HoudiniApi::SetAnimCurveImpl = &HEMAX_HoudiniApi::SetAnimCurveEmptyStub;
 HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeDictionaryDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeDictionaryDataImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeFloat64DataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloat64DataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64DataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeFloatArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloatArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatArrayDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeFloatDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloatDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeFloatDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloatDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeFloatUniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeFloatUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatUniqueDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeIndexedStringDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeIndexedStringDataImpl = &HEMAX_HoudiniApi::SetAttributeIndexedStringDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeInt16ArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt16ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt16ArrayDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeInt16DataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt16DataImpl = &HEMAX_HoudiniApi::SetAttributeInt16DataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeInt16DataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt16DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16DataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeInt16UniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt16UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt16UniqueDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeInt64ArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt64ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt64ArrayDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeInt64DataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt64DataImpl = &HEMAX_HoudiniApi::SetAttributeInt64DataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeInt64DataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt64DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64DataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeInt64UniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt64UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt64UniqueDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeInt8ArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt8ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt8ArrayDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeInt8DataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt8DataImpl = &HEMAX_HoudiniApi::SetAttributeInt8DataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeInt8DataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt8DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8DataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeInt8UniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeInt8UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt8UniqueDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeIntArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeIntArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeIntArrayDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeIntDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeIntDataImpl = &HEMAX_HoudiniApi::SetAttributeIntDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeIntDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeIntDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeIntUniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeIntUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeIntUniqueDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeStringArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeStringArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeStringArrayDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeStringDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeStringDataImpl = &HEMAX_HoudiniApi::SetAttributeStringDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeStringDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeStringDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeStringUniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeStringUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeStringUniqueDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeUInt8DataFuncPtr
 HEMAX_HoudiniApi::SetAttributeUInt8DataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8DataEmptyStub;
 
+HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncEmptyStub;
+
 HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataFuncPtr
 HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataEmptyStub;
+
+HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncFuncPtr
+HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncEmptyStub;
 
 HEMAX_HoudiniApi::SetCachePropertyFuncPtr
 HEMAX_HoudiniApi::SetCachePropertyImpl = &HEMAX_HoudiniApi::SetCachePropertyEmptyStub;
@@ -1034,6 +1115,9 @@ HEMAX_HoudiniApi::SetWorkitemStringDataImpl = &HEMAX_HoudiniApi::SetWorkitemStri
 HEMAX_HoudiniApi::ShutdownFuncPtr
 HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
 
+HEMAX_HoudiniApi::StartPerformanceMonitorProfileFuncPtr
+HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl = &HEMAX_HoudiniApi::StartPerformanceMonitorProfileEmptyStub;
+
 HEMAX_HoudiniApi::StartThriftNamedPipeServerFuncPtr
 HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = &HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub;
 
@@ -1042,6 +1126,9 @@ HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = &HEMAX_HoudiniApi::StartTh
 
 HEMAX_HoudiniApi::StartThriftSocketServerFuncPtr
 HEMAX_HoudiniApi::StartThriftSocketServerImpl = &HEMAX_HoudiniApi::StartThriftSocketServerEmptyStub;
+
+HEMAX_HoudiniApi::StopPerformanceMonitorProfileFuncPtr
+HEMAX_HoudiniApi::StopPerformanceMonitorProfileImpl = &HEMAX_HoudiniApi::StopPerformanceMonitorProfileEmptyStub;
 
 
 void
@@ -1138,7 +1225,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsyncImpl = (GetAttributeUInt8ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAttributeUInt8ArrayDataAsync");
     HEMAX_HoudiniApi::GetAttributeUInt8DataImpl = (GetAttributeUInt8DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAttributeUInt8Data");
     HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncImpl = (GetAttributeUInt8DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAttributeUInt8DataAsync");
-    HEMAX_HoudiniApi::GetAttributeWaitImpl = (GetAttributeWaitFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAttributeWait");
     HEMAX_HoudiniApi::GetAvailableAssetCountImpl = (GetAvailableAssetCountFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAvailableAssetCount");
     HEMAX_HoudiniApi::GetAvailableAssetsImpl = (GetAvailableAssetsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetAvailableAssets");
     HEMAX_HoudiniApi::GetBoxInfoImpl = (GetBoxInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetBoxInfo");
@@ -1183,6 +1269,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetInstancedObjectIdsImpl = (GetInstancedObjectIdsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetInstancedObjectIds");
     HEMAX_HoudiniApi::GetInstancedPartIdsImpl = (GetInstancedPartIdsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetInstancedPartIds");
     HEMAX_HoudiniApi::GetInstancerPartTransformsImpl = (GetInstancerPartTransformsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetInstancerPartTransforms");
+    HEMAX_HoudiniApi::GetJobStatusImpl = (GetJobStatusFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetJobStatus");
     HEMAX_HoudiniApi::GetLoadedAssetLibraryCountImpl = (GetLoadedAssetLibraryCountFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetLoadedAssetLibraryCount");
     HEMAX_HoudiniApi::GetManagerNodeIdImpl = (GetManagerNodeIdFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetManagerNodeId");
     HEMAX_HoudiniApi::GetMaterialInfoImpl = (GetMaterialInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetMaterialInfo");
@@ -1310,32 +1397,59 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::SaveNodeToFileImpl = (SaveNodeToFileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SaveNodeToFile");
     HEMAX_HoudiniApi::SetAnimCurveImpl = (SetAnimCurveFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAnimCurve");
     HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataImpl = (SetAttributeDictionaryArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeDictionaryArrayData");
+    HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncImpl = (SetAttributeDictionaryArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeDictionaryArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeDictionaryDataImpl = (SetAttributeDictionaryDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeDictionaryData");
+    HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncImpl = (SetAttributeDictionaryDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeDictionaryDataAsync");
     HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataImpl = (SetAttributeFloat64ArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64ArrayData");
+    HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncImpl = (SetAttributeFloat64ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64ArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeFloat64DataImpl = (SetAttributeFloat64DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64Data");
+    HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncImpl = (SetAttributeFloat64DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64DataAsync");
     HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataImpl = (SetAttributeFloat64UniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64UniqueData");
+    HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncImpl = (SetAttributeFloat64UniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloat64UniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeFloatArrayDataImpl = (SetAttributeFloatArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatArrayData");
+    HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncImpl = (SetAttributeFloatArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeFloatDataImpl = (SetAttributeFloatDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatData");
+    HEMAX_HoudiniApi::SetAttributeFloatDataAsyncImpl = (SetAttributeFloatDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatDataAsync");
     HEMAX_HoudiniApi::SetAttributeFloatUniqueDataImpl = (SetAttributeFloatUniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatUniqueData");
+    HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncImpl = (SetAttributeFloatUniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeFloatUniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeIndexedStringDataImpl = (SetAttributeIndexedStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIndexedStringData");
+    HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncImpl = (SetAttributeIndexedStringDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIndexedStringDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt16ArrayDataImpl = (SetAttributeInt16ArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16ArrayData");
+    HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncImpl = (SetAttributeInt16ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16ArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt16DataImpl = (SetAttributeInt16DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16Data");
+    HEMAX_HoudiniApi::SetAttributeInt16DataAsyncImpl = (SetAttributeInt16DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16DataAsync");
     HEMAX_HoudiniApi::SetAttributeInt16UniqueDataImpl = (SetAttributeInt16UniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16UniqueData");
+    HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncImpl = (SetAttributeInt16UniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt16UniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt64ArrayDataImpl = (SetAttributeInt64ArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64ArrayData");
+    HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncImpl = (SetAttributeInt64ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64ArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt64DataImpl = (SetAttributeInt64DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64Data");
+    HEMAX_HoudiniApi::SetAttributeInt64DataAsyncImpl = (SetAttributeInt64DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64DataAsync");
     HEMAX_HoudiniApi::SetAttributeInt64UniqueDataImpl = (SetAttributeInt64UniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64UniqueData");
+    HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncImpl = (SetAttributeInt64UniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt64UniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt8ArrayDataImpl = (SetAttributeInt8ArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8ArrayData");
+    HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncImpl = (SetAttributeInt8ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8ArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeInt8DataImpl = (SetAttributeInt8DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8Data");
+    HEMAX_HoudiniApi::SetAttributeInt8DataAsyncImpl = (SetAttributeInt8DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8DataAsync");
     HEMAX_HoudiniApi::SetAttributeInt8UniqueDataImpl = (SetAttributeInt8UniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8UniqueData");
+    HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncImpl = (SetAttributeInt8UniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeInt8UniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeIntArrayDataImpl = (SetAttributeIntArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntArrayData");
+    HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncImpl = (SetAttributeIntArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeIntDataImpl = (SetAttributeIntDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntData");
+    HEMAX_HoudiniApi::SetAttributeIntDataAsyncImpl = (SetAttributeIntDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntDataAsync");
     HEMAX_HoudiniApi::SetAttributeIntUniqueDataImpl = (SetAttributeIntUniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntUniqueData");
+    HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncImpl = (SetAttributeIntUniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeIntUniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeStringArrayDataImpl = (SetAttributeStringArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringArrayData");
+    HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncImpl = (SetAttributeStringArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeStringDataImpl = (SetAttributeStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringData");
+    HEMAX_HoudiniApi::SetAttributeStringDataAsyncImpl = (SetAttributeStringDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringDataAsync");
     HEMAX_HoudiniApi::SetAttributeStringUniqueDataImpl = (SetAttributeStringUniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringUniqueData");
+    HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncImpl = (SetAttributeStringUniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeStringUniqueDataAsync");
     HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataImpl = (SetAttributeUInt8ArrayDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8ArrayData");
+    HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncImpl = (SetAttributeUInt8ArrayDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8ArrayDataAsync");
     HEMAX_HoudiniApi::SetAttributeUInt8DataImpl = (SetAttributeUInt8DataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8Data");
+    HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncImpl = (SetAttributeUInt8DataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8DataAsync");
     HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataImpl = (SetAttributeUInt8UniqueDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8UniqueData");
+    HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncImpl = (SetAttributeUInt8UniqueDataAsyncFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetAttributeUInt8UniqueDataAsync");
     HEMAX_HoudiniApi::SetCachePropertyImpl = (SetCachePropertyFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetCacheProperty");
     HEMAX_HoudiniApi::SetCompositorOptionsImpl = (SetCompositorOptionsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetCompositorOptions");
     HEMAX_HoudiniApi::SetCurveCountsImpl = (SetCurveCountsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetCurveCounts");
@@ -1383,9 +1497,11 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::SetWorkitemIntDataImpl = (SetWorkitemIntDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemIntData");
     HEMAX_HoudiniApi::SetWorkitemStringDataImpl = (SetWorkitemStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemStringData");
     HEMAX_HoudiniApi::ShutdownImpl = (ShutdownFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_Shutdown");
+    HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl = (StartPerformanceMonitorProfileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartPerformanceMonitorProfile");
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = (StartThriftNamedPipeServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftNamedPipeServer");
     HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = (StartThriftSharedMemoryServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftSharedMemoryServer");
     HEMAX_HoudiniApi::StartThriftSocketServerImpl = (StartThriftSocketServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftSocketServer");
+    HEMAX_HoudiniApi::StopPerformanceMonitorProfileImpl = (StopPerformanceMonitorProfileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StopPerformanceMonitorProfile");
 }
 
 
@@ -1481,7 +1597,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsyncImpl = &HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::GetAttributeUInt8DataImpl = &HEMAX_HoudiniApi::GetAttributeUInt8DataEmptyStub;
     HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncImpl = &HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncEmptyStub;
-    HEMAX_HoudiniApi::GetAttributeWaitImpl = &HEMAX_HoudiniApi::GetAttributeWaitEmptyStub;
     HEMAX_HoudiniApi::GetAvailableAssetCountImpl = &HEMAX_HoudiniApi::GetAvailableAssetCountEmptyStub;
     HEMAX_HoudiniApi::GetAvailableAssetsImpl = &HEMAX_HoudiniApi::GetAvailableAssetsEmptyStub;
     HEMAX_HoudiniApi::GetBoxInfoImpl = &HEMAX_HoudiniApi::GetBoxInfoEmptyStub;
@@ -1526,6 +1641,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetInstancedObjectIdsImpl = &HEMAX_HoudiniApi::GetInstancedObjectIdsEmptyStub;
     HEMAX_HoudiniApi::GetInstancedPartIdsImpl = &HEMAX_HoudiniApi::GetInstancedPartIdsEmptyStub;
     HEMAX_HoudiniApi::GetInstancerPartTransformsImpl = &HEMAX_HoudiniApi::GetInstancerPartTransformsEmptyStub;
+    HEMAX_HoudiniApi::GetJobStatusImpl = &HEMAX_HoudiniApi::GetJobStatusEmptyStub;
     HEMAX_HoudiniApi::GetLoadedAssetLibraryCountImpl = &HEMAX_HoudiniApi::GetLoadedAssetLibraryCountEmptyStub;
     HEMAX_HoudiniApi::GetManagerNodeIdImpl = &HEMAX_HoudiniApi::GetManagerNodeIdEmptyStub;
     HEMAX_HoudiniApi::GetMaterialInfoImpl = &HEMAX_HoudiniApi::GetMaterialInfoEmptyStub;
@@ -1653,32 +1769,59 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::SaveNodeToFileImpl = &HEMAX_HoudiniApi::SaveNodeToFileEmptyStub;
     HEMAX_HoudiniApi::SetAnimCurveImpl = &HEMAX_HoudiniApi::SetAnimCurveEmptyStub;
     HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeDictionaryDataImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloat64DataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64DataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloatArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloatDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloatDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeFloatUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeFloatUniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeIndexedStringDataImpl = &HEMAX_HoudiniApi::SetAttributeIndexedStringDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt16ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt16ArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt16DataImpl = &HEMAX_HoudiniApi::SetAttributeInt16DataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt16DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16DataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt16UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt16UniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt64ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt64ArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt64DataImpl = &HEMAX_HoudiniApi::SetAttributeInt64DataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt64DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64DataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt64UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt64UniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt8ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeInt8ArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt8DataImpl = &HEMAX_HoudiniApi::SetAttributeInt8DataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt8DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8DataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeInt8UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeInt8UniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeIntArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeIntArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeIntDataImpl = &HEMAX_HoudiniApi::SetAttributeIntDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeIntDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeIntUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeIntUniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeStringArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeStringArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeStringDataImpl = &HEMAX_HoudiniApi::SetAttributeStringDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeStringDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeStringUniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeStringUniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeUInt8DataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8DataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataImpl = &HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataEmptyStub;
+    HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncImpl = &HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncEmptyStub;
     HEMAX_HoudiniApi::SetCachePropertyImpl = &HEMAX_HoudiniApi::SetCachePropertyEmptyStub;
     HEMAX_HoudiniApi::SetCompositorOptionsImpl = &HEMAX_HoudiniApi::SetCompositorOptionsEmptyStub;
     HEMAX_HoudiniApi::SetCurveCountsImpl = &HEMAX_HoudiniApi::SetCurveCountsEmptyStub;
@@ -1726,9 +1869,11 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::SetWorkitemIntDataImpl = &HEMAX_HoudiniApi::SetWorkitemIntDataEmptyStub;
     HEMAX_HoudiniApi::SetWorkitemStringDataImpl = &HEMAX_HoudiniApi::SetWorkitemStringDataEmptyStub;
     HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
+    HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl = &HEMAX_HoudiniApi::StartPerformanceMonitorProfileEmptyStub;
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = &HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub;
     HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl = &HEMAX_HoudiniApi::StartThriftSharedMemoryServerEmptyStub;
     HEMAX_HoudiniApi::StartThriftSocketServerImpl = &HEMAX_HoudiniApi::StartThriftSocketServerEmptyStub;
+    HEMAX_HoudiniApi::StopPerformanceMonitorProfileImpl = &HEMAX_HoudiniApi::StopPerformanceMonitorProfileEmptyStub;
 }
 
 
@@ -1737,13 +1882,14 @@ HEMAX_HoudiniApi::IsHAPIInitialized()
 {
     return ( HEMAX_HoudiniApi::IsInitializedImpl != &HEMAX_HoudiniApi::IsInitializedEmptyStub );
 }
-bool
+
+HAPI_Result
 HEMAX_HoudiniApi::HandleHAPIResult(const HAPI_Session* session, HAPI_Result Result)
 {
     if (Result != HAPI_RESULT_SUCCESS)
     {
         if (!session)
-            return false;
+            return Result;
 
         int StrBufLen;
         HEMAX_HoudiniApi::GetStatusStringBufLength(session,
@@ -1755,5405 +1901,2575 @@ HEMAX_HoudiniApi::HandleHAPIResult(const HAPI_Session* session, HAPI_Result Resu
                 StatusString, StrBufLen);
             HEMAX_Logger::Instance().AddEntry(StatusString, HEMAX_LOG_LEVEL_ERROR);
             delete [] StatusString;
-            return false;
+            return Result;
         }
     }
 
-    return true;
+    return Result;
 }
 
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::AddAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::AddAttributeImpl(session, node_id, part_id, name, attr_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::AddGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::AddGroupImpl(session, node_id, part_id, group_type, group_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::BindCustomImplementation(HAPI_SessionType session_type, const char * dll_path)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::BindCustomImplementationImpl(session_type, dll_path);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CancelPDGCook(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CancelPDGCookImpl(session, graph_context_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CheckForSpecificErrors(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ErrorCodeBits errors_to_look_for, HAPI_ErrorCodeBits * errors_found)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CheckForSpecificErrorsImpl(session, node_id, errors_to_look_for, errors_found);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::Cleanup(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CleanupImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ClearConnectionError()
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ClearConnectionErrorImpl();
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CloseSession(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CloseSessionImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CommitGeo(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CommitGeoImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CommitWorkItems(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CommitWorkItemsImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CommitWorkitems(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CommitWorkitemsImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ComposeChildNodeList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ComposeChildNodeListImpl(session, parent_node_id, node_type_filter, node_flags_filter, recursive, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ComposeNodeCookResult(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ComposeNodeCookResultImpl(session, node_id, verbosity, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ComposeObjectList(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * categories, int * object_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ComposeObjectListImpl(session, parent_node_id, categories, object_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConnectNodeInput(const HAPI_Session * session, HAPI_NodeId node_id, int input_index, HAPI_NodeId node_id_to_connect, int output_index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConnectNodeInputImpl(session, node_id, input_index, node_id_to_connect, output_index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConvertMatrixToEuler(const HAPI_Session * session, const float * matrix, HAPI_RSTOrder rst_order, HAPI_XYZOrder rot_order, HAPI_TransformEuler * transform_out)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConvertMatrixToEulerImpl(session, matrix, rst_order, rot_order, transform_out);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConvertMatrixToQuat(const HAPI_Session * session, const float * matrix, HAPI_RSTOrder rst_order, HAPI_Transform * transform_out)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConvertMatrixToQuatImpl(session, matrix, rst_order, transform_out);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConvertTransform(const HAPI_Session * session, const HAPI_TransformEuler * transform_in, HAPI_RSTOrder rst_order, HAPI_XYZOrder rot_order, HAPI_TransformEuler * transform_out)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConvertTransformImpl(session, transform_in, rst_order, rot_order, transform_out);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConvertTransformEulerToMatrix(const HAPI_Session * session, const HAPI_TransformEuler * transform, float * matrix)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConvertTransformEulerToMatrixImpl(session, transform, matrix);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ConvertTransformQuatToMatrix(const HAPI_Session * session, const HAPI_Transform * transform, float * matrix)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ConvertTransformQuatToMatrixImpl(session, transform, matrix);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CookNode(const HAPI_Session * session, HAPI_NodeId node_id, const HAPI_CookOptions * cook_options)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CookNodeImpl(session, node_id, cook_options);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CookPDG(const HAPI_Session * session, HAPI_NodeId cook_node_id, int generate_only, int blocking)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CookPDGImpl(session, cook_node_id, generate_only, blocking);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CookPDGAllOutputs(const HAPI_Session* session, HAPI_NodeId cook_node_id, int generate_only, int blocking)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CookPDGAllOutputsImpl(session, cook_node_id, generate_only, blocking);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateCustomSession(HAPI_SessionType session_type, void * session_info, HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateCustomSessionImpl(session_type, session_info, session);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateHeightFieldInput(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * name, int xsize, int ysize, float voxelsize, HAPI_HeightFieldSampling sampling, HAPI_NodeId * heightfield_node_id, HAPI_NodeId * height_node_id, HAPI_NodeId * mask_node_id, HAPI_NodeId * merge_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateHeightFieldInputImpl(session, parent_node_id, name, xsize, ysize, voxelsize, sampling, heightfield_node_id, height_node_id, mask_node_id, merge_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * new_node_id, const char * name, int xsize, int ysize, float voxelsize)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNodeImpl(session, parent_node_id, new_node_id, name, xsize, ysize, voxelsize);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateInProcessSession(HAPI_Session * session, const HAPI_SessionInfo * session_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateInProcessSessionImpl(session, session_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, parent_node_id, node_id, name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * operator_name, const char * node_label, HAPI_Bool cook_on_creation, HAPI_NodeId * new_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateNodeImpl(session, parent_node_id, operator_name, node_label, cook_on_creation, new_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateThriftNamedPipeSession(HAPI_Session * session, const char * pipe_name, const HAPI_SessionInfo * session_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl(session, pipe_name, session_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateThriftSharedMemorySession(HAPI_Session * session, const char * shared_mem_name, const HAPI_SessionInfo * session_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl(session, shared_mem_name, session_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateThriftSocketSession(HAPI_Session * session, const char * host_name, int port, const HAPI_SessionInfo * session_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSocketSessionImpl(session, host_name, port, session_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateWorkItem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * work_item_id, const char * name, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateWorkItemImpl(session, node_id, work_item_id, name, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::CreateWorkitem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * workitem_id, const char * name, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateWorkitemImpl(session, node_id, workitem_id, name, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DeleteAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DeleteAttributeImpl(session, node_id, part_id, name, attr_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DeleteGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DeleteGroupImpl(session, node_id, part_id, group_type, group_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DeleteNode(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DeleteNodeImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DirtyPDGNode(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Bool clean_results)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DirtyPDGNodeImpl(session, node_id, clean_results);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DisconnectNodeInput(const HAPI_Session * session, HAPI_NodeId node_id, int input_index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DisconnectNodeInputImpl(session, node_id, input_index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::DisconnectNodeOutputsAt(const HAPI_Session * session, HAPI_NodeId node_id, int output_index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::DisconnectNodeOutputsAtImpl(session, node_id, output_index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ExtractImageToFile(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, const char * destination_folder_path, const char * destination_file_name, int * destination_file_path)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ExtractImageToFileImpl(session, material_node_id, image_file_format_name, image_planes, destination_folder_path, destination_file_name, destination_file_path);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ExtractImageToMemory(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, int * buffer_size)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ExtractImageToMemoryImpl(session, material_node_id, image_file_format_name, image_planes, buffer_size);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetActiveCacheCount(const HAPI_Session * session, int * active_cache_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetActiveCacheCountImpl(session, active_cache_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetActiveCacheNames(const HAPI_Session * session, HAPI_StringHandle * cache_names_array, int active_cache_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetActiveCacheNamesImpl(session, cache_names_array, active_cache_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetDefinitionParmCounts(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, int * parm_count, int * int_value_count, int * float_value_count, int * string_value_count, int * choice_value_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetDefinitionParmCountsImpl(session, library_id, asset_name, parm_count, int_value_count, float_value_count, string_value_count, choice_value_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetDefinitionParmInfos(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, HAPI_ParmInfo * parm_infos_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetDefinitionParmInfosImpl(session, library_id, asset_name, parm_infos_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetDefinitionParmValues(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, int * int_values_array, int int_start, int int_length, float * float_values_array, int float_start, int float_length, HAPI_Bool string_evaluate, HAPI_StringHandle * string_values_array, int string_start, int string_length, HAPI_ParmChoiceInfo * choice_values_array, int choice_start, int choice_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetDefinitionParmValuesImpl(session, library_id, asset_name, int_values_array, int_start, int_length, float_values_array, float_start, float_length, string_evaluate, string_values_array, string_start, string_length, choice_values_array, choice_start, choice_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_AssetInfo * asset_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetInfoImpl(session, node_id, asset_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetLibraryFilePath(const HAPI_Session * session, HAPI_AssetLibraryId asset_library_id, HAPI_StringHandle * file_path_sh)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetLibraryFilePathImpl(session, asset_library_id, file_path_sh);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAssetLibraryIds(const HAPI_Session * session, HAPI_AssetLibraryId * asset_library_ids_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAssetLibraryIdsImpl(session, asset_library_ids_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeDictionaryArrayData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, HAPI_AttributeInfo* attr_info, HAPI_StringHandle* data_fixed_array, int data_fixed_length, int* sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeDictionaryData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, HAPI_AttributeInfo* attr_info, HAPI_StringHandle* data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeDictionaryDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
-HEMAX_HoudiniApi::GetAttributeDictionaryDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id)
+HAPI_Result
+HEMAX_HoudiniApi::GetAttributeDictionaryDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length, int * job_id)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeDictionaryDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
+    HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeDictionaryDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloat64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, double * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, double * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloat64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, double * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloat64DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloat64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, double * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloat64DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloatArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, float * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloatArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloatArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, float * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloatArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, float * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloatDataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeFloatDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, float * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeFloatDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeOwner owner, HAPI_AttributeInfo * attr_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInfoImpl(session, node_id, part_id, name, owner, attr_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt16ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int16 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt16ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt16ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int16 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt16ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt16Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int16 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt16DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt16DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int16 * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt16DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int64 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int64 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt64ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int64 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt64DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int64 * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt64DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt8ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int8 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt8DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int8 * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeIntArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeIntArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeIntArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, int * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeIntArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, int * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeIntDataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeIntDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, int * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeIntDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeNames(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_AttributeOwner owner, HAPI_StringHandle * attribute_names_array, int count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeNamesImpl(session, node_id, part_id, owner, attribute_names_array, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeStringArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeStringArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeStringArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeStringArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeStringDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
-HEMAX_HoudiniApi::GetAttributeStringDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id)
+HAPI_Result
+HEMAX_HoudiniApi::GetAttributeStringDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length, int * job_id)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeStringDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
+    HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeStringDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeUInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_UInt8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_UInt8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeUInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_UInt8 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeUInt8DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAttributeUInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_UInt8 * data_array, int start, int length, int * job_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
-HEMAX_HoudiniApi::GetAttributeWait(const HAPI_Session * session, int job_id)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeWaitImpl(session, job_id);
-    return HandleHAPIResult(session, Result);
-}
-
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAvailableAssetCount(const HAPI_Session * session, HAPI_AssetLibraryId library_id, int * asset_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAvailableAssetCountImpl(session, library_id, asset_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetAvailableAssets(const HAPI_Session * session, HAPI_AssetLibraryId library_id, HAPI_StringHandle * asset_names_array, int asset_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetAvailableAssetsImpl(session, library_id, asset_names_array, asset_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetBoxInfo(const HAPI_Session * session, HAPI_NodeId geo_node_id, HAPI_PartId part_id, HAPI_BoxInfo * box_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetBoxInfoImpl(session, geo_node_id, part_id, box_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCacheProperty(const HAPI_Session * session, const char * cache_name, HAPI_CacheProperty cache_property, int * property_value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCachePropertyImpl(session, cache_name, cache_property, property_value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetComposedChildNodeList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * child_node_ids_array, int count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedChildNodeListImpl(session, parent_node_id, child_node_ids_array, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetComposedNodeCookResult(const HAPI_Session * session, char * string_value, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedNodeCookResultImpl(session, string_value, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetComposedObjectList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_ObjectInfo * object_infos_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedObjectListImpl(session, parent_node_id, object_infos_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetComposedObjectTransforms(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_RSTOrder rst_order, HAPI_Transform * transform_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetComposedObjectTransformsImpl(session, parent_node_id, rst_order, transform_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCompositorOptions(const HAPI_Session * session, HAPI_CompositorOptions * compositor_options)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCompositorOptionsImpl(session, compositor_options);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetConnectionError(char * string_value, int length, HAPI_Bool clear)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetConnectionErrorImpl(string_value, length, clear);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetConnectionErrorLength(int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetConnectionErrorLengthImpl(buffer_length);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCookingCurrentCount(const HAPI_Session * session, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCookingCurrentCountImpl(session, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCookingTotalCount(const HAPI_Session * session, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCookingTotalCountImpl(session, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCurveCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * counts_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCurveCountsImpl(session, node_id, part_id, counts_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_CurveInfo * info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCurveInfoImpl(session, node_id, part_id, info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCurveKnots(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * knots_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCurveKnotsImpl(session, node_id, part_id, knots_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetCurveOrders(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * orders_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetCurveOrdersImpl(session, node_id, part_id, orders_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetDisplayGeoInfo(const HAPI_Session * session, HAPI_NodeId object_node_id, HAPI_GeoInfo * geo_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetDisplayGeoInfoImpl(session, object_node_id, geo_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * group_name, int * edge_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroupImpl(session, node_id, part_id, group_name, edge_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetEnvInt(HAPI_EnvIntType int_type, int * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetEnvIntImpl(int_type, value);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetFaceCountsImpl(session, node_id, part_id, face_counts_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetFirstVolumeTileImpl(session, node_id, part_id, tile);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGeometryInfoImpl(session, node_id, geo_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGeoSize(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGeoSizeImpl(session, node_id, format, size);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePartImpl(session, node_id, part_id, pointGroupCount, primitiveGroupCount);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupMembershipImpl(session, node_id, part_id, group_type, group_name, membership_array_all_equal, membership_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGroupMembershipOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupMembershipOnPackedInstancePartImpl(session, node_id, part_id, group_type, group_name, membership_array_all_equal, membership_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGroupNames(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GroupType group_type, HAPI_StringHandle * group_names_array, int group_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupNamesImpl(session, node_id, group_type, group_names_array, group_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetGroupNamesOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, HAPI_StringHandle * group_names_array, int group_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetGroupNamesOnPackedInstancePartImpl(session, node_id, part_id, group_type, group_names_array, group_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetHIPFileNodeCount(const HAPI_Session * session, HAPI_HIPFileId id, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetHIPFileNodeCountImpl(session, id, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetHIPFileNodeIds(const HAPI_Session * session, HAPI_HIPFileId id, HAPI_NodeId * node_ids, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetHIPFileNodeIdsImpl(session, id, node_ids, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetHandleBindingInfo(const HAPI_Session * session, HAPI_NodeId node_id, int handle_index, HAPI_HandleBindingInfo * handle_binding_infos_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetHandleBindingInfoImpl(session, node_id, handle_index, handle_binding_infos_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetHandleInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_HandleInfo * handle_infos_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetHandleInfoImpl(session, node_id, handle_infos_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetHeightFieldData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetHeightFieldDataImpl(session, node_id, part_id, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetImageFilePath(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, const char * destination_folder_path, const char * destination_file_name, HAPI_ParmId texture_parm_id, int * destination_file_path)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImageFilePathImpl(session, material_node_id, image_file_format_name, image_planes, destination_folder_path, destination_file_name, texture_parm_id, destination_file_path);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetImageInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ImageInfo * image_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImageInfoImpl(session, material_node_id, image_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetImageMemoryBuffer(const HAPI_Session * session, HAPI_NodeId material_node_id, char * buffer, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImageMemoryBufferImpl(session, material_node_id, buffer, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetImagePlaneCount(const HAPI_Session * session, HAPI_NodeId material_node_id, int * image_plane_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImagePlaneCountImpl(session, material_node_id, image_plane_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetImagePlanes(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_StringHandle * image_planes_array, int image_plane_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetImagePlanesImpl(session, material_node_id, image_planes_array, image_plane_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetInputCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_InputCurveInfo * info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetInputCurveInfoImpl(session, node_id, part_id, info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetInstanceTransformsOnPart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_RSTOrder rst_order, HAPI_Transform * transforms_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetInstanceTransformsOnPartImpl(session, node_id, part_id, rst_order, transforms_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetInstancedObjectIds(const HAPI_Session * session, HAPI_NodeId object_node_id, HAPI_NodeId * instanced_node_id_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetInstancedObjectIdsImpl(session, object_node_id, instanced_node_id_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetInstancedPartIds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_PartId * instanced_parts_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetInstancedPartIdsImpl(session, node_id, part_id, instanced_parts_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetInstancerPartTransforms(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_RSTOrder rst_order, HAPI_Transform * transforms_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetInstancerPartTransformsImpl(session, node_id, part_id, rst_order, transforms_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::GetJobStatus(const HAPI_Session * session, int job_id, HAPI_JobStatus * job_status)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::GetJobStatusImpl(session, job_id, job_status);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetLoadedAssetLibraryCount(const HAPI_Session * session, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetLoadedAssetLibraryCountImpl(session, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetManagerNodeId(const HAPI_Session * session, HAPI_NodeType node_type, HAPI_NodeId * node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetManagerNodeIdImpl(session, node_type, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetMaterialInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_MaterialInfo * material_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetMaterialInfoImpl(session, material_node_id, material_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetMaterialNodeIdsOnFaces(const HAPI_Session * session, HAPI_NodeId geometry_node_id, HAPI_PartId part_id, HAPI_Bool * are_all_the_same, HAPI_NodeId * material_ids_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetMaterialNodeIdsOnFacesImpl(session, geometry_node_id, part_id, are_all_the_same, material_ids_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetMessageNodeCount(const HAPI_Session * session, HAPI_NodeId node_id, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetMessageNodeCountImpl(session, node_id, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetMessageNodeIds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId * message_node_ids_array, int count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetMessageNodeIdsImpl(session, node_id, message_node_ids_array, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNextVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNextVolumeTileImpl(session, node_id, part_id, tile);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeCookResult(const HAPI_Session * session, char * string_value, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeCookResultImpl(session, string_value, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeCookResultLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeCookResultLengthImpl(session, node_id, verbosity, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeFromPath(const HAPI_Session * session, const HAPI_NodeId parent_node_id, const char * path, HAPI_NodeId * node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeFromPathImpl(session, parent_node_id, path, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeInfo * node_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeInfoImpl(session, node_id, node_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeInputName(const HAPI_Session * session, HAPI_NodeId node_id, int input_idx, HAPI_StringHandle * name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeInputNameImpl(session, node_id, input_idx, name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodeOutputName(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_StringHandle * name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodeOutputNameImpl(session, node_id, output_idx, name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNodePath(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId relative_to_node_id, HAPI_StringHandle * path)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNodePathImpl(session, node_id, relative_to_node_id, path);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNumWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, int * num)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNumWorkItemsImpl(session, node_id, num);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetNumWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * num)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetNumWorkitemsImpl(session, node_id, num);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetObjectInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ObjectInfo * object_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetObjectInfoImpl(session, node_id, object_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetObjectTransform(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId relative_to_node_id, HAPI_RSTOrder rst_order, HAPI_Transform * transform)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetObjectTransformImpl(session, node_id, relative_to_node_id, rst_order, transform);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetOutputGeoCount(const HAPI_Session* session, HAPI_NodeId node_id, int* count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetOutputGeoCountImpl(session, node_id, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetOutputGeoInfos(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_GeoInfo* geo_infos_array, int count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetOutputGeoInfosImpl(session, node_id, geo_infos_array, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetOutputNodeId(const HAPI_Session * session, HAPI_NodeId node_id, int output, HAPI_NodeId * output_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetOutputNodeIdImpl(session, node_id, output, output_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPDGEvents(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_EventInfo * event_array, int length, int * event_count, int * remaining_events)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPDGEventsImpl(session, graph_context_id, event_array, length, event_count, remaining_events);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPDGGraphContextId(const HAPI_Session * session, HAPI_NodeId top_node_id, HAPI_PDG_GraphContextId * context_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPDGGraphContextIdImpl(session, top_node_id, context_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPDGGraphContexts(const HAPI_Session * session, HAPI_StringHandle * context_names_array, HAPI_PDG_GraphContextId * context_id_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPDGGraphContextsImpl(session, context_names_array, context_id_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPDGGraphContextsCount(const HAPI_Session* session, int* num_contexts)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPDGGraphContextsCountImpl(session, num_contexts);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPDGState(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, int * pdg_state)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPDGStateImpl(session, graph_context_id, pdg_state);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParameters(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmInfo * parm_infos_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParametersImpl(session, node_id, parm_infos_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmChoiceLists(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmChoiceInfo * parm_choices_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmChoiceListsImpl(session, node_id, parm_choices_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_StringHandle * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmExpressionImpl(session, node_id, parm_name, index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, const char * destination_directory, const char * destination_file_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmFileImpl(session, node_id, parm_name, destination_directory, destination_file_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmFloatValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, float * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmFloatValueImpl(session, node_id, parm_name, index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmFloatValues(const HAPI_Session * session, HAPI_NodeId node_id, float * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmFloatValuesImpl(session, node_id, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmIdFromName(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_ParmId * parm_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmIdFromNameImpl(session, node_id, parm_name, parm_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, HAPI_ParmInfo * parm_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmInfoImpl(session, node_id, parm_id, parm_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmInfoFromName(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_ParmInfo * parm_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmInfoFromNameImpl(session, node_id, parm_name, parm_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmIntValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, int * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmIntValueImpl(session, node_id, parm_name, index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmIntValues(const HAPI_Session * session, HAPI_NodeId node_id, int * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmIntValuesImpl(session, node_id, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmNodeValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_NodeId * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmNodeValueImpl(session, node_id, parm_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmStringValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_Bool evaluate, HAPI_StringHandle * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmStringValueImpl(session, node_id, parm_name, index, evaluate, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmStringValues(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Bool evaluate, HAPI_StringHandle * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmStringValuesImpl(session, node_id, evaluate, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmTagName(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int tag_index, HAPI_StringHandle * tag_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmTagNameImpl(session, node_id, parm_id, tag_index, tag_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmTagValue(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, const char * tag_name, HAPI_StringHandle * tag_value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmTagValueImpl(session, node_id, parm_id, tag_name, tag_value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetParmWithTag(const HAPI_Session * session, HAPI_NodeId node_id, const char * tag_name, HAPI_ParmId * parm_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetParmWithTagImpl(session, node_id, tag_name, parm_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPartInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_PartInfo * part_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPartInfoImpl(session, node_id, part_id, part_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPreset(const HAPI_Session * session, HAPI_NodeId node_id, char * buffer, int buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPresetImpl(session, node_id, buffer, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPresetBufLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PresetType preset_type, const char * preset_name, int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPresetBufLengthImpl(session, node_id, preset_type, preset_name, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPresetCount(const HAPI_Session * session, const char * buffer, int buffer_length, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPresetCountImpl(session, buffer, buffer_length, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetPresetNames(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetPresetNamesImpl(session, buffer, buffer_length, preset_names_array, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetServerEnvInt(const HAPI_Session * session, const char * variable_name, int * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetServerEnvIntImpl(session, variable_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetServerEnvString(const HAPI_Session * session, const char * variable_name, HAPI_StringHandle * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetServerEnvStringImpl(session, variable_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetServerEnvVarCount(const HAPI_Session * session, int * env_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetServerEnvVarCountImpl(session, env_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetServerEnvVarList(const HAPI_Session * session, HAPI_StringHandle * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetServerEnvVarListImpl(session, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetSessionEnvInt(const HAPI_Session * session, HAPI_SessionEnvIntType int_type, int * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetSessionEnvIntImpl(session, int_type, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetSessionSyncInfo(const HAPI_Session * session, HAPI_SessionSyncInfo * session_sync_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetSessionSyncInfoImpl(session, session_sync_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetSphereInfo(const HAPI_Session * session, HAPI_NodeId geo_node_id, HAPI_PartId part_id, HAPI_SphereInfo * sphere_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetSphereInfoImpl(session, geo_node_id, part_id, sphere_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStatus(const HAPI_Session * session, HAPI_StatusType status_type, int * status)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStatusImpl(session, status_type, status);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStatusString(const HAPI_Session * session, HAPI_StatusType status_type, char * string_value, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStatusStringImpl(session, status_type, string_value, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStatusStringBufLength(const HAPI_Session * session, HAPI_StatusType status_type, HAPI_StatusVerbosity verbosity, int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStatusStringBufLengthImpl(session, status_type, verbosity, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetString(const HAPI_Session * session, HAPI_StringHandle string_handle, char * string_value, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStringImpl(session, string_handle, string_value, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStringBatch(const HAPI_Session * session, char * char_buffer, int char_array_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStringBatchImpl(session, char_buffer, char_array_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStringBatchSize(const HAPI_Session * session, const int * string_handle_array, int string_handle_count, int * string_buffer_size)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStringBatchSizeImpl(session, string_handle_array, string_handle_count, string_buffer_size);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetStringBufLength(const HAPI_Session * session, HAPI_StringHandle string_handle, int * buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetStringBufLengthImpl(session, string_handle, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetSupportedImageFileFormatCount(const HAPI_Session * session, int * file_format_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetSupportedImageFileFormatCountImpl(session, file_format_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetSupportedImageFileFormats(const HAPI_Session * session, HAPI_ImageFileFormat * formats_array, int file_format_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetSupportedImageFileFormatsImpl(session, formats_array, file_format_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetTime(const HAPI_Session * session, float * time)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetTimeImpl(session, time);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetTimelineOptions(const HAPI_Session * session, HAPI_TimelineOptions * timeline_options)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetTimelineOptionsImpl(session, timeline_options);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetTotalCookCount(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetTotalCookCountImpl(session, node_id, node_type_filter, node_flags_filter, recursive, count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetUseHoudiniTime(const HAPI_Session * session, HAPI_Bool * enabled)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetUseHoudiniTimeImpl(session, enabled);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVertexList(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * vertex_list_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVertexListImpl(session, node_id, part_id, vertex_list_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetViewport(const HAPI_Session * session, HAPI_Viewport * viewport)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetViewportImpl(session, viewport);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeBounds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * x_min, float * y_min, float * z_min, float * x_max, float * y_max, float * z_max, float * x_center, float * y_center, float * z_center)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeBoundsImpl(session, node_id, part_id, x_min, y_min, z_min, x_max, y_max, z_max, x_center, y_center, z_center);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeInfo * volume_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeInfoImpl(session, node_id, part_id, volume_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeTileFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float fill_value, const HAPI_VolumeTileInfo * tile, float * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeTileFloatDataImpl(session, node_id, part_id, fill_value, tile, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeTileIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int fill_value, const HAPI_VolumeTileInfo * tile, int * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeTileIntDataImpl(session, node_id, part_id, fill_value, tile, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeVisualInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeVisualInfo * visual_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeVisualInfoImpl(session, node_id, part_id, visual_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeVoxelFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, float * values_array, int value_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeVoxelFloatDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetVolumeVoxelIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, int * values_array, int value_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetVolumeVoxelIntDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemAttributeSize(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int * length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemAttributeSizeImpl(session, node_id, work_item_id, attribute_name, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemFloatAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, float * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemFloatAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemInfo(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId work_item_id, HAPI_PDG_WorkItemInfo * work_item_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemInfoImpl(session, graph_context_id, work_item_id, work_item_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemIntAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemIntAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemOutputFiles(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemOutputFilesImpl(session, node_id, work_item_id, resultinfo_array, resultinfo_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemStringAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, HAPI_StringHandle * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemStringAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, int * work_item_ids_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemsImpl(session, node_id, work_item_ids_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemDataLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemDataLengthImpl(session, node_id, workitem_id, data_name, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, float * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemInfo(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemInfo * workitem_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemInfoImpl(session, graph_context_id, workitem_id, workitem_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemResultInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemResultInfoImpl(session, node_id, workitem_id, resultinfo_array, resultinfo_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, HAPI_StringHandle * data_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::GetWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * workitem_ids_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemsImpl(session, node_id, workitem_ids_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::Initialize(const HAPI_Session * session, const HAPI_CookOptions * cook_options, HAPI_Bool use_cooking_thread, int cooking_thread_stack_size, const char * houdini_environment_files, const char * otl_search_path, const char * dso_search_path, const char * image_dso_search_path, const char * audio_dso_search_path)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::InitializeImpl(session, cook_options, use_cooking_thread, cooking_thread_stack_size, houdini_environment_files, otl_search_path, dso_search_path, image_dso_search_path, audio_dso_search_path);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::InsertMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::InsertMultiparmInstanceImpl(session, node_id, parm_id, instance_position);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::Interrupt(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::InterruptImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::IsInitialized(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::IsInitializedImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::IsNodeValid(const HAPI_Session * session, HAPI_NodeId node_id, int unique_node_id, HAPI_Bool * answer)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::IsNodeValidImpl(session, node_id, unique_node_id, answer);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::IsSessionValid(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::IsSessionValidImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadAssetLibraryFromFile(const HAPI_Session * session, const char * file_path, HAPI_Bool allow_overwrite, HAPI_AssetLibraryId * library_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadAssetLibraryFromFileImpl(session, file_path, allow_overwrite, library_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadAssetLibraryFromMemory(const HAPI_Session * session, const char * library_buffer, int library_buffer_length, HAPI_Bool allow_overwrite, HAPI_AssetLibraryId * library_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadAssetLibraryFromMemoryImpl(session, library_buffer, library_buffer_length, allow_overwrite, library_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadGeoFromFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadGeoFromFileImpl(session, node_id, file_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadGeoFromMemory(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, const char * buffer, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadGeoFromMemoryImpl(session, node_id, format, buffer, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadHIPFile(const HAPI_Session * session, const char * file_name, HAPI_Bool cook_on_load)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadHIPFileImpl(session, file_name, cook_on_load);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::LoadNodeFromFile(const HAPI_Session * session, const char * file_name, HAPI_NodeId parent_node_id, const char * node_label, HAPI_Bool cook_on_load, HAPI_NodeId * new_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::LoadNodeFromFileImpl(session, file_name, parent_node_id, node_label, cook_on_load, new_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::MergeHIPFile(const HAPI_Session * session, const char * file_name, HAPI_Bool cook_on_load, HAPI_HIPFileId * file_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::MergeHIPFileImpl(session, file_name, cook_on_load, file_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ParmHasExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_Bool * has_expression)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ParmHasExpressionImpl(session, node_id, parm_name, index, has_expression);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ParmHasTag(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, const char * tag_name, HAPI_Bool * has_tag)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ParmHasTagImpl(session, node_id, parm_id, tag_name, has_tag);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::PausePDGCook(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::PausePDGCookImpl(session, graph_context_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::PythonThreadInterpreterLock(const HAPI_Session * session, HAPI_Bool locked)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::PythonThreadInterpreterLockImpl(session, locked);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::QueryNodeInput(const HAPI_Session * session, HAPI_NodeId node_to_query, int input_index, HAPI_NodeId * connected_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::QueryNodeInputImpl(session, node_to_query, input_index, connected_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::QueryNodeOutputConnectedCount(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_Bool into_subnets, HAPI_Bool through_dots, int * connected_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::QueryNodeOutputConnectedCountImpl(session, node_id, output_idx, into_subnets, through_dots, connected_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::QueryNodeOutputConnectedNodes(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_Bool into_subnets, HAPI_Bool through_dots, HAPI_NodeId * connected_node_ids_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::QueryNodeOutputConnectedNodesImpl(session, node_id, output_idx, into_subnets, through_dots, connected_node_ids_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RemoveCustomString(const HAPI_Session * session, const HAPI_StringHandle string_handle)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RemoveCustomStringImpl(session, string_handle);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RemoveMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl(session, node_id, parm_id, instance_position);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RemoveParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RemoveParmExpressionImpl(session, node_id, parm_id, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RenameNodeImpl(session, node_id, new_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RenderCOPToImageImpl(session, cop_node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RenderTextureToImage(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RenderTextureToImageImpl(session, material_node_id, parm_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::ResetSimulation(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ResetSimulationImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RevertGeo(const HAPI_Session * session, HAPI_NodeId node_id)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RevertGeoImpl(session, node_id);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RevertParmToDefault(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RevertParmToDefaultImpl(session, node_id, parm_name, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::RevertParmToDefaults(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RevertParmToDefaultsImpl(session, node_id, parm_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SaveGeoToFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SaveGeoToFileImpl(session, node_id, file_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SaveGeoToMemory(const HAPI_Session * session, HAPI_NodeId node_id, char * buffer, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SaveGeoToMemoryImpl(session, node_id, buffer, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SaveHIPFile(const HAPI_Session * session, const char * file_path, HAPI_Bool lock_nodes)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SaveHIPFileImpl(session, file_path, lock_nodes);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SaveNodeToFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SaveNodeToFileImpl(session, node_id, file_name);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAnimCurve(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int parm_index, const HAPI_Keyframe * curve_keyframes_array, int keyframe_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAnimCurveImpl(session, node_id, parm_id, parm_index, curve_keyframes_array, keyframe_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeDictionaryArrayData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_fixed_array, int data_fixed_length, const int* sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeDictionaryData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeDictionaryDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeDictionaryDataAsync(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloat64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloat64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloat64UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const double* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsync(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const double* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloatArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloatUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const float* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsync(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const float* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeIndexedStringData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** string_array, int string_count, const int* indices_array, int indices_start, int indices_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIndexedStringDataImpl(session, node_id, part_id, name, attr_info, string_array, string_count, indices_array, indices_start, indices_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** string_array, int string_count, const int * indices_array, int indices_start, int indices_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncImpl(session, node_id, part_id, name, attr_info, string_array, string_count, indices_array, indices_start, indices_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt16ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt16Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16DataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt16UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int16* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsync(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int16* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64DataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt64UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int64* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsync(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int64* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt8UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int8* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeIntArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeIntUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const int* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeStringArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeStringUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char * data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeUInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeUInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int start, int length, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, start, length, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeUInt8UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_UInt8* data_array, int data_length, int start_index, int num_indices)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices, job_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCacheProperty(const HAPI_Session * session, const char * cache_name, HAPI_CacheProperty cache_property, int property_value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCachePropertyImpl(session, cache_name, cache_property, property_value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCompositorOptions(const HAPI_Session * session, const HAPI_CompositorOptions * compositor_options)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCompositorOptionsImpl(session, compositor_options);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCurveCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * counts_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCurveCountsImpl(session, node_id, part_id, counts_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_CurveInfo * info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCurveInfoImpl(session, node_id, part_id, info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCurveKnots(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const float * knots_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCurveKnotsImpl(session, node_id, part_id, knots_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCurveOrders(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * orders_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCurveOrdersImpl(session, node_id, part_id, orders_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetCustomString(const HAPI_Session * session, const char * string_value, HAPI_StringHandle * handle_value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetCustomStringImpl(session, string_value, handle_value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * face_counts_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetFaceCountsImpl(session, node_id, part_id, face_counts_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, const int * membership_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetGroupMembershipImpl(session, node_id, part_id, group_type, group_name, membership_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetHeightFieldData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const float * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetHeightFieldDataImpl(session, node_id, part_id, name, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetImageInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, const HAPI_ImageInfo * image_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetImageInfoImpl(session, material_node_id, image_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetInputCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_InputCurveInfo * info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetInputCurveInfoImpl(session, node_id, part_id, info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetInputCurvePositions(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const float* positions_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetInputCurvePositionsImpl(session, node_id, part_id, positions_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetInputCurvePositionsRotationsScales(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const float* positions_array, int positions_start, int positions_length, const float* rotations_array, int rotations_start, int rotations_length, const float * scales_array, int scales_start, int scales_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetInputCurvePositionsRotationsScalesImpl(session, node_id, part_id, positions_array, positions_start, positions_length, rotations_array, rotations_start, rotations_length, scales_array, scales_start, scales_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetNodeDisplay(const HAPI_Session * session, HAPI_NodeId node_id, int onOff)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetNodeDisplayImpl(session, node_id, onOff);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetObjectTransform(const HAPI_Session * session, HAPI_NodeId node_id, const HAPI_TransformEuler * trans)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetObjectTransformImpl(session, node_id, trans);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * value, HAPI_ParmId parm_id, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmExpressionImpl(session, node_id, value, parm_id, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmFloatValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, float value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmFloatValueImpl(session, node_id, parm_name, index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmFloatValues(const HAPI_Session * session, HAPI_NodeId node_id, const float * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmFloatValuesImpl(session, node_id, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmIntValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, int value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmIntValueImpl(session, node_id, parm_name, index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmIntValues(const HAPI_Session * session, HAPI_NodeId node_id, const int * values_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmIntValuesImpl(session, node_id, values_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmNodeValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_NodeId value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmNodeValueImpl(session, node_id, parm_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetParmStringValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * value, HAPI_ParmId parm_id, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetParmStringValueImpl(session, node_id, value, parm_id, index);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetPartInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_PartInfo * part_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetPartInfoImpl(session, node_id, part_id, part_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetPreset(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PresetType preset_type, const char * preset_name, const char * buffer, int buffer_length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetPresetImpl(session, node_id, preset_type, preset_name, buffer, buffer_length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetServerEnvInt(const HAPI_Session * session, const char * variable_name, int value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetServerEnvIntImpl(session, variable_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetServerEnvString(const HAPI_Session * session, const char * variable_name, const char * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetServerEnvStringImpl(session, variable_name, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetSessionSync(const HAPI_Session * session, HAPI_Bool enable)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetSessionSyncImpl(session, enable);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetSessionSyncInfo(const HAPI_Session * session, const HAPI_SessionSyncInfo * session_sync_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetSessionSyncInfoImpl(session, session_sync_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetTime(const HAPI_Session * session, float time)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetTimeImpl(session, time);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetTimelineOptions(const HAPI_Session * session, const HAPI_TimelineOptions * timeline_options)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetTimelineOptionsImpl(session, timeline_options);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetTransformAnimCurve(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_TransformComponent trans_comp, const HAPI_Keyframe * curve_keyframes_array, int keyframe_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetTransformAnimCurveImpl(session, node_id, trans_comp, curve_keyframes_array, keyframe_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetUseHoudiniTime(const HAPI_Session * session, HAPI_Bool enabled)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetUseHoudiniTimeImpl(session, enabled);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVertexList(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * vertex_list_array, int start, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVertexListImpl(session, node_id, part_id, vertex_list_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetViewport(const HAPI_Session * session, const HAPI_Viewport * viewport)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetViewportImpl(session, viewport);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVolumeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeInfo * volume_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVolumeInfoImpl(session, node_id, part_id, volume_info);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVolumeTileFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeTileInfo * tile, const float * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVolumeTileFloatDataImpl(session, node_id, part_id, tile, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVolumeTileIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeTileInfo * tile, const int * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVolumeTileIntDataImpl(session, node_id, part_id, tile, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVolumeVoxelFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, const float * values_array, int value_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVolumeVoxelFloatDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetVolumeVoxelIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, const int * values_array, int value_count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetVolumeVoxelIntDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkItemFloatAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, const float * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkItemFloatAttributeImpl(session, node_id, work_item_id, attribute_name, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkItemIntAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, const int * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkItemIntAttributeImpl(session, node_id, work_item_id, attribute_name, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkItemStringAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int data_index, const char * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkItemStringAttributeImpl(session, node_id, work_item_id, attribute_name, data_index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const float * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const int * values_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, values_array, length);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::SetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int data_index, const char * value)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_index, value);
     return HandleHAPIResult(session, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::Shutdown(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ShutdownImpl(session);
     return HandleHAPIResult(session, Result);
 }
 
+HAPI_Result
+HEMAX_HoudiniApi::StartPerformanceMonitorProfile(const HAPI_Session * session, const char * title, int * profile_id)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl(session, title, profile_id);
+    return HandleHAPIResult(session, Result);
+}
 
-bool
+HAPI_Result
 HEMAX_HoudiniApi::StartThriftNamedPipeServer(const HAPI_ThriftServerOptions * options, const char * pipe_name, HAPI_ProcessId * process_id, const char * log_file)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl(options, pipe_name, process_id, log_file);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::StartThriftSharedMemoryServer(const HAPI_ThriftServerOptions * options, const char * shared_mem_name, HAPI_ProcessId * process_id, const char * log_file)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl(options, shared_mem_name, process_id, log_file);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
+HAPI_Result
 HEMAX_HoudiniApi::StartThriftSocketServer(const HAPI_ThriftServerOptions * options, int port, HAPI_ProcessId * process_id, const char * log_file)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServerImpl(options, port, process_id, log_file);
     return HandleHAPIResult(nullptr, Result);
 }
 
-
-bool
-HEMAX_HoudiniApi::AddAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, HAPI_Result& result)
+HAPI_Result
+HEMAX_HoudiniApi::StopPerformanceMonitorProfile(const HAPI_Session * session, int profile_id, const char * file_path)
 {
-    result = HEMAX_HoudiniApi::AddAttributeImpl(session, node_id, part_id, name, attr_info);
-    return HandleHAPIResult(session, result);
+    HAPI_Result Result = HEMAX_HoudiniApi::StopPerformanceMonitorProfileImpl(session, profile_id, file_path);
+    return HandleHAPIResult(session, Result);
 }
-
-
-bool
-HEMAX_HoudiniApi::AddGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::AddGroupImpl(session, node_id, part_id, group_type, group_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::BindCustomImplementation(HAPI_SessionType session_type, const char * dll_path, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::BindCustomImplementationImpl(session_type, dll_path);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CancelPDGCook(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CancelPDGCookImpl(session, graph_context_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CheckForSpecificErrors(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ErrorCodeBits errors_to_look_for, HAPI_ErrorCodeBits * errors_found, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CheckForSpecificErrorsImpl(session, node_id, errors_to_look_for, errors_found);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::Cleanup(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CleanupImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ClearConnectionError(HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ClearConnectionErrorImpl();
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CloseSession(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CloseSessionImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CommitGeo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CommitGeoImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CommitWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CommitWorkItemsImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CommitWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CommitWorkitemsImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ComposeChildNodeList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ComposeChildNodeListImpl(session, parent_node_id, node_type_filter, node_flags_filter, recursive, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ComposeNodeCookResult(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ComposeNodeCookResultImpl(session, node_id, verbosity, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ComposeObjectList(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * categories, int * object_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ComposeObjectListImpl(session, parent_node_id, categories, object_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConnectNodeInput(const HAPI_Session * session, HAPI_NodeId node_id, int input_index, HAPI_NodeId node_id_to_connect, int output_index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConnectNodeInputImpl(session, node_id, input_index, node_id_to_connect, output_index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConvertMatrixToEuler(const HAPI_Session * session, const float * matrix, HAPI_RSTOrder rst_order, HAPI_XYZOrder rot_order, HAPI_TransformEuler * transform_out, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConvertMatrixToEulerImpl(session, matrix, rst_order, rot_order, transform_out);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConvertMatrixToQuat(const HAPI_Session * session, const float * matrix, HAPI_RSTOrder rst_order, HAPI_Transform * transform_out, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConvertMatrixToQuatImpl(session, matrix, rst_order, transform_out);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConvertTransform(const HAPI_Session * session, const HAPI_TransformEuler * transform_in, HAPI_RSTOrder rst_order, HAPI_XYZOrder rot_order, HAPI_TransformEuler * transform_out, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConvertTransformImpl(session, transform_in, rst_order, rot_order, transform_out);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConvertTransformEulerToMatrix(const HAPI_Session * session, const HAPI_TransformEuler * transform, float * matrix, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConvertTransformEulerToMatrixImpl(session, transform, matrix);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ConvertTransformQuatToMatrix(const HAPI_Session * session, const HAPI_Transform * transform, float * matrix, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ConvertTransformQuatToMatrixImpl(session, transform, matrix);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CookNode(const HAPI_Session * session, HAPI_NodeId node_id, const HAPI_CookOptions * cook_options, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CookNodeImpl(session, node_id, cook_options);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CookPDG(const HAPI_Session * session, HAPI_NodeId cook_node_id, int generate_only, int blocking, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CookPDGImpl(session, cook_node_id, generate_only, blocking);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CookPDGAllOutputs(const HAPI_Session* session, HAPI_NodeId cook_node_id, int generate_only, int blocking, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CookPDGAllOutputsImpl(session, cook_node_id, generate_only, blocking);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateCustomSession(HAPI_SessionType session_type, void * session_info, HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateCustomSessionImpl(session_type, session_info, session);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateHeightFieldInput(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * name, int xsize, int ysize, float voxelsize, HAPI_HeightFieldSampling sampling, HAPI_NodeId * heightfield_node_id, HAPI_NodeId * height_node_id, HAPI_NodeId * mask_node_id, HAPI_NodeId * merge_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateHeightFieldInputImpl(session, parent_node_id, name, xsize, ysize, voxelsize, sampling, heightfield_node_id, height_node_id, mask_node_id, merge_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * new_node_id, const char * name, int xsize, int ysize, float voxelsize, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNodeImpl(session, parent_node_id, new_node_id, name, xsize, ysize, voxelsize);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateInProcessSession(HAPI_Session * session, const HAPI_SessionInfo * session_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateInProcessSessionImpl(session, session_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateInputCurveNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateInputCurveNodeImpl(session, parent_node_id, node_id, name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateInputNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * node_id, const char * name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateInputNodeImpl(session, parent_node_id, node_id, name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateNode(const HAPI_Session * session, HAPI_NodeId parent_node_id, const char * operator_name, const char * node_label, HAPI_Bool cook_on_creation, HAPI_NodeId * new_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateNodeImpl(session, parent_node_id, operator_name, node_label, cook_on_creation, new_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateThriftNamedPipeSession(HAPI_Session * session, const char * pipe_name, const HAPI_SessionInfo * session_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateThriftNamedPipeSessionImpl(session, pipe_name, session_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateThriftSharedMemorySession(HAPI_Session * session, const char * shared_mem_name, const HAPI_SessionInfo * session_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl(session, shared_mem_name, session_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateThriftSocketSession(HAPI_Session * session, const char * host_name, int port, const HAPI_SessionInfo * session_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateThriftSocketSessionImpl(session, host_name, port, session_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateWorkItem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * work_item_id, const char * name, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateWorkItemImpl(session, node_id, work_item_id, name, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::CreateWorkitem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * workitem_id, const char * name, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::CreateWorkitemImpl(session, node_id, workitem_id, name, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DeleteAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DeleteAttributeImpl(session, node_id, part_id, name, attr_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DeleteGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DeleteGroupImpl(session, node_id, part_id, group_type, group_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DeleteNode(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DeleteNodeImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DirtyPDGNode(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Bool clean_results, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DirtyPDGNodeImpl(session, node_id, clean_results);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DisconnectNodeInput(const HAPI_Session * session, HAPI_NodeId node_id, int input_index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DisconnectNodeInputImpl(session, node_id, input_index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::DisconnectNodeOutputsAt(const HAPI_Session * session, HAPI_NodeId node_id, int output_index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::DisconnectNodeOutputsAtImpl(session, node_id, output_index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ExtractImageToFile(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, const char * destination_folder_path, const char * destination_file_name, int * destination_file_path, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ExtractImageToFileImpl(session, material_node_id, image_file_format_name, image_planes, destination_folder_path, destination_file_name, destination_file_path);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ExtractImageToMemory(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, int * buffer_size, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ExtractImageToMemoryImpl(session, material_node_id, image_file_format_name, image_planes, buffer_size);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetActiveCacheCount(const HAPI_Session * session, int * active_cache_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetActiveCacheCountImpl(session, active_cache_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetActiveCacheNames(const HAPI_Session * session, HAPI_StringHandle * cache_names_array, int active_cache_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetActiveCacheNamesImpl(session, cache_names_array, active_cache_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetDefinitionParmCounts(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, int * parm_count, int * int_value_count, int * float_value_count, int * string_value_count, int * choice_value_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetDefinitionParmCountsImpl(session, library_id, asset_name, parm_count, int_value_count, float_value_count, string_value_count, choice_value_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetDefinitionParmInfos(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, HAPI_ParmInfo * parm_infos_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetDefinitionParmInfosImpl(session, library_id, asset_name, parm_infos_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetDefinitionParmValues(const HAPI_Session * session, HAPI_AssetLibraryId library_id, const char * asset_name, int * int_values_array, int int_start, int int_length, float * float_values_array, int float_start, int float_length, HAPI_Bool string_evaluate, HAPI_StringHandle * string_values_array, int string_start, int string_length, HAPI_ParmChoiceInfo * choice_values_array, int choice_start, int choice_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetDefinitionParmValuesImpl(session, library_id, asset_name, int_values_array, int_start, int_length, float_values_array, float_start, float_length, string_evaluate, string_values_array, string_start, string_length, choice_values_array, choice_start, choice_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_AssetInfo * asset_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetInfoImpl(session, node_id, asset_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetLibraryFilePath(const HAPI_Session * session, HAPI_AssetLibraryId asset_library_id, HAPI_StringHandle * file_path_sh, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetLibraryFilePathImpl(session, asset_library_id, file_path_sh);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAssetLibraryIds(const HAPI_Session * session, HAPI_AssetLibraryId * asset_library_ids_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAssetLibraryIdsImpl(session, asset_library_ids_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeDictionaryArrayData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, HAPI_AttributeInfo* attr_info, HAPI_StringHandle* data_fixed_array, int data_fixed_length, int* sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeDictionaryArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeDictionaryData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, HAPI_AttributeInfo* attr_info, HAPI_StringHandle* data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeDictionaryDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeDictionaryDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeDictionaryDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloat64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, double * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, double * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloat64ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloat64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, double * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloat64DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloat64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, double * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloat64DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloatArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, float * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloatArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloatArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, float * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloatArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, float * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloatDataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeFloatDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, float * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeFloatDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeOwner owner, HAPI_AttributeInfo * attr_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInfoImpl(session, node_id, part_id, name, owner, attr_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt16ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int16 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt16ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt16ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int16 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt16ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt16Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int16 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt16DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt16DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int16 * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt16DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int64 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt64ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int64 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt64ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int64 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt64DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt64DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int64 * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt64DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_Int8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_Int8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt8ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int8 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt8DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_Int8 * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeIntArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeIntArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeIntArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, int * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeIntArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, int * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeIntDataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeIntDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, int * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeIntDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeNames(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_AttributeOwner owner, HAPI_StringHandle * attribute_names_array, int count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeNamesImpl(session, node_id, part_id, owner, attribute_names_array, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeStringArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeStringArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeStringArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeStringArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeStringDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeStringDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeStringDataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeUInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_UInt8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * attr_name, HAPI_AttributeInfo * attr_info, HAPI_UInt8 * data_fixed_array, int data_fixed_length, int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeUInt8ArrayDataAsyncImpl(session, node_id, part_id, attr_name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeUInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_UInt8 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeUInt8DataImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeUInt8DataAsync(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_UInt8 * data_array, int start, int length, int * job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncImpl(session, node_id, part_id, name, attr_info, stride, data_array, start, length, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAttributeWait(const HAPI_Session * session, int job_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAttributeWaitImpl(session, job_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAvailableAssetCount(const HAPI_Session * session, HAPI_AssetLibraryId library_id, int * asset_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAvailableAssetCountImpl(session, library_id, asset_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetAvailableAssets(const HAPI_Session * session, HAPI_AssetLibraryId library_id, HAPI_StringHandle * asset_names_array, int asset_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetAvailableAssetsImpl(session, library_id, asset_names_array, asset_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetBoxInfo(const HAPI_Session * session, HAPI_NodeId geo_node_id, HAPI_PartId part_id, HAPI_BoxInfo * box_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetBoxInfoImpl(session, geo_node_id, part_id, box_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCacheProperty(const HAPI_Session * session, const char * cache_name, HAPI_CacheProperty cache_property, int * property_value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCachePropertyImpl(session, cache_name, cache_property, property_value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetComposedChildNodeList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeId * child_node_ids_array, int count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetComposedChildNodeListImpl(session, parent_node_id, child_node_ids_array, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetComposedNodeCookResult(const HAPI_Session * session, char * string_value, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetComposedNodeCookResultImpl(session, string_value, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetComposedObjectList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_ObjectInfo * object_infos_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetComposedObjectListImpl(session, parent_node_id, object_infos_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetComposedObjectTransforms(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_RSTOrder rst_order, HAPI_Transform * transform_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetComposedObjectTransformsImpl(session, parent_node_id, rst_order, transform_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCompositorOptions(const HAPI_Session * session, HAPI_CompositorOptions * compositor_options, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCompositorOptionsImpl(session, compositor_options);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetConnectionError(char * string_value, int length, HAPI_Bool clear, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetConnectionErrorImpl(string_value, length, clear);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetConnectionErrorLength(int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetConnectionErrorLengthImpl(buffer_length);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCookingCurrentCount(const HAPI_Session * session, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCookingCurrentCountImpl(session, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCookingTotalCount(const HAPI_Session * session, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCookingTotalCountImpl(session, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCurveCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * counts_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCurveCountsImpl(session, node_id, part_id, counts_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_CurveInfo * info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCurveInfoImpl(session, node_id, part_id, info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCurveKnots(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * knots_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCurveKnotsImpl(session, node_id, part_id, knots_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetCurveOrders(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * orders_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetCurveOrdersImpl(session, node_id, part_id, orders_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetDisplayGeoInfo(const HAPI_Session * session, HAPI_NodeId object_node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetDisplayGeoInfoImpl(session, object_node_id, geo_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroup(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * group_name, int * edge_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroupImpl(session, node_id, part_id, group_name, edge_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetEnvInt(HAPI_EnvIntType int_type, int * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetEnvIntImpl(int_type, value);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * face_counts_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetFaceCountsImpl(session, node_id, part_id, face_counts_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetFirstVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetFirstVolumeTileImpl(session, node_id, part_id, tile);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGeometryInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GeoInfo * geo_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGeometryInfoImpl(session, node_id, geo_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGeoSize(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, int * size, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGeoSizeImpl(session, node_id, format, size);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * pointGroupCount, int * primitiveGroupCount, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGroupCountOnPackedInstancePartImpl(session, node_id, part_id, pointGroupCount, primitiveGroupCount);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGroupMembershipImpl(session, node_id, part_id, group_type, group_name, membership_array_all_equal, membership_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGroupMembershipOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, HAPI_Bool * membership_array_all_equal, int * membership_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGroupMembershipOnPackedInstancePartImpl(session, node_id, part_id, group_type, group_name, membership_array_all_equal, membership_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGroupNames(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_GroupType group_type, HAPI_StringHandle * group_names_array, int group_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGroupNamesImpl(session, node_id, group_type, group_names_array, group_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetGroupNamesOnPackedInstancePart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, HAPI_StringHandle * group_names_array, int group_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetGroupNamesOnPackedInstancePartImpl(session, node_id, part_id, group_type, group_names_array, group_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetHIPFileNodeCount(const HAPI_Session * session, HAPI_HIPFileId id, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetHIPFileNodeCountImpl(session, id, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetHIPFileNodeIds(const HAPI_Session * session, HAPI_HIPFileId id, HAPI_NodeId * node_ids, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetHIPFileNodeIdsImpl(session, id, node_ids, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetHandleBindingInfo(const HAPI_Session * session, HAPI_NodeId node_id, int handle_index, HAPI_HandleBindingInfo * handle_binding_infos_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetHandleBindingInfoImpl(session, node_id, handle_index, handle_binding_infos_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetHandleInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_HandleInfo * handle_infos_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetHandleInfoImpl(session, node_id, handle_infos_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetHeightFieldData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetHeightFieldDataImpl(session, node_id, part_id, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetImageFilePath(const HAPI_Session * session, HAPI_NodeId material_node_id, const char * image_file_format_name, const char * image_planes, const char * destination_folder_path, const char * destination_file_name, HAPI_ParmId texture_parm_id, int * destination_file_path, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetImageFilePathImpl(session, material_node_id, image_file_format_name, image_planes, destination_folder_path, destination_file_name, texture_parm_id, destination_file_path);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetImageInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ImageInfo * image_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetImageInfoImpl(session, material_node_id, image_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetImageMemoryBuffer(const HAPI_Session * session, HAPI_NodeId material_node_id, char * buffer, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetImageMemoryBufferImpl(session, material_node_id, buffer, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetImagePlaneCount(const HAPI_Session * session, HAPI_NodeId material_node_id, int * image_plane_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetImagePlaneCountImpl(session, material_node_id, image_plane_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetImagePlanes(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_StringHandle * image_planes_array, int image_plane_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetImagePlanesImpl(session, material_node_id, image_planes_array, image_plane_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetInputCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_InputCurveInfo * info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetInputCurveInfoImpl(session, node_id, part_id, info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetInstanceTransformsOnPart(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_RSTOrder rst_order, HAPI_Transform * transforms_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetInstanceTransformsOnPartImpl(session, node_id, part_id, rst_order, transforms_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetInstancedObjectIds(const HAPI_Session * session, HAPI_NodeId object_node_id, HAPI_NodeId * instanced_node_id_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetInstancedObjectIdsImpl(session, object_node_id, instanced_node_id_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetInstancedPartIds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_PartId * instanced_parts_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetInstancedPartIdsImpl(session, node_id, part_id, instanced_parts_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetInstancerPartTransforms(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_RSTOrder rst_order, HAPI_Transform * transforms_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetInstancerPartTransformsImpl(session, node_id, part_id, rst_order, transforms_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetLoadedAssetLibraryCount(const HAPI_Session * session, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetLoadedAssetLibraryCountImpl(session, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetManagerNodeId(const HAPI_Session * session, HAPI_NodeType node_type, HAPI_NodeId * node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetManagerNodeIdImpl(session, node_type, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetMaterialInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_MaterialInfo * material_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetMaterialInfoImpl(session, material_node_id, material_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetMaterialNodeIdsOnFaces(const HAPI_Session * session, HAPI_NodeId geometry_node_id, HAPI_PartId part_id, HAPI_Bool * are_all_the_same, HAPI_NodeId * material_ids_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetMaterialNodeIdsOnFacesImpl(session, geometry_node_id, part_id, are_all_the_same, material_ids_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetMessageNodeCount(const HAPI_Session * session, HAPI_NodeId node_id, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetMessageNodeCountImpl(session, node_id, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetMessageNodeIds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId * message_node_ids_array, int count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetMessageNodeIdsImpl(session, node_id, message_node_ids_array, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNextVolumeTile(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeTileInfo * tile, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNextVolumeTileImpl(session, node_id, part_id, tile);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeCookResult(const HAPI_Session * session, char * string_value, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeCookResultImpl(session, string_value, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeCookResultLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_StatusVerbosity verbosity, int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeCookResultLengthImpl(session, node_id, verbosity, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeFromPath(const HAPI_Session * session, const HAPI_NodeId parent_node_id, const char * path, HAPI_NodeId * node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeFromPathImpl(session, parent_node_id, path, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeInfo * node_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeInfoImpl(session, node_id, node_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeInputName(const HAPI_Session * session, HAPI_NodeId node_id, int input_idx, HAPI_StringHandle * name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeInputNameImpl(session, node_id, input_idx, name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodeOutputName(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_StringHandle * name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodeOutputNameImpl(session, node_id, output_idx, name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNodePath(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId relative_to_node_id, HAPI_StringHandle * path, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNodePathImpl(session, node_id, relative_to_node_id, path);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNumWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, int * num, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNumWorkItemsImpl(session, node_id, num);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetNumWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * num, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetNumWorkitemsImpl(session, node_id, num);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetObjectInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ObjectInfo * object_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetObjectInfoImpl(session, node_id, object_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetObjectTransform(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeId relative_to_node_id, HAPI_RSTOrder rst_order, HAPI_Transform * transform, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetObjectTransformImpl(session, node_id, relative_to_node_id, rst_order, transform);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetOutputGeoCount(const HAPI_Session* session, HAPI_NodeId node_id, int* count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetOutputGeoCountImpl(session, node_id, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetOutputGeoInfos(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_GeoInfo* geo_infos_array, int count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetOutputGeoInfosImpl(session, node_id, geo_infos_array, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetOutputNodeId(const HAPI_Session * session, HAPI_NodeId node_id, int output, HAPI_NodeId * output_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetOutputNodeIdImpl(session, node_id, output, output_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPDGEvents(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_EventInfo * event_array, int length, int * event_count, int * remaining_events, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPDGEventsImpl(session, graph_context_id, event_array, length, event_count, remaining_events);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPDGGraphContextId(const HAPI_Session * session, HAPI_NodeId top_node_id, HAPI_PDG_GraphContextId * context_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPDGGraphContextIdImpl(session, top_node_id, context_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPDGGraphContexts(const HAPI_Session * session, HAPI_StringHandle * context_names_array, HAPI_PDG_GraphContextId * context_id_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPDGGraphContextsImpl(session, context_names_array, context_id_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPDGGraphContextsCount(const HAPI_Session* session, int* num_contexts, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPDGGraphContextsCountImpl(session, num_contexts);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPDGState(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, int * pdg_state, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPDGStateImpl(session, graph_context_id, pdg_state);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParameters(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmInfo * parm_infos_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParametersImpl(session, node_id, parm_infos_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmChoiceLists(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmChoiceInfo * parm_choices_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmChoiceListsImpl(session, node_id, parm_choices_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_StringHandle * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmExpressionImpl(session, node_id, parm_name, index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, const char * destination_directory, const char * destination_file_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmFileImpl(session, node_id, parm_name, destination_directory, destination_file_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmFloatValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, float * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmFloatValueImpl(session, node_id, parm_name, index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmFloatValues(const HAPI_Session * session, HAPI_NodeId node_id, float * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmFloatValuesImpl(session, node_id, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmIdFromName(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_ParmId * parm_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmIdFromNameImpl(session, node_id, parm_name, parm_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, HAPI_ParmInfo * parm_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmInfoImpl(session, node_id, parm_id, parm_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmInfoFromName(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_ParmInfo * parm_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmInfoFromNameImpl(session, node_id, parm_name, parm_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmIntValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, int * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmIntValueImpl(session, node_id, parm_name, index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmIntValues(const HAPI_Session * session, HAPI_NodeId node_id, int * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmIntValuesImpl(session, node_id, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmNodeValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_NodeId * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmNodeValueImpl(session, node_id, parm_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmStringValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_Bool evaluate, HAPI_StringHandle * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmStringValueImpl(session, node_id, parm_name, index, evaluate, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmStringValues(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Bool evaluate, HAPI_StringHandle * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmStringValuesImpl(session, node_id, evaluate, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmTagName(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int tag_index, HAPI_StringHandle * tag_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmTagNameImpl(session, node_id, parm_id, tag_index, tag_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmTagValue(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, const char * tag_name, HAPI_StringHandle * tag_value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmTagValueImpl(session, node_id, parm_id, tag_name, tag_value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetParmWithTag(const HAPI_Session * session, HAPI_NodeId node_id, const char * tag_name, HAPI_ParmId * parm_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetParmWithTagImpl(session, node_id, tag_name, parm_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPartInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_PartInfo * part_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPartInfoImpl(session, node_id, part_id, part_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPreset(const HAPI_Session * session, HAPI_NodeId node_id, char * buffer, int buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPresetImpl(session, node_id, buffer, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPresetBufLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PresetType preset_type, const char * preset_name, int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPresetBufLengthImpl(session, node_id, preset_type, preset_name, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPresetCount(const HAPI_Session * session, const char * buffer, int buffer_length, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPresetCountImpl(session, buffer, buffer_length, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetPresetNames(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetPresetNamesImpl(session, buffer, buffer_length, preset_names_array, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetServerEnvInt(const HAPI_Session * session, const char * variable_name, int * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetServerEnvIntImpl(session, variable_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetServerEnvString(const HAPI_Session * session, const char * variable_name, HAPI_StringHandle * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetServerEnvStringImpl(session, variable_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetServerEnvVarCount(const HAPI_Session * session, int * env_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetServerEnvVarCountImpl(session, env_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetServerEnvVarList(const HAPI_Session * session, HAPI_StringHandle * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetServerEnvVarListImpl(session, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetSessionEnvInt(const HAPI_Session * session, HAPI_SessionEnvIntType int_type, int * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetSessionEnvIntImpl(session, int_type, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetSessionSyncInfo(const HAPI_Session * session, HAPI_SessionSyncInfo * session_sync_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetSessionSyncInfoImpl(session, session_sync_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetSphereInfo(const HAPI_Session * session, HAPI_NodeId geo_node_id, HAPI_PartId part_id, HAPI_SphereInfo * sphere_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetSphereInfoImpl(session, geo_node_id, part_id, sphere_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStatus(const HAPI_Session * session, HAPI_StatusType status_type, int * status, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStatusImpl(session, status_type, status);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStatusString(const HAPI_Session * session, HAPI_StatusType status_type, char * string_value, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStatusStringImpl(session, status_type, string_value, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStatusStringBufLength(const HAPI_Session * session, HAPI_StatusType status_type, HAPI_StatusVerbosity verbosity, int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStatusStringBufLengthImpl(session, status_type, verbosity, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetString(const HAPI_Session * session, HAPI_StringHandle string_handle, char * string_value, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStringImpl(session, string_handle, string_value, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStringBatch(const HAPI_Session * session, char * char_buffer, int char_array_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStringBatchImpl(session, char_buffer, char_array_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStringBatchSize(const HAPI_Session * session, const int * string_handle_array, int string_handle_count, int * string_buffer_size, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStringBatchSizeImpl(session, string_handle_array, string_handle_count, string_buffer_size);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetStringBufLength(const HAPI_Session * session, HAPI_StringHandle string_handle, int * buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetStringBufLengthImpl(session, string_handle, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetSupportedImageFileFormatCount(const HAPI_Session * session, int * file_format_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetSupportedImageFileFormatCountImpl(session, file_format_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetSupportedImageFileFormats(const HAPI_Session * session, HAPI_ImageFileFormat * formats_array, int file_format_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetSupportedImageFileFormatsImpl(session, formats_array, file_format_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetTime(const HAPI_Session * session, float * time, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetTimeImpl(session, time);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetTimelineOptions(const HAPI_Session * session, HAPI_TimelineOptions * timeline_options, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetTimelineOptionsImpl(session, timeline_options);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetTotalCookCount(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetTotalCookCountImpl(session, node_id, node_type_filter, node_flags_filter, recursive, count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetUseHoudiniTime(const HAPI_Session * session, HAPI_Bool * enabled, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetUseHoudiniTimeImpl(session, enabled);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVertexList(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int * vertex_list_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVertexListImpl(session, node_id, part_id, vertex_list_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetViewport(const HAPI_Session * session, HAPI_Viewport * viewport, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetViewportImpl(session, viewport);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeBounds(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float * x_min, float * y_min, float * z_min, float * x_max, float * y_max, float * z_max, float * x_center, float * y_center, float * z_center, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeBoundsImpl(session, node_id, part_id, x_min, y_min, z_min, x_max, y_max, z_max, x_center, y_center, z_center);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeInfo * volume_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeInfoImpl(session, node_id, part_id, volume_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeTileFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, float fill_value, const HAPI_VolumeTileInfo * tile, float * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeTileFloatDataImpl(session, node_id, part_id, fill_value, tile, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeTileIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int fill_value, const HAPI_VolumeTileInfo * tile, int * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeTileIntDataImpl(session, node_id, part_id, fill_value, tile, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeVisualInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_VolumeVisualInfo * visual_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeVisualInfoImpl(session, node_id, part_id, visual_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeVoxelFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, float * values_array, int value_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeVoxelFloatDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetVolumeVoxelIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, int * values_array, int value_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetVolumeVoxelIntDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemAttributeSize(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int * length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemAttributeSizeImpl(session, node_id, work_item_id, attribute_name, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemFloatAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, float * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemFloatAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemInfo(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId work_item_id, HAPI_PDG_WorkItemInfo * work_item_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemInfoImpl(session, graph_context_id, work_item_id, work_item_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemIntAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemIntAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemOutputFiles(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemOutputFilesImpl(session, node_id, work_item_id, resultinfo_array, resultinfo_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItemStringAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, HAPI_StringHandle * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemStringAttributeImpl(session, node_id, work_item_id, attribute_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, int * work_item_ids_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkItemsImpl(session, node_id, work_item_ids_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemDataLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemDataLengthImpl(session, node_id, workitem_id, data_name, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, float * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemInfo(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemInfo * workitem_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemInfoImpl(session, graph_context_id, workitem_id, workitem_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemResultInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemResultInfoImpl(session, node_id, workitem_id, resultinfo_array, resultinfo_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, HAPI_StringHandle * data_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::GetWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * workitem_ids_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::GetWorkitemsImpl(session, node_id, workitem_ids_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::Initialize(const HAPI_Session * session, const HAPI_CookOptions * cook_options, HAPI_Bool use_cooking_thread, int cooking_thread_stack_size, const char * houdini_environment_files, const char * otl_search_path, const char * dso_search_path, const char * image_dso_search_path, const char * audio_dso_search_path, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::InitializeImpl(session, cook_options, use_cooking_thread, cooking_thread_stack_size, houdini_environment_files, otl_search_path, dso_search_path, image_dso_search_path, audio_dso_search_path);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::InsertMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::InsertMultiparmInstanceImpl(session, node_id, parm_id, instance_position);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::Interrupt(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::InterruptImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::IsInitialized(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::IsInitializedImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::IsNodeValid(const HAPI_Session * session, HAPI_NodeId node_id, int unique_node_id, HAPI_Bool * answer, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::IsNodeValidImpl(session, node_id, unique_node_id, answer);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::IsSessionValid(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::IsSessionValidImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadAssetLibraryFromFile(const HAPI_Session * session, const char * file_path, HAPI_Bool allow_overwrite, HAPI_AssetLibraryId * library_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadAssetLibraryFromFileImpl(session, file_path, allow_overwrite, library_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadAssetLibraryFromMemory(const HAPI_Session * session, const char * library_buffer, int library_buffer_length, HAPI_Bool allow_overwrite, HAPI_AssetLibraryId * library_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadAssetLibraryFromMemoryImpl(session, library_buffer, library_buffer_length, allow_overwrite, library_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadGeoFromFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadGeoFromFileImpl(session, node_id, file_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadGeoFromMemory(const HAPI_Session * session, HAPI_NodeId node_id, const char * format, const char * buffer, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadGeoFromMemoryImpl(session, node_id, format, buffer, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadHIPFile(const HAPI_Session * session, const char * file_name, HAPI_Bool cook_on_load, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadHIPFileImpl(session, file_name, cook_on_load);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::LoadNodeFromFile(const HAPI_Session * session, const char * file_name, HAPI_NodeId parent_node_id, const char * node_label, HAPI_Bool cook_on_load, HAPI_NodeId * new_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::LoadNodeFromFileImpl(session, file_name, parent_node_id, node_label, cook_on_load, new_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::MergeHIPFile(const HAPI_Session * session, const char * file_name, HAPI_Bool cook_on_load, HAPI_HIPFileId * file_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::MergeHIPFileImpl(session, file_name, cook_on_load, file_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ParmHasExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_Bool * has_expression, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ParmHasExpressionImpl(session, node_id, parm_name, index, has_expression);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ParmHasTag(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, const char * tag_name, HAPI_Bool * has_tag, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ParmHasTagImpl(session, node_id, parm_id, tag_name, has_tag);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::PausePDGCook(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::PausePDGCookImpl(session, graph_context_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::PythonThreadInterpreterLock(const HAPI_Session * session, HAPI_Bool locked, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::PythonThreadInterpreterLockImpl(session, locked);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::QueryNodeInput(const HAPI_Session * session, HAPI_NodeId node_to_query, int input_index, HAPI_NodeId * connected_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::QueryNodeInputImpl(session, node_to_query, input_index, connected_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::QueryNodeOutputConnectedCount(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_Bool into_subnets, HAPI_Bool through_dots, int * connected_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::QueryNodeOutputConnectedCountImpl(session, node_id, output_idx, into_subnets, through_dots, connected_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::QueryNodeOutputConnectedNodes(const HAPI_Session * session, HAPI_NodeId node_id, int output_idx, HAPI_Bool into_subnets, HAPI_Bool through_dots, HAPI_NodeId * connected_node_ids_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::QueryNodeOutputConnectedNodesImpl(session, node_id, output_idx, into_subnets, through_dots, connected_node_ids_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RemoveCustomString(const HAPI_Session * session, const HAPI_StringHandle string_handle, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RemoveCustomStringImpl(session, string_handle);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RemoveMultiparmInstance(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int instance_position, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl(session, node_id, parm_id, instance_position);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RemoveParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RemoveParmExpressionImpl(session, node_id, parm_id, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RenameNodeImpl(session, node_id, new_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RenderCOPToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RenderCOPToImageImpl(session, cop_node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RenderTextureToImage(const HAPI_Session * session, HAPI_NodeId material_node_id, HAPI_ParmId parm_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RenderTextureToImageImpl(session, material_node_id, parm_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::ResetSimulation(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ResetSimulationImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RevertGeo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RevertGeoImpl(session, node_id);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RevertParmToDefault(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RevertParmToDefaultImpl(session, node_id, parm_name, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::RevertParmToDefaults(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::RevertParmToDefaultsImpl(session, node_id, parm_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SaveGeoToFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SaveGeoToFileImpl(session, node_id, file_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SaveGeoToMemory(const HAPI_Session * session, HAPI_NodeId node_id, char * buffer, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SaveGeoToMemoryImpl(session, node_id, buffer, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SaveHIPFile(const HAPI_Session * session, const char * file_path, HAPI_Bool lock_nodes, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SaveHIPFileImpl(session, file_path, lock_nodes);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SaveNodeToFile(const HAPI_Session * session, HAPI_NodeId node_id, const char * file_name, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SaveNodeToFileImpl(session, node_id, file_name);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAnimCurve(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ParmId parm_id, int parm_index, const HAPI_Keyframe * curve_keyframes_array, int keyframe_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAnimCurveImpl(session, node_id, parm_id, parm_index, curve_keyframes_array, keyframe_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeDictionaryArrayData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_fixed_array, int data_fixed_length, const int* sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeDictionaryData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeDictionaryDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloat64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloat64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloat64DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloat64UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const double* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloatArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloatArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloatDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeFloatUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const float* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeFloatUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeIndexedStringData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** string_array, int string_count, const int* indices_array, int indices_start, int indices_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeIndexedStringDataImpl(session, node_id, part_id, name, attr_info, string_array, string_count, indices_array, indices_start, indices_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt16ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt16ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt16Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt16DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt16UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int16* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt16UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt64ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt64ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt64Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt64DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt64UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int64* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt64UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt8DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeInt8UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int8* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeInt8UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeIntArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeIntArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeIntDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeIntUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const int* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeIntUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeStringArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeStringArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeStringDataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeStringUniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeStringUniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeUInt8ArrayData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataImpl(session, node_id, part_id, name, attr_info, data_fixed_array, data_fixed_length, sizes_fixed_array, start, sizes_fixed_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeUInt8Data(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeUInt8DataImpl(session, node_id, part_id, name, attr_info, data_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetAttributeUInt8UniqueData(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_UInt8* data_array, int data_length, int start_index, int num_indices, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataImpl(session, node_id, part_id, name, attr_info, data_array, data_length, start_index, num_indices);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCacheProperty(const HAPI_Session * session, const char * cache_name, HAPI_CacheProperty cache_property, int property_value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCachePropertyImpl(session, cache_name, cache_property, property_value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCompositorOptions(const HAPI_Session * session, const HAPI_CompositorOptions * compositor_options, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCompositorOptionsImpl(session, compositor_options);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCurveCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * counts_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCurveCountsImpl(session, node_id, part_id, counts_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_CurveInfo * info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCurveInfoImpl(session, node_id, part_id, info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCurveKnots(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const float * knots_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCurveKnotsImpl(session, node_id, part_id, knots_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCurveOrders(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * orders_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCurveOrdersImpl(session, node_id, part_id, orders_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetCustomString(const HAPI_Session * session, const char * string_value, HAPI_StringHandle * handle_value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetCustomStringImpl(session, string_value, handle_value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetFaceCounts(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * face_counts_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetFaceCountsImpl(session, node_id, part_id, face_counts_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetGroupMembership(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_GroupType group_type, const char * group_name, const int * membership_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetGroupMembershipImpl(session, node_id, part_id, group_type, group_name, membership_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetHeightFieldData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const float * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetHeightFieldDataImpl(session, node_id, part_id, name, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetImageInfo(const HAPI_Session * session, HAPI_NodeId material_node_id, const HAPI_ImageInfo * image_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetImageInfoImpl(session, material_node_id, image_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetInputCurveInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_InputCurveInfo * info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetInputCurveInfoImpl(session, node_id, part_id, info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetInputCurvePositions(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const float* positions_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetInputCurvePositionsImpl(session, node_id, part_id, positions_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetInputCurvePositionsRotationsScales(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const float* positions_array, int positions_start, int positions_length, const float* rotations_array, int rotations_start, int rotations_length, const float * scales_array, int scales_start, int scales_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetInputCurvePositionsRotationsScalesImpl(session, node_id, part_id, positions_array, positions_start, positions_length, rotations_array, rotations_start, rotations_length, scales_array, scales_start, scales_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetNodeDisplay(const HAPI_Session * session, HAPI_NodeId node_id, int onOff, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetNodeDisplayImpl(session, node_id, onOff);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetObjectTransform(const HAPI_Session * session, HAPI_NodeId node_id, const HAPI_TransformEuler * trans, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetObjectTransformImpl(session, node_id, trans);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmExpression(const HAPI_Session * session, HAPI_NodeId node_id, const char * value, HAPI_ParmId parm_id, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmExpressionImpl(session, node_id, value, parm_id, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmFloatValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, float value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmFloatValueImpl(session, node_id, parm_name, index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmFloatValues(const HAPI_Session * session, HAPI_NodeId node_id, const float * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmFloatValuesImpl(session, node_id, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmIntValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, int index, int value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmIntValueImpl(session, node_id, parm_name, index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmIntValues(const HAPI_Session * session, HAPI_NodeId node_id, const int * values_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmIntValuesImpl(session, node_id, values_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmNodeValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * parm_name, HAPI_NodeId value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmNodeValueImpl(session, node_id, parm_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetParmStringValue(const HAPI_Session * session, HAPI_NodeId node_id, const char * value, HAPI_ParmId parm_id, int index, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetParmStringValueImpl(session, node_id, value, parm_id, index);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetPartInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_PartInfo * part_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetPartInfoImpl(session, node_id, part_id, part_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetPreset(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PresetType preset_type, const char * preset_name, const char * buffer, int buffer_length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetPresetImpl(session, node_id, preset_type, preset_name, buffer, buffer_length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetServerEnvInt(const HAPI_Session * session, const char * variable_name, int value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetServerEnvIntImpl(session, variable_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetServerEnvString(const HAPI_Session * session, const char * variable_name, const char * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetServerEnvStringImpl(session, variable_name, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetSessionSync(const HAPI_Session * session, HAPI_Bool enable, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetSessionSyncImpl(session, enable);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetSessionSyncInfo(const HAPI_Session * session, const HAPI_SessionSyncInfo * session_sync_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetSessionSyncInfoImpl(session, session_sync_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetTime(const HAPI_Session * session, float time, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetTimeImpl(session, time);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetTimelineOptions(const HAPI_Session * session, const HAPI_TimelineOptions * timeline_options, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetTimelineOptionsImpl(session, timeline_options);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetTransformAnimCurve(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_TransformComponent trans_comp, const HAPI_Keyframe * curve_keyframes_array, int keyframe_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetTransformAnimCurveImpl(session, node_id, trans_comp, curve_keyframes_array, keyframe_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetUseHoudiniTime(const HAPI_Session * session, HAPI_Bool enabled, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetUseHoudiniTimeImpl(session, enabled);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVertexList(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const int * vertex_list_array, int start, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVertexListImpl(session, node_id, part_id, vertex_list_array, start, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetViewport(const HAPI_Session * session, const HAPI_Viewport * viewport, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetViewportImpl(session, viewport);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVolumeInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeInfo * volume_info, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVolumeInfoImpl(session, node_id, part_id, volume_info);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVolumeTileFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeTileInfo * tile, const float * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVolumeTileFloatDataImpl(session, node_id, part_id, tile, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVolumeTileIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const HAPI_VolumeTileInfo * tile, const int * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVolumeTileIntDataImpl(session, node_id, part_id, tile, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVolumeVoxelFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, const float * values_array, int value_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVolumeVoxelFloatDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetVolumeVoxelIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, int x_index, int y_index, int z_index, const int * values_array, int value_count, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetVolumeVoxelIntDataImpl(session, node_id, part_id, x_index, y_index, z_index, values_array, value_count);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkItemFloatAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, const float * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkItemFloatAttributeImpl(session, node_id, work_item_id, attribute_name, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkItemIntAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, const int * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkItemIntAttributeImpl(session, node_id, work_item_id, attribute_name, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkItemStringAttribute(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int data_index, const char * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkItemStringAttributeImpl(session, node_id, work_item_id, attribute_name, data_index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const float * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const int * values_array, int length, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, values_array, length);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::SetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int data_index, const char * value, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::SetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_index, value);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::Shutdown(const HAPI_Session * session, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::ShutdownImpl(session);
-    return HandleHAPIResult(session, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::StartThriftNamedPipeServer(const HAPI_ThriftServerOptions * options, const char * pipe_name, HAPI_ProcessId * process_id, const char * log_file, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl(options, pipe_name, process_id, log_file);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::StartThriftSharedMemoryServer(const HAPI_ThriftServerOptions * options, const char * shared_mem_name, HAPI_ProcessId * process_id, const char * log_file, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::StartThriftSharedMemoryServerImpl(options, shared_mem_name, process_id, log_file);
-    return HandleHAPIResult(nullptr, result);
-}
-
-
-bool
-HEMAX_HoudiniApi::StartThriftSocketServer(const HAPI_ThriftServerOptions * options, int port, HAPI_ProcessId * process_id, const char * log_file, HAPI_Result& result)
-{
-    result = HEMAX_HoudiniApi::StartThriftSocketServerImpl(options, port, process_id, log_file);
-    return HandleHAPIResult(nullptr, result);
-}
-
 
 HAPI_Result
 HEMAX_HoudiniApi::AddAttributeEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info)
@@ -7534,7 +4850,7 @@ HEMAX_HoudiniApi::GetAttributeDictionaryDataEmptyStub(const HAPI_Session* sessio
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetAttributeDictionaryDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id)
+HEMAX_HoudiniApi::GetAttributeDictionaryDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -7744,7 +5060,7 @@ HEMAX_HoudiniApi::GetAttributeStringDataEmptyStub(const HAPI_Session * session, 
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetAttributeStringDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_StringHandle * data_array, int start, int length, int * job_id)
+HEMAX_HoudiniApi::GetAttributeStringDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, HAPI_StringHandle * data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -7773,13 +5089,6 @@ HEMAX_HoudiniApi::GetAttributeUInt8DataEmptyStub(const HAPI_Session * session, H
 
 HAPI_Result
 HEMAX_HoudiniApi::GetAttributeUInt8DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, HAPI_AttributeInfo * attr_info, int stride, HAPI_UInt8 * data_array, int start, int length, int * job_id)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetAttributeWaitEmptyStub(const HAPI_Session * session, int job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -8088,6 +5397,13 @@ HEMAX_HoudiniApi::GetInstancedPartIdsEmptyStub(const HAPI_Session * session, HAP
 
 HAPI_Result
 HEMAX_HoudiniApi::GetInstancerPartTransformsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, HAPI_RSTOrder rst_order, HAPI_Transform * transforms_array, int start, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::GetJobStatusEmptyStub(const HAPI_Session * session, int job_id, HAPI_JobStatus * job_status)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -8983,7 +6299,21 @@ HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataEmptyStub(const HAPI_Session* s
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeDictionaryArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeDictionaryDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_array, int start, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeDictionaryDataAsyncEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char** data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -8997,7 +6327,21 @@ HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataEmptyStub(const HAPI_Session * ses
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64ArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloat64DataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_array, int start, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const double * data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9011,7 +6355,21 @@ HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataEmptyStub(const HAPI_Session* ses
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloat64UniqueDataAsyncEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const double* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloatArrayDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9025,7 +6383,21 @@ HEMAX_HoudiniApi::SetAttributeFloatDataEmptyStub(const HAPI_Session * session, H
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const float * data_array, int start, int length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeFloatUniqueDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const float* data_array, int data_length, int start_index, int num_indices)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeFloatUniqueDataAsyncEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const float* data_array, int data_length, int start_index, int num_indices, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9039,7 +6411,21 @@ HEMAX_HoudiniApi::SetAttributeIndexedStringDataEmptyStub(const HAPI_Session* ses
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIndexedStringDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** string_array, int string_count, const int * indices_array, int indices_start, int indices_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt16ArrayDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16ArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9053,7 +6439,21 @@ HEMAX_HoudiniApi::SetAttributeInt16DataEmptyStub(const HAPI_Session * session, H
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int16 * data_array, int start, int length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt16UniqueDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int16* data_array, int data_length, int start_index, int num_indices)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt16UniqueDataAsyncEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int16* data_array, int data_length, int start_index, int num_indices, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9067,7 +6467,21 @@ HEMAX_HoudiniApi::SetAttributeInt64ArrayDataEmptyStub(const HAPI_Session * sessi
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64ArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt64DataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_array, int start, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int64 * data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9081,7 +6495,21 @@ HEMAX_HoudiniApi::SetAttributeInt64UniqueDataEmptyStub(const HAPI_Session* sessi
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt64UniqueDataAsyncEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int64* data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt8ArrayDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8ArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9095,7 +6523,21 @@ HEMAX_HoudiniApi::SetAttributeInt8DataEmptyStub(const HAPI_Session * session, HA
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8 * data_array, int start, int length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeInt8UniqueDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_Int8* data_array, int data_length, int start_index, int num_indices)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeInt8UniqueDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_Int8* data_array, int data_length, int start_index, int num_indices, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9109,7 +6551,21 @@ HEMAX_HoudiniApi::SetAttributeIntArrayDataEmptyStub(const HAPI_Session * session
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeIntDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int start, int length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int start, int length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9123,7 +6579,21 @@ HEMAX_HoudiniApi::SetAttributeIntUniqueDataEmptyStub(const HAPI_Session* session
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeIntUniqueDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const int * data_array, int data_length, int start_index, int num_indices, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeStringArrayDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9137,7 +6607,21 @@ HEMAX_HoudiniApi::SetAttributeStringDataEmptyStub(const HAPI_Session * session, 
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char ** data_array, int start, int length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeStringUniqueDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const char* data_array, int data_length, int start_index, int num_indices)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeStringUniqueDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const char * data_array, int data_length, int start_index, int num_indices, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9151,6 +6635,13 @@ HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataEmptyStub(const HAPI_Session * sessi
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8ArrayDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_fixed_array, int data_fixed_length, const int * sizes_fixed_array, int start, int sizes_fixed_length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeUInt8DataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int start, int length)
 {
     return HAPI_RESULT_FAILURE;
@@ -9158,7 +6649,21 @@ HEMAX_HoudiniApi::SetAttributeUInt8DataEmptyStub(const HAPI_Session * session, H
 
 
 HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8DataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int start, int length, int * job_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataEmptyStub(const HAPI_Session* session, HAPI_NodeId node_id, HAPI_PartId part_id, const char* name, const HAPI_AttributeInfo* attr_info, const HAPI_UInt8* data_array, int data_length, int start_index, int num_indices)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::SetAttributeUInt8UniqueDataAsyncEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PartId part_id, const char * name, const HAPI_AttributeInfo * attr_info, const HAPI_UInt8 * data_array, int data_length, int start_index, int num_indices, int * job_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -9494,6 +6999,13 @@ HEMAX_HoudiniApi::ShutdownEmptyStub(const HAPI_Session * session)
 
 
 HAPI_Result
+HEMAX_HoudiniApi::StartPerformanceMonitorProfileEmptyStub(const HAPI_Session * session, const char * title, int * profile_id)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
 HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub(const HAPI_ThriftServerOptions * options, const char * pipe_name, HAPI_ProcessId * process_id, const char * log_file)
 {
     return HAPI_RESULT_FAILURE;
@@ -9509,6 +7021,13 @@ HEMAX_HoudiniApi::StartThriftSharedMemoryServerEmptyStub(const HAPI_ThriftServer
 
 HAPI_Result
 HEMAX_HoudiniApi::StartThriftSocketServerEmptyStub(const HAPI_ThriftServerOptions * options, int port, HAPI_ProcessId * process_id, const char * log_file)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::StopPerformanceMonitorProfileEmptyStub(const HAPI_Session * session, int profile_id, const char * file_path)
 {
     return HAPI_RESULT_FAILURE;
 }

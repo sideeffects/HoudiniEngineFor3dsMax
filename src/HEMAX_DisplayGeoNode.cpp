@@ -33,7 +33,7 @@ HEMAX_DisplayGeoNode::Init(HAPI_NodeId NodeId)
     HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeId, &NodeInfo);
     Name = SM.Session->GetHAPIString(NodeInfo.nameSH);
 
-    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, NodeId, &Info))
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, NodeId, &Info) == HAPI_RESULT_SUCCESS)
     {
 	Parts.resize(Info.partCount);
 	for (int p = 0; p < Info.partCount; p++)
@@ -53,7 +53,7 @@ HEMAX_DisplayGeoNode::Update(bool Cook)
         HEMAX_HoudiniApi::CookNode(SM.Session, Node, SM.Session->GetCookOptions());
     }
 
-    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, Node, &Info))
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, Node, &Info) == HAPI_RESULT_SUCCESS)
     {
 	if (Parts.size() != Info.partCount)
 	{

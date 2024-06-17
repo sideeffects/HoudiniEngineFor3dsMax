@@ -39,21 +39,6 @@ HEMAX_HAPIThriftSharedMemorySession::~HEMAX_HAPIThriftSharedMemorySession()
 {
 }
 
-HEMAX_CookResult
-HEMAX_HAPISession::IsCookFinished()
-{
-    int Status;
-    bool Result = HEMAX_HoudiniApi::GetStatus(this, HAPI_STATUS_COOK_STATE,
-        &Status);
-
-    if (!Result)
-        return COOK_FAILED;
-    else if (Status <= HAPI_STATE_MAX_READY_STATE)
-        return COOK_FINISHED; 
-    else
-        return COOK_NOT_FINISHED;
-}
-
 bool
 HEMAX_HAPISession::CreateSession()
 {
@@ -82,17 +67,17 @@ HEMAX_HAPISession::InitializeHAPI(const char* HoudiniEnvFiles,
     CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
     CookOptions.cacheMeshTopology = false;
 
-    bool Result = HEMAX_HoudiniApi::Initialize(this,
-                                               &CookOptions,
-                                               SeparateCookingThread,
-                                               CookingThreadStackSize,
-	                                       HoudiniEnvFiles,
-                                               otlSearchPath,
-                                               dsoSearchPath,
-                                               imageDsoSearchPath,
-                                               audioDsoSearchPath);
+    HAPI_Result Result = HEMAX_HoudiniApi::Initialize(this,
+                                                      &CookOptions,
+                                                      SeparateCookingThread,
+                                                      CookingThreadStackSize,
+	                                              HoudiniEnvFiles,
+                                                      otlSearchPath,
+                                                      dsoSearchPath,
+                                                      imageDsoSearchPath,
+                                                      audioDsoSearchPath);
 
-    return Result;
+    return (Result == HAPI_RESULT_SUCCESS);
 }
 
 bool
@@ -100,17 +85,17 @@ HEMAX_HAPIThriftSocketSession::CreateSession()
 {
     HAPI_SessionInfo SessionInfo;
     SessionInfo.connectionCount = 0;
-    bool Result = HEMAX_HoudiniApi::CreateThriftSocketSession(this,
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSocketSession(this,
         HostName.c_str(), Port, &SessionInfo);
 
-    if (!Result)
+    if (Result != HAPI_RESULT_SUCCESS)
     {
 	std::string Msg = "Could not create session on host: " + HostName +
 	    " / Port: " + std::to_string(Port);
 	HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
     }
 
-    return Result;
+    return (Result == HAPI_RESULT_SUCCESS);
 }
 
 bool
@@ -118,16 +103,16 @@ HEMAX_HAPIThriftPipeSession::CreateSession()
 {
     HAPI_SessionInfo SessionInfo;
     SessionInfo.connectionCount = 0;
-    bool Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(this,
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(this,
         PipeName.c_str(), &SessionInfo);
 
-    if (!Result)
+    if (Result != HAPI_RESULT_SUCCESS)
     {
 	std::string Msg = "Could not create session with pipe name: " + PipeName;
 	HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
     }
 
-    return Result;
+    return (Result == HAPI_RESULT_SUCCESS);
 }
 
 bool
@@ -137,17 +122,17 @@ HEMAX_HAPIThriftSharedMemorySession::CreateSession()
     SessionInfo.connectionCount = 0;
     SessionInfo.sharedMemoryBufferType = BufferType;
     SessionInfo.sharedMemoryBufferSize = BufferSize;
-    bool Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(this,
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(this,
         Name.c_str(), &SessionInfo);
 
-    if (!Result)
+    if (Result != HAPI_RESULT_SUCCESS)
     {
         std::string Msg = "Could not create shared memory session with name: "
             + Name;
         HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
     }
 
-    return Result;
+    return (Result == HAPI_RESULT_SUCCESS);
 }
 
 bool
@@ -156,10 +141,8 @@ HEMAX_HAPISession::LoadHoudiniDigitalAsset(const char* FilePath,
 	                                   HAPI_AssetLibraryId* AssetLibId,
                                            HEMAX_AssetLoadStatus* LoadStatus)
 {
-    HAPI_Result Result;
-     
-    bool Success = HEMAX_HoudiniApi::LoadAssetLibraryFromFile(this, FilePath,
-        AllowOverwrite, AssetLibId, Result);
+    HAPI_Result Result = HEMAX_HoudiniApi::LoadAssetLibraryFromFile(
+        this, FilePath, AllowOverwrite, AssetLibId);
 
     if (Result == HAPI_RESULT_FAILURE)
     {
@@ -182,7 +165,7 @@ HEMAX_HAPISession::LoadHoudiniDigitalAsset(const char* FilePath,
 	(*LoadStatus) = HEMAX_ASSET_NO_STATUS;
     }
 
-    return Success;
+    return (Result == HAPI_RESULT_SUCCESS);
 }
 
 void

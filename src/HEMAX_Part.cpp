@@ -93,7 +93,9 @@ HEMAX_Part::Update(HAPI_NodeId Node, int PartNum)
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    Valid = HEMAX_HoudiniApi::GetPartInfo(SM.Session, Node, PartNum, &Info);
+    HAPI_Result Result = HEMAX_HoudiniApi::GetPartInfo(SM.Session, Node,
+            PartNum, &Info);
+    Valid = (Result == HAPI_RESULT_SUCCESS);
 
     if (Info.type == HAPI_PARTTYPE_INSTANCER)
     {
@@ -445,9 +447,8 @@ HEMAX_Part::BuildMesh()
 	    {
 		HAPI_AttributeInfo AttribInfo;
 		if (HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, NodeId,
-                                    Info.id,
-				    AttribName.c_str(),
-				    HAPI_ATTROWNER_DETAIL, &AttribInfo))
+                        Info.id, AttribName.c_str(),
+			HAPI_ATTROWNER_DETAIL, &AttribInfo) == HAPI_RESULT_SUCCESS)
 		{
 		    switch (AttribInfo.storage)
 		    {
@@ -491,10 +492,10 @@ HEMAX_Part::BuildMesh()
 				HEMAX_MeshList<std::string>& Metadata = PartMesh->GetStringMetadata(AttribName);
 				std::vector<HAPI_StringHandle> StringHandles(1);
 				if (HEMAX_HoudiniApi::GetAttributeStringData(
-                                                    SM.Session, NodeId,
-						    Info.id, AttribName.c_str(),
-						    &AttribInfo,
-						    StringHandles.data(), 0, 1))
+                                        SM.Session, NodeId,
+					Info.id, AttribName.c_str(),
+					&AttribInfo,
+					StringHandles.data(), 0, 1) == HAPI_RESULT_SUCCESS)
 				{
 				    Metadata.Data()[0] = SM.Session->GetHAPIString(StringHandles[0]);
 				}
@@ -658,15 +659,14 @@ HEMAX_Part::GetInstancedPartTransforms()
 
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	bool Success = HEMAX_HoudiniApi::GetInstancerPartTransforms(
-                            SM.Session,
-			    NodeId, Info.id,
-			    HAPI_RSTORDER_DEFAULT,
-			    &HAPITransforms.front(),
-			    0, PackedPrimInfo.InstanceCount
-			);
+	HAPI_Result Result = HEMAX_HoudiniApi::GetInstancerPartTransforms(
+                                    SM.Session,
+			            NodeId, Info.id,
+			            HAPI_RSTORDER_DEFAULT,
+			            &HAPITransforms.front(),
+			            0, PackedPrimInfo.InstanceCount);
 
-	if (Success)
+	if (Result == HAPI_RESULT_SUCCESS)
 	{
 	    for (int t = 0; t < PackedPrimInfo.InstanceCount; t++)
 	    {

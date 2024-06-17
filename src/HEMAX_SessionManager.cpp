@@ -111,7 +111,7 @@ HEMAX_SessionManager::StopSession()
 	IsSessionInitialized = false;
     }
 
-    if (HEMAX_HoudiniApi::CloseSession(Session))
+    if (HEMAX_HoudiniApi::CloseSession(Session) == HAPI_RESULT_SUCCESS)
     {
 	IsActiveSession = false;
     }
@@ -193,10 +193,12 @@ HEMAX_SessionManager::GetEnvMap()
     std::unordered_map<std::string, std::string> EnvMap;
 
     int EnvVarCount;
-    if (HEMAX_HoudiniApi::GetServerEnvVarCount(Session, &EnvVarCount))
+    if (HEMAX_HoudiniApi::GetServerEnvVarCount(Session,
+            &EnvVarCount) == HAPI_RESULT_SUCCESS)
     {
 	HAPI_StringHandle* EnvSH = new HAPI_StringHandle[EnvVarCount];
-	if (HEMAX_HoudiniApi::GetServerEnvVarList(Session, EnvSH, 0, EnvVarCount))
+	if (HEMAX_HoudiniApi::GetServerEnvVarList(Session, EnvSH, 0,
+                EnvVarCount) == HAPI_RESULT_SUCCESS)
 	{
 	    std::vector<std::string> EnvList(EnvVarCount);
 	    for (int v = 0; v < EnvVarCount; v++)

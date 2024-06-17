@@ -1386,7 +1386,7 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 	    EditableCurve.PushPartId = p;
 	    if (HEMAX_HoudiniApi::GetCurveInfo(SM.Session,
                     EditableNode.GeoInfo.nodeId, EditableNode.Parts[p].Info.id,
-                    &EditableCurve.CurveInfo))
+                    &EditableCurve.CurveInfo) == HAPI_RESULT_SUCCESS)
 	    {
 		switch (EditableCurve.CurveInfo.curveType)
 		{

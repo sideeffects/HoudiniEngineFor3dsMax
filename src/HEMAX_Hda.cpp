@@ -225,7 +225,7 @@ HEMAX_Hda::GetAllEditableNodes()
 	    EditableNode.Node.Cook();
 
 	    if (HEMAX_HoudiniApi::GetGeometryInfo(SM.Session,
-                    EditableNode.Node.Info.id, &EditableNode.GeoInfo))
+                    EditableNode.Node.Info.id, &EditableNode.GeoInfo) == HAPI_RESULT_SUCCESS)
 	    {
 		switch (EditableNode.GeoInfo.type)
 		{

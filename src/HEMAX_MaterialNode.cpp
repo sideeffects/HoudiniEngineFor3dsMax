@@ -227,7 +227,8 @@ HEMAX_MaterialNode::RenderTextureToMemory()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (HEMAX_HoudiniApi::RenderTextureToImage(SM.Session, NodeId, TextureParameterId))
+    if (HEMAX_HoudiniApi::RenderTextureToImage(
+            SM.Session, NodeId, TextureParameterId) == HAPI_RESULT_SUCCESS)
     {
         HEMAX_HoudiniApi::GetImageInfo(SM.Session, NodeId, &ImageInfo);
 
@@ -243,18 +244,14 @@ HEMAX_MaterialNode::RenderTextureToMemory()
                                   std::string(" ") +
                                   std::string(HEMAX_IMAGE_PLANE_ALPHA);
 
-	if (HEMAX_HoudiniApi::ExtractImageToMemory(SM.Session,
-                                                   NodeId,
-                                                   HAPI_RAW_FORMAT_NAME,
-                                                   ImagePlanes.c_str(),
-                                                   &ImageMemoryBufferLength))
+	if (HEMAX_HoudiniApi::ExtractImageToMemory(SM.Session, NodeId,
+                HAPI_RAW_FORMAT_NAME, ImagePlanes.c_str(),
+                &ImageMemoryBufferLength) == HAPI_RESULT_SUCCESS)
 	{
 	    char* Pixels = new char[ImageMemoryBufferLength];
 
-	    if (HEMAX_HoudiniApi::GetImageMemoryBuffer(SM.Session,
-                                                       NodeId,
-                                                       Pixels,
-                                                       ImageMemoryBufferLength))
+	    if (HEMAX_HoudiniApi::GetImageMemoryBuffer(SM.Session, NodeId,
+                    Pixels, ImageMemoryBufferLength) == HAPI_RESULT_SUCCESS)
 	    {
 		ImageBuffer = (unsigned char*)Pixels;
 		HasTextureBeenRendered = true;

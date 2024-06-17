@@ -28,8 +28,6 @@ class HEMAX_HAPISession : public HAPI_Session
                                      HAPI_AssetLibraryId* AssetLibId,
                                      HEMAX_AssetLoadStatus* LoadStatus=nullptr);
 
-	HEMAX_CookResult IsCookFinished();
-
 	std::string GetHAPIString(HAPI_StringHandle Handle);
 
 	std::string GetHAPIErrorStatusString();

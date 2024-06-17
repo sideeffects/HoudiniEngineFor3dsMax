@@ -57,7 +57,7 @@ HEMAX_Object::Create(HAPI_NodeId NodeId)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (HEMAX_HoudiniApi::GetObjectInfo(SM.Session, NodeId, &Info))
+    if (HEMAX_HoudiniApi::GetObjectInfo(SM.Session, NodeId, &Info) == HAPI_RESULT_SUCCESS)
     {
         HEMAX_HoudiniApi::GetObjectTransform(SM.Session, Info.nodeId, -1,
             HAPI_RSTORDER_DEFAULT, &Transform);
@@ -147,7 +147,8 @@ GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_GeoInfo GeoInfo;
-    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, InstancerObjInfo.nodeId, &GeoInfo))
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, InstancerObjInfo.nodeId,
+            &GeoInfo) == HAPI_RESULT_SUCCESS)
     {
 	Info.InstanceTransforms = GetInstanceTransforms(InstancerObjInfo.nodeId);
 

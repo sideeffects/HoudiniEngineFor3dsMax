@@ -173,7 +173,7 @@ HEMAX_Parameter::GetInputNodeId()
 
 	HAPI_NodeId InputNodeId;
 	if (HEMAX_HoudiniApi::GetParmNodeValue(SM.Session, Node,
-                Name.c_str(), &InputNodeId))
+                Name.c_str(), &InputNodeId) == HAPI_RESULT_SUCCESS)
 	{
 	    return InputNodeId;
 	}
@@ -193,7 +193,8 @@ HEMAX_Parameter::GetInputNodeName()
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	HAPI_NodeInfo InputNodeInfo;
-        if (HEMAX_HoudiniApi::GetNodeInfo(SM.Session, InputNodeId, &InputNodeInfo))
+        if (HEMAX_HoudiniApi::GetNodeInfo(SM.Session, InputNodeId,
+                &InputNodeInfo) == HAPI_RESULT_SUCCESS)
 	{
 	    InputNodeName = SM.Session->GetHAPIString(InputNodeInfo.nameSH);
 	}

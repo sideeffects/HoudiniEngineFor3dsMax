@@ -31,7 +31,7 @@ HEMAX_Node::Init(const std::string& Asset)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     if (HEMAX_HoudiniApi::CreateNode(SM.Session, -1, AssetName.c_str(), nullptr,
-            false, &Info.id))
+            false, &Info.id) == HAPI_RESULT_SUCCESS)
     {
         HEMAX_HoudiniApi::GetNodeInfo(SM.Session, Info.id, &Info);
         Type = Info.type;
@@ -59,10 +59,6 @@ HEMAX_Node::Cook()
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
         HEMAX_HoudiniApi::CookNode(SM.Session, Info.id, SM.Session->GetCookOptions());
-	while (SM.Session->IsCookFinished() != COOK_FINISHED)
-	{
-	    // Wait
-	}
         HEMAX_HoudiniApi::GetNodeInfo(SM.Session, Info.id, &Info);
 
 	if (Info.parmCount > 0)
@@ -205,7 +201,7 @@ HEMAX_Node::QueryNodeInput(int InputIndex)
     HAPI_NodeId ConnectedNode;
 
     if (HEMAX_HoudiniApi::QueryNodeInput(SM.Session, Info.id, InputIndex,
-            &ConnectedNode))
+            &ConnectedNode) == HAPI_RESULT_SUCCESS)
     {
 	return ConnectedNode;
     }
