@@ -99,7 +99,17 @@ HEMAXLauncher::HEMAXLauncher()
 {
 }
 
-HEMAXLauncher::~HEMAXLauncher() {}
+HEMAXLauncher::~HEMAXLauncher()
+{
+    if (PluginEvents)
+        delete PluginEvents;
+
+    if (OptionsDialog)
+        delete OptionsDialog;
+
+    if (VersionDialog)
+        delete VersionDialog;
+}
 
 HMODULE
 HEMAXLauncher::LoadLibHAPIL(const std::wstring& HFS)

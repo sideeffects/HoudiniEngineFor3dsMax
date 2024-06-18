@@ -102,34 +102,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
                      SLOT(Slot_AdvancedOptionsHdaPathSave()));
 }
 
-HEMAX_MaxHoudiniAssetWidget::~HEMAX_MaxHoudiniAssetWidget()
-{
-    delete AdvancedOptions_HDAPathSave;
-    delete AdvancedOptions_HDAPath;
-    delete AdvancedOptions_HDAPathLabel;
-    delete AdvancedOptions_WidgetLayout;
-    delete AdvancedOptions_Widget;
-
-    delete AdvancedOptionsEnabledCheckbox;
-    delete AdvancedOptionsLayout;
-    delete AdvancedOptionsBox;
-
-    delete MHAOptions_ApplyHAPITransformToNode;
-    delete MHAOptions_PushTransformToHAPI;
-
-    delete MHAOptionsBoxLayout;
-    delete MHAOptionsBox;
-
-    delete CopyToNodeButton;
-    delete CloneHdaButton;
-    delete BakeHdaButton;
-    delete ReloadHdaButton;
-    delete RecookHdaButton;
-
-    delete HdaActionButtonsLayout;
-    delete HdaActionButtons;
-}
-
 void
 HEMAX_MaxHoudiniAssetWidget::Slot_LockSelectionButton_Clicked()
 {

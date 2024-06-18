@@ -57,15 +57,15 @@ class HEMAX_UI : public QDockWidget
 
     private:
 
-	QScrollArea* ScrollArea;
-	QTabWidget* TabContainer;
+	QScrollArea* ScrollArea = nullptr;
+	QTabWidget* TabContainer = nullptr;
 
-	HEMAX_ShelfTab* ShelfToolsWidget;
-	HEMAX_SessionWidget* SessionWidget;
-	HEMAX_HDAWidget* HDAWidget;
-	HEMAX_MaxHoudiniAssetWidget* MHAWidget;
+	HEMAX_ShelfTab* ShelfToolsWidget = nullptr;
+	HEMAX_SessionWidget* SessionWidget = nullptr;
+	HEMAX_HDAWidget* HDAWidget = nullptr;
+	HEMAX_MaxHoudiniAssetWidget* MHAWidget = nullptr;
 
-	HEMAX_Plugin* ActivePlugin;
+	HEMAX_Plugin* ActivePlugin = nullptr;
 
     private slots:
 

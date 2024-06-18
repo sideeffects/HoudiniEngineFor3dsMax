@@ -26,9 +26,9 @@ class HEMAX_VersionDialog : public QDialog
 	~HEMAX_VersionDialog();
 
     private:
-	QVBoxLayout* Layout;
-	QLabel* HoudiniInfo;
-	QLabel* HoudiniEngineInfo;
+	QVBoxLayout* Layout = nullptr;
+	QLabel* HoudiniInfo = nullptr;
+	QLabel* HoudiniEngineInfo = nullptr;
 
 	std::string HoudiniVersionLabel;
 	std::string HoudiniEngineVersionLabel;

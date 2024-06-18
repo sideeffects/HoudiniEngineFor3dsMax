@@ -123,13 +123,19 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
 
 HEMAX_UI::~HEMAX_UI()
 {
-    delete MHAWidget;
-    delete HDAWidget;
-    delete SessionWidget;
-    delete ShelfToolsWidget;
+    if (MHAWidget)
+        delete MHAWidget;
+    if (HDAWidget)
+        delete HDAWidget;
+    if (SessionWidget)
+        delete SessionWidget;
+    if (ShelfToolsWidget)
+        delete ShelfToolsWidget;
 
-    delete TabContainer;
-    delete ScrollArea;
+    if (TabContainer)
+        delete TabContainer;
+    if (ScrollArea)
+        delete ScrollArea;
 }
 
 void

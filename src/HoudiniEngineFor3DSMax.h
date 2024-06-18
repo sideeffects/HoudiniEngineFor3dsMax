@@ -95,11 +95,11 @@ class HEMAXLauncher : public GUP, ActionCallback
 
     private:
 
-	HEMAX_Plugin* ThePlugin;
-	HEMAX_UI* PluginUserInterface;
-        HEMAX_OptionsDialog* OptionsDialog;
-	HEMAX_VersionDialog* VersionDialog;
-        HEMAX_Events* PluginEvents;
+	HEMAX_Plugin* ThePlugin = nullptr;
+	HEMAX_UI* PluginUserInterface = nullptr;
+        HEMAX_OptionsDialog* OptionsDialog = nullptr;
+	HEMAX_VersionDialog* VersionDialog = nullptr;
+        HEMAX_Events* PluginEvents = nullptr;
 
 	HMODULE LoadLibHAPIL(const std::wstring& HFS);
 

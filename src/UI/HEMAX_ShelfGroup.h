@@ -37,7 +37,7 @@ class HEMAX_ShelfGroup : public QWidget
 
     public:
 	HEMAX_ShelfGroup();
-	~HEMAX_ShelfGroup();
+	~HEMAX_ShelfGroup() = default;
 
 	void AddShelfTool(std::string Name, std::string IconPath, std::string ToolTip, std::string HelpUrl);
 

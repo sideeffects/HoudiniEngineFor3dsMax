@@ -104,28 +104,6 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin,
                      this, SLOT(SlotShowAssetContextMenu(QPoint)));
 }
 
-HEMAX_HDAWidget::~HEMAX_HDAWidget()
-{
-    delete CreateModifiersButton;
-    delete LoadSelectedAssetButton;
-
-    delete LoadedAssetsList;
-    delete LoadedAssetsBoxLayout;
-    delete LoadedAssetsBox;
-
-    delete AssetLoadButton;
-    delete AssetLoadOptionsPathBrowse;
-    delete AssetLoadOptionsPath;
-    delete AssetLoadOptionsPathLabel;
-    delete AssetLoadOptionsBoxLayout;
-    delete AssetLoadOptionsBox;
-
-    delete MainBoxLayout;
-    delete MainBox;
-
-    delete MainLayout;
-}
-
 void
 HEMAX_HDAWidget::LoadAssetTriggered()
 {

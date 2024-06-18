@@ -35,19 +35,6 @@ HEMAX_ShelfGroup::HEMAX_ShelfGroup()
     QObject::connect(ButtonWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(SlotShowAssetContextMenu(QPoint)));
 }
 
-HEMAX_ShelfGroup::~HEMAX_ShelfGroup()
-{
-    for (int i = 0; i < Buttons.size(); i++)
-    {
-	delete Buttons[i];
-    }
-
-    delete ButtonLayout;
-    delete ButtonWidget;
-    delete ButtonGroup;
-    delete Layout;
-}
-
 void
 HEMAX_ShelfGroup::AddShelfTool(std::string Name, std::string IconPath, std::string ToolTip, std::string HelpUrl)
 {

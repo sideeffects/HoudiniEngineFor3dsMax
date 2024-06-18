@@ -110,29 +110,6 @@ HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin,
     Shelf = ToolShelf;
 }
 
-HEMAX_ShelfTab::~HEMAX_ShelfTab()
-{
-    DeleteShelfWidgets();
-
-    delete NoActiveSessionWarning;
-    delete WarningLayout;
-    delete WarningWidget;
-
-    delete ShelfWidgetLayout;
-    delete ShelfWidgetContainer;
-
-    delete ShelfComboBox;
-    delete ShelfLabel;
-    delete ShelfSelectionWidgetLayout;
-    delete ShelfSelectionWidget;
-
-    delete ReloadShelfDirButton;
-    delete RemoveShelfDirButton;
-    delete AddShelfDirButton;
-    delete ConfigurationButton;
-    delete MainLayout;
-}
-
 void
 HEMAX_ShelfTab::SetShelf(HEMAX_Shelf* const ToolShelf)
 {

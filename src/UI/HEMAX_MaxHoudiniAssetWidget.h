@@ -12,7 +12,7 @@ class HEMAX_MaxHoudiniAssetWidget : public HEMAX_ParameterWidget
     public:
 
 	HEMAX_MaxHoudiniAssetWidget(HEMAX_Plugin* ActivePlugin);
-	~HEMAX_MaxHoudiniAssetWidget();
+	virtual ~HEMAX_MaxHoudiniAssetWidget() = default;
 
 	void SetSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock);
 

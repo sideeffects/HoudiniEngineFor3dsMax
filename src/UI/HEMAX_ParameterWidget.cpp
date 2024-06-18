@@ -111,55 +111,6 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
 	    SLOT(Slot_NodeOptions_InputUpdate_StateChanged(int)));
 }
 
-HEMAX_ParameterWidget::~HEMAX_ParameterWidget()
-{
-    for (int i = 0; i < ParametersDetailRows.size(); i++)
-    {
-	delete ParametersDetailRows[i];
-    }
-
-    ParametersDetailRows.clear();
-
-    for (QWidget *Widget : ParameterWidgets)
-    {
-	if (Widget)
-	{
-	    delete Widget;
-	}
-    }
-
-    for (QWidget *Widget : SubnetworkInputs)
-    {
-	if (Widget)
-	{
-	    delete Widget;
-	}
-    }
-
-    delete ParametersDetailGridLayout;
-    delete ParametersDetailBox;
-
-    delete NodeOptions_InputUpdate;
-    delete NodeOptions_RealtimeRecook;
-    delete NodeOptions_AutoRecook;
-    delete NodeOptionsBoxLayout;
-    delete NodeOptionsBox;
-
-    delete ParametersSelectionLockedButton;
-    delete ParametersSelectedAssetName;
-    delete ParametersSelectedAssetLabel;
-    delete ParametersBoxLayout;
-    delete ParametersBox;
-
-    delete NodeInputBoxLayout;
-    delete NodeInputBox;
-
-    delete MainBoxLayout;
-    delete MainBox;
-
-    delete MainLayout;
-}
-
 void
 HEMAX_ParameterWidget::SelectHDA(HEMAX_Node *TheSelectedNode)
 {
@@ -1780,21 +1731,6 @@ HEMAX_ParameterWidget_Folder::SetHelpToolTip(std::string HelpString)
     // Do nothing
 }
 
-HEMAX_ParameterWidget_Folder::~HEMAX_ParameterWidget_Folder()
-{
-    for (int i = 0; i < Rows.size(); i++)
-    {
-	delete Rows[i];
-    }
-
-    for (int i = 0; i < ParameterWidgets.size(); ++i)
-    {
-	delete ParameterWidgets[i];
-    }
-
-    delete MainLayout;
-}
-
 HEMAX_ParameterWidget_Folderlist::HEMAX_ParameterWidget_Folderlist(
 	int ParameterId)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
@@ -1862,17 +1798,6 @@ HEMAX_ParameterWidget_Folderlist::SetHelpToolTip(std::string HelpString)
     // Override to do nothing
 }
 
-HEMAX_ParameterWidget_Folderlist::~HEMAX_ParameterWidget_Folderlist()
-{
-    for (int i = 0; i < Folders.size(); ++i)
-    {
-	delete Folders[i];
-    }
-
-    delete FolderContainer;
-    delete Layout;
-}
-
 HEMAX_ParameterWidget_Label::HEMAX_ParameterWidget_Label(int ParameterId,
 	std::string LabelText)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
@@ -1891,12 +1816,6 @@ HEMAX_ParameterWidget_Label::SetHelpToolTip(std::string HelpString)
     {
 	Label->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_Label::~HEMAX_ParameterWidget_Label()
-{
-    delete Label;
-    delete Layout;
 }
 
 HEMAX_ParameterWidget_Integer::HEMAX_ParameterWidget_Integer(
@@ -1977,24 +1896,6 @@ HEMAX_ParameterWidget_Integer::SetHelpToolTip(std::string HelpString)
     if (ParameterLabel)
     {
 	ParameterLabel->setToolTip(HelpString.c_str());
-    }
-}
-
-HEMAX_ParameterWidget_Integer::~HEMAX_ParameterWidget_Integer()
-{
-    delete Layout;
-    delete ParameterLabel;
-
-    for (int i = 0; i < IntegerValues.size(); ++i)
-    {
-	delete IntegerValues[i];
-    }
-
-    IntegerValues.clear();
-
-    if (IntegerValues.size() == 1)
-    {
-	delete IntegerSlider;
     }
 }
 
@@ -2081,13 +1982,6 @@ HEMAX_ParameterWidget_Integer_Choice::SetHelpToolTip(std::string HelpString)
     }
 }
 
-HEMAX_ParameterWidget_Integer_Choice::~HEMAX_ParameterWidget_Integer_Choice()
-{
-    delete Layout;
-    delete ParameterLabel;
-    delete IntegerChoiceValues;
-}
-
 HEMAX_ParameterWidget_String::HEMAX_ParameterWidget_String(
 	int ParameterId, std::string Label, std::vector<std::string> Values,
 	int ParamSize)
@@ -2123,19 +2017,6 @@ HEMAX_ParameterWidget_String::SetHelpToolTip(std::string HelpString)
     {
 	ParameterLabel->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_String::~HEMAX_ParameterWidget_String()
-{
-    delete Layout;
-    delete ParameterLabel;
-
-    for (int i = 0; i < StringValues.size(); ++i)
-    {
-	delete StringValues[i];
-    }
-
-    StringValues.clear();
 }
 
 HEMAX_ParameterWidget_String_Choice::HEMAX_ParameterWidget_String_Choice(
@@ -2176,13 +2057,6 @@ HEMAX_ParameterWidget_String_Choice::SetHelpToolTip(std::string HelpString)
     {
 	ParameterLabel->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_String_Choice::~HEMAX_ParameterWidget_String_Choice()
-{
-    delete Layout;
-    delete ParameterLabel;
-    delete StringChoiceValues;
 }
 
 HEMAX_ParameterWidget_Float::HEMAX_ParameterWidget_Float(
@@ -2330,24 +2204,6 @@ HEMAX_ParameterWidget_Float::Slot_SliderReleased()
     emit Signal_Float_SliderDone();
 }
 
-HEMAX_ParameterWidget_Float::~HEMAX_ParameterWidget_Float()
-{
-    delete Layout;
-    delete ParameterLabel;
-
-    for (int i = 0; i < FloatValues.size(); ++i)
-    {
-	delete FloatValues[i];
-    }
-
-    FloatValues.clear();
-
-    if (FloatValues.size() == 1)
-    {
-	delete FloatSlider;
-    }
-}
-
 HEMAX_ParameterWidget_Toggle::HEMAX_ParameterWidget_Toggle(int ParameterId,
 	std::string Label,
 	bool Checked)
@@ -2379,15 +2235,6 @@ HEMAX_ParameterWidget_Toggle::SetHelpToolTip(std::string HelpString)
     }
 }
 
-HEMAX_ParameterWidget_Toggle::~HEMAX_ParameterWidget_Toggle()
-{
-    Layout->removeItem(Spacer);
-    delete Spacer;
-    delete ToggleValue;
-    delete ParameterLabel;
-    delete Layout;
-}
-
 HEMAX_ParameterWidget_Button::HEMAX_ParameterWidget_Button(int ParameterId,
 	std::string Label)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
@@ -2408,12 +2255,6 @@ HEMAX_ParameterWidget_Button::SetHelpToolTip(std::string HelpString)
     {
 	Button->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_Button::~HEMAX_ParameterWidget_Button()
-{
-    delete Layout;
-    delete Button;
 }
 
 HEMAX_ParameterWidget_Button_Choice::HEMAX_ParameterWidget_Button_Choice(
@@ -2450,12 +2291,6 @@ HEMAX_ParameterWidget_Button_Choice::SetHelpToolTip(std::string HelpString)
     {
 	ChoiceValues->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_Button_Choice::~HEMAX_ParameterWidget_Button_Choice()
-{
-    delete Layout;
-    delete ChoiceValues;
 }
 
 HEMAX_ParameterWidget_FilePath::HEMAX_ParameterWidget_FilePath(
@@ -2536,17 +2371,6 @@ HEMAX_ParameterWidget_FilePath::SetHelpToolTip(std::string HelpString)
     {
 	ParameterLabel->setToolTip(HelpString.c_str());
     }
-}
-
-HEMAX_ParameterWidget_FilePath::~HEMAX_ParameterWidget_FilePath()
-{
-    if (ChoiceValues)
-        delete ChoiceValues;
-
-    delete ParameterLabel;
-    delete PathEdit;
-    delete BrowseButton;
-    delete Layout;
 }
 
 void
@@ -2655,15 +2479,6 @@ HEMAX_ParameterWidget_Node::SetInputName(std::string Name)
     NodeEdit->setText(Name.c_str());
 }
 
-HEMAX_ParameterWidget_Node::~HEMAX_ParameterWidget_Node()
-{
-    delete Layout;
-    delete ParameterLabel;
-    delete NodeEdit;
-    delete SelectButton;
-    delete ClearButton;
-}
-
 HEMAX_ParameterWidget_Color::HEMAX_ParameterWidget_Color(int ParameterId, std::string Label, std::vector<float> ColorVals, int Size)
     : HEMAX_ParameterWidget_Parameter(ParameterId)
 {
@@ -2699,14 +2514,6 @@ HEMAX_ParameterWidget_Color::HEMAX_ParameterWidget_Color(int ParameterId, std::s
     this->setLayout(Layout);
 
     QObject::connect(ColorButton, SIGNAL(clicked()), this, SLOT(Slot_OpenColorPickerDialog()));
-}
-
-HEMAX_ParameterWidget_Color::~HEMAX_ParameterWidget_Color()
-{
-    delete ColorDialog;
-    delete ColorButton;
-    delete ParameterLabel;
-    delete Layout;
 }
 
 void
@@ -2791,26 +2598,6 @@ HEMAX_ParameterWidget_MultiParameter::SetHelpToolTip(std::string HelpString)
     // Do Nothing override
 }
 
-HEMAX_ParameterWidget_MultiParameter::~HEMAX_ParameterWidget_MultiParameter()
-{
-    for (int i = 0; i < Instances.size(); ++i)
-    {
-	if (Instances[i])
-	{
-	    delete Instances[i];
-	}
-    }
-
-    delete ControlLayout;
-    delete ParameterLabel;
-    delete InstanceParameterCount;
-    delete ClearButton;
-    delete AddChildParameterButton;
-    delete RemoveChildParameterButton;
-    delete Layout;
-    delete ControlWidget;
-}
-
 void
 HEMAX_ParameterWidget_MultiParameter::Slot_ChildParameterCount_returnPressed()
 {
@@ -2889,19 +2676,6 @@ HEMAX_ParameterWidget_MultiParameter_Instance(int InstancePosition)
     CurrentGridLayoutRow = 0;
 
     this->setLayout(Layout);
-}
-
-HEMAX_ParameterWidget_MultiParameter_Instance::
-~HEMAX_ParameterWidget_MultiParameter_Instance()
-{
-    for (int i = 0; i < Parameters.size(); ++i)
-    {
-	delete Parameters[i];
-    }
-
-    delete AddBefore;
-    delete Remove;
-    delete Layout;
 }
 
 void

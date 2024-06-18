@@ -43,7 +43,7 @@ class HEMAX_HDAWidget : public QWidget
     public:
 	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin);
 	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin, std::string AssetsBoxTitle);
-	~HEMAX_HDAWidget();
+	~HEMAX_HDAWidget() = default;
 
 	std::string GetCurrentAssetLoadPath();
 	std::string GetSelectedAssetPath();

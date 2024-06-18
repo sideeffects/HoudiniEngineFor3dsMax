@@ -50,7 +50,7 @@ class HEMAX_ShelfTab : public QWidget
 	HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin,
                        HEMAX_Shelf* const ToolShelf,
                        bool Active);
-	~HEMAX_ShelfTab();
+	~HEMAX_ShelfTab() = default;
 
 	void SetShelf(HEMAX_Shelf* const ToolShelf);
 
@@ -87,7 +87,7 @@ class HEMAX_ShelfTab : public QWidget
 
 	std::string ActiveShelf;
 
-	void DeleteShelfWidgets();
+        void DeleteShelfWidgets();
 
 	void HideConfiguration();
 	void OpenConfiguration();

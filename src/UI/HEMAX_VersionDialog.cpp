@@ -39,7 +39,12 @@ HEMAX_VersionDialog::HEMAX_VersionDialog()
 
 HEMAX_VersionDialog::~HEMAX_VersionDialog()
 {
-    delete HoudiniEngineInfo;
-    delete HoudiniInfo;
-    delete Layout;
+    if (Layout)
+        delete Layout;
+
+    if (HoudiniInfo)
+        delete HoudiniInfo;
+
+    if (HoudiniEngineInfo)
+        delete HoudiniEngineInfo;
 }

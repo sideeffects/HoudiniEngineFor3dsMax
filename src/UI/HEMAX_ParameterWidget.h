@@ -47,6 +47,7 @@ class HEMAX_ParameterWidget_Parameter : public QWidget
 {
     public:
 	HEMAX_ParameterWidget_Parameter(int ParameterId);
+        virtual ~HEMAX_ParameterWidget_Parameter() = default;
 	virtual void MarkInvalid();
 	virtual void SetHelpToolTip(std::string HelpString);
 	bool IsUIInvalid();
@@ -63,7 +64,7 @@ class HEMAX_ParameterWidget : public QWidget
 
     public:
 	HEMAX_ParameterWidget();
-	~HEMAX_ParameterWidget();
+	virtual ~HEMAX_ParameterWidget() = default;
 
 	void SelectHDA(HEMAX_Node* TheSelectedNode);
 	void RefreshUI(bool DeleteLater = true);
@@ -183,7 +184,7 @@ class HEMAX_ParameterWidget_Folder : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Folder(int ParameterId, std::string FolderName);
-	~HEMAX_ParameterWidget_Folder();
+	~HEMAX_ParameterWidget_Folder() = default;
 
 	std::string GetFolderName();
 	void AddWidget(QWidget* Widget);
@@ -213,7 +214,7 @@ class HEMAX_ParameterWidget_Folderlist : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Folderlist(int ParameterId);
-	~HEMAX_ParameterWidget_Folderlist();
+	~HEMAX_ParameterWidget_Folderlist() = default;
 
 	void AppendFolder(HEMAX_ParameterWidget_Folder* Folder);
 	HEMAX_ParameterWidget_Folder* RetrieveFolder(int FolderIndex);
@@ -240,7 +241,7 @@ class HEMAX_ParameterWidget_Label : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Label(int ParameterId, std::string LabelText);
-	~HEMAX_ParameterWidget_Label();
+	~HEMAX_ParameterWidget_Label() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
     private:
@@ -257,7 +258,7 @@ class HEMAX_ParameterWidget_Integer : public HEMAX_ParameterWidget_Parameter
     public:
 	HEMAX_ParameterWidget_Integer(int ParameterId, std::string Label, std::vector<int> Values, int ParamSize);
 	HEMAX_ParameterWidget_Integer(int ParameterId, std::string Label, std::vector<int> Values, int ParamSize, int UIMin, int UIMax);
-	~HEMAX_ParameterWidget_Integer();
+	~HEMAX_ParameterWidget_Integer() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -292,7 +293,7 @@ class HEMAX_ParameterWidget_Integer_Choice : public HEMAX_ParameterWidget_Parame
 
     public:
 	HEMAX_ParameterWidget_Integer_Choice(int ParameterId, std::string Label, int ChoiceSize, std::vector<std::string> Choices, int CurrentChoiceIndex);
-	~HEMAX_ParameterWidget_Integer_Choice();
+	~HEMAX_ParameterWidget_Integer_Choice() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -312,7 +313,7 @@ class HEMAX_ParameterWidget_String : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_String(int ParameterId, std::string Label, std::vector<std::string> Values, int ParamSize);
-	~HEMAX_ParameterWidget_String();
+	~HEMAX_ParameterWidget_String() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -332,7 +333,7 @@ class HEMAX_ParameterWidget_String_Choice : public HEMAX_ParameterWidget_Paramet
 
     public:
 	HEMAX_ParameterWidget_String_Choice(int ParameterId, std::string ParameterLabel, std::vector<std::string> Choices, int CurrentChoiceIndex);
-	~HEMAX_ParameterWidget_String_Choice();
+	~HEMAX_ParameterWidget_String_Choice() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -353,7 +354,7 @@ class HEMAX_ParameterWidget_Float : public HEMAX_ParameterWidget_Parameter
     public:
 	HEMAX_ParameterWidget_Float(int ParameterId, std::string Label, std::vector<float> Values, int ParamSize);
 	HEMAX_ParameterWidget_Float(int ParameterId, std::string Label, std::vector<float> Values, int ParamSize, float UIMin, float UIMax);
-	~HEMAX_ParameterWidget_Float();
+	~HEMAX_ParameterWidget_Float() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -394,7 +395,7 @@ class HEMAX_ParameterWidget_Toggle : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Toggle(int ParameterId, std::string Label, bool Checked);
-	~HEMAX_ParameterWidget_Toggle();
+	~HEMAX_ParameterWidget_Toggle() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -415,7 +416,7 @@ class HEMAX_ParameterWidget_Button : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Button(int ParameterId, std::string Label);
-	~HEMAX_ParameterWidget_Button();
+	~HEMAX_ParameterWidget_Button() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -434,7 +435,7 @@ class HEMAX_ParameterWidget_Button_Choice : public HEMAX_ParameterWidget_Paramet
 
     public:
 	HEMAX_ParameterWidget_Button_Choice(int ParameterId, HEMAX_Parameter* Parameter, std::string Title, std::vector<HEMAX_ParmChoice> Choices);
-	~HEMAX_ParameterWidget_Button_Choice();
+	~HEMAX_ParameterWidget_Button_Choice() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -462,7 +463,7 @@ class HEMAX_ParameterWidget_FilePath : public HEMAX_ParameterWidget_Parameter
                 std::string CurrentPathValue, HAPI_ParmType ParmType,
                 std::vector<HEMAX_ParmChoice> Choices,
                 HAPI_Permissions BrowseMode);
-	~HEMAX_ParameterWidget_FilePath();
+	~HEMAX_ParameterWidget_FilePath() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -496,7 +497,7 @@ class HEMAX_ParameterWidget_Node : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Node(int ParameterId, std::string Label, std::string InputNodeName);
-	~HEMAX_ParameterWidget_Node();
+	~HEMAX_ParameterWidget_Node() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 	void SetInputName(std::string Name);
@@ -519,7 +520,7 @@ class HEMAX_ParameterWidget_Color : public HEMAX_ParameterWidget_Parameter
 
     public:
 	HEMAX_ParameterWidget_Color(int ParameterId, std::string Label, std::vector<float> ColorVals, int Size);
-	~HEMAX_ParameterWidget_Color();
+	~HEMAX_ParameterWidget_Color() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;
 
@@ -546,7 +547,7 @@ class HEMAX_ParameterWidget_MultiParameter_Instance : public HEMAX_ParameterWidg
     public:
 
 	HEMAX_ParameterWidget_MultiParameter_Instance(int InstancePosition);
-	~HEMAX_ParameterWidget_MultiParameter_Instance();
+	~HEMAX_ParameterWidget_MultiParameter_Instance() = default;
 
 	void AddParameter(QWidget* Parameter);
 
@@ -576,7 +577,7 @@ class HEMAX_ParameterWidget_MultiParameter : public HEMAX_ParameterWidget_Parame
 
     public:
 	HEMAX_ParameterWidget_MultiParameter(int ParameterId, std::string Label, int InstanceCount);
-	~HEMAX_ParameterWidget_MultiParameter();
+	~HEMAX_ParameterWidget_MultiParameter() = default;
 
 	void AddParameterToInstance(QWidget* InstanceParameter, int Instance);
 
