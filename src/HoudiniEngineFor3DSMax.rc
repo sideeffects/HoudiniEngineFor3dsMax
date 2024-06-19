@@ -115,6 +115,14 @@ BEGIN
     IDS_HEMAX_MENU_OPTIONS_DESC "Opens the options menu"
     IDS_HEMAX_MENU_VERSION      "Show Houdini version information"
     IDS_HEMAX_MENU_VERSION_DESC "Shows Houdini and Houdini Engine version information"
+    IDS_HEMAX_MENU_CREATE_SESSION "Create Session"
+    IDS_HEMAX_MENU_CREATE_SESSION_DESC "Creates a new Houdini Engine session"
+    IDS_HEMAX_MENU_CONNECT_SESSION "Connect Session"
+    IDS_HEMAX_MENU_CONNECT_SESSION_DESC "Connects to an existing Houdini Engine session"
+    IDS_HEMAX_MENU_STOP_SESSION     "Stop Session"
+    IDS_HEMAX_MENU_STOP_SESSION_DESC "Stops the current Houdini Engine session"
+    IDS_HEMAX_MENU_RESTART_SESSION  "Restart Session"
+    IDS_HEMAX_MENU_RESTART_SESSION_DESC "Restarts the current Houdini Engine session"
  //TEX_TYPE
 END
 

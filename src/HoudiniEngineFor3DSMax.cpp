@@ -34,17 +34,26 @@
 MaxSDK::MaxGuid HoudiniEngineMenuGuid("47dec1b8-78b6-44e3-ad16-f690946856d2");
 MaxSDK::MaxGuid HoudiniEngineOpenActionGuid("01a24d08-9f84-48ed-8b58-476d88f6b470");
 MaxSDK::MaxGuid HoudiniEngineHideActionGuid("f1e8ae17-aca1-4fc6-84fe-82ea0a964582");
+MaxSDK::MaxGuid HoudiniEngineCreateSessionActionGuid("224bced3-74e9-4947-9563-eb8cf16c97b2");
+MaxSDK::MaxGuid HoudiniEngineConnectSessionActionGuid("78594593-ea24-46b0-b5ad-d94586b26775");
+MaxSDK::MaxGuid HoudiniEngineStopSessionActionGuid("3703d5dc-8abb-4e9b-ad2c-b7174a2d1d64");
+MaxSDK::MaxGuid HoudiniEngineRestartSessionActionGuid("f45c52b5-27ed-4c4c-bd97-52afbe1d303c");
 MaxSDK::MaxGuid HoudiniEngineOptionsActionGuid("204aca3d-98e7-4505-a43a-0b64c2ecb760");
 MaxSDK::MaxGuid HoudiniEngineVersionActionGuid("5076703e-a2d5-4103-9c4b-b6e008e0a396");
 
 MaxSDK::MaxGuid HoudiniEngineSeparator1Guid("029dc07e-f811-4989-9692-7408e0ef6353");
 MaxSDK::MaxGuid HoudiniEngineSeparator2Guid("9f32ff4c-a8fe-435c-a36e-78eaafcba655");
+MaxSDK::MaxGuid HoudiniEngineSeparator3Guid("fece40fa-60d3-4edc-949e-3b7c6f3f0db3");
 #endif
 
-#define OPEN_HEMAX_ACTION    1
-#define HIDE_HEMAX_ACTION    2
-#define OPTIONS_HEMAX_ACTION 3
-#define VERSION_HEMAX_ACTION 4
+#define OPEN_HEMAX_ACTION               1
+#define HIDE_HEMAX_ACTION               2
+#define CREATE_SESSION_HEMAX_ACTION     3
+#define CONNECT_SESSION_HEMAX_ACTION    4
+#define STOP_SESSION_HEMAX_ACTION       5
+#define RESTART_SESSION_HEMAX_ACTION    6
+#define OPTIONS_HEMAX_ACTION            7
+#define VERSION_HEMAX_ACTION            8
 
 const wchar_t* const LIB_HAPIL_NAME = L"libHAPIL.dll";
 const wchar_t* const LIB_HAPIL_SUBDIRECTORY = L"bin";
@@ -61,6 +70,26 @@ static ActionDescription MenuActions[] = {
     HIDE_HEMAX_ACTION,
     IDS_HEMAX_MENU_HIDE,
     IDS_HEMAX_MENU_HIDE_DESC,
+    IDS_CATEGORY,
+
+    CREATE_SESSION_HEMAX_ACTION,
+    IDS_HEMAX_MENU_CREATE_SESSION,
+    IDS_HEMAX_MENU_CREATE_SESSION_DESC,
+    IDS_CATEGORY,
+
+    CONNECT_SESSION_HEMAX_ACTION,
+    IDS_HEMAX_MENU_CONNECT_SESSION,
+    IDS_HEMAX_MENU_CONNECT_SESSION_DESC,
+    IDS_CATEGORY,
+
+    STOP_SESSION_HEMAX_ACTION,
+    IDS_HEMAX_MENU_STOP_SESSION,
+    IDS_HEMAX_MENU_STOP_SESSION_DESC,
+    IDS_CATEGORY,
+
+    RESTART_SESSION_HEMAX_ACTION,
+    IDS_HEMAX_MENU_RESTART_SESSION,
+    IDS_HEMAX_MENU_RESTART_SESSION_DESC,
     IDS_CATEGORY,
 
     OPTIONS_HEMAX_ACTION,
@@ -97,6 +126,7 @@ GetHEMAXLauncherDesc() {
 HEMAXLauncher::HEMAXLauncher()
     : FoundHAPIDLL(false)
 {
+
 }
 
 HEMAXLauncher::~HEMAXLauncher()
@@ -510,9 +540,22 @@ HEMAXLauncher::InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager)
     PluginMenu->CreateAction(HoudiniEngineHideActionGuid, HEMAX_Actions_Id,
         HIDE_HEMAX_ACTION, HIDE_HEMAX_MENU_STRING);
     PluginMenu->CreateSeparator(HoudiniEngineSeparator1Guid);
+    PluginMenu->CreateAction(HoudiniEngineCreateSessionActionGuid,
+        HEMAX_Actions_Id, CREATE_SESSION_HEMAX_ACTION,
+        CREATE_SESSION_HEMAX_MENU_STRING);
+    PluginMenu->CreateAction(HoudiniEngineConnectSessionActionGuid,
+        HEMAX_Actions_Id, CONNECT_SESSION_HEMAX_ACTION,
+        CONNECT_SESSION_HEMAX_MENU_STRING);
+    PluginMenu->CreateAction(HoudiniEngineStopSessionActionGuid,
+        HEMAX_Actions_Id, STOP_SESSION_HEMAX_ACTION,
+        STOP_SESSION_HEMAX_MENU_STRING);
+    PluginMenu->CreateAction(HoudiniEngineRestartSessionActionGuid,
+        HEMAX_Actions_Id, RESTART_SESSION_HEMAX_ACTION,
+        RESTART_SESSION_HEMAX_MENU_STRING);
+    PluginMenu->CreateSeparator(HoudiniEngineSeparator2Guid);
     PluginMenu->CreateAction(HoudiniEngineOptionsActionGuid, HEMAX_Actions_Id,
         OPTIONS_HEMAX_ACTION, OPTIONS_HEMAX_MENU_STRING);
-    PluginMenu->CreateSeparator(HoudiniEngineSeparator2Guid);
+    PluginMenu->CreateSeparator(HoudiniEngineSeparator3Guid);
     PluginMenu->CreateAction(HoudiniEngineVersionActionGuid, HEMAX_Actions_Id,
         VERSION_HEMAX_ACTION, VERSION_HEMAX_MENU_STRING);
 
@@ -578,6 +621,42 @@ HEMAXLauncher::InstallMenu(IMenuManager* MenuManager)
     Separator1->ActAsSeparator();
     HEMAXMenu->AddItem(Separator1);
 
+    IMenuItem* CreateSessionSub = GetIMenuItem();
+    ActionItem* CreateSessionAction =
+        HEMAXActionTable->GetAction(CREATE_SESSION_HEMAX_ACTION);
+    CreateSessionSub->SetActionItem(CreateSessionAction);
+    CreateSessionSub->SetUseCustomTitle(true);
+    CreateSessionSub->SetTitle(CREATE_SESSION_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(CreateSessionSub);
+
+    IMenuItem* ConnectSessionSub = GetIMenuItem();
+    ActionItem* ConnectSessionAction =
+        HEMAXActionTable->GetAction(CONNECT_SESSION_HEMAX_ACTION);
+    ConnectSessionSub->SetActionItem(ConnectSessionAction);
+    ConnectSessionSub->SetUseCustomTitle(true);
+    ConnectSessionSub->SetTitle(CONNECT_SESSION_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(ConnectSessionSub);
+
+    IMenuItem* StopSessionSub = GetIMenuItem();
+    ActionItem* StopSessionAction =
+        HEMAXActionTable->GetAction(STOP_SESSION_HEMAX_ACTION);
+    StopSessionSub->SetActionItem(StopSessionAction);
+    StopSessionSub->SetUseCustomTitle(true);
+    StopSessionSub->SetTitle(STOP_SESSION_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(StopSessionSub);
+
+    IMenuItem* RestartSessionSub = GetIMenuItem();
+    ActionItem* RestartSessionAction =
+        HEMAXActionTable->GetAction(RESTART_SESSION_HEMAX_ACTION);
+    RestartSessionSub->SetActionItem(RestartSessionAction);
+    RestartSessionSub->SetUseCustomTitle(true);
+    RestartSessionSub->SetTitle(RESTART_SESSION_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(RestartSessionSub);
+
+    IMenuItem* Separator2 = GetIMenuItem();
+    Separator2->ActAsSeparator();
+    HEMAXMenu->AddItem(Separator2);
+
     IMenuItem* OptionsSub = GetIMenuItem();
     ActionItem* OptionsAction = HEMAXActionTable->GetAction(
                                             OPTIONS_HEMAX_ACTION);
@@ -586,9 +665,9 @@ HEMAXLauncher::InstallMenu(IMenuManager* MenuManager)
     OptionsSub->SetTitle(OPTIONS_HEMAX_MENU_STRING);
     HEMAXMenu->AddItem(OptionsSub);
 
-    IMenuItem* Separator2 = GetIMenuItem();
-    Separator2->ActAsSeparator();
-    HEMAXMenu->AddItem(Separator2);
+    IMenuItem* Separator3 = GetIMenuItem();
+    Separator3->ActAsSeparator();
+    HEMAXMenu->AddItem(Separator3);
 
     IMenuItem* VersionSub = GetIMenuItem();
     ActionItem* VersionAction = HEMAXActionTable->GetAction(
@@ -649,6 +728,26 @@ HEMAXLauncher::ExecuteAction(int ID)
 	    PluginUserInterface->hide();
 	    return true;
 	}
+        case CREATE_SESSION_HEMAX_ACTION:
+        {
+            // TODO: session refactor
+            return true;
+        }
+        case CONNECT_SESSION_HEMAX_ACTION:
+        {
+            // TODO: session refactor
+            return true;
+        }
+        case STOP_SESSION_HEMAX_ACTION:
+        {
+            // TODO: session refactor
+            return true;
+        }
+        case RESTART_SESSION_HEMAX_ACTION:
+        {
+            // TODO: session refactor
+            return true;
+        }
         case OPTIONS_HEMAX_ACTION:
         {
             OptionsDialog->show();
