@@ -18,29 +18,38 @@
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
 #include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtabwidget.h>
 #endif
 
 #ifdef HEMAX_VERSION_2017
 #include <QtGui/qcheckbox.h>
+#include <QtGui/qcombobox.h>
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qfiledialog.h>
 #include <QtGui/qgroupbox.h>
 #include <QtGui/qlabel.h>
 #include <QtGui/qlayout.h>
 #include <QtGui/qlineedit.h>
+#include <QtGui/qmessagebox.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qtabwidget.h>
 #endif
 
 #define HEMAX_DEBUG_DEFAULT_HIP_NAME "debug_hip_file.hip"
+
+static const std::pair<std::string, int> SharedMemoryBufferTypeMenu_Ring =
+    { HEMAX_SharedMemoryBufferType_Ring, 0 };
+static const std::pair<std::string, int> SharedMemoryBufferTypeMenu_Fixed =
+    { HEMAX_SharedMemoryBufferType_FixedLength, 1 };
 
 HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     : Plugin(ThePlugin)
@@ -82,12 +91,9 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
 
     OnStartupOptions = new QGroupBox("On Startup");
     OnStartupOptionsLayout = new QVBoxLayout;
-    AutoStartSession = new QCheckBox("Automatically start a session when "
-            "3ds Max starts");
     AutoOpenWindow = new QCheckBox("Open the plugin pane when 3ds Max starts");
 
     OnStartupOptions->setLayout(OnStartupOptionsLayout);
-    OnStartupOptionsLayout->addWidget(AutoStartSession);
     OnStartupOptionsLayout->addWidget(AutoOpenWindow);
 
     AssetOptions = new QGroupBox("Assets");
@@ -113,6 +119,78 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     GeneralOptionsLayout->addWidget(SelectionOptions);
     GeneralOptionsLayout->addWidget(OnStartupOptions);
     GeneralOptionsLayout->addWidget(AssetOptions);
+
+    SessionOptions = new QWidget;
+    SessionOptionsLayout = new QGridLayout;
+    SessionOptions->setLayout(SessionOptionsLayout);
+
+    SessionAutoStart = new QCheckBox("Automatically Start Session on Plugin Start");
+    SessionDefaultAutoStartTypeLabel = new QLabel("Default Auto Start Session Type");
+    SessionDefaultAutoStartType = new QComboBox;
+    SessionDefaultAutoStartType->addItem("Socket");
+    SessionDefaultAutoStartType->addItem("Named Pipe");
+    SessionDefaultAutoStartType->addItem("Shared Memory");
+
+    SessionHostnameLabel = new QLabel("Socket Hostname");
+    SessionHostname = new QLineEdit();
+    SessionPortLabel = new QLabel("Socket Port");
+    SessionPort = new QLineEdit();
+    SessionPipeNameLabel = new QLabel("Pipe Name");
+    SessionPipeName = new QLineEdit();
+    SessionSharedMemoryNameLabel = new QLabel("Shared Memory Name");
+    SessionSharedMemoryName = new QLineEdit();
+    SessionSharedMemoryBufferSizeLabel = new QLabel("Shared Memory Buffer Size (MB)");
+    SessionSharedMemoryBufferSize = new QLineEdit();
+    SessionSharedMemoryBufferTypeLabel = new QLabel("Shared Memory Buffer Type");
+    SessionSharedMemoryBufferType = new QComboBox;
+    SessionSharedMemoryBufferType->addItem("Ring");
+    SessionSharedMemoryBufferType->addItem("Fixed Length");
+
+    SessionHoudiniEnvFilesLabel = new QLabel("Houdini Environment Files");
+    SessionHoudiniEnvFiles = new QLineEdit;
+    SessionOtlSearchPathLabel = new QLabel("OTL Search Path");
+    SessionOtlSearchPath = new QLineEdit;
+    SessionDsoSearchPathLabel = new QLabel("DSO Search Path");
+    SessionDsoSearchPath = new QLineEdit;
+    SessionImageDsoSearchPathLabel = new QLabel("Image DSO Search Path");
+    SessionImageDsoSearchPath = new QLineEdit;
+    SessionAudioDsoSearchPathLabel = new QLabel("Audio DSO Search Path");
+    SessionAudioDsoSearchPath = new QLineEdit;
+
+    SessionOptionsLayout->addWidget(SessionAutoStart, 0, 0, 1, 2);
+    SessionOptionsLayout->addWidget(
+        SessionDefaultAutoStartTypeLabel, 1, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionDefaultAutoStartType, 1, 1);
+    SessionOptionsLayout->addWidget(SessionHostnameLabel, 2, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionHostname, 2, 1);
+    SessionOptionsLayout->addWidget(SessionPortLabel, 3, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionPort, 3, 1);
+    SessionOptionsLayout->addWidget(SessionPipeNameLabel, 4, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionPipeName, 4, 1);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryNameLabel, 5, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryName, 5, 1);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSizeLabel, 6, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSize, 6, 1);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferTypeLabel, 7, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferType, 7, 1);
+    SessionOptionsLayout->addWidget(SessionHoudiniEnvFilesLabel, 8, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionHoudiniEnvFiles, 8, 1);
+    SessionOptionsLayout->addWidget(SessionOtlSearchPathLabel, 9, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionOtlSearchPath, 9, 1);
+    SessionOptionsLayout->addWidget(SessionDsoSearchPathLabel, 10, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionDsoSearchPath, 10, 1);
+    SessionOptionsLayout->addWidget(SessionImageDsoSearchPathLabel, 11, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionImageDsoSearchPath, 11, 1);
+    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPathLabel, 12, 0,
+        Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPath, 12, 1);
 
     DefaultOptions = new QWidget;
     DefaultOptionsLayout = new QVBoxLayout;
@@ -201,6 +279,7 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     DebugOptionsLayout->addWidget(LoggingOptions);
 
     OptionsTabs->addTab(GeneralOptions, "General");
+    OptionsTabs->addTab(SessionOptions, "Sessions");
     OptionsTabs->addTab(DefaultOptions, "Defaults");
     OptionsTabs->addTab(GeometryHdaOptions, "Geometry HDA");
     OptionsTabs->addTab(DebugOptions, "Debug");
@@ -224,11 +303,6 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
                      SIGNAL(stateChanged(int)),
                      this,
                      SLOT(SlotAutoSelectHDARoot(int)));
-
-    QObject::connect(AutoStartSession,
-                     SIGNAL(stateChanged(int)),
-                     this,
-                     SLOT(SlotAutoStartSession(int)));
 
     QObject::connect(AutoOpenWindow,
                      SIGNAL(stateChanged(int)),
@@ -254,6 +328,71 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
                      SIGNAL(clicked()),
                      this,
                      SLOT(SlotHdaSearchPathBrowse()));
+
+    QObject::connect(SessionAutoStart,
+                     SIGNAL(stateChanged(int)),
+                     this,
+                     SLOT(SlotSessionAutoStart(int)));
+
+    QObject::connect(SessionDefaultAutoStartType,
+                     SIGNAL(currentIndexChanged(int)),
+                     this,
+                     SLOT(SlotSessionDefaultStartType(int)));
+
+    QObject::connect(SessionHostname,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionHostname()));
+
+    QObject::connect(SessionPort,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionPort()));
+
+    QObject::connect(SessionPipeName,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionPipeName()));
+
+    QObject::connect(SessionSharedMemoryName,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionSharedMemoryName()));
+
+    QObject::connect(SessionSharedMemoryBufferSize,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionSharedMemoryBufferSize()));
+
+    QObject::connect(SessionSharedMemoryBufferType,
+                     SIGNAL(currentIndexChanged(int)),
+                     this,
+                     SLOT(SlotSessionSharedMemoryBufferType(int)));
+
+    QObject::connect(SessionHoudiniEnvFiles,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionHoudiniEnvFiles()));
+
+    QObject::connect(SessionOtlSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionOtlSearchPath()));
+
+    QObject::connect(SessionDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionDsoSearchPath()));
+
+    QObject::connect(SessionImageDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionImageDsoSearchPath()));
+
+    QObject::connect(SessionAudioDsoSearchPath,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionAudioDsoSearchPath()));
 
     QObject::connect(NodeOptionDefaultsAutoRecook,
                      SIGNAL(stateChanged(int)),
@@ -326,94 +465,121 @@ void
 HEMAX_OptionsDialog::InitializeOptions()
 {
     bool Checked = false;
+    std::string SVal;
+    int IVal;
+
     HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
 
-    std::string SVal;
-
     if (Prefs.GetStringSetting(HEMAX_SETTING_OVERRIDE_HFS, SVal))
-    {
         OverrideHoudiniInstallPath->setText(SVal.c_str());
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_GRAB_ROOT, Checked))
-    {
         AutoSelectHDARoot->setChecked(Checked);
-    }
-
-    if (Prefs.GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, Checked))
-    {
-        AutoStartSession->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW, Checked))
-    {
         AutoOpenWindow->setChecked(Checked);
-    }
 
     if (Prefs.GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH, SVal))
-    {
         HdaLoadDir->setText(SVal.c_str());
-    }
 
     if (Prefs.GetStringSetting(HEMAX_SETTING_HDA_REPO_PATH, SVal))
-    {
         HdaSearchPath->setText(SVal.c_str());
+
+    // Sessions 
+
+    if (Prefs.GetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION, Checked))
+        SessionAutoStart->setChecked(Checked);
+
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_TYPE, IVal))
+    {
+        if (IVal == static_cast<int>(HEMAX_SessionTypePref::Socket))
+            SessionDefaultAutoStartType->setCurrentIndex(0);
+        else if (IVal == static_cast<int>(HEMAX_SessionTypePref::NamedPipe))
+            SessionDefaultAutoStartType->setCurrentIndex(1);
+        else if (IVal == static_cast<int>(HEMAX_SessionTypePref::SharedMemory))
+            SessionDefaultAutoStartType->setCurrentIndex(2);
+        else
+        {
+            SessionDefaultAutoStartType->setCurrentIndex(1);
+            Prefs.SetIntSetting(
+                HEMAX_SETTING_SESSION_TYPE,
+                static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
+        }
     }
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME, SVal))
+        SessionHostname->setText(SVal.c_str());
+
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_PORT, IVal))
+    {
+        std::string PortString = std::to_string(IVal);
+        SessionPort->setText(PortString.c_str());
+    }
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME, SVal))
+        SessionPipeName->setText(SVal.c_str());
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME, SVal))
+        SessionSharedMemoryName->setText(SVal.c_str());
+
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE, IVal))
+    {
+        std::string BufferSizeString = std::to_string(IVal);
+        SessionSharedMemoryBufferSize->setText(BufferSizeString.c_str());
+    }
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE, SVal))
+    {
+        if (SVal == SharedMemoryBufferTypeMenu_Ring.first)
+            SessionSharedMemoryBufferType->setCurrentIndex(SharedMemoryBufferTypeMenu_Ring.second);
+        else if(SVal == SharedMemoryBufferTypeMenu_Fixed.first)
+            SessionSharedMemoryBufferType->setCurrentIndex(SharedMemoryBufferTypeMenu_Fixed.second);
+    }
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES, SVal))
+        SessionHoudiniEnvFiles->setText(SVal.c_str());
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH, SVal))
+        SessionOtlSearchPath->setText(SVal.c_str());
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH, SVal))
+        SessionDsoSearchPath->setText(SVal.c_str());
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, SVal))
+        SessionImageDsoSearchPath->setText(SVal.c_str());
+
+    if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, SVal))
+        SessionAudioDsoSearchPath->setText(SVal.c_str());
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_OPTION_AUTORECOOK, Checked))
-    {
         NodeOptionDefaultsAutoRecook->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_OPTION_SLIDERCOOK, Checked))
-    {
         NodeOptionDefaultsSliderCook->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT, Checked))
-    {
         BakeDummyObject->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_BAKE_CREATE_LAYER, Checked))
-    {
         BakeCreateLayer->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_NAMES_UNIQUE, Checked))
-    {
         UseUniqueNames->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_NODE_INSTANCE_NAME_ORIGINAL, Checked))
-    {
         UseOriginalInstanceName->setChecked(Checked); 
-    }
 
     if (Prefs.GetStringSetting(HEMAX_SETTING_DEBUG_TEMP_DIR, SVal))
-    {
         TempFilesFolder->setText(SVal.c_str());
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Checked))
-    {
         ErrorLogging->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Checked))
-    {
         WarningLogging->setChecked(Checked);
-    }
 
     if (Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Checked))
-    {
         InfoLogging->setChecked(Checked);
-    }
-}
-
-HEMAX_OptionsDialog::~HEMAX_OptionsDialog()
-{
-
 }
 
 void
@@ -449,13 +615,6 @@ void
 HEMAX_OptionsDialog::SlotAutoSelectHDARoot(int State)
 {
     HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_GRAB_ROOT, State);
-}
-
-void
-HEMAX_OptionsDialog::SlotAutoStartSession(int State)
-{
-    HEMAX_UserPrefs::Get().SetBoolSetting(HEMAX_SETTING_AUTO_START_SESSION,
-        State);
 }
 
 void
@@ -501,6 +660,139 @@ HEMAX_OptionsDialog::SlotHdaSearchPathBrowse()
         HdaSearchPath->setText(Dir);
         Plugin->UpdateHdaSearchPathDirectory(Dir.toStdString());
     }
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionAutoStart(int State)
+{
+    HEMAX_UserPrefs::Get().SetBoolSetting(
+        HEMAX_SETTING_AUTO_START_SESSION, State);
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionDefaultStartType(int CurrentIndex)
+{
+    if (CurrentIndex == 0)
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::Socket));
+    else if (CurrentIndex == 1)
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
+    else if (CurrentIndex == 2)
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            static_cast<int>(HEMAX_SessionTypePref::SharedMemory));
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionHostname()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME,
+        SessionHostname->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionPort()
+{
+    try
+    {
+        HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_PORT,
+            std::stoi(SessionPort->text().toStdString()));
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox ErrorPrompt(QMessageBox::Icon::Critical, "Invalid Input",
+            "Invalid port number was provided. Please enter a valid port "
+            "number.");
+        ErrorPrompt.exec();
+        SessionPort->setText("");
+    }
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionPipeName()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_SESSION_PIPE_NAME,
+        SessionPipeName->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionSharedMemoryName()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME,
+        SessionSharedMemoryName->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionSharedMemoryBufferSize()
+{
+    try
+    {
+        HEMAX_UserPrefs::Get().SetIntSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE,
+            std::stoi(SessionSharedMemoryBufferSize->text().toStdString()));
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox ErrorPrompt(QMessageBox::Icon::Critical, "Invalid Input",
+            "Invalid shared memory buffer size was provided. Please enter a "
+            "valid number.");
+        ErrorPrompt.exec();
+        SessionSharedMemoryBufferSize->setText("");
+    }
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionSharedMemoryBufferType(int CurrentIndex)
+{
+    if (CurrentIndex == SharedMemoryBufferTypeMenu_Ring.second)
+        HEMAX_UserPrefs::Get().SetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE,
+            SharedMemoryBufferTypeMenu_Ring.first.c_str());
+    else if (CurrentIndex == SharedMemoryBufferTypeMenu_Fixed.second)
+        HEMAX_UserPrefs::Get().SetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE,
+            SharedMemoryBufferTypeMenu_Fixed.first.c_str());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionHoudiniEnvFiles()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_ENV_FILES,
+        SessionHoudiniEnvFiles->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionOtlSearchPath()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_OTL_SEARCH,
+        SessionOtlSearchPath->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionDsoSearchPath()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_DSO_SEARCH,
+        SessionDsoSearchPath->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionImageDsoSearchPath()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
+        SessionImageDsoSearchPath->text().toStdString());
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionAudioDsoSearchPath()
+{
+    HEMAX_UserPrefs::Get().SetStringSetting(
+        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
+        SessionAudioDsoSearchPath->text().toStdString());
 }
 
 void

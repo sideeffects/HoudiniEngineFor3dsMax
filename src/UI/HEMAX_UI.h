@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../HEMAX_Plugin.h"
-#include "HEMAX_SessionWidget.h"
 #include "HEMAX_HDAWidget.h"
 #include "HEMAX_MaxHoudiniAssetWidget.h"
 #include "HEMAX_ShelfTab.h"
@@ -61,7 +60,6 @@ class HEMAX_UI : public QDockWidget
 	QTabWidget* TabContainer = nullptr;
 
 	HEMAX_ShelfTab* ShelfToolsWidget = nullptr;
-	HEMAX_SessionWidget* SessionWidget = nullptr;
 	HEMAX_HDAWidget* HDAWidget = nullptr;
 	HEMAX_MaxHoudiniAssetWidget* MHAWidget = nullptr;
 

@@ -11,11 +11,7 @@
 #define HEMAX_SETTINGS_FILE           "HoudiniEngine.ini"
 #define HEMAX_SETTINGS_FILE_APPNAME   "Houdini Engine for 3DS Max"
 
-#define HEMAX_SESSION_TYPE_PREF_AUTO                "AutoStart"
-#define HEMAX_SESSION_TYPE_PREF_SOCKET              "Socket"
-#define HEMAX_SESSION_TYPE_PREF_NAMED_PIPE          "NamedPipe"
-#define HEMAX_SESSION_TYPE_PREF_SHARED_MEMORY       "SharedMemory"
-
+#define HEMAX_SETTING_AUTO_START_SESSION "OnStart\\AutoStartSession"
 #define HEMAX_SETTING_SESSION_TYPE                  "Session\\Type"
 #define HEMAX_SETTING_SESSION_HOST_NAME             "Session\\Hostname"
 #define HEMAX_SETTING_SESSION_PORT                  "Session\\Port"
@@ -31,7 +27,6 @@
 
 #define HEMAX_SETTING_OVERRIDE_HFS "Installation\\OverrideHFS"
 #define HEMAX_SETTING_GRAB_ROOT       "Selection\\GrabHDARootNode"
-#define HEMAX_SETTING_AUTO_START_SESSION "OnStart\\AutoStartSession"
 #define HEMAX_SETTING_AUTO_START_WINDOW "OnStart\\AutoStartWindow"
 #define HEMAX_SETTING_HDA_LOAD_PATH   "OnStart\\LoadHDADirectory"
 #define HEMAX_SETTING_HDA_REPO_PATH   "Assets\\HdaRepository"
@@ -53,6 +48,9 @@ constexpr const char* const NodeOptionAutoRecookLabel
     = "Enable automatic recooking";
 constexpr const char* const NodeOptionSliderCookLabel
     = "Cook while dragging parameter slider";
+
+const char* const HEMAX_SharedMemoryBufferType_Ring = "Ring";
+const char* const HEMAX_SharedMemoryBufferType_FixedLength = "Fixed";
 
 enum class HEMAX_SessionTypePref : int
 {
@@ -88,7 +86,7 @@ class HEMAX_UserPrefs
 	bool GetBoolSetting(std::string Key, bool& Out);
         bool GetIntSetting(std::string Key, int& Out);
 
-	bool SetStringSetting(std::string Key, std::string In);
+	bool SetStringSetting(std::string Key, const std::string& In);
 	bool SetBoolSetting(std::string Key, bool In);
         bool SetIntSetting(std::string Key, int In);
 

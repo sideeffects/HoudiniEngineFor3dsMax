@@ -18,6 +18,7 @@
 class HEMAX_Plugin;
 
 class QCheckBox;
+class QComboBox;
 class QVBoxLayout;
 class QGridLayout;
 class QGroupBox;
@@ -32,7 +33,7 @@ class HEMAX_OptionsDialog : public QDialog
 
     public:
         HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin);
-        ~HEMAX_OptionsDialog();
+        ~HEMAX_OptionsDialog() = default;
 
         void Update();
 
@@ -42,6 +43,8 @@ class HEMAX_OptionsDialog : public QDialog
 
         QVBoxLayout* Layout;
         QTabWidget* OptionsTabs;
+
+        // General Settings
 
         QWidget* GeneralOptions;
         QVBoxLayout* GeneralOptionsLayout;
@@ -59,7 +62,6 @@ class HEMAX_OptionsDialog : public QDialog
 
         QGroupBox* OnStartupOptions;
         QVBoxLayout* OnStartupOptionsLayout;
-        QCheckBox* AutoStartSession;
         QCheckBox* AutoOpenWindow;
 
         QGroupBox* AssetOptions;
@@ -73,6 +75,41 @@ class HEMAX_OptionsDialog : public QDialog
         QLineEdit* HdaSearchPath;
         QPushButton* HdaSearchPathBrowse;
 
+        // Session Configuration
+        
+        QWidget*        SessionOptions                      = nullptr;
+        QGridLayout*    SessionOptionsLayout                = nullptr;
+
+        QCheckBox*      SessionAutoStart                    = nullptr;
+        QLabel*         SessionDefaultAutoStartTypeLabel    = nullptr;
+        QComboBox*      SessionDefaultAutoStartType         = nullptr;
+
+        QLabel*         SessionHostnameLabel                = nullptr;
+        QLineEdit*      SessionHostname                     = nullptr;
+        QLabel*         SessionPortLabel                    = nullptr;
+        QLineEdit*      SessionPort                         = nullptr;
+        QLabel*         SessionPipeNameLabel                = nullptr;
+        QLineEdit*      SessionPipeName                     = nullptr;
+        QLabel*         SessionSharedMemoryNameLabel        = nullptr;
+        QLineEdit*      SessionSharedMemoryName             = nullptr;
+        QLabel*         SessionSharedMemoryBufferSizeLabel  = nullptr;
+        QLineEdit*      SessionSharedMemoryBufferSize       = nullptr;
+        QLabel*         SessionSharedMemoryBufferTypeLabel  = nullptr;
+        QComboBox*      SessionSharedMemoryBufferType       = nullptr;
+
+        QLabel*         SessionHoudiniEnvFilesLabel         = nullptr;
+        QLineEdit*      SessionHoudiniEnvFiles              = nullptr;
+        QLabel*         SessionOtlSearchPathLabel           = nullptr;
+        QLineEdit*      SessionOtlSearchPath                = nullptr;
+        QLabel*         SessionDsoSearchPathLabel           = nullptr;
+        QLineEdit*      SessionDsoSearchPath                = nullptr;
+        QLabel*         SessionImageDsoSearchPathLabel      = nullptr;
+        QLineEdit*      SessionImageDsoSearchPath           = nullptr;
+        QLabel*         SessionAudioDsoSearchPathLabel      = nullptr;
+        QLineEdit*      SessionAudioDsoSearchPath           = nullptr;
+
+        // Defaults
+
         QWidget* DefaultOptions;
         QVBoxLayout* DefaultOptionsLayout;
 
@@ -80,6 +117,8 @@ class HEMAX_OptionsDialog : public QDialog
         QVBoxLayout* NodeOptionDefaultsLayout;
         QCheckBox* NodeOptionDefaultsAutoRecook;
         QCheckBox* NodeOptionDefaultsSliderCook;
+
+        // Geometry HDA Settings
 
         QWidget* GeometryHdaOptions;
         QVBoxLayout* GeometryHdaOptionsLayout;
@@ -93,6 +132,8 @@ class HEMAX_OptionsDialog : public QDialog
         QVBoxLayout* NodeOptionsLayout;
         QCheckBox* UseUniqueNames;
         QCheckBox* UseOriginalInstanceName;
+
+        // Debug Options
 
         QWidget* DebugOptions;
         QVBoxLayout* DebugOptionsLayout;
@@ -125,12 +166,26 @@ class HEMAX_OptionsDialog : public QDialog
         void SlotOverrideHoudiniInstallPath();
         void SlotOverrideHoudiniInstallPathDirBrowse();
         void SlotAutoSelectHDARoot(int State);
-        void SlotAutoStartSession(int State);
         void SlotAutoOpenWindow(int State);
         void SlotHdaLoadDir();
         void SlotHdaLoadDirBrowse();
         void SlotHdaSearchPath();
         void SlotHdaSearchPathBrowse();
+
+        void SlotSessionAutoStart(int State);
+        void SlotSessionDefaultStartType(int CurrentIndex);
+        void SlotSessionHostname();
+        void SlotSessionPort();
+        void SlotSessionPipeName();
+        void SlotSessionSharedMemoryName();
+        void SlotSessionSharedMemoryBufferSize();
+        void SlotSessionSharedMemoryBufferType(int CurrentIndex);
+        void SlotSessionHoudiniEnvFiles();
+        void SlotSessionOtlSearchPath();
+        void SlotSessionDsoSearchPath();
+        void SlotSessionImageDsoSearchPath();
+        void SlotSessionAudioDsoSearchPath();
+
         void SlotNodeOptionDefaultsAutoRecook(int State);
         void SlotNodeOptionDefaultsSliderCook(int State);
         void SlotBakeDummyObject(int State);

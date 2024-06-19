@@ -24,14 +24,12 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
     TabContainer = new QTabWidget;
 
     ShelfToolsWidget = new HEMAX_ShelfTab(ActivePlugin, false);
-    SessionWidget = new HEMAX_SessionWidget(ActivePlugin);
     HDAWidget = new HEMAX_HDAWidget(ActivePlugin);
     MHAWidget = new HEMAX_MaxHoudiniAssetWidget(ActivePlugin);
 
     TabContainer->addTab(HDAWidget, "Load Assets");
     TabContainer->addTab(MHAWidget, "Parameters");
     TabContainer->addTab(ShelfToolsWidget, "Shelf");
-    TabContainer->addTab(SessionWidget, "Session Configuration");
 
     ScrollArea->setWidget(TabContainer);
     ScrollArea->setWidgetResizable(true);
@@ -127,8 +125,6 @@ HEMAX_UI::~HEMAX_UI()
         delete MHAWidget;
     if (HDAWidget)
         delete HDAWidget;
-    if (SessionWidget)
-        delete SessionWidget;
     if (ShelfToolsWidget)
         delete ShelfToolsWidget;
 
@@ -180,7 +176,6 @@ HEMAX_UI::Update()
     std::vector<std::string> LoadedAssetList =
         ActivePlugin->GetPluginStore()->GetListOfLoadedAssets();
     HDAWidget->UpdateLoadedAssetList(&LoadedAssetList);
-    SessionWidget->Update();
     MHAWidget->RefreshParameterUI(false);
 
     if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())

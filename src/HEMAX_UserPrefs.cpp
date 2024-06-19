@@ -214,7 +214,8 @@ HEMAX_UserPrefs::GetIntSetting(std::string Key, int& Out)
 }
 
 bool
-HEMAX_UserPrefs::SetStringSetting(std::string Key, std::string In)
+HEMAX_UserPrefs::SetStringSetting(std::string Key,
+                                  const std::string& In)
 {
     auto Search = UserSettings.find({ Key });
 
