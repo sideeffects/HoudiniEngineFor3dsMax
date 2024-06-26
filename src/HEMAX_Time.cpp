@@ -3,6 +3,12 @@
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 
+#include <interval.h>
+#include <maxapi.h>
+
+namespace HEMAX_Time
+{
+
 HAPI_TimelineOptions HEMAX_GlobalTimeOptions;
 float CurrentHAPITime;
 bool HasTimeChanged;
@@ -27,10 +33,10 @@ PushTimelineSettings()
     HEMAX_GlobalTimeOptions.endTime = EndSeconds;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::SetTimelineOptions(SM.Session,
+    HEMAX_HoudiniApi::SetTimelineOptions(&SM.Session,
         &HEMAX_GlobalTimeOptions);
 
-    HEMAX_HoudiniApi::GetTime(SM.Session, &CurrentHAPITime);
+    HEMAX_HoudiniApi::GetTime(&SM.Session, &CurrentHAPITime);
 }
 
 void
@@ -41,7 +47,7 @@ PushCurrentTime(TimeValue Time)
     float Seconds = (float)Frame / (float)FPS;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::SetTime(SM.Session, Seconds);
+    HEMAX_HoudiniApi::SetTime(&SM.Session, Seconds);
 
     GetCurrentHAPITime();
 }
@@ -53,7 +59,7 @@ PushCurrentFrame(int Frame)
     float Seconds = (float)Frame/(float)FPS;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::SetTime(SM.Session, Seconds);
+    HEMAX_HoudiniApi::SetTime(&SM.Session, Seconds);
 
     GetCurrentHAPITime();
 }
@@ -64,7 +70,7 @@ GetCurrentHAPITime()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     float OldTime = CurrentHAPITime;
 
-    HEMAX_HoudiniApi::GetTime(SM.Session, &CurrentHAPITime);
+    HEMAX_HoudiniApi::GetTime(&SM.Session, &CurrentHAPITime);
 
     if (OldTime != CurrentHAPITime)
     {
@@ -82,4 +88,6 @@ void
 MarkSynchronized()
 {
     HasTimeChanged = false;
+}
+
 }

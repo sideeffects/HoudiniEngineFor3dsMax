@@ -1,11 +1,11 @@
 #pragma once
 
-#include "HEMAX_HAPISession.h"
-#include "HEMAX_Node.h"
 #include "HEMAX_Types.h"
-#include "HEMAX_Store.h"
-
+#include <HAPI_Common.h>
+#include <functional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #define HEMAX_AUTO_PIPE_NAME "HEMAX_AutoPipeServer"
 #define HEMAX_USE_SESSION_ENV_FLAG "USE_HENGINE_ENV_IN_HOSTS"
@@ -14,47 +14,49 @@ class HEMAX_Events;
 
 class HEMAX_SessionManager
 {
+
     public:
-	static HEMAX_SessionManager& GetSessionManager();
+        
+        // We don't stop the session in the destructor because we have nothing
+        // to ensure a sane static destruction order. It's up to DllEntry.cpp
+        // or HoudiniEngineFor3dsMax.cpp to make sure things are shutdown
+        // cleanly.
+                                            ~HEMAX_SessionManager() = default;
 
-	bool StartSession();
-	void StopSession();
-	bool IsSessionActive();
+	static HEMAX_SessionManager&        GetSessionManager();
 
-        void SetEventHub(HEMAX_Events* _PluginEvents);
+        bool                                CreateSession();
+        bool                                ConnectSession();
+        bool                                StopSession();
+        bool                                RestartSession();
 
-	HEMAX_SessionType GetSessionType();
-	void SetSessionType( HEMAX_SessionType SType );
-	bool IsAutoSession();
+        bool                                IsSessionValidAndInitialized();
 
-	std::unordered_map<std::string, std::string> GetEnvMap();
-	bool DoesUseHEngineFlagExist(std::unordered_map<std::string, std::string>& EnvMap);
-	void CopyHEngineEnv(std::unordered_map<std::string, std::string>& EnvMap);
+        void                                RegisterOnSessionChangedCallback(
+                                                const std::function<void(void)>& CB);
+        void                                RegisterOnSessionReadyCallback(
+                                                const std::function<void(void)>& CB);
+        void                                RegisterOnSessionStoppedCallback(
+                                                const std::function<void(void)>& CB);
 
-	HEMAX_HAPISession* Session;
-
-	~HEMAX_SessionManager();
-
-	void SetThriftNamedPipeSessionName(std::string PipeName);
-	void SetThriftSocketHostName(std::string HostName);
-	void SetThriftSocketPortNumber(int Port);
-        void SetThriftSharedMemoryName(const std::string& Name);
-        void SetThriftSharedMemoryBufferSize(int Size);
-        void SetThriftSharedMemoryBufferType(
-                HAPI_ThriftSharedMemoryBufferType Type);
-
-	void StartThriftNamedPipeThinClient();
+        HAPI_Session                        Session;
 
     private:
-	HEMAX_SessionManager();
+	                                    HEMAX_SessionManager() = default;
 
-	HEMAX_SessionType SessionType;
+        bool                                CreateSocketSession();
+        bool                                CreateNamedPipeSession();
+        bool                                CreateSharedMemorySession();
 
-        HEMAX_Events* PluginEvents;
+        bool                                ConnectSocketSession();
+        bool                                ConnectNamedPipeSession();
+        bool                                ConnectSharedMemorySession();
 
-	void InitializeSession();
+        void                                InvokeOnSessionChangedCallbacks();
+        void                                InvokeOnSessionReadyCallbacks();
+        void                                InvokeOnSessionStoppedCallbacks();
 
-	bool IsActiveSession;
-	bool IsSessionInitialized;
-	bool AutoSession;
+        std::vector<std::function<void()> > OnSessionChangedCallbacks;
+        std::vector<std::function<void()> > OnSessionReadyCallbacks;
+        std::vector<std::function<void()> > OnSessionStoppedCallbacks;
 };

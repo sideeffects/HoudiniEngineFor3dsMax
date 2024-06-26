@@ -45,14 +45,14 @@ HEMAX_InputMerge::MergeInputRelativeTo(
 {
     HAPI_NodeId XformNodeId = -1;
     HEMAX_HoudiniApi::CreateNode(
-        HEMAX_SessionManager::GetSessionManager().Session, Node.Info.parentId,
+        &HEMAX_SessionManager::GetSessionManager().Session, Node.Info.parentId,
         "xform", nullptr, false, &XformNodeId);
     HAPI_TransformEuler EulerXform =
        HEMAX_Utilities::MaxTransformToHAPITransformEuler(MaxTransform,
             HAPI_SRT); 
 
     HAPI_Session* Session =
-        HEMAX_SessionManager::GetSessionManager().Session;
+        &HEMAX_SessionManager::GetSessionManager().Session;
 
     HEMAX_HoudiniApi::SetParmFloatValue(Session, XformNodeId,
         "tx", 0, EulerXform.position[0]);
@@ -83,15 +83,15 @@ HEMAX_InputMerge::MergeInputRelativeTo(
         "shear3", 2, EulerXform.shear[2]);
 
     HEMAX_HoudiniApi::ConnectNodeInput(
-        HEMAX_SessionManager::GetSessionManager().Session, Node.Info.id,
+        &HEMAX_SessionManager::GetSessionManager().Session, Node.Info.id,
         MergeCount, XformNodeId, 0);
     HEMAX_HoudiniApi::ConnectNodeInput(
-        HEMAX_SessionManager::GetSessionManager().Session, XformNodeId,
+        &HEMAX_SessionManager::GetSessionManager().Session, XformNodeId,
         0, InputNode.GetInputNodeId(), 0);
 
     HAPI_NodeId ConnectedNode = -1;
     HEMAX_HoudiniApi::QueryNodeInput(
-        HEMAX_SessionManager::GetSessionManager().Session, XformNodeId,
+        &HEMAX_SessionManager::GetSessionManager().Session, XformNodeId,
         0, &ConnectedNode);
 
     HEMAX_Node ObjMergeNode(ConnectedNode, HAPI_NODETYPE_SOP);

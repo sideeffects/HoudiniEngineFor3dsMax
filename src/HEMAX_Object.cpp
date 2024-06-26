@@ -57,20 +57,20 @@ HEMAX_Object::Create(HAPI_NodeId NodeId)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (HEMAX_HoudiniApi::GetObjectInfo(SM.Session, NodeId, &Info) == HAPI_RESULT_SUCCESS)
+    if (HEMAX_HoudiniApi::GetObjectInfo(&SM.Session, NodeId, &Info) == HAPI_RESULT_SUCCESS)
     {
-        HEMAX_HoudiniApi::GetObjectTransform(SM.Session, Info.nodeId, -1,
+        HEMAX_HoudiniApi::GetObjectTransform(&SM.Session, Info.nodeId, -1,
             HAPI_RSTORDER_DEFAULT, &Transform);
-	Name = SM.Session->GetHAPIString(Info.nameSH);
+	Name = HEMAX_Utilities::GetHAPIString(Info.nameSH);
 
 	int ChildObjectNodeCount;
-        HEMAX_HoudiniApi::ComposeObjectList(SM.Session, Info.nodeId, nullptr,
+        HEMAX_HoudiniApi::ComposeObjectList(&SM.Session, Info.nodeId, nullptr,
             &ChildObjectNodeCount);
 
 	if (ChildObjectNodeCount > 0)
 	{
 	    std::vector<HAPI_ObjectInfo> ObjectInfos(ChildObjectNodeCount); 
-            HEMAX_HoudiniApi::GetComposedObjectList(SM.Session, Info.nodeId,
+            HEMAX_HoudiniApi::GetComposedObjectList(&SM.Session, Info.nodeId,
                 &ObjectInfos.front(), 0, ChildObjectNodeCount);
 
 	    for (int i = 0; i < ChildObjectNodeCount; i++)
@@ -132,8 +132,7 @@ HEMAX_Object::Create(HAPI_NodeId NodeId)
 	    {
 		auto Result = SopNodes.emplace(Info.nodeId, HEMAX_DisplayGeoNode());
 		HEMAX_DisplayGeoNode& GeoNode = Result.first->second;
-                HEMAX_HoudiniApi::CookNode(SM.Session, Info.nodeId,
-                    SM.Session->GetCookOptions());
+                HEMAX_HoudiniApi::CookNode(&SM.Session, Info.nodeId, nullptr);
 		GeoNode.Init(Info.nodeId);
 		GeoNode.IsVisible = Info.isVisible;
 	    }
@@ -147,13 +146,13 @@ GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_GeoInfo GeoInfo;
-    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, InstancerObjInfo.nodeId,
+    if (HEMAX_HoudiniApi::GetDisplayGeoInfo(&SM.Session, InstancerObjInfo.nodeId,
             &GeoInfo) == HAPI_RESULT_SUCCESS)
     {
 	Info.InstanceTransforms = GetInstanceTransforms(InstancerObjInfo.nodeId);
 
 	HAPI_AttributeInfo InstanceObjInfo;
-        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, GeoInfo.nodeId, 0,
+        HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, GeoInfo.nodeId, 0,
 			HEMAX_INSTANCE_ATTRIBUTE, HAPI_ATTROWNER_POINT,
 			&InstanceObjInfo);
 
@@ -161,7 +160,7 @@ GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation
 	{
             Info.HasMultipleInstancees = true;
 	    Info.InstanceNodeIds = std::vector<HAPI_NodeId>(InstanceObjInfo.count);
-            HEMAX_HoudiniApi::GetInstancedObjectIds(SM.Session,
+            HEMAX_HoudiniApi::GetInstancedObjectIds(&SM.Session,
                 InstancerObjInfo.nodeId, &Info.InstanceNodeIds.front(), 0,
                 InstanceObjInfo.count);
 	}
@@ -183,17 +182,17 @@ GetInstanceTransforms(HAPI_NodeId InstancerNode)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_GeoInfo GeoInfo;
-    HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session, InstancerNode, &GeoInfo);
+    HEMAX_HoudiniApi::GetDisplayGeoInfo(&SM.Session, InstancerNode, &GeoInfo);
 
     HAPI_PartInfo InstancerPointInfo;
-    HEMAX_HoudiniApi::GetPartInfo(SM.Session, GeoInfo.nodeId, 0, &InstancerPointInfo);
+    HEMAX_HoudiniApi::GetPartInfo(&SM.Session, GeoInfo.nodeId, 0, &InstancerPointInfo);
 
     std::vector<HEMAX_MaxTransform> Transforms;
 
     if (InstancerPointInfo.pointCount > 0)
     {
 	std::vector<HAPI_Transform> InstanceTransforms(InstancerPointInfo.pointCount);
-        HEMAX_HoudiniApi::GetInstanceTransformsOnPart(SM.Session,
+        HEMAX_HoudiniApi::GetInstanceTransformsOnPart(&SM.Session,
                 GeoInfo.nodeId, 0, HAPI_SRT, &InstanceTransforms.front(), 0,
                 InstancerPointInfo.pointCount);
 

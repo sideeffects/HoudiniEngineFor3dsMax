@@ -2,6 +2,7 @@
 
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
+#include "HEMAX_Utilities.h"
 
 HEMAX_Input_NURBS::HEMAX_Input_NURBS(ULONG MaxNode)
     : HEMAX_Input(MaxNode)
@@ -66,7 +67,7 @@ HEMAX_Input_NURBS::~HEMAX_Input_NURBS()
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	if (SM.IsSessionActive())
+	if (SM.IsSessionValidAndInitialized())
 	{
 	    Node->Delete();
 	}
@@ -166,15 +167,15 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-        HEMAX_HoudiniApi::SetCurveInfo(SM.Session, Node->Info.id, 0,
+        HEMAX_HoudiniApi::SetCurveInfo(&SM.Session, Node->Info.id, 0,
             &CurveInfo);
 
 	std::vector<int> CurveCountsArr = { NumCVs };
 	std::vector<int> OrdersArr = { Degree };
 
-        HEMAX_HoudiniApi::SetCurveCounts(SM.Session, Node->Info.id, 0,
+        HEMAX_HoudiniApi::SetCurveCounts(&SM.Session, Node->Info.id, 0,
             &CurveCountsArr.front(), 0, 1);
-        HEMAX_HoudiniApi::SetCurveOrders(SM.Session, Node->Info.id, 0,
+        HEMAX_HoudiniApi::SetCurveOrders(&SM.Session, Node->Info.id, 0,
             &OrdersArr.front(), 0, 1);
 
 	std::vector<float> KnotsArr(NumKnots);
@@ -184,7 +185,7 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 	    KnotsArr[k] = (float)Knots[k];
 	}
 
-        HEMAX_HoudiniApi::SetCurveKnots(SM.Session, Node->Info.id, 0,
+        HEMAX_HoudiniApi::SetCurveKnots(&SM.Session, Node->Info.id, 0,
             &KnotsArr.front(), 0, NumKnots);
 
 	std::vector<float> CVArr(NumCVs*3);
@@ -258,14 +259,14 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetCurveInfo(SM.Session, Node->Info.id, 0, &CurveInfo);
+    HEMAX_HoudiniApi::SetCurveInfo(&SM.Session, Node->Info.id, 0, &CurveInfo);
 
     int CountsArray[] = { CVCount };
-    HEMAX_HoudiniApi::SetCurveCounts(SM.Session, Node->Info.id, 0, CountsArray,
+    HEMAX_HoudiniApi::SetCurveCounts(&SM.Session, Node->Info.id, 0, CountsArray,
         0, 1);
 
     int OrdersArray[] = { CurveOrder };
-    HEMAX_HoudiniApi::SetCurveOrders(SM.Session, Node->Info.id, 0, OrdersArray,
+    HEMAX_HoudiniApi::SetCurveOrders(&SM.Session, Node->Info.id, 0, OrdersArray,
         0, 1);
 
     float* KnotsArray = new float[KnotCount];
@@ -275,7 +276,7 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
 	KnotsArray[k] = (float)TheCurve->GetKnot(k);
     }
 
-    HEMAX_HoudiniApi::SetCurveKnots(SM.Session, Node->Info.id, 0, KnotsArray,
+    HEMAX_HoudiniApi::SetCurveKnots(&SM.Session, Node->Info.id, 0, KnotsArray,
         0, KnotCount);
 
     float* CVPoints = new float[CVCount * 3];
@@ -345,14 +346,14 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetCurveInfo(SM.Session, Node->Info.id, 0, &CurveInfo);
+    HEMAX_HoudiniApi::SetCurveInfo(&SM.Session, Node->Info.id, 0, &CurveInfo);
 
     int CountsArray[] = { CVCount };
-    HEMAX_HoudiniApi::SetCurveCounts(SM.Session, Node->Info.id, 0, CountsArray,
+    HEMAX_HoudiniApi::SetCurveCounts(&SM.Session, Node->Info.id, 0, CountsArray,
         0, 1);
 
     int OrdersArray[] = { CurveOrder };
-    HEMAX_HoudiniApi::SetCurveOrders(SM.Session, Node->Info.id, 0, OrdersArray,
+    HEMAX_HoudiniApi::SetCurveOrders(&SM.Session, Node->Info.id, 0, OrdersArray,
         0, 1);
 
     float* KnotsArray = new float[KnotCount];
@@ -364,7 +365,7 @@ HEMAX_Input_NURBS::BuildCurveForEditableNode(HEMAX_Node* Node, NURBSObject* Curv
 	Knots.push_back(KnotsArray[k]);
     }
 
-    HEMAX_HoudiniApi::SetCurveKnots(SM.Session, Node->Info.id, 0, KnotsArray,
+    HEMAX_HoudiniApi::SetCurveKnots(&SM.Session, Node->Info.id, 0, KnotsArray,
         0, KnotCount);
 
     float* CVPoints = new float[CVCount * 3];

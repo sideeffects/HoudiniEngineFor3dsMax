@@ -3,8 +3,17 @@
 #include "HEMAX_Events.h"
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
+#include "HEMAX_Time.h"
 #include "HEMAX_UserPrefs.h"
+#include "HEMAX_Utilities.h"
 
+#include <dbgprint.h>
+#include <HAPI_Helpers.h>
+#include <sstream>
+#include <string>
+
+// TODO: session refactor
+// We need to set these in HARS
 const char* const HAPI_CLIENT_NAME_ENV_VAR = "HAPI_CLIENT_NAME";
 const char* const HAPI_CLIENT_NAME_ENV_VAL = "3dsmax";
 
@@ -15,329 +24,715 @@ HEMAX_SessionManager::GetSessionManager()
     return SessionManager;
 }
 
-HEMAX_SessionManager::HEMAX_SessionManager()
-    : SessionType( HEMAX_THRIFT_PIPE )
+bool
+HEMAX_SessionManager::CreateSession()
 {
-    IsActiveSession = false;
-    IsSessionInitialized = false;
-    AutoSession = false;
-    InitializeSession();
-}
+    HEMAX_Logger::Instance().AddEntry("Creating session...",
+        HEMAX_LOG_LEVEL_INFO);
 
-HEMAX_SessionManager::~HEMAX_SessionManager()
-{
-    if (IsActiveSession)
+    if (IsSessionValidAndInitialized())
     {
-	StopSession();
-	IsActiveSession = false;
+        HEMAX_Logger::Instance().AddEntry("Cannot create a session because "
+            "there is already an active session.", HEMAX_LOG_LEVEL_WARN);
+        return false;
     }
 
-    delete Session;
-}
-
-bool
-HEMAX_SessionManager::StartSession()
-{
-    HEMAX_HoudiniApi::ClearConnectionError();
-    if (Session->CreateSession())
+    int SessionTypeVal;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            SessionTypeVal))
     {
-        HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
+        HEMAX_Logger::Instance().AddEntry("Could not create a session because "
+            "the session type could not be determined.", HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
 
-        std::string HoudiniEnvFiles,
-                    OtlSearchPath,
-                    DsoSearchPath,
-                    ImageDsoSearchPath,
-                    AudioDsoSearchPath;
+    HEMAX_SessionTypePref SessionType =
+        static_cast<HEMAX_SessionTypePref>(SessionTypeVal);
 
-        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
-                               HoudiniEnvFiles);
-        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
-                               OtlSearchPath);
-        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
-                               DsoSearchPath);
-        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH,
-                               ImageDsoSearchPath);
-        Prefs.GetStringSetting(HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
-                               AudioDsoSearchPath);
+    bool Result = false;
 
-	if (Session->InitializeHAPI(
-			HoudiniEnvFiles.c_str(),
-			OtlSearchPath.c_str(),
-			DsoSearchPath.c_str(),
-			ImageDsoSearchPath.c_str(),
-			AudioDsoSearchPath.c_str()
-		    )
-	    )
-	{
-	    IsActiveSession = true;
-	    IsSessionInitialized = true;
-
-	    auto EnvMap = GetEnvMap();
-
-	    if (DoesUseHEngineFlagExist(EnvMap))
-	    {
-		CopyHEngineEnv(EnvMap);
-	    }
-
-            HEMAX_HoudiniApi::SetServerEnvString(Session,
-                HAPI_CLIENT_NAME_ENV_VAR, HAPI_CLIENT_NAME_ENV_VAL);
-	}
-
-        PluginEvents->SessionChanged();
+    if (SessionType == HEMAX_SessionTypePref::Socket)
+    {
+        Result = CreateSocketSession();
+    }
+    else if (SessionType == HEMAX_SessionTypePref::NamedPipe)
+    {
+        Result = CreateNamedPipeSession();
+    }
+    else if (SessionType == HEMAX_SessionTypePref::SharedMemory)
+    {
+        Result = CreateSharedMemorySession();
     }
     else
     {
-        int ErrLen = 0;
-        HEMAX_HoudiniApi::GetConnectionErrorLength(&ErrLen);
+        HEMAX_Logger::Instance().AddEntry("Failed to create a session because "
+            "an invalid session type was provided.", HEMAX_LOG_LEVEL_ERROR);
+    }
 
-        if (ErrLen > 0)
+    if (!Result)
+        return false;
+
+    std::string HoudiniEnv, OtlSearch, DsoSearch, ImageDsoSearch, AudioDsoSearch;
+
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+        HoudiniEnv);
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+        OtlSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+        DsoSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(
+        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, ImageDsoSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(
+        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
+
+    HAPI_CookOptions CookOptions = HAPI_CookOptions_Create();
+    CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
+    HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
+        &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
+        DsoSearch.c_str(), ImageDsoSearch.c_str(), AudioDsoSearch.c_str());
+
+    if (InitResult == HAPI_RESULT_SUCCESS)
+    {
+        HEMAX_Logger::Instance().AddEntry(
+            "Session initalized and ready to use.", HEMAX_LOG_LEVEL_INFO);
+
+        HEMAX_Time::PushTimelineSettings();
+        HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
+
+        InvokeOnSessionReadyCallbacks();
+    }
+    
+    InvokeOnSessionChangedCallbacks();
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::ConnectSession()
+{
+    HEMAX_Logger::Instance().AddEntry("Connecting to session...",
+        HEMAX_LOG_LEVEL_INFO);
+   
+    if (IsSessionValidAndInitialized())
+    {
+        HEMAX_Logger::Instance().AddEntry("Cannot connect to a session because "
+            "there is already an active session.", HEMAX_LOG_LEVEL_WARN);
+        return false;
+    }
+
+    int SessionTypeVal;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(HEMAX_SETTING_SESSION_TYPE,
+            SessionTypeVal))
+    {
+        HEMAX_Logger::Instance().AddEntry("Could not connect to a session "
+            "because the session type could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_SessionTypePref SessionType =
+        static_cast<HEMAX_SessionTypePref>(SessionTypeVal);
+
+    bool Result = false;
+
+    if (SessionType == HEMAX_SessionTypePref::Socket)
+    {
+        Result = ConnectSocketSession();
+    }
+    else if (SessionType == HEMAX_SessionTypePref::NamedPipe)
+    {
+        Result = ConnectNamedPipeSession();
+    }
+    else if (SessionType == HEMAX_SessionTypePref::SharedMemory)
+    {
+        Result = ConnectSharedMemorySession();
+    }
+    else
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a session "
+            "because an invalid session type was provided.",
+            HEMAX_LOG_LEVEL_ERROR);
+    }
+
+    if (!Result)
+        return false;
+
+    if (HEMAX_HoudiniApi::IsInitialized(&Session) != HAPI_RESULT_SUCCESS)
+    {
+        std::string HoudiniEnv, OtlSearch, DsoSearch, ImageDsoSearch, AudioDsoSearch;
+
+        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+            HoudiniEnv);
+        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+            OtlSearch);
+        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+            DsoSearch);
+        HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, ImageDsoSearch);
+        HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
+
+        HAPI_CookOptions CookOptions = HAPI_CookOptions_Create();
+        CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
+        HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
+            &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
+            DsoSearch.c_str(), ImageDsoSearch.c_str(), AudioDsoSearch.c_str());
+
+        if (InitResult)
         {
-            char* ErrMsg = new char[ErrLen];
-            HEMAX_HoudiniApi::GetConnectionError(ErrMsg, ErrLen, false);
-            HEMAX_Logger::Instance().AddEntry(ErrMsg, HEMAX_LOG_LEVEL_ERROR);
-            delete [] ErrMsg;
+            HEMAX_Time::PushTimelineSettings();
+            HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
+
+            InvokeOnSessionReadyCallbacks();
         }
     }
 
-    return IsActiveSession;
+    HEMAX_Logger::Instance().AddEntry("Finished connecting to session",
+        HEMAX_LOG_LEVEL_INFO);
+
+    InvokeOnSessionChangedCallbacks();
+
+    return true;
 }
 
-void
+bool
 HEMAX_SessionManager::StopSession()
 {
-    if (IsSessionInitialized && IsActiveSession)
+    HEMAX_Logger::Instance().AddEntry("Stopping session...",
+        HEMAX_LOG_LEVEL_INFO);
+
+    if (HEMAX_HoudiniApi::IsSessionValid(&Session) != HAPI_RESULT_SUCCESS)
     {
-        HEMAX_HoudiniApi::Cleanup(Session);
-	IsSessionInitialized = false;
+        HEMAX_Logger::Instance().AddEntry("No active session found",
+            HEMAX_LOG_LEVEL_INFO);
+        return true;
     }
 
-    if (HEMAX_HoudiniApi::CloseSession(Session) == HAPI_RESULT_SUCCESS)
-    {
-	IsActiveSession = false;
-    }
+    if (HEMAX_HoudiniApi::IsInitialized(&Session) == HAPI_RESULT_SUCCESS)
+        HEMAX_HoudiniApi::Cleanup(&Session);
 
-    AutoSession = false;
+    HEMAX_HoudiniApi::CloseSession(&Session);
+
+    HEMAX_Logger::Instance().AddEntry("Session Stopped", HEMAX_LOG_LEVEL_INFO);
+
+    InvokeOnSessionStoppedCallbacks();
+    InvokeOnSessionChangedCallbacks();
+
+    return true;
 }
 
 bool
-HEMAX_SessionManager::IsSessionActive()
+HEMAX_SessionManager::RestartSession()
 {
-    return IsActiveSession;
-}
+    HEMAX_Logger::Instance().AddEntry("Restarting session...",
+        HEMAX_LOG_LEVEL_INFO);
 
-void
-HEMAX_SessionManager::SetEventHub(HEMAX_Events* _PluginEvents)
-{
-    PluginEvents = _PluginEvents;
-}
+    if (!StopSession())
+        return false;
 
-HEMAX_SessionType
-HEMAX_SessionManager::GetSessionType()
-{
-    return SessionType;
-}
+    bool Success = CreateSession();
 
-void
-HEMAX_SessionManager::SetSessionType( HEMAX_SessionType SType )
-{
-    SessionType = SType;
-    InitializeSession();
-    PluginEvents->SessionChanged();
+    InvokeOnSessionChangedCallbacks();
+
+    return Success;
 }
 
 bool
-HEMAX_SessionManager::IsAutoSession()
+HEMAX_SessionManager::CreateSocketSession()
 {
-    return AutoSession;
-}
-
-void
-HEMAX_SessionManager::InitializeSession()
-{
-    if ( Session )
+    std::string Host;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_HOST_NAME, Host))
     {
-	delete Session;
-	Session = nullptr;
+        HEMAX_Logger::Instance().AddEntry("Failed to create a socket session "
+            "because the hostname could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
     }
 
-    switch ( SessionType )
+    int Port;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_PORT, Port))
     {
-	case HEMAX_IN_PROCESS:
-	    {
-		Session = new HEMAX_HAPISession;
-		break;
-	    }
-	case HEMAX_THRIFT_SOCKET:
-	    {
-		Session = new HEMAX_HAPIThriftSocketSession;
-		break;
-	    }
-	case HEMAX_THRIFT_PIPE:
-	    {
-		Session = new HEMAX_HAPIThriftPipeSession;
-		break;
-	    }
-        case HEMAX_THRIFT_SHARED_MEMORY:
-            {
-                Session = new HEMAX_HAPIThriftSharedMemorySession;
-                break;
-            }
-	default:
-	    break;
-    }
-}
+        HEMAX_Logger::Instance().AddEntry("Failed to create a socket session "
+            "because the port number could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    } 
 
-std::unordered_map<std::string, std::string>
-HEMAX_SessionManager::GetEnvMap()
-{
-    std::unordered_map<std::string, std::string> EnvMap;
+    HEMAX_HoudiniApi::ClearConnectionError();
 
-    int EnvVarCount;
-    if (HEMAX_HoudiniApi::GetServerEnvVarCount(Session,
-            &EnvVarCount) == HAPI_RESULT_SUCCESS)
+    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+    HAPI_ProcessId ProcessId;
+    HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServer(
+            &ServerOptions, Port, &ProcessId, nullptr);
+
+    if (Result == HAPI_RESULT_SUCCESS)
     {
-	HAPI_StringHandle* EnvSH = new HAPI_StringHandle[EnvVarCount];
-	if (HEMAX_HoudiniApi::GetServerEnvVarList(Session, EnvSH, 0,
-                EnvVarCount) == HAPI_RESULT_SUCCESS)
-	{
-	    std::vector<std::string> EnvList(EnvVarCount);
-	    for (int v = 0; v < EnvVarCount; v++)
-	    {
-		EnvList[v] = Session->GetHAPIString(EnvSH[v]);
-		for (auto searchIt = EnvList[v].begin(); searchIt != EnvList[v].end(); searchIt++)
-		{
-		    if ((*searchIt) == '=')
-		    {
-			auto ValIt = searchIt + 1;
-			std::string Val = "";
-
-			if (ValIt != EnvList[v].end())
-			{
-			    Val = std::string((searchIt + 1), EnvList[v].end());
-			}
-
-			EnvMap.insert({ std::string(EnvList[v].begin(), searchIt), Val });
-		    }
-		}
-	    }
-	}
-    }
-
-    return EnvMap;
-}
-
-bool
-HEMAX_SessionManager::DoesUseHEngineFlagExist(std::unordered_map<std::string, std::string>& EnvMap)
-{
-    auto EnvSearch = EnvMap.find(HEMAX_USE_SESSION_ENV_FLAG);
-    if (EnvSearch != EnvMap.end())
-    {
-	return true;
+        std::stringstream SStream;
+        SStream << "Thrift Socket Server started on " << Host
+            << ":" << std::to_string(Port);
+        std::string Msg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
     }
     else
     {
-	return false;
+        std::stringstream SStream;
+        SStream << "Failed to start a Thrift socket server on " <<
+            Host << ":" << std::to_string(Port);
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
     }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    Result = HEMAX_HoudiniApi::CreateThriftSocketSession(&Session,
+        Host.c_str(), Port, &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to create a Thrift socket session on " <<
+            Host << ":" << std::to_string(Port);
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully created a socket session on " << Host << ":"
+        << std::to_string(Port);
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+    
+    return true;
+}
+
+bool
+HEMAX_SessionManager::CreateNamedPipeSession()
+{
+    std::string PipeName;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to create a named pipe "
+            "session because the pipe name could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+    HAPI_ProcessId ProcessId;
+    HAPI_Result Result = HEMAX_HoudiniApi::StartThriftNamedPipeServer(
+            &ServerOptions, PipeName.c_str(), &ProcessId, nullptr);
+
+    if (Result == HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Thrift named pipe server started with name " << PipeName;
+        std::string Msg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+    }
+    else
+    {
+        std::stringstream SStream;
+        SStream << "Failed to start a Thrift named pipe server with name "
+            << PipeName;
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(&Session,
+        PipeName.c_str(), &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to create a Thrift named pipe session with name "
+            << PipeName;
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully created a named pipe session with name " << PipeName;
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::CreateSharedMemorySession()
+{
+    std::string SharedMemoryName;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME, SharedMemoryName))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to create a shared memory "
+            "session because the name could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    int BufferSize;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE, BufferSize))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to create a shared memory "
+            "session because the buffer size could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::string BufferType;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE, BufferType))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to create a shared memory "
+            "session because the buffer type could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+
+    if (BufferType == "Fixed")
+    {
+        ServerOptions.sharedMemoryBufferType = HAPI_THRIFT_SHARED_MEMORY_FIXED_LENGTH_BUFFER;
+    }
+    else if (BufferType == "Ring")
+    {
+        ServerOptions.sharedMemoryBufferType = HAPI_THRIFT_SHARED_MEMORY_RING_BUFFER;
+    }
+    else
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to create a shared memory "
+            "session because an invalid buffer type was provided.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    ServerOptions.sharedMemoryBufferSize = BufferSize;
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+    HAPI_ProcessId ProcessId;
+    HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSharedMemoryServer(
+        &ServerOptions, SharedMemoryName.c_str(), &ProcessId, nullptr);
+
+    if (Result == HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Thrift shared memory server started with name "
+            << SharedMemoryName << " (" << std::to_string(BufferSize) << " MB "
+            << BufferType << " Buffer)";
+        std::string Msg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+    }
+    else
+    {
+        std::stringstream SStream;
+        SStream << "Failed to start a Thrift shared memory server with name "
+            << SharedMemoryName << " (" << std::to_string(BufferSize) << " MB "
+            << BufferType << " Buffer)";
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    SessionInfo.sharedMemoryBufferType = ServerOptions.sharedMemoryBufferType;
+    SessionInfo.sharedMemoryBufferSize = ServerOptions.sharedMemoryBufferSize;
+    Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(&Session,
+        SharedMemoryName.c_str(), &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to create a Thrift shared memory session with name "
+            << SharedMemoryName << " (" << std::to_string(BufferSize) << " MB "
+            << BufferType << " Buffer)";
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully created a shared memory session with name "
+        << SharedMemoryName << " (" << std::to_string(BufferSize) << " MB "
+        << BufferType << " Buffer)";
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::ConnectSocketSession()
+{
+    std::string Host;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_HOST_NAME, Host))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a socket "
+            "session because the hostname could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    int Port;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_PORT, Port))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a socket "
+            "session because the port number could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    } 
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSocketSession(&Session,
+        Host.c_str(), Port, &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to connect to a Thrift socket session on " <<
+            Host << ":" << std::to_string(Port);
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully connected to a socket session on " << Host << ":"
+        << std::to_string(Port);
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::ConnectNamedPipeSession()
+{
+    std::string PipeName;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_PIPE_NAME, PipeName))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a named pipe "
+            "session because the pipe name could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(&Session,
+        PipeName.c_str(), &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to connect to a Thrift named pipe session with name "
+            << PipeName;
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully connected to a named pipe session with name "
+        << PipeName;
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::ConnectSharedMemorySession()
+{
+    std::string SharedMemoryName;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_NAME, SharedMemoryName))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a shared "
+            "memory session because the name could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    int BufferSize;
+    if (!HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE, BufferSize))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a shared "
+            "memory session because the buffer size could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::string BufferType;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(
+            HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_TYPE, BufferType))
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a shared "
+            "memory session because the buffer type could not be determined.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HAPI_ThriftSharedMemoryBufferType SharedMemoryBufferType;
+
+    if (BufferType == "Fixed")
+    {
+        SharedMemoryBufferType = HAPI_THRIFT_SHARED_MEMORY_FIXED_LENGTH_BUFFER;
+    }
+    else if (BufferType == "Ring")
+    {
+        SharedMemoryBufferType = HAPI_THRIFT_SHARED_MEMORY_RING_BUFFER;
+    }
+    else
+    {
+        HEMAX_Logger::Instance().AddEntry("Failed to connect to a shared "
+            "memory session because an invalid buffer type was provided.",
+            HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    HEMAX_HoudiniApi::ClearConnectionError();
+
+    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    SessionInfo.sharedMemoryBufferType = SharedMemoryBufferType;
+    SessionInfo.sharedMemoryBufferSize = BufferSize;
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(
+            &Session, SharedMemoryName.c_str(), &SessionInfo);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Failed to connect to a Thrift shared memory session with "
+            "name " << SharedMemoryName << " (" << std::to_string(BufferSize)
+            << " MB " << BufferType << " Buffer)";
+
+        std::string ConnectionError = HEMAX_Utilities::GetConnectionError();
+        if (!ConnectionError.empty())
+            SStream << ". Connection Error: " << ConnectionError;
+
+        std::string ErrorMsg = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMsg, HEMAX_LOG_LEVEL_ERROR);
+        return false;
+    }
+
+    std::stringstream SStream;
+    SStream << "Successfully connected to a shared memory session with name "
+        << SharedMemoryName << " (" << std::to_string(BufferSize) << " MB "
+        << BufferType << " Buffer)";
+    std::string Msg = SStream.str();
+    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_INFO);
+
+    return true;
+}
+
+bool
+HEMAX_SessionManager::IsSessionValidAndInitialized()
+{
+    return (HEMAX_HoudiniApi::IsSessionValid(&Session) == HAPI_RESULT_SUCCESS &&
+            HEMAX_HoudiniApi::IsInitialized(&Session) == HAPI_RESULT_SUCCESS);
 }
 
 void
-HEMAX_SessionManager::CopyHEngineEnv(std::unordered_map<std::string, std::string>& EnvMap)
+HEMAX_SessionManager::RegisterOnSessionChangedCallback(
+    const std::function<void(void)>& CB)
 {
-    for (auto EnvIt = EnvMap.begin(); EnvIt != EnvMap.end(); EnvIt++)
-    {
-	HEMAX_Utilities::SetEnvVar(EnvIt->first, EnvIt->second);
-    }
+    OnSessionChangedCallbacks.push_back(CB);
 }
 
 void
-HEMAX_SessionManager::SetThriftNamedPipeSessionName(std::string PipeName)
+HEMAX_SessionManager::RegisterOnSessionReadyCallback(
+    const std::function<void(void)>& CB)
 {
-    if (SessionType == HEMAX_THRIFT_PIPE)
-    {
-	((HEMAX_HAPIThriftPipeSession*)Session)->SetPipeName(PipeName);
-    }
+    OnSessionReadyCallbacks.push_back(CB);
 }
 
 void
-HEMAX_SessionManager::SetThriftSocketHostName(std::string HostName)
+HEMAX_SessionManager::RegisterOnSessionStoppedCallback(
+    const std::function<void(void)>& CB)
 {
-    if (SessionType == HEMAX_THRIFT_SOCKET)
-    {
-	((HEMAX_HAPIThriftSocketSession*)Session)->SetHostName(HostName);
-    }
+    OnSessionStoppedCallbacks.push_back(CB);
 }
 
 void
-HEMAX_SessionManager::SetThriftSocketPortNumber(int Port)
+HEMAX_SessionManager::InvokeOnSessionChangedCallbacks()
 {
-    if (SessionType == HEMAX_THRIFT_SOCKET)
-    {
-	((HEMAX_HAPIThriftSocketSession*)Session)->SetPortNumber(Port);
-    }
+    for (auto&& Callback : OnSessionChangedCallbacks)
+        Callback();
 }
 
 void
-HEMAX_SessionManager::SetThriftSharedMemoryName(const std::string& Name)
+HEMAX_SessionManager::InvokeOnSessionReadyCallbacks()
 {
-    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
-    {
-        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetName(Name);
-    }
+    for (auto&& Callback : OnSessionReadyCallbacks)
+        Callback();
 }
 
 void
-HEMAX_SessionManager::SetThriftSharedMemoryBufferSize(int Size)
+HEMAX_SessionManager::InvokeOnSessionStoppedCallbacks()
 {
-    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
-    {
-        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetBufferSize(Size);
-    }
-}
-
-void
-HEMAX_SessionManager::SetThriftSharedMemoryBufferType(
-        HAPI_ThriftSharedMemoryBufferType Type)
-{
-    if (SessionType == HEMAX_THRIFT_SHARED_MEMORY)
-    {
-        ((HEMAX_HAPIThriftSharedMemorySession*)Session)->SetBufferType(Type);
-    }
-}
-
-void
-HEMAX_SessionManager::StartThriftNamedPipeThinClient()
-{
-    if (SessionType == HEMAX_THRIFT_PIPE)
-    {
-	SetThriftNamedPipeSessionName(HEMAX_AUTO_PIPE_NAME);
-	HEMAX_HAPIThriftPipeSession* TheSession =
-            (HEMAX_HAPIThriftPipeSession*)Session;
-
-	HAPI_ThriftServerOptions ServerOptions;
-	ServerOptions.autoClose = true;
-	ServerOptions.timeoutMs = 20000.0f;
-        ServerOptions.verbosity = HAPI_STATUSVERBOSITY_ALL;
-	HAPI_ProcessId ServerProcessId;
-
-        HEMAX_HoudiniApi::ClearConnectionError();
-        HEMAX_HoudiniApi::StartThriftNamedPipeServer(&ServerOptions,
-            HEMAX_AUTO_PIPE_NAME, &ServerProcessId, nullptr);
-
-        int ErrLen = 0;
-        HEMAX_HoudiniApi::GetConnectionErrorLength(&ErrLen);
-
-        if (ErrLen > 0)
-        {
-            char* ErrMsg = new char[ErrLen];
-            HEMAX_HoudiniApi::GetConnectionError(ErrMsg, ErrLen, false);
-            HEMAX_Logger::Instance().AddEntry(ErrMsg, HEMAX_LOG_LEVEL_ERROR);
-            delete [] ErrMsg;
-
-            std::string PathVar = HEMAX_Utilities::GetEnvVar("PATH");
-            std::string DebugInfo = ("PATH=" + PathVar);
-            HEMAX_Logger::Instance().AddEntry(DebugInfo, HEMAX_LOG_LEVEL_ERROR);
-        } 
-
-	AutoSession = true;
-    }
+    for (auto&& Callback : OnSessionStoppedCallbacks)
+        Callback();
 }

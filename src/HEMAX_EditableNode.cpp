@@ -3,6 +3,7 @@
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
+#include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
 #include <surf_api.h>
@@ -19,10 +20,10 @@ MarshallDataInto3dsMaxLinearCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edit
 	float* ShapePoints = new float[EditableCurve.CurveInfo.vertexCount * 3];
 
 	HAPI_AttributeInfo PositionAttributeInfo;
-        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, EditableNode.GeoInfo.nodeId,
+        HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
                 HAPI_ATTROWNER_POINT, &PositionAttributeInfo);
-        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, EditableNode.GeoInfo.nodeId,
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
                 HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo, -1,
                 ShapePoints, 0, EditableCurve.CurveInfo.vertexCount);
@@ -86,7 +87,7 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 
 	float* KnotsArray = new float[KnotCount];
 
-        HEMAX_HoudiniApi::GetCurveKnots(SM.Session, EditableNode.GeoInfo.nodeId,
+        HEMAX_HoudiniApi::GetCurveKnots(&SM.Session, EditableNode.GeoInfo.nodeId,
             EditableNode.Parts[PartNum].Info.id, KnotsArray, 0, KnotCount);
 
 	// Find out if curve is closed
@@ -109,10 +110,10 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 	float* CVPoints = new float[CVCount * 3];
 
 	HAPI_AttributeInfo CVAttributeInfo;
-        HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, EditableNode.GeoInfo.nodeId,
+        HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
                 HAPI_ATTROWNER_POINT, &CVAttributeInfo);
-        HEMAX_HoudiniApi::GetAttributeFloatData(SM.Session, EditableNode.GeoInfo.nodeId,
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
                 HEMAX_POSITION_ATTRIBUTE, &CVAttributeInfo, -1, CVPoints, 0,
                 CVCount);

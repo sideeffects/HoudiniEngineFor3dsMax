@@ -1,9 +1,8 @@
 #pragma once
 
-#include "HEMAX_HAPISession.h"
 #include "HEMAX_Parameter.h"
-#include "HEMAX_Utilities.h"
 #include "HEMAX_Types.h"
+#include "HEMAX_Utilities.h"
 
 #include <string>
 #include <unordered_map>

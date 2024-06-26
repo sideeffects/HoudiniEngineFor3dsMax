@@ -13,7 +13,7 @@ class HEMAX_Asset
 
 	void UpdateAssetDefinition();
 
-	HEMAX_AssetLoadStatus LoadAsset(bool AllowOverwrite = false);
+        HAPI_Result LoadAsset(bool AllowOverwrite = false);
 
 	std::string Path;
 	HAPI_AssetLibraryId Id;

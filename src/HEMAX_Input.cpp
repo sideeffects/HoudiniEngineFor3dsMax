@@ -155,7 +155,7 @@ void
 HEMAX_Input::CreateInputNode(std::string Name)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::CreateInputNode(SM.Session, -1, &Node->Info.id, Name.c_str());
+    HEMAX_HoudiniApi::CreateInputNode(&SM.Session, -1, &Node->Info.id, Name.c_str());
     Node->Type = HAPI_NODETYPE_SOP;
     Node->Cook();
 
@@ -203,7 +203,7 @@ HEMAX_Input::SetInputMetadataAttributes(int PrimCount)
             PrimCount, 1, HEMAX_INPUT_NODE_NAME);
 
     HEMAX_HoudiniApi::SetAttributeStringUniqueData(
-            HEMAX_SessionManager::GetSessionManager().Session,
+            &HEMAX_SessionManager::GetSessionManager().Session,
             Node->Info.id, 0, InputNodeNameAttrName, &InputNodeNameAttr,
             CharBuf, static_cast<int>(strlen(InputNodeNameAttrName)),
             0, InputNodeNameAttr.count);
@@ -230,17 +230,17 @@ HEMAX_Input::AddNewPart(HAPI_PartType PartType, int FaceCount, int VertexCount,
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetPartInfo(SessionManager.Session, Node->Info.id,
+    HEMAX_HoudiniApi::SetPartInfo(&SessionManager.Session, Node->Info.id,
         0, &NewNodePart);
 
     if (GroupMembership)
     {
-        HEMAX_HoudiniApi::AddGroup(SessionManager.Session, Node->Info.id,
+        HEMAX_HoudiniApi::AddGroup(&SessionManager.Session, Node->Info.id,
             NewNodePart.id, HAPI_GROUPTYPE_POINT, GroupHeadName.c_str());
 
         std::vector<int> Membership(PointCount, 1);
 
-        HEMAX_HoudiniApi::SetGroupMembership(SessionManager.Session,
+        HEMAX_HoudiniApi::SetGroupMembership(&SessionManager.Session,
             Node->Info.id, NewNodePart.id, HAPI_GROUPTYPE_POINT,
             GroupHeadName.c_str(), Membership.data(), 0, PointCount);
     }
@@ -262,7 +262,7 @@ HEMAX_Input::AddNewPointAttribute(int Count, int TupleSize,
 
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(SessionManager.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SessionManager.Session, Node->Info.id, 0,
             AttributeName.c_str(), &NewNodeAttribute);
 
     return NewNodeAttribute;
@@ -277,11 +277,11 @@ HEMAX_Input::SendPointAttributeData(HAPI_AttributeInfo AttributeInfo,
     HEMAX_SessionManager& SM =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetAttributeFloatData(SM.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::SetAttributeFloatData(&SM.Session, Node->Info.id, 0,
             AttributeName.c_str(), &AttributeInfo, Points, 0, PointCount);
-    HEMAX_HoudiniApi::SetVertexList(SM.Session, Node->Info.id, 0, Vertices, 0,
+    HEMAX_HoudiniApi::SetVertexList(&SM.Session, Node->Info.id, 0, Vertices, 0,
             VertexCount);
-    HEMAX_HoudiniApi::SetFaceCounts(SM.Session, Node->Info.id, 0, FaceCounts, 0,
+    HEMAX_HoudiniApi::SetFaceCounts(&SM.Session, Node->Info.id, 0, FaceCounts, 0,
             FaceCount);
 }
 
@@ -299,7 +299,7 @@ HEMAX_Input::AddNewPointIntAttribute(int Count, int TupleSize,
     NewAttr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(SM.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SM.Session, Node->Info.id, 0,
         AttributeName.c_str(), &NewAttr);
 
     return NewAttr;
@@ -321,7 +321,7 @@ HEMAX_Input::AddNewVertexAttribute(int Count, int TupleSize,
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::AddAttribute(SessionManager.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SessionManager.Session, Node->Info.id, 0,
             AttributeName.c_str(), &NewNodeAttribute);
 
     return NewNodeAttribute;
@@ -342,7 +342,7 @@ HEMAX_Input::AddNewDetailFloatAttribute(int Count, int TupleSize,
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::AddAttribute(SM.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SM.Session, Node->Info.id, 0,
         AttributeName.c_str(), &Attr);
 
     return Attr;
@@ -363,7 +363,7 @@ HEMAX_Input::AddNewPrimitiveIntAttribute(int Count, int TupleSize,
 
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(SessionManager.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SessionManager.Session, Node->Info.id, 0,
             AttributeName.c_str(), &NewNodeAttribute);
 
     return NewNodeAttribute;
@@ -384,7 +384,7 @@ HEMAX_Input::AddNewPrimitiveStringAttribute(int Count, int TupleSize,
 
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(SessionManager.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&SessionManager.Session, Node->Info.id, 0,
             AttributeName.c_str(), &NewNodeAttribute);
 
     return NewNodeAttribute;
@@ -405,7 +405,7 @@ HEMAX_Input::AddNewDetailStringAttribute(int Count,
     Attr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
 
     HEMAX_SessionManager& sm = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(sm.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&sm.Session, Node->Info.id, 0,
         AttributeName.c_str(), &Attr);
 
     return Attr;
@@ -425,7 +425,7 @@ HEMAX_Input::AddNewDetailIntAttribute(int Count, int TupleSize,
     Attr.typeInfo = HAPI_ATTRIBUTE_TYPE_NONE;
 
     HEMAX_SessionManager& sm = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::AddAttribute(sm.Session, Node->Info.id, 0,
+    HEMAX_HoudiniApi::AddAttribute(&sm.Session, Node->Info.id, 0,
         AttributeName.c_str(), &Attr);
 
     return Attr;
@@ -438,7 +438,7 @@ HEMAX_Input::SendFloatAttributeData(std::string AttributeName,
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetAttributeFloatData(SessionManager.Session,
+    HEMAX_HoudiniApi::SetAttributeFloatData(&SessionManager.Session,
             Node->Info.id, 0, AttributeName.c_str(), &AttributeInfo, Data,
             0, Length);
 }
@@ -450,7 +450,7 @@ HEMAX_Input::SendIntAttributeData(std::string AttributeName,
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetAttributeIntData(SessionManager.Session, Node->Info.id,
+    HEMAX_HoudiniApi::SetAttributeIntData(&SessionManager.Session, Node->Info.id,
             0, AttributeName.c_str(), &AttributeInfo, Data, 0, Length);
 }
 
@@ -462,7 +462,7 @@ HEMAX_Input::SendStringAttributeData(std::string AttributeName,
     HEMAX_SessionManager& SessionManager =
         HEMAX_SessionManager::GetSessionManager();
 
-    HEMAX_HoudiniApi::SetAttributeStringData(SessionManager.Session,
+    HEMAX_HoudiniApi::SetAttributeStringData(&SessionManager.Session,
             Node->Info.id, 0, AttributeName.c_str(), &AttributeInfo, Data, 0,
             Length);
 }
@@ -471,5 +471,5 @@ void
 HEMAX_Input::FinalizeInputGeometry()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    HEMAX_HoudiniApi::CommitGeo(SM.Session, Node->Info.id);
+    HEMAX_HoudiniApi::CommitGeo(&SM.Session, Node->Info.id);
 }

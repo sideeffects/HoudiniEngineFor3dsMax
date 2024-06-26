@@ -81,8 +81,8 @@ class HEMAX_OptionsDialog : public QDialog
         QGridLayout*    SessionOptionsLayout                = nullptr;
 
         QCheckBox*      SessionAutoStart                    = nullptr;
-        QLabel*         SessionDefaultAutoStartTypeLabel    = nullptr;
-        QComboBox*      SessionDefaultAutoStartType         = nullptr;
+        QLabel*         SessionTypeLabel                    = nullptr;
+        QComboBox*      SessionTypeChoice                   = nullptr;
 
         QLabel*         SessionHostnameLabel                = nullptr;
         QLineEdit*      SessionHostname                     = nullptr;

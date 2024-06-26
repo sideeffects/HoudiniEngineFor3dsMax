@@ -211,7 +211,5 @@ class HEMAX_Plugin : public TimeChangeCallback
 	INode* CloneGeometryHda(HEMAX_GeometryHda* MaxHda);
 	Modifier* CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode);
 
-	void TraverseHdaLoadPaths();
-
 	void InitializeLogPrintLevels();
 };

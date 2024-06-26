@@ -89,14 +89,6 @@ typedef enum
 
 typedef enum
 {
-    HEMAX_ASSET_NO_STATUS,
-    HEMAX_ASSET_NOT_FOUND,
-    HEMAX_ASSET_ALREADY_LOADED,
-    HEMAX_ASSET_INVALID
-} HEMAX_AssetLoadStatus;
-
-typedef enum
-{
     UNKNOWN_LEVEL_HDA,
     OBJ_LEVEL_HDA,
     SOP_LEVEL_HDA

@@ -6,20 +6,23 @@
 
 #include "HEMAX_Types.h"
 
-void
-PushTimelineSettings();
+namespace HEMAX_Time
+{
+    void
+    PushTimelineSettings();
 
-void
-PushCurrentTime(TimeValue Time);
+    void
+    PushCurrentTime(TimeValue Time);
 
-void
-PushCurrentFrame(int Frame);
+    void
+    PushCurrentFrame(int Frame);
 
-static void
-GetCurrentHAPITime();
+    static void
+    GetCurrentHAPITime();
 
-bool
-HasHAPITimeChanged();
+    bool
+    HasHAPITimeChanged();
 
-void
-MarkSynchronized();
+    void
+    MarkSynchronized();
+}

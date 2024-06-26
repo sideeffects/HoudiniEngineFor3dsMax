@@ -3518,7 +3518,7 @@ HAPI_Result
 HEMAX_HoudiniApi::IsInitialized(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::IsInitializedImpl(session);
-    return HandleHAPIResult(session, Result);
+    return Result;
 }
 
 HAPI_Result
@@ -3532,7 +3532,7 @@ HAPI_Result
 HEMAX_HoudiniApi::IsSessionValid(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::IsSessionValidImpl(session);
-    return HandleHAPIResult(session, Result);
+    return Result;
 }
 
 HAPI_Result

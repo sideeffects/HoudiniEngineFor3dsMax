@@ -2,6 +2,7 @@
 
 #include "HEMAX_Logger.h"
 #include "HEMAX_Utilities.h"
+
 #include <Windows.h>
 #include <json.hpp>
 

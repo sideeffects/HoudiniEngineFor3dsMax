@@ -178,7 +178,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 			    EditableCurve.Node = Child;
 			    EditableCurve.Dirty = true;
                             HEMAX_HoudiniApi::GetCurveInfo(
-                                HEMAX_SessionManager::GetSessionManager().Session,
+                                &HEMAX_SessionManager::GetSessionManager().Session,
                                 EditableNode.GeoInfo.nodeId, PartNum,
                                 &EditableCurve.CurveInfo);
 			    EditableCurves.push_back(EditableCurve);
@@ -232,7 +232,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 			    EditableCurve.Node = Child;
 			    EditableCurve.Dirty = true;
                             HEMAX_HoudiniApi::GetCurveInfo(
-                                HEMAX_SessionManager::GetSessionManager().Session,
+                                &HEMAX_SessionManager::GetSessionManager().Session,
                                 EditableNode.GeoInfo.nodeId, PartNum,
                                 &EditableCurve.CurveInfo);
 			    EditableCurves.push_back(EditableCurve);
@@ -824,7 +824,7 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         for (int f = StartFrame; f < EndFrame; f++)
         {
             AlreadyCooked.clear();
-            PushCurrentFrame(f);
+            HEMAX_Time::PushCurrentFrame(f);
             
             for (auto It = PackedPrimClones.begin(); It != PackedPrimClones.end(); It++)
             {
@@ -845,7 +845,7 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                     HAPI_Transform Xform;
 
                     HEMAX_HoudiniApi::GetInstancerPartTransforms(
-                        HEMAX_SessionManager::GetSessionManager().Session,
+                        &HEMAX_SessionManager::GetSessionManager().Session,
                         PrimInfo.Node, PrimInfo.InstancingPart,
                         HAPI_RSTORDER_DEFAULT, &Xform,
                         PrimInfo.InstanceNum, 1);
@@ -1177,7 +1177,7 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
                 HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 		// Different display geometries
 		HAPI_GeoInfo DisplayGeoInfo;
-                HEMAX_HoudiniApi::GetDisplayGeoInfo(SM.Session,
+                HEMAX_HoudiniApi::GetDisplayGeoInfo(&SM.Session,
                         InstIt->second.InstanceNodeIds[s], &DisplayGeoInfo);
 		HAPI_NodeId ObjToInstance = InstIt->second.InstanceNodeIds[s];
 
@@ -1338,7 +1338,7 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
 		    INode* ClonedNode = ClonedNodeTab[0];
                     INode* ClonedNodeSource = ClonedNodeSourceTab[0];
 		    INode* ParentNode = ContainerNode;
-		    TimeValue CurTime = GetCOREInterface()->GetTime();
+		    TimeValue CurTime = GetCOREInterface()->GetTime();  
 		    ClonedNode->SetNodeTM(CurTime, ParentNode->GetNodeTM(CurTime));
 		    HEMAX_Utilities::ApplyTransformToINode(
                             ClonedNode,
@@ -1384,7 +1384,7 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 	    EditableCurve.Node = nullptr;
 	    EditableCurve.PushNodeId = EditableNode.GeoInfo.nodeId;
 	    EditableCurve.PushPartId = p;
-	    if (HEMAX_HoudiniApi::GetCurveInfo(SM.Session,
+	    if (HEMAX_HoudiniApi::GetCurveInfo(&SM.Session,
                     EditableNode.GeoInfo.nodeId, EditableNode.Parts[p].Info.id,
                     &EditableCurve.CurveInfo) == HAPI_RESULT_SUCCESS)
 	    {
@@ -1407,7 +1407,8 @@ HEMAX_GeometryHda::CreateEditableCurves(HEMAX_EditableNode& EditableNode)
 
 	    if (EditableCurve.Node)
 	    {
-		std::string NodeName = SM.Session->GetHAPIString(EditableNode.GeoInfo.nameSH);
+		std::string NodeName =
+                    HEMAX_Utilities::GetHAPIString(EditableNode.GeoInfo.nameSH);
 		std::wstring Name(NodeName.begin(), NodeName.end());
 		EditableCurve.Node->SetName(Name.c_str());
 
@@ -2006,7 +2007,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_AttributeInfo AttrInfo_Detail;
-    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session,
+    HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session,
                                        DisplayNode.Info.nodeId,
                                        Part.Info.id,
                                        HEMAX_MAX_NODE_NAME_OUTPUT,
@@ -2019,7 +2020,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
     {
         HAPI_StringHandle NameAttrSH;
         HEMAX_HoudiniApi::GetAttributeStringData(
-                                            SM.Session,
+                                            &SM.Session,
                                             DisplayNode.Info.nodeId,
                                             Part.Info.id,
                                             HEMAX_MAX_NODE_NAME_OUTPUT,
@@ -2027,7 +2028,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
                                             &NameAttrSH,
                                             0,
                                             1);
-        std::string Label = SM.Session->GetHAPIString(NameAttrSH);
+        std::string Label = HEMAX_Utilities::GetHAPIString(NameAttrSH);
         PluginLabel = std::wstring(Label.begin(), Label.end());
     }
     else
@@ -2055,10 +2056,10 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_AttributeInfo NameDetailInfo, NamePrimInfo;
-    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, DisplayNode.Info.nodeId,
+    HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, DisplayNode.Info.nodeId,
                     Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
                     HAPI_ATTROWNER_DETAIL, &NameDetailInfo);
-    HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, DisplayNode.Info.nodeId,
+    HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, DisplayNode.Info.nodeId,
                     Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
                     HAPI_ATTROWNER_PRIM, &NamePrimInfo);
 
@@ -2068,23 +2069,24 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
     {
         std::vector<HAPI_StringHandle> NameAttrSHArray(NamePrimInfo.count);
 
-        HEMAX_HoudiniApi::GetAttributeStringData(SM.Session,
+        HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
             DisplayNode.Info.nodeId, Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
             &NamePrimInfo, &NameAttrSHArray.front(), 0, NamePrimInfo.count);
 
         for (int i = 0; i < NameAttrSHArray.size(); i++)
         {
-            std::string Label = SM.Session->GetHAPIString(NameAttrSHArray[i]);
+            std::string Label =
+                HEMAX_Utilities::GetHAPIString(NameAttrSHArray[i]);
             NodeNames.push_back(std::wstring(Label.begin(), Label.end()));
         }
     }
     else if (NameDetailInfo.exists)
     {
         HAPI_StringHandle NameAttrSH;
-        HEMAX_HoudiniApi::GetAttributeStringData(SM.Session,
+        HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
             DisplayNode.Info.nodeId, Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
             &NameDetailInfo, &NameAttrSH, 0, 1);
-        std::string Label = SM.Session->GetHAPIString(NameAttrSH);
+        std::string Label = HEMAX_Utilities::GetHAPIString(NameAttrSH);
         NodeNames.push_back(std::wstring(Label.begin(), Label.end()));
     }
     else
@@ -2125,7 +2127,7 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
             for (int p = 0; p < DisplayNodes[i]->Parts.size(); p++)
             {
                 HAPI_AttributeInfo AttrInfo;
-                HEMAX_HoudiniApi::GetAttributeInfo(SM.Session,
+                HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session,
                     DisplayNodes[i]->Info.nodeId,
                     DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
                     HAPI_ATTROWNER_DETAIL, &AttrInfo);
@@ -2133,11 +2135,11 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
                 if (AttrInfo.exists)
                 {
                     HAPI_StringHandle ValSH;
-                    HEMAX_HoudiniApi::GetAttributeStringData(SM.Session,
+                    HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
                         DisplayNodes[i]->Info.nodeId,
                         DisplayNodes[i]->Parts[p].Info.id, Name.c_str(),
                         &AttrInfo, &ValSH, 0, 1);
-                    std::string AttrVal = SM.Session->GetHAPIString(ValSH);
+                    std::string AttrVal = HEMAX_Utilities::GetHAPIString(ValSH);
 
                     if (FoundAttr && AttrVal != OverrideValue)
                     {
@@ -2163,18 +2165,18 @@ HEMAX_GeometryHda::GetDetailAttributeOverride(const std::string& Name)
         for (int p = 0; p < TopNode.Parts.size(); p++)
         {
             HAPI_AttributeInfo AttrInfo;
-            HEMAX_HoudiniApi::GetAttributeInfo(SM.Session, TopNode.Info.nodeId,
+            HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, TopNode.Info.nodeId,
                 TopNode.Parts[p].Info.id, Name.c_str(),
                 HAPI_ATTROWNER_DETAIL, &AttrInfo);
 
             if (AttrInfo.exists)
             {
                 HAPI_StringHandle ValSH;
-                HEMAX_HoudiniApi::GetAttributeStringData(SM.Session,
+                HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
                     TopNode.Info.nodeId, TopNode.Parts[p].Info.id, Name.c_str(),
                     &AttrInfo, &ValSH, 
                     0, 1);
-                std::string AttrVal = SM.Session->GetHAPIString(ValSH);
+                std::string AttrVal = HEMAX_Utilities::GetHAPIString(ValSH);
 
                 if (FoundAttr && AttrVal != OverrideValue)
                 {

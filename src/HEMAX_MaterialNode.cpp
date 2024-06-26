@@ -1,8 +1,10 @@
 #include "HEMAX_MaterialNode.h"
 
 #include "HEMAX_HoudiniApi.h"
-#include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
+#include "HEMAX_Parameter.h"
+#include "HEMAX_SessionManager.h"
+#include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
 #include <IPathConfigMgr.h>
@@ -23,8 +25,8 @@ HEMAX_MaterialNode::HEMAX_MaterialNode(HAPI_NodeId Id)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HAPI_NodeInfo NodeInfo;
-    HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeId, &NodeInfo);
-    Name = SM.Session->GetHAPIString(NodeInfo.nameSH);
+    HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, NodeId, &NodeInfo);
+    Name = HEMAX_Utilities::GetHAPIString(NodeInfo.nameSH);
 }
 
 HEMAX_MaterialNode::~HEMAX_MaterialNode()
@@ -41,12 +43,12 @@ HEMAX_MaterialNode::UpdateInfo()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     HAPI_NodeInfo myNodeInfo;
-    HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeId, &myNodeInfo);
+    HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, NodeId, &myNodeInfo);
 
     if (!myNodeInfo.isValid)
         return;
 
-    HEMAX_HoudiniApi::GetMaterialInfo(SM.Session, NodeId, &MatInfo);
+    HEMAX_HoudiniApi::GetMaterialInfo(&SM.Session, NodeId, &MatInfo);
 
     if (MatInfo.hasChanged)
     {
@@ -60,19 +62,19 @@ HEMAX_MaterialNode::GetMaterialInformation()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     
     HAPI_NodeInfo myNodeInfo;
-    HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeId, &myNodeInfo);
+    HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, NodeId, &myNodeInfo);
 
     if (!myNodeInfo.isValid)
         return;
 
     HAPI_ParmId Tex0ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_DIFFUSE_COLOR_MAP_0,
                                         &Tex0ParmId);
 
     HAPI_ParmId Tex1ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_DIFFUSE_COLOR_MAP_1,
                                         &Tex1ParmId);
@@ -80,7 +82,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (Tex0ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Tex0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -94,7 +96,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     else if (Tex1ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Tex1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -107,13 +109,13 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
 
     HAPI_ParmId Alpha0ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_ALPHA_0,
                                         &Alpha0ParmId);
 
     HAPI_ParmId Alpha1ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_ALPHA_1,
                                         &Alpha1ParmId);
@@ -121,7 +123,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (Alpha0ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Alpha0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         Alpha = MatParameter.GetFloatVals()[0];
@@ -130,7 +132,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     else if (Alpha1ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Alpha1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         Alpha = MatParameter.GetFloatVals()[0];
@@ -138,7 +140,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
 
     HAPI_ParmId AmbientParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_AMBIENT,
                                         &AmbientParmId);
@@ -146,7 +148,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (AmbientParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             AmbientParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> AmbientVals = MatParameter.GetFloatVals();
@@ -159,13 +161,13 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
 
     HAPI_ParmId Diffuse0ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_DIFFUSE_0,
                                         &Diffuse0ParmId);
 
     HAPI_ParmId Diffuse1ParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_DIFFUSE_1,
                                         &Diffuse1ParmId);
@@ -173,7 +175,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (Diffuse0ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Diffuse0ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> DiffuseValues = MatParameter.GetFloatVals();
@@ -187,7 +189,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     else if (Diffuse1ParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             Diffuse1ParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
 
@@ -201,7 +203,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     }
 
     HAPI_ParmId SpecularParmId;
-    HEMAX_HoudiniApi::GetParmIdFromName(SM.Session,
+    HEMAX_HoudiniApi::GetParmIdFromName(&SM.Session,
                                         NodeId,
                                         HEMAX_MAT_OGL_SPECULAR,
                                         &SpecularParmId);
@@ -209,7 +211,7 @@ HEMAX_MaterialNode::GetMaterialInformation()
     if (SpecularParmId > -1)
     {
         HAPI_ParmInfo ParmInfo;
-        HEMAX_HoudiniApi::GetParmInfo(SM.Session, NodeId,
+        HEMAX_HoudiniApi::GetParmInfo(&SM.Session, NodeId,
             SpecularParmId, &ParmInfo);
         HEMAX_Parameter MatParameter(NodeId, ParmInfo);
         std::vector<float> SpecularVals = MatParameter.GetFloatVals();
@@ -228,14 +230,14 @@ HEMAX_MaterialNode::RenderTextureToMemory()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     if (HEMAX_HoudiniApi::RenderTextureToImage(
-            SM.Session, NodeId, TextureParameterId) == HAPI_RESULT_SUCCESS)
+            &SM.Session, NodeId, TextureParameterId) == HAPI_RESULT_SUCCESS)
     {
-        HEMAX_HoudiniApi::GetImageInfo(SM.Session, NodeId, &ImageInfo);
+        HEMAX_HoudiniApi::GetImageInfo(&SM.Session, NodeId, &ImageInfo);
 
 	ImageInfo.dataFormat = HAPI_IMAGE_DATA_INT16;
 	ImageInfo.packing = HAPI_IMAGE_PACKING_RGBA;
 	ImageInfo.interleaved = true;
-        HEMAX_HoudiniApi::SetImageInfo(SM.Session, NodeId, &ImageInfo);
+        HEMAX_HoudiniApi::SetImageInfo(&SM.Session, NodeId, &ImageInfo);
 
 	ImageXResolution = ImageInfo.xRes;
 	ImageYResolution = ImageInfo.yRes;
@@ -244,13 +246,13 @@ HEMAX_MaterialNode::RenderTextureToMemory()
                                   std::string(" ") +
                                   std::string(HEMAX_IMAGE_PLANE_ALPHA);
 
-	if (HEMAX_HoudiniApi::ExtractImageToMemory(SM.Session, NodeId,
+	if (HEMAX_HoudiniApi::ExtractImageToMemory(&SM.Session, NodeId,
                 HAPI_RAW_FORMAT_NAME, ImagePlanes.c_str(),
                 &ImageMemoryBufferLength) == HAPI_RESULT_SUCCESS)
 	{
 	    char* Pixels = new char[ImageMemoryBufferLength];
 
-	    if (HEMAX_HoudiniApi::GetImageMemoryBuffer(SM.Session, NodeId,
+	    if (HEMAX_HoudiniApi::GetImageMemoryBuffer(&SM.Session, NodeId,
                     Pixels, ImageMemoryBufferLength) == HAPI_RESULT_SUCCESS)
 	    {
 		ImageBuffer = (unsigned char*)Pixels;

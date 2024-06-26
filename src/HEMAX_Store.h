@@ -20,7 +20,7 @@ const char* const HEMAX_ENV_HDA_PATH = "HEMAX_HDA_PATH";
 class HEMAX_Store
 {
     public:
-        HEMAX_Store() = default;
+        HEMAX_Store();
 	~HEMAX_Store() = default;
 
 	std::vector<std::string> GetListOfLoadedAssets();
@@ -29,6 +29,7 @@ class HEMAX_Store
 	void RemoveAllAssets();
 	bool RemoveAsset(std::string AssetPath);
 
+        void LoadAssetsInHdaLoadPath();
 	void LoadAllAssetsInDirectory(std::string Directory);
 
 	bool IsAssetLoaded(std::string Path);

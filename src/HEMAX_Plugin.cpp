@@ -140,11 +140,8 @@ HEMAX_Plugin::Init(std::string HapiToolsDir)
         HEMAX_SessionTypePref SessionType =
                         static_cast<HEMAX_SessionTypePref>(SessionTypePref);
 
-        if (AutoStartSession && SessionType == HEMAX_SessionTypePref::AutoStart)
+        if (AutoStartSession)
         {
-            HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-            SM.SetSessionType(HEMAX_THRIFT_PIPE); 
-            SM.StartThriftNamedPipeThinClient();
             StartSession();
         }
 
@@ -212,14 +209,14 @@ HEMAX_Plugin::GetEventHub()
 void
 HEMAX_Plugin::TimeChanged(TimeValue Time)
 {
-    if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
-	PushCurrentTime(Time);
+        HEMAX_Time::PushCurrentTime(Time);
 
-	if (HasHAPITimeChanged())
+	if (HEMAX_Time::HasHAPITimeChanged())
 	{
-	    SyncEntireScene();
-	    MarkSynchronized();
+            SyncEntireScene();
+            HEMAX_Time::MarkSynchronized();
 	}
     }
 }
@@ -293,7 +290,7 @@ HEMAX_Plugin::SelectionSetChangeHandler()
 void
 HEMAX_Plugin::LoadNewAsset(std::string Path)
 {
-    if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
 	if (!PluginStore->FindAsset(Path))
 	{
@@ -492,9 +489,9 @@ HEMAX_Plugin::HandleSceneFilePostOpen()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
-	TraverseHdaLoadPaths();
+	PluginStore->LoadAssetsInHdaLoadPath();
 	ToolShelf->LoadToolAssets();
 
 	INode* RootNode = GetCOREInterface()->GetRootNode();
@@ -511,9 +508,9 @@ HEMAX_Plugin::HandlePreNewAll()
     DestroyAllEditableNodeReferences();
     PluginStore->EmptyOutStore();
 
-    if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
-	TraverseHdaLoadPaths();
+	PluginStore->LoadAssetsInHdaLoadPath();
 	ToolShelf->LoadToolAssets();
         PluginEvents->AssetLoaded();
     }
@@ -1023,15 +1020,10 @@ HEMAX_Plugin::HandleModifierStackCollapse(INode* TheNode, Modifier* HDAModifier)
 bool
 HEMAX_Plugin::StartSession()
 {
-    if (!HEMAX_SessionManager::GetSessionManager().StartSession())
+    if (!HEMAX_SessionManager::GetSessionManager().CreateSession())
         return false;
 
-    PushTimelineSettings();
-    PushCurrentTime(GetCOREInterface()->GetTime());
-
     GetCOREInterface()->SelectNode(nullptr);
-
-    TraverseHdaLoadPaths();
 
     INode* RootNode = GetCOREInterface()->GetRootNode();
     ReconnectAllStrandedHdas(RootNode);
@@ -1047,7 +1039,6 @@ HEMAX_Plugin::StopSession()
 {
     PluginEvents->SelectionSetChanged(nullptr, true);
     DestroyAllEditableNodeReferences();
-    PluginStore->EmptyOutStore();
 
     HEMAX_SessionManager::GetSessionManager().StopSession();
     PluginEvents->SessionChanged();
@@ -1127,7 +1118,7 @@ HEMAX_Plugin::UpdateHdaLoadDirectory(std::string Directory)
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
 	PluginStore->LoadAllAssetsInDirectory(Directory);
         PluginEvents->AssetLoaded();
@@ -2181,22 +2172,6 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
     ManualModifierAddInProgress = false;
     
     return Clone->DisplayGeometry;
-}
-
-void
-HEMAX_Plugin::TraverseHdaLoadPaths()
-{
-    std::string AutoLoadHdaDir;
-    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH,
-        AutoLoadHdaDir);
-    PluginStore->LoadAllAssetsInDirectory(AutoLoadHdaDir);
-
-    std::string HdaLoadPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
-
-    if (!HdaLoadPath.empty())
-    {
-	PluginStore->LoadAllAssetsInDirectory(HdaLoadPath);
-    }
 }
 
 void

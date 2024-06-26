@@ -1,5 +1,7 @@
 #include "HEMAX_Logger.h"
 
+#include "HEMAX_Utilities.h"
+
 #pragma warning(push, 0)
 #include <maxapi.h>
 #include <maxscript/maxscript.h>
@@ -19,6 +21,8 @@ HEMAX_Logger::HEMAX_Logger() {}
 void
 HEMAX_Logger::AddEntry(const std::string& Log, HEMAX_LogLevel LogLevel)
 {
+    StoreEntry(Log, LogLevel);
+
     GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
         ConvertToWideString(Log).c_str());
 
@@ -32,6 +36,8 @@ HEMAX_Logger::AddEntry(const std::string& Log, HEMAX_LogLevel LogLevel)
 void
 HEMAX_Logger::AddEntry(const char* Log, HEMAX_LogLevel LogLevel)
 {
+    StoreEntry(Log, LogLevel);
+
     GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
         ConvertToWideString(Log).c_str());
 
@@ -46,6 +52,8 @@ HEMAX_Logger::AddEntry(const char* Log, HEMAX_LogLevel LogLevel)
 void
 HEMAX_Logger::AddEntry(const std::wstring& Log, HEMAX_LogLevel LogLevel)
 {
+    StoreEntry(HEMAX_Utilities::WideStringToStringUnsafe(Log), LogLevel);
+
     GetCOREInterface()->Log()->LogEntry(LogLevel, NO_DIALOG, nullptr,
         Log.c_str());
 
@@ -60,6 +68,8 @@ HEMAX_Logger::AddEntry(const std::wstring& Log, HEMAX_LogLevel LogLevel)
 void
 HEMAX_Logger::ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel)
 {
+    StoreEntry(Message, LogLevel);
+
     GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG,
         ConvertToWideString(Title).c_str(),
         ConvertToWideString(Message).c_str());
@@ -68,6 +78,8 @@ HEMAX_Logger::ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel 
 void
 HEMAX_Logger::ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel)
 {
+    StoreEntry(Message, LogLevel);
+
     GetCOREInterface()->Log()->LogEntry(LogLevel, DISPLAY_DIALOG,
         ConvertToWideString(Title).c_str(),
         ConvertToWideString(Message).c_str());
@@ -90,6 +102,20 @@ HEMAX_Logger::ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print)
 	default:
 	    break;
     }
+}
+
+void
+HEMAX_Logger::RegisterOnEntryAddedCallback(
+    const std::function<void(const HEMAX_LogEntry&)>& CB)
+{
+    EntryAddedCallbacks.push_back(CB);
+}
+
+void
+HEMAX_Logger::StoreEntry(const std::string& Log, HEMAX_LogLevel LogLevel)
+{
+    Entries.emplace_back(LogLevel, Log);
+    InvokeOnEntryAddedCallbacks(static_cast<int>(Entries.size() - 1));
 }
 
 std::wstring
@@ -117,5 +143,14 @@ HEMAX_Logger::ShouldPrint(HEMAX_LogLevel Level)
     else
     {
 	return false;
+    }
+}
+
+void
+HEMAX_Logger::InvokeOnEntryAddedCallbacks(int EntryIndex)
+{
+    for (auto&& Callback : EntryAddedCallbacks)
+    {
+        Callback(Entries[EntryIndex]);
     }
 }

@@ -10,6 +10,7 @@
 #include "HEMAX_Input_Geometry.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_SessionManager.h"
+#include "HEMAX_Utilities.h"
 
 HEMAX_3dsMaxInput::HEMAX_3dsMaxInput(INode* Node)
     : MaxNode(Node), InputNode(nullptr), InputCount(0), Dirty(false)

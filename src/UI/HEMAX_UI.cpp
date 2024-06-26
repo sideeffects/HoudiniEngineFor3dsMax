@@ -2,7 +2,6 @@
 
 #include "../HEMAX_3dsmaxHda.h"
 #include "../HEMAX_GeometryHda.h"
-#include "../HEMAX_HAPISession.h"
 #include "../HEMAX_SessionManager.h"
 #include "../HEMAX_Logger.h"
 #include "../HEMAX_UserPrefs.h"
@@ -26,10 +25,12 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
     ShelfToolsWidget = new HEMAX_ShelfTab(ActivePlugin, false);
     HDAWidget = new HEMAX_HDAWidget(ActivePlugin);
     MHAWidget = new HEMAX_MaxHoudiniAssetWidget(ActivePlugin);
+    OutputLogTab = new HEMAX_OutputLogWidget;
 
     TabContainer->addTab(HDAWidget, "Load Assets");
     TabContainer->addTab(MHAWidget, "Parameters");
     TabContainer->addTab(ShelfToolsWidget, "Shelf");
+    TabContainer->addTab(OutputLogTab, "Output Log");
 
     ScrollArea->setWidget(TabContainer);
     ScrollArea->setWidgetResizable(true);
@@ -117,6 +118,10 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
     {
         UnshowHEMAXWindow();
     }
+
+    HEMAX_SessionManager::GetSessionManager().
+        RegisterOnSessionChangedCallback(
+            std::bind(&HEMAX_UI::OnSessionChangedCallback, this));
 }
 
 HEMAX_UI::~HEMAX_UI()
@@ -127,6 +132,8 @@ HEMAX_UI::~HEMAX_UI()
         delete HDAWidget;
     if (ShelfToolsWidget)
         delete ShelfToolsWidget;
+    if (OutputLogTab)
+        delete OutputLogTab;
 
     if (TabContainer)
         delete TabContainer;
@@ -178,7 +185,7 @@ HEMAX_UI::Update()
     HDAWidget->UpdateLoadedAssetList(&LoadedAssetList);
     MHAWidget->RefreshParameterUI(false);
 
-    if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
         ShelfToolsWidget->EnableShelf();
     }
@@ -186,6 +193,13 @@ HEMAX_UI::Update()
     {
         ShelfToolsWidget->DisableShelf();
     }
+}
+
+
+void
+HEMAX_UI::OnSessionChangedCallback()
+{
+    Update();
 }
 
 void

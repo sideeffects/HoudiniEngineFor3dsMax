@@ -33,7 +33,7 @@ HEMAX_ShelfTool::Init(std::string JsonFilePath, HEMAX_Store* Store)
 	{
 	    bool Success;
 
-	    if (HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+	    if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
 	    {
 		Store->LoadNewAsset(AssetPath, Success);
 	    }

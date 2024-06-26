@@ -64,15 +64,13 @@ CreateSession_cf(Value** ArgList, int Count)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
 	std::string Msg = "Cannot start a session: there is already an active session";
 	HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_WARN);
 	return &false_value;
     }
 
-    SM.StartThriftNamedPipeThinClient();
-    
     if (!HEMAX_MaxScriptInterface::PluginInstance->StartSession())
     {
 	return &false_value;
@@ -88,7 +86,7 @@ CloseSession_cf(Value** ArgList, int Count)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
 	HEMAX_MaxScriptInterface::PluginInstance->StopSession();
         HEMAX_MaxScriptInterface::PluginInstance->GetEventHub()->SessionChanged();
@@ -102,7 +100,7 @@ IsSessionActive_cf(Value** ArgList, int Count)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
         return &true_value;
     }
@@ -986,7 +984,7 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-   if (!SM.IsSessionActive())
+   if (!SM.IsSessionValidAndInitialized())
    {
         throw RuntimeError(L"There is no active Houdini session.");
    } 

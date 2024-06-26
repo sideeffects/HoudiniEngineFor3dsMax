@@ -159,7 +159,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
     }
 
     if (HasBeenCreated &&
-        HEMAX_SessionManager::GetSessionManager().IsSessionActive() &&
+        HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized() &&
         !Collapsed)
     {
 	Object* MaxObject = os->obj;

@@ -125,11 +125,12 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     SessionOptions->setLayout(SessionOptionsLayout);
 
     SessionAutoStart = new QCheckBox("Automatically Start Session on Plugin Start");
-    SessionDefaultAutoStartTypeLabel = new QLabel("Default Auto Start Session Type");
-    SessionDefaultAutoStartType = new QComboBox;
-    SessionDefaultAutoStartType->addItem("Socket");
-    SessionDefaultAutoStartType->addItem("Named Pipe");
-    SessionDefaultAutoStartType->addItem("Shared Memory");
+
+    SessionTypeLabel = new QLabel("Session Type");
+    SessionTypeChoice = new QComboBox;
+    SessionTypeChoice->addItem("Socket");
+    SessionTypeChoice->addItem("Named Pipe");
+    SessionTypeChoice->addItem("Shared Memory");
 
     SessionHostnameLabel = new QLabel("Socket Hostname");
     SessionHostname = new QLineEdit();
@@ -158,9 +159,8 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     SessionAudioDsoSearchPath = new QLineEdit;
 
     SessionOptionsLayout->addWidget(SessionAutoStart, 0, 0, 1, 2);
-    SessionOptionsLayout->addWidget(
-        SessionDefaultAutoStartTypeLabel, 1, 0, Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionDefaultAutoStartType, 1, 1);
+    SessionOptionsLayout->addWidget(SessionTypeLabel, 1, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionTypeChoice, 1, 1);
     SessionOptionsLayout->addWidget(SessionHostnameLabel, 2, 0, Qt::AlignRight);
     SessionOptionsLayout->addWidget(SessionHostname, 2, 1);
     SessionOptionsLayout->addWidget(SessionPortLabel, 3, 0, Qt::AlignRight);
@@ -334,7 +334,7 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
                      this,
                      SLOT(SlotSessionAutoStart(int)));
 
-    QObject::connect(SessionDefaultAutoStartType,
+    QObject::connect(SessionTypeChoice,
                      SIGNAL(currentIndexChanged(int)),
                      this,
                      SLOT(SlotSessionDefaultStartType(int)));
@@ -493,14 +493,14 @@ HEMAX_OptionsDialog::InitializeOptions()
     if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_TYPE, IVal))
     {
         if (IVal == static_cast<int>(HEMAX_SessionTypePref::Socket))
-            SessionDefaultAutoStartType->setCurrentIndex(0);
+            SessionTypeChoice->setCurrentIndex(0);
         else if (IVal == static_cast<int>(HEMAX_SessionTypePref::NamedPipe))
-            SessionDefaultAutoStartType->setCurrentIndex(1);
+            SessionTypeChoice->setCurrentIndex(1);
         else if (IVal == static_cast<int>(HEMAX_SessionTypePref::SharedMemory))
-            SessionDefaultAutoStartType->setCurrentIndex(2);
+            SessionTypeChoice->setCurrentIndex(2);
         else
         {
-            SessionDefaultAutoStartType->setCurrentIndex(1);
+            SessionTypeChoice->setCurrentIndex(1);
             Prefs.SetIntSetting(
                 HEMAX_SETTING_SESSION_TYPE,
                 static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
@@ -862,7 +862,7 @@ HEMAX_OptionsDialog::SlotSaveHipButton()
 {
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (SM.IsSessionActive())
+    if (SM.IsSessionValidAndInitialized())
     {
 	QFileDialog SaveHIPDialog;
 
@@ -880,7 +880,7 @@ HEMAX_OptionsDialog::SlotSaveHipButton()
 	    if (PathInfo.completeSuffix() == "hip")
 	    {
 		std::string SelectedPath = Selected[0].toStdString();
-                HEMAX_HoudiniApi::SaveHIPFile(SM.Session, SelectedPath.c_str(),
+                HEMAX_HoudiniApi::SaveHIPFile(&SM.Session, SelectedPath.c_str(),
                     false);
 	    }
 	}
@@ -896,7 +896,7 @@ HEMAX_OptionsDialog::SlotSaveHipButton()
 void
 HEMAX_OptionsDialog::SlotOpenHoudiniButton()
 {
-    if (!HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (!HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
         HEMAX_Logger::Instance().AddEntry(
             "Cannot open Houdini (no Houdini session is active).",
@@ -917,7 +917,7 @@ HEMAX_OptionsDialog::SlotOpenHoudiniButton()
 
     std::string TempHIPPath = TempFilesFolder->text().toStdString()
         + "\\" + HEMAX_DEBUG_DEFAULT_HIP_NAME;
-    HEMAX_HoudiniApi::SaveHIPFile(SessionManager.Session, TempHIPPath.c_str(),
+    HEMAX_HoudiniApi::SaveHIPFile(&SessionManager.Session, TempHIPPath.c_str(),
         false);
 
     STARTUPINFOA StartupInfo;

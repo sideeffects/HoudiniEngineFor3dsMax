@@ -3,6 +3,7 @@
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
+#include "HEMAX_Utilities.h"
 
 HEMAX_Input_Spline::HEMAX_Input_Spline(ULONG MaxNode)
     : HEMAX_Input(MaxNode)
@@ -39,7 +40,7 @@ HEMAX_Input_Spline::~HEMAX_Input_Spline()
     {
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-	if (SM.IsSessionActive())
+	if (SM.IsSessionValidAndInitialized())
 	{
 	    Node->Delete();
 	}
@@ -99,7 +100,7 @@ HEMAX_Input_Spline::BuildInputNode()
                     HEMAX_Utilities::HAPITransformToHAPITransformEuler(HapiXform);
 
 		HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-                HEMAX_HoudiniApi::SetObjectTransform(SM.Session,
+                HEMAX_HoudiniApi::SetObjectTransform(&SM.Session,
                     Node->Info.parentId, &HapiEulerXform);
 	    }
 	}
@@ -172,12 +173,12 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
             CurveInfo.vertexCount = PointCount;
             CurveInfo.isClosed = false;
 
-            HEMAX_HoudiniApi::SetCurveInfo(SM.Session, Node->Info.id, 0,
+            HEMAX_HoudiniApi::SetCurveInfo(&SM.Session, Node->Info.id, 0,
                 &CurveInfo);
-            HEMAX_HoudiniApi::SetCurveCounts(SM.Session, Node->Info.id, 0,
+            HEMAX_HoudiniApi::SetCurveCounts(&SM.Session, Node->Info.id, 0,
                 &CountsArray.front(),
                 0, (int)CountsArray.size());
-            HEMAX_HoudiniApi::SetCurveOrders(SM.Session, Node->Info.id, 0,
+            HEMAX_HoudiniApi::SetCurveOrders(&SM.Session, Node->Info.id, 0,
                 &OrdersArray.front(),
                 0, (int)OrdersArray.size());
 
@@ -295,10 +296,10 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
 	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
 	HAPI_GeoInfo CurveGeoInfo;
-        HEMAX_HoudiniApi::GetGeometryInfo(SM.Session, Node->Info.id, &CurveGeoInfo);
+        HEMAX_HoudiniApi::GetGeometryInfo(&SM.Session, Node->Info.id, &CurveGeoInfo);
 
 	HAPI_PartInfo CurvePartInfo;
-        HEMAX_HoudiniApi::GetPartInfo(SM.Session, CurveGeoInfo.nodeId, 0,
+        HEMAX_HoudiniApi::GetPartInfo(&SM.Session, CurveGeoInfo.nodeId, 0,
             &CurvePartInfo);
 
 	HAPI_CurveInfo CurveInfo;
@@ -310,15 +311,15 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
 	CurveInfo.order = 0;
 	CurveInfo.vertexCount = PointCount;
 
-        HEMAX_HoudiniApi::SetCurveInfo(SM.Session, CurveGeoInfo.nodeId, 0,
+        HEMAX_HoudiniApi::SetCurveInfo(&SM.Session, CurveGeoInfo.nodeId, 0,
             &CurveInfo);
 
 	int CountsArray[] = { PointCount };
-        HEMAX_HoudiniApi::SetCurveCounts(SM.Session, CurveGeoInfo.nodeId, 0,
+        HEMAX_HoudiniApi::SetCurveCounts(&SM.Session, CurveGeoInfo.nodeId, 0,
             CountsArray, 0, 1);
 
 	int OrdersArray[] = { 0 };
-        HEMAX_HoudiniApi::SetCurveOrders(SM.Session, CurveGeoInfo.nodeId, 0,
+        HEMAX_HoudiniApi::SetCurveOrders(&SM.Session, CurveGeoInfo.nodeId, 0,
             OrdersArray, 0, 1);
 
 	float* Points = new float[PointCount * 3];

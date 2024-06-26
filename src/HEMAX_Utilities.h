@@ -58,6 +58,8 @@ struct HEMAX_Utilities
     static void GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames);
     static void GetListOfChildNodes(INode* Node, std::vector<std::wstring>& NodeNames);
 
+    static std::string GetHAPIString(HAPI_StringHandle Handle);
+    static std::string GetConnectionError();
     static std::string WideStringToStringUnsafe(const std::wstring& In);
 
     static bool ParmIsIntType(HAPI_ParmType Type);

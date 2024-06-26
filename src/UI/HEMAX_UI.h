@@ -3,6 +3,7 @@
 #include "../HEMAX_Plugin.h"
 #include "HEMAX_HDAWidget.h"
 #include "HEMAX_MaxHoudiniAssetWidget.h"
+#include "HEMAX_OutputLogWidget.h"
 #include "HEMAX_ShelfTab.h"
 
 #if defined(HEMAX_VERSION_2018) || \
@@ -54,6 +55,8 @@ class HEMAX_UI : public QDockWidget
         void HandleHdaPreDeleteEvent(HEMAX_3dsmaxHda* Hda);
 	void Update();
 
+        void OnSessionChangedCallback();
+
     private:
 
 	QScrollArea* ScrollArea = nullptr;
@@ -62,6 +65,7 @@ class HEMAX_UI : public QDockWidget
 	HEMAX_ShelfTab* ShelfToolsWidget = nullptr;
 	HEMAX_HDAWidget* HDAWidget = nullptr;
 	HEMAX_MaxHoudiniAssetWidget* MHAWidget = nullptr;
+        HEMAX_OutputLogWidget* OutputLogTab = nullptr;
 
 	HEMAX_Plugin* ActivePlugin = nullptr;
 

@@ -1,5 +1,8 @@
 #include "HEMAX_Utilities.h"
 
+#include "HEMAX_HoudiniApi.h"
+#include "HEMAX_Logger.h"
+#include "HEMAX_SessionManager.h"
 #include "HEMAX_Types.h"
 
 #pragma warning(push, 0)
@@ -483,6 +486,59 @@ HEMAX_Utilities::GetListOfChildNodes(INode* Node,
 	    GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
 	}
     }
+}
+
+std::string
+HEMAX_Utilities::GetHAPIString(HAPI_StringHandle Handle)
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    
+    int BufLen = -1;
+    HAPI_Result Result = HEMAX_HoudiniApi::GetStringBufLength(
+            &SM.Session, Handle, &BufLen);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Could not retrieve HAPI string with handle " << Handle;
+        std::string ErrorMessage = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMessage, HEMAX_LOG_LEVEL_ERROR);
+        return "";
+    }
+
+    std::vector<char> StringBuf(BufLen, ' ');
+    Result = HEMAX_HoudiniApi::GetString(&SM.Session, Handle, StringBuf.data(),
+        BufLen);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+    {
+        std::stringstream SStream;
+        SStream << "Could not retrieve HAPI string with handle " << Handle;
+        std::string ErrorMessage = SStream.str();
+        HEMAX_Logger::Instance().AddEntry(ErrorMessage, HEMAX_LOG_LEVEL_ERROR);
+        return "";
+    }
+
+    return std::string(StringBuf.begin(), StringBuf.end());
+}
+
+std::string
+HEMAX_Utilities::GetConnectionError()
+{
+    int BufLen = -1;
+    HAPI_Result Result = HEMAX_HoudiniApi::GetConnectionErrorLength(&BufLen);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+        return "";
+
+    std::vector<char> StringBuf(BufLen, ' ');
+    Result = HEMAX_HoudiniApi::GetConnectionError(StringBuf.data(), BufLen,
+        false);
+
+    if (Result != HAPI_RESULT_SUCCESS)
+        return "";
+
+    return std::string(StringBuf.begin(), StringBuf.end());
 }
 
 std::string

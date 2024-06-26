@@ -409,7 +409,6 @@ HEMAXLauncher::Start()
 
         PluginEvents = new HEMAX_Events(PluginUserInterface);
         ThePlugin->SetEventHub(PluginEvents);
-        HEMAX_SessionManager::GetSessionManager().SetEventHub(PluginEvents);
 
         ThePlugin->Init(std::string(HAPIToolsDirectory.begin(),
             HAPIToolsDirectory.end()));
@@ -730,22 +729,22 @@ HEMAXLauncher::ExecuteAction(int ID)
 	}
         case CREATE_SESSION_HEMAX_ACTION:
         {
-            // TODO: session refactor
+            HEMAX_SessionManager::GetSessionManager().CreateSession();
             return true;
         }
         case CONNECT_SESSION_HEMAX_ACTION:
         {
-            // TODO: session refactor
+            HEMAX_SessionManager::GetSessionManager().ConnectSession();
             return true;
         }
         case STOP_SESSION_HEMAX_ACTION:
         {
-            // TODO: session refactor
+            HEMAX_SessionManager::GetSessionManager().StopSession();
             return true;
         }
         case RESTART_SESSION_HEMAX_ACTION:
         {
-            // TODO: session refactor
+            HEMAX_SessionManager::GetSessionManager().RestartSession();
             return true;
         }
         case OPTIONS_HEMAX_ACTION:

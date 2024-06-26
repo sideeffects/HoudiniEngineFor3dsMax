@@ -2,6 +2,7 @@
 
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
+#include "HEMAX_Utilities.h"
 
 HEMAX_Hda::HEMAX_Hda()
 {
@@ -14,8 +15,6 @@ HEMAX_Hda::Init(const HEMAX_Asset& Asset, int AssetIndex)
 {
     HdaAsset = Asset;
     HdaAssetIndex = AssetIndex;
-
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     MainNode.Init(Asset.Names[AssetIndex]);
 
@@ -54,19 +53,17 @@ HEMAX_Hda::Delete()
 
     if (HdaType == OBJ_LEVEL_HDA)
     {
-        HEMAX_HoudiniApi::DeleteNode(SM.Session, MainNode.Info.id);
+        HEMAX_HoudiniApi::DeleteNode(&SM.Session, MainNode.Info.id);
     }
     else if (HdaType == SOP_LEVEL_HDA)
     {
-        HEMAX_HoudiniApi::DeleteNode(SM.Session, MainNode.Info.parentId);
+        HEMAX_HoudiniApi::DeleteNode(&SM.Session, MainNode.Info.parentId);
     }
 }
 
 void
 HEMAX_Hda::Update()
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
     UpdateShopNodes();
 
     if (HdaType == OBJ_LEVEL_HDA)
@@ -85,7 +82,8 @@ HEMAX_Hda::FindEditableNodeFromName(std::string Name, bool& Success)
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     for (int i = 0; i < EditableNodes.size(); i++)
     {
-	std::string NodeName = SM.Session->GetHAPIString(EditableNodes[i].GeoInfo.nameSH);
+	std::string NodeName =
+            HEMAX_Utilities::GetHAPIString(EditableNodes[i].GeoInfo.nameSH);
 	if (NodeName == Name)
 	{
 	    Success = true;
@@ -108,9 +106,9 @@ HEMAX_Hda::UpdateShopNodes()
         if (MatNode.MatInfo.hasChanged)
         {
             HEMAX_HoudiniApi::CookNode(
-                HEMAX_SessionManager::GetSessionManager().Session,
+                &HEMAX_SessionManager::GetSessionManager().Session,
                 MatNode.NodeId,
-                HEMAX_SessionManager::GetSessionManager().Session->GetCookOptions());
+                nullptr);
         }
         MatNode.GetMaterialInformation();
     }
@@ -149,7 +147,7 @@ HEMAX_Hda::InitializeMaterialNodes()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     int Count;
-    HEMAX_HoudiniApi::ComposeChildNodeList(SM.Session,
+    HEMAX_HoudiniApi::ComposeChildNodeList(&SM.Session,
                                            MainNode.Info.id,
                                            HAPI_NODETYPE_SHOP,
                                            HAPI_NODEFLAGS_ANY,
@@ -157,7 +155,7 @@ HEMAX_Hda::InitializeMaterialNodes()
                                            &Count);
 
     std::vector<HAPI_NodeId> ShopNodeIds(Count);
-    HEMAX_HoudiniApi::GetComposedChildNodeList(SM.Session,
+    HEMAX_HoudiniApi::GetComposedChildNodeList(&SM.Session,
                                                MainNode.Info.id,
                                                ShopNodeIds.data(),
                                                Count);
@@ -169,12 +167,12 @@ HEMAX_Hda::InitializeMaterialNodes()
         HEMAX_MaterialNode& CreatedMatNode = ShopNodes.find(
                                                 ShopNodeIds[i])->second;
         CreatedMatNode.UpdateInfo();
-        HEMAX_HoudiniApi::CookNode(SM.Session, CreatedMatNode.NodeId,
-            SM.Session->GetCookOptions());
+        HEMAX_HoudiniApi::CookNode(&SM.Session, CreatedMatNode.NodeId,
+            nullptr);
         CreatedMatNode.GetMaterialInformation();
     }
 
-    HEMAX_HoudiniApi::ComposeChildNodeList(SM.Session,
+    HEMAX_HoudiniApi::ComposeChildNodeList(&SM.Session,
                                            MainNode.Info.id,
                                            HAPI_NODETYPE_VOP,
                                            HAPI_NODEFLAGS_ANY,
@@ -182,7 +180,7 @@ HEMAX_Hda::InitializeMaterialNodes()
                                            &Count);
 
     std::vector<HAPI_NodeId> VopNodeIds(Count);
-    HEMAX_HoudiniApi::GetComposedChildNodeList(SM.Session,
+    HEMAX_HoudiniApi::GetComposedChildNodeList(&SM.Session,
                                                MainNode.Info.id,
                                                VopNodeIds.data(),
                                                Count);
@@ -195,8 +193,8 @@ HEMAX_Hda::InitializeMaterialNodes()
         HEMAX_MaterialNode& CreatedMatNode = ShopNodes.find(
                                                 VopNodeIds[i])->second;
         CreatedMatNode.UpdateInfo();
-        HEMAX_HoudiniApi::CookNode(SM.Session, CreatedMatNode.NodeId,
-            SM.Session->GetCookOptions());
+        HEMAX_HoudiniApi::CookNode(&SM.Session, CreatedMatNode.NodeId,
+            nullptr);
         CreatedMatNode.GetMaterialInformation();
     }
 }
@@ -207,24 +205,24 @@ HEMAX_Hda::GetAllEditableNodes()
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
     int Count;
-    HEMAX_HoudiniApi::ComposeChildNodeList(SM.Session, MainNode.Info.id,
+    HEMAX_HoudiniApi::ComposeChildNodeList(&SM.Session, MainNode.Info.id,
         HAPI_NODETYPE_SOP, HAPI_NODEFLAGS_EDITABLE, true, &Count);
 
     if (Count > 0)
     {
 	std::vector<HAPI_NodeId> EditableNodeIds(Count);
-        HEMAX_HoudiniApi::GetComposedChildNodeList(SM.Session, MainNode.Info.id,
+        HEMAX_HoudiniApi::GetComposedChildNodeList(&SM.Session, MainNode.Info.id,
             &EditableNodeIds.front(), Count);
 
 	for (int e = 0; e < Count; e++)
 	{
 	    HEMAX_EditableNode EditableNode;
 	    EditableNode.Node.Type = HAPI_NODETYPE_SOP;
-            HEMAX_HoudiniApi::GetNodeInfo(SM.Session, EditableNodeIds[e],
+            HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, EditableNodeIds[e],
                 &EditableNode.Node.Info);
 	    EditableNode.Node.Cook();
 
-	    if (HEMAX_HoudiniApi::GetGeometryInfo(SM.Session,
+	    if (HEMAX_HoudiniApi::GetGeometryInfo(&SM.Session,
                     EditableNode.Node.Info.id, &EditableNode.GeoInfo) == HAPI_RESULT_SUCCESS)
 	    {
 		switch (EditableNode.GeoInfo.type)
@@ -261,17 +259,17 @@ HEMAX_Hda::CheckForTimeDependentNodes()
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     int NodeCount = 0;
-    HEMAX_HoudiniApi::ComposeChildNodeList(SM.Session, MainNode.Info.id,
+    HEMAX_HoudiniApi::ComposeChildNodeList(&SM.Session, MainNode.Info.id,
         HAPI_NODETYPE_ANY, HAPI_NODEFLAGS_ANY, true, &NodeCount);
 
     std::vector<HAPI_NodeId> NodeIds(NodeCount);
-    HEMAX_HoudiniApi::GetComposedChildNodeList(SM.Session, MainNode.Info.id,
+    HEMAX_HoudiniApi::GetComposedChildNodeList(&SM.Session, MainNode.Info.id,
         NodeIds.data(), NodeCount);
 
     for (int i = 0; i < NodeCount; i++)
     {
         HAPI_NodeInfo NodeInfo;
-        HEMAX_HoudiniApi::GetNodeInfo(SM.Session, NodeIds[i], &NodeInfo);
+        HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, NodeIds[i], &NodeInfo);
 
         if (NodeInfo.isTimeDependent)
         {

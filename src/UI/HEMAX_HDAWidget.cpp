@@ -201,7 +201,7 @@ HEMAX_HDAWidget::SlotShowAssetContextMenu(QPoint Position)
     AssetMenu.addAction("Copy Asset Path", this,
         SLOT(SlotCopyAssetPathClicked()));
 
-    if (!HEMAX_SessionManager::GetSessionManager().IsSessionActive())
+    if (!HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
         GeoHdaAction->setDisabled(true);
         ModifierHdaAction->setDisabled(true);

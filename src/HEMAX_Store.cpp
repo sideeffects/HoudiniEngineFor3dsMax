@@ -5,6 +5,8 @@
 #include "HEMAX_GeometryHda.h"
 #include "HEMAX_Modifier.h"
 #include "HEMAX_ModifierHda.h"
+#include "HEMAX_SessionManager.h"
+#include "HEMAX_UserPrefs.h"
 
 #pragma warning(push, 0)
 #include <icustattribcontainer.h>
@@ -12,6 +14,17 @@
 
 #include <QtCore\qfileinfo.h>
 #include <QtCore\qdir.h>
+
+HEMAX_Store::HEMAX_Store()
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    SM.RegisterOnSessionReadyCallback([this]() {
+        this->LoadAssetsInHdaLoadPath();
+    });
+    SM.RegisterOnSessionStoppedCallback([this]() {
+        this->EmptyOutStore();
+    });
+}
 
 std::vector<std::string>
 HEMAX_Store::GetListOfLoadedAssets()
@@ -42,12 +55,11 @@ std::string
 HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 {
     HEMAX_Asset NewAsset(Path);
-    HEMAX_AssetLoadStatus AssetLoadStatus;
 
     // First try the path that is given
-    AssetLoadStatus = NewAsset.LoadAsset();
+    HAPI_Result AssetLoadResult = NewAsset.LoadAsset();
 
-    if (AssetLoadStatus == HEMAX_ASSET_NO_STATUS)
+    if (AssetLoadResult == HAPI_RESULT_SUCCESS)
     {
 	std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
 	LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
@@ -55,7 +67,7 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	return Path;
     }
 
-    if (AssetLoadStatus != HEMAX_ASSET_ALREADY_LOADED)
+    if (AssetLoadResult != HAPI_RESULT_ASSET_DEF_ALREADY_LOADED)
     {
 	// Try HEMAX_HDA_PATH first
 	std::string HdaPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
@@ -69,9 +81,9 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	    QString NewHdaFilePath = PathString.append("/") + HdaFile;
 
 	    NewAsset.Path = NewHdaFilePath.toStdString();
-	    HEMAX_AssetLoadStatus LoadSt = NewAsset.LoadAsset();
+            HAPI_Result Result = NewAsset.LoadAsset();
 
-	    if (LoadSt == HEMAX_ASSET_NO_STATUS)
+            if (Result == HAPI_RESULT_SUCCESS)
 	    {
 		std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
 		LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
@@ -81,7 +93,8 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	}
 
 	// If it was not found, next try the user's HDA repository directory
-	if (!UserHdaRepository.empty() && AssetLoadStatus != HEMAX_ASSET_ALREADY_LOADED)
+	if (!UserHdaRepository.empty() &&
+            AssetLoadResult != HAPI_RESULT_ASSET_DEF_ALREADY_LOADED)
 	{
 	    QString PathString(UserHdaRepository.c_str());
 	    QFileInfo HdaFileInfo(Path.c_str());
@@ -90,9 +103,9 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	    QString NewHdaFilePath = PathString.append("/") + HdaFile;
 
 	    NewAsset.Path = NewHdaFilePath.toStdString();
-	    HEMAX_AssetLoadStatus LoadSt = NewAsset.LoadAsset();
+            HAPI_Result Result = NewAsset.LoadAsset();
 
-	    if (LoadSt == HEMAX_ASSET_NO_STATUS)
+	    if (Result == HAPI_RESULT_SUCCESS)
 	    {
 		std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
 		LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
@@ -101,7 +114,7 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 	    }
 	}
 
-	if (AssetLoadStatus != HEMAX_ASSET_ALREADY_LOADED)
+        if (AssetLoadResult != HAPI_RESULT_ASSET_DEF_ALREADY_LOADED)
 	{
 	    // Last, try the directory where the current 3dsmax scene is saved
 	    std::wstring CurFilePathString(GetCOREInterface()->GetCurFilePath());
@@ -118,36 +131,15 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
 		QString NewHdaFilePath = PathString.append("/") + HdaFile;
 
 		NewAsset.Path = NewHdaFilePath.toStdString();
-		HEMAX_AssetLoadStatus LoadSt = NewAsset.LoadAsset();
+                HAPI_Result Result = NewAsset.LoadAsset();
 
-		if (LoadSt == HEMAX_ASSET_NO_STATUS)
+		if (Result == HAPI_RESULT_SUCCESS)
 		{
 		    std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
 		    LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
 		    Success = true;
 		    return NewHdaFilePath.toStdString();
 		}
-	    }
-	    else
-	    {
-		std::string LogMsg = "Failed to load asset <" + Path + ">: ";
-
-		if (AssetLoadStatus == HEMAX_ASSET_ALREADY_LOADED)
-		{
-		    LogMsg += "ASSET ALREADY LOADED";
-		}
-		else if (AssetLoadStatus == HEMAX_ASSET_NOT_FOUND)
-		{
-		    LogMsg += "ASSET FILE NOT FOUND";
-		}
-		else if (AssetLoadStatus == HEMAX_ASSET_INVALID)
-		{
-		    LogMsg += "ASSET INVALID";
-		}
-
-		HEMAX_Logger::Instance().AddEntry(LogMsg, HEMAX_LOG_LEVEL_WARN);
-		Success = false;
-		return "";
 	    }
 	}
     }
@@ -189,6 +181,20 @@ HEMAX_Store::RemoveAsset(std::string AssetPath)
     }
 
     return false;
+}
+
+void
+HEMAX_Store::LoadAssetsInHdaLoadPath()
+{
+    std::string HdaLoadPath;
+    if (!HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_HDA_LOAD_PATH,
+            HdaLoadPath))
+        return;
+    
+    LoadAllAssetsInDirectory(HdaLoadPath);
+    
+    // Also load assets HEMAX_ENV_HDA_PATH environment variable (legacy)
+    LoadAllAssetsInDirectory(HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH));
 }
 
 void
