@@ -81,8 +81,8 @@ class HEMAX_Plugin : public TimeChangeCallback
 	void HandleNodeCreated(INode* AddedNode);
 	void HandleRenderPreEval(TimeValue* Time);
 
-	bool StartSession();
-	bool StopSession();
+	void SessionStarted();
+	void SessionStopped();
 
 	ULONG DetermineInputNodeSelection(HEMAX_3dsmaxHda* Hda);
 
@@ -150,8 +150,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	bool RemoveAsset(std::string AssetPath);
 
-	HEMAX_Shelf* GetToolShelf();
-
 	void ReloadHdaFromCustomAttributes(HEMAX_3dsmaxHda* MaxHda);
 
 	void Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda,
@@ -163,8 +161,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	Interface* MaxInterface;
 	HEMAX_Store* PluginStore;
-	HEMAX_Shelf* ToolShelf;
-
         HEMAX_Events* PluginEvents;
 
 	void ReconnectAllStrandedHdas(INode* StartingNode);

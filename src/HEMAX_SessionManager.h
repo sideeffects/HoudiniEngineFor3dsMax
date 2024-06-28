@@ -1,7 +1,10 @@
 #pragma once
 
+#include "HEMAX_Events.h"
 #include "HEMAX_Types.h"
+
 #include <HAPI_Common.h>
+
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -9,8 +12,6 @@
 
 #define HEMAX_AUTO_PIPE_NAME "HEMAX_AutoPipeServer"
 #define HEMAX_USE_SESSION_ENV_FLAG "USE_HENGINE_ENV_IN_HOSTS"
-
-class HEMAX_Events;
 
 class HEMAX_SessionManager
 {
@@ -32,12 +33,7 @@ class HEMAX_SessionManager
 
         bool                                IsSessionValidAndInitialized();
 
-        void                                RegisterOnSessionChangedCallback(
-                                                const std::function<void(void)>& CB);
-        void                                RegisterOnSessionReadyCallback(
-                                                const std::function<void(void)>& CB);
-        void                                RegisterOnSessionStoppedCallback(
-                                                const std::function<void(void)>& CB);
+        HEMAX_Events&                       GetEvents() { return Events; }
 
         HAPI_Session                        Session;
 
@@ -52,11 +48,5 @@ class HEMAX_SessionManager
         bool                                ConnectNamedPipeSession();
         bool                                ConnectSharedMemorySession();
 
-        void                                InvokeOnSessionChangedCallbacks();
-        void                                InvokeOnSessionReadyCallbacks();
-        void                                InvokeOnSessionStoppedCallbacks();
-
-        std::vector<std::function<void()> > OnSessionChangedCallbacks;
-        std::vector<std::function<void()> > OnSessionReadyCallbacks;
-        std::vector<std::function<void()> > OnSessionStoppedCallbacks;
+        HEMAX_Events                        Events;
 };

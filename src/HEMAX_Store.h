@@ -2,6 +2,8 @@
 
 #include "HEMAX_3dsMaxInput.h"
 #include "HEMAX_Asset.h"
+#include "HEMAX_Events.h"
+#include "HEMAX_Shelf.h"
 
 #include <list>
 #include <unordered_map>
@@ -17,11 +19,13 @@ class HEMAX_UserPrefs;
 
 const char* const HEMAX_ENV_HDA_PATH = "HEMAX_HDA_PATH";
 
-class HEMAX_Store
+class HEMAX_Store : public HEMAX_EventHandler
 {
     public:
         HEMAX_Store();
 	~HEMAX_Store() = default;
+
+        HEMAX_Shelf& GetShelf() { return ToolShelf; }
 
 	std::vector<std::string> GetListOfLoadedAssets();
 	HEMAX_Asset* FindAsset(std::string AssetPath);
@@ -76,6 +80,9 @@ class HEMAX_Store
 	std::string UserHdaRepository;
 
     private:
+
+        HEMAX_Shelf ToolShelf;
+
 	std::unordered_map<std::string, HEMAX_Asset> LoadedAssetLibraries;
 	std::unordered_map<ULONG, HEMAX_3dsMaxInput*> InputStore;
 	std::unordered_map<ULONG, HEMAX_GeometryHda*> MaxHdaStore;

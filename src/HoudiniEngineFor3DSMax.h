@@ -44,7 +44,6 @@ class ICuiMenuManager;
 class IMenuManager;
 #endif
 
-class HEMAX_Events;
 class HEMAX_OptionsDialog;
 class HEMAX_Plugin;
 class HEMAX_UI;
@@ -103,7 +102,6 @@ class HEMAXLauncher : public GUP, ActionCallback
 	HEMAX_UI* PluginUserInterface = nullptr;
         HEMAX_OptionsDialog* OptionsDialog = nullptr;
 	HEMAX_VersionDialog* VersionDialog = nullptr;
-        HEMAX_Events* PluginEvents = nullptr;
 
 	HMODULE LoadLibHAPIL(const std::wstring& HFS);
 

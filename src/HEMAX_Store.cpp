@@ -16,12 +16,15 @@
 #include <QtCore\qdir.h>
 
 HEMAX_Store::HEMAX_Store()
+    : HEMAX_EventHandler(HEMAX_SessionManager::GetSessionManager().GetEvents())
+    , ToolShelf(this)
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-    SM.RegisterOnSessionReadyCallback([this]() {
+    RegisterCallback(HEMAX_EventType::SessionReady,
+            [this](HEMAX_EventData* Data) {
         this->LoadAssetsInHdaLoadPath();
     });
-    SM.RegisterOnSessionStoppedCallback([this]() {
+    RegisterCallback(HEMAX_EventType::SessionStopped,
+            [this](HEMAX_EventData* Data) {
         this->EmptyOutStore();
     });
 }

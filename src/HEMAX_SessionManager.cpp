@@ -1,6 +1,5 @@
 #include "HEMAX_SessionManager.h"
 
-#include "HEMAX_Events.h"
 #include "HEMAX_HoudiniApi.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_Time.h"
@@ -99,10 +98,10 @@ HEMAX_SessionManager::CreateSession()
         HEMAX_Time::PushTimelineSettings();
         HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
 
-        InvokeOnSessionReadyCallbacks();
+        Events.EmitEvent(HEMAX_EventType::SessionReady, nullptr);
     }
     
-    InvokeOnSessionChangedCallbacks();
+    Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return true;
 }
@@ -183,14 +182,14 @@ HEMAX_SessionManager::ConnectSession()
             HEMAX_Time::PushTimelineSettings();
             HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
 
-            InvokeOnSessionReadyCallbacks();
+            Events.EmitEvent(HEMAX_EventType::SessionReady, nullptr);
         }
     }
 
     HEMAX_Logger::Instance().AddEntry("Finished connecting to session",
         HEMAX_LOG_LEVEL_INFO);
 
-    InvokeOnSessionChangedCallbacks();
+    Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return true;
 }
@@ -215,8 +214,8 @@ HEMAX_SessionManager::StopSession()
 
     HEMAX_Logger::Instance().AddEntry("Session Stopped", HEMAX_LOG_LEVEL_INFO);
 
-    InvokeOnSessionStoppedCallbacks();
-    InvokeOnSessionChangedCallbacks();
+    Events.EmitEvent(HEMAX_EventType::SessionStopped, nullptr);
+    Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return true;
 }
@@ -232,7 +231,7 @@ HEMAX_SessionManager::RestartSession()
 
     bool Success = CreateSession();
 
-    InvokeOnSessionChangedCallbacks();
+    Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return Success;
 }
@@ -693,46 +692,4 @@ HEMAX_SessionManager::IsSessionValidAndInitialized()
 {
     return (HEMAX_HoudiniApi::IsSessionValid(&Session) == HAPI_RESULT_SUCCESS &&
             HEMAX_HoudiniApi::IsInitialized(&Session) == HAPI_RESULT_SUCCESS);
-}
-
-void
-HEMAX_SessionManager::RegisterOnSessionChangedCallback(
-    const std::function<void(void)>& CB)
-{
-    OnSessionChangedCallbacks.push_back(CB);
-}
-
-void
-HEMAX_SessionManager::RegisterOnSessionReadyCallback(
-    const std::function<void(void)>& CB)
-{
-    OnSessionReadyCallbacks.push_back(CB);
-}
-
-void
-HEMAX_SessionManager::RegisterOnSessionStoppedCallback(
-    const std::function<void(void)>& CB)
-{
-    OnSessionStoppedCallbacks.push_back(CB);
-}
-
-void
-HEMAX_SessionManager::InvokeOnSessionChangedCallbacks()
-{
-    for (auto&& Callback : OnSessionChangedCallbacks)
-        Callback();
-}
-
-void
-HEMAX_SessionManager::InvokeOnSessionReadyCallbacks()
-{
-    for (auto&& Callback : OnSessionReadyCallbacks)
-        Callback();
-}
-
-void
-HEMAX_SessionManager::InvokeOnSessionStoppedCallbacks()
-{
-    for (auto&& Callback : OnSessionStoppedCallbacks)
-        Callback();
 }

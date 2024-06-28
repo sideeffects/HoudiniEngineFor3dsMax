@@ -1,6 +1,5 @@
 #include "HoudiniEngineFor3DSMax.h"
 
-#include "HEMAX_Events.h"
 #include "HEMAX_Logger.h"
 #include "HEMAX_MaxScriptInterface.h"
 #include "HEMAX_Path.h"
@@ -131,9 +130,6 @@ HEMAXLauncher::HEMAXLauncher()
 
 HEMAXLauncher::~HEMAXLauncher()
 {
-    if (PluginEvents)
-        delete PluginEvents;
-
     if (OptionsDialog)
         delete OptionsDialog;
 
@@ -406,9 +402,6 @@ HEMAXLauncher::Start()
 
         HEMAX_MaxScriptInterface::PluginInstance = ThePlugin;
         HEMAX_MaxScriptInterface::PluginUserInterface = PluginUserInterface;
-
-        PluginEvents = new HEMAX_Events(PluginUserInterface);
-        ThePlugin->SetEventHub(PluginEvents);
 
         ThePlugin->Init(std::string(HAPIToolsDirectory.begin(),
             HAPIToolsDirectory.end()));

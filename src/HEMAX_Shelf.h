@@ -4,12 +4,11 @@
 #include <vector>
 #include <unordered_map>
 
-#include "HEMAX_Store.h"
-
 const char * const HEMAX_Shelf_SaveFilename = "hemax_shelves.json";
 
 struct HEMAX_ShelfTool;
 class HEMAX_ShelfDirectory;
+class HEMAX_Store;
 
 class HEMAX_Shelf
 {

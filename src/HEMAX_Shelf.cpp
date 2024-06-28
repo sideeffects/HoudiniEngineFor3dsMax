@@ -9,6 +9,8 @@
 #include "HEMAX_Logger.h"
 #include "HEMAX_ShelfTool.h"
 #include "HEMAX_ShelfDirectory.h"
+#include "HEMAX_Store.h"
+#include "HEMAX_UserPrefs.h"
 
 using json = nlohmann::json;
 
@@ -19,7 +21,7 @@ HEMAX_Shelf::HEMAX_Shelf(HEMAX_Store* Store)
 
 HEMAX_Shelf::~HEMAX_Shelf()
 {
-
+    SaveShelfToJson(HEMAX_UserPrefs::Get().GetPluginConfigFolder());
 }
 
 void

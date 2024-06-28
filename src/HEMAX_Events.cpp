@@ -1,64 +1,52 @@
 #include "HEMAX_Events.h"
 
-#include "UI/HEMAX_UI.h"
+#include <algorithm>
 
-HEMAX_Events::HEMAX_Events(HEMAX_UI* _UserInterface)
-    : UserInterface(_UserInterface)
+HEMAX_EventHandler::HEMAX_EventHandler(HEMAX_Events& Registrar)
 {
+    EventRegistrar = &Registrar;
+    RegistrationId = nullptr;
+}
 
+HEMAX_EventHandler::~HEMAX_EventHandler()
+{
+    if (RegistrationId)
+       EventRegistrar->UnregisterCallbacks(RegistrationId); 
 }
 
 void
-HEMAX_Events::SessionChanged()
+HEMAX_EventHandler::RegisterCallback(HEMAX_EventType Type,
+        const std::function<void(HEMAX_EventData*)>& Callback)
 {
-    UserInterface->Update();
+    RegistrationId = EventRegistrar->RegisterCallback(Type, Callback);
 }
 
 void
-HEMAX_Events::ShelfUpdated()
+HEMAX_Events::EmitEvent(HEMAX_EventType Type, HEMAX_EventData* Data)
 {
-    UserInterface->Update();
+    for (auto&& EventCallback : EventCallbacks)
+    {
+        if (EventCallback.Type == Type)
+            EventCallback.Callback(Data);
+    }
+}
+
+const void*
+HEMAX_Events::RegisterCallback(HEMAX_EventType Type,
+    const std::function<void(HEMAX_EventData*)>& Callback)
+{
+    HEMAX_EventCallback& EventCallback = EventCallbacks.emplace_back(
+        Type, Callback);
+    return EventCallback.Id;
 }
 
 void
-HEMAX_Events::SelectionSetChanged(HEMAX_3dsmaxHda* Hda,
-                                  bool ForceUnlock)
+HEMAX_Events::UnregisterCallbacks(const void* HandlerId)
 {
-    UserInterface->ChangeHdaSelection(Hda, ForceUnlock);
-}
-
-void
-HEMAX_Events::AssetLoaded()
-{
-    UserInterface->UpdateLoadedAssetLibrariesList();
-}
-
-void
-HEMAX_Events::AssetRemoved()
-{
-    UserInterface->UpdateLoadedAssetLibrariesList();
-}
-
-void
-HEMAX_Events::HdaPreDelete(HEMAX_3dsmaxHda* Hda)
-{
-    UserInterface->HandleHdaPreDeleteEvent(Hda);
-}
-
-void
-HEMAX_Events::InputChanged()
-{
-    UserInterface->Update();
-}
-
-void
-HEMAX_Events::ParameterChanged()
-{
-    UserInterface->Update();
-}
-
-void
-HEMAX_Events::NodeChanged()
-{
-    UserInterface->Update();
+    EventCallbacks.erase(
+        std::remove_if(EventCallbacks.begin(), EventCallbacks.end(),
+            [HandlerId](HEMAX_EventCallback Callback) {
+                return Callback.Id == HandlerId;
+        }),
+        EventCallbacks.end());
 }

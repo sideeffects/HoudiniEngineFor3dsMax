@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../HEMAX_Events.h"
 #include "../HEMAX_Plugin.h"
 #include "HEMAX_HDAWidget.h"
 #include "HEMAX_MaxHoudiniAssetWidget.h"
@@ -37,7 +38,7 @@
 class HEMAX_Plugin;
 class HEMAX_3dsmaxHda;
 
-class HEMAX_UI : public QDockWidget
+class HEMAX_UI : public QDockWidget, public HEMAX_EventHandler
 {
 
     Q_OBJECT

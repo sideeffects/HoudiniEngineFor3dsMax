@@ -11,7 +11,8 @@
 std::string HEMAX_CurrentAssetSelection = "";
 
 HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
-    : QDockWidget()
+    : HEMAX_EventHandler(HEMAX_SessionManager::GetSessionManager().GetEvents())
+    , QDockWidget()
     , ActivePlugin(Plugin)
 {
     this->setFocusPolicy(Qt::StrongFocus);
@@ -104,7 +105,7 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
         this,
         SLOT(HandleSubnetworkInputSelection(HEMAX_Node*, int, bool)));
 
-    ShelfToolsWidget->SetShelf(ActivePlugin->GetToolShelf());
+    ShelfToolsWidget->SetShelf(&ActivePlugin->GetPluginStore()->GetShelf());
 
     bool AutoStartWindow;
     HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW,
@@ -119,9 +120,54 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
         UnshowHEMAXWindow();
     }
 
-    HEMAX_SessionManager::GetSessionManager().
-        RegisterOnSessionChangedCallback(
-            std::bind(&HEMAX_UI::OnSessionChangedCallback, this));
+    RegisterCallback(HEMAX_EventType::SessionChanged,
+                     [this](HEMAX_EventData* Data) {
+        this->Update();
+    });
+    RegisterCallback(HEMAX_EventType::ShelfUpdated,
+                     [this](HEMAX_EventData* Data) {
+        this->Update();
+    });
+    RegisterCallback(HEMAX_EventType::AssetLoaded,
+                     [this](HEMAX_EventData* Data) {
+        this->UpdateLoadedAssetLibrariesList();
+    });
+    RegisterCallback(HEMAX_EventType::AssetRemoved,
+                     [this](HEMAX_EventData* Data) {
+        this->UpdateLoadedAssetLibrariesList();
+    });
+    RegisterCallback(HEMAX_EventType::InputChanged,
+                     [this](HEMAX_EventData* Data) {
+        this->Update();
+    });
+    RegisterCallback(HEMAX_EventType::ParameterChanged,
+                     [this](HEMAX_EventData* Data) {
+        this->Update();
+    });
+    RegisterCallback(HEMAX_EventType::NodeSettingsChanged,
+                     [this](HEMAX_EventData* Data) {
+        this->Update();
+    });
+    RegisterCallback(HEMAX_EventType::SelectionSetChanged,
+                     [this](HEMAX_EventData* Data) {
+        HEMAX_EventData_SelectionSetChanged* EventData =
+            dynamic_cast<HEMAX_EventData_SelectionSetChanged*>(Data);
+
+        if (!EventData)
+            return;
+
+        ChangeHdaSelection(EventData->Hda, EventData->ForceUnlock);
+    });
+    RegisterCallback(HEMAX_EventType::HdaPreDeleteNotification,
+                     [this](HEMAX_EventData* Data) {
+        HEMAX_EventData_HdaPreDeleteNotification* EventData =
+            dynamic_cast<HEMAX_EventData_HdaPreDeleteNotification*>(Data);
+
+        if (!EventData)
+            return;
+
+        HandleHdaPreDeleteEvent(EventData->Hda);
+    });
 }
 
 HEMAX_UI::~HEMAX_UI()

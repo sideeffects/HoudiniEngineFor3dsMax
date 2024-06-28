@@ -91,7 +91,10 @@ HEMAX_Modifier::BeginEditParams(IObjParam  *IP, ULONG Flags, Animatable *Prev)
     {
         HEMAX_3dsmaxHda* MaxHda = ThePlugin->GetPluginStore()->Find3dsmaxHda(
                                                                 Hda->MainNode);
-        ThePlugin->GetEventHub()->SelectionSetChanged(MaxHda);
+        HEMAX_EventData_SelectionSetChanged EventData;
+        EventData.Hda = MaxHda;
+        HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+            HEMAX_EventType::SelectionSetChanged, &EventData);
     }
 }
 
@@ -100,7 +103,9 @@ HEMAX_Modifier::EndEditParams(IObjParam *IP, ULONG Flags, Animatable *Prev)
 {
     if (ThePlugin)
     {
-        ThePlugin->GetEventHub()->SelectionSetChanged(nullptr);
+        HEMAX_EventData_SelectionSetChanged EventData;
+        HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+            HEMAX_EventType::SelectionSetChanged, &EventData);
     }
 }
 
@@ -470,7 +475,10 @@ HEMAX_Modifier::ReverseCollapse()
     ThePlugin->GetPluginStore()->Add3dsmaxHda(
                         MaxNode->GetHandle(), ModifierHda); 
     ThePlugin->ReloadHdaFromCustomAttributes(ModifierHda);
-    ThePlugin->GetEventHub()->SelectionSetChanged(ModifierHda);
+    HEMAX_EventData_SelectionSetChanged EventData;
+    EventData.Hda = ModifierHda;
+    HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+        HEMAX_EventType::SelectionSetChanged, &EventData);
     Collapsed = false;
 }
 

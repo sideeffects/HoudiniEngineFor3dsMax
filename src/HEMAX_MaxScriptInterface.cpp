@@ -71,12 +71,12 @@ CreateSession_cf(Value** ArgList, int Count)
 	return &false_value;
     }
 
-    if (!HEMAX_MaxScriptInterface::PluginInstance->StartSession())
+    if (!SM.CreateSession())
     {
 	return &false_value;
     }
 
-    HEMAX_MaxScriptInterface::PluginInstance->GetEventHub()->SessionChanged();
+    SM.GetEvents().EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return &true_value;
 }
@@ -88,8 +88,8 @@ CloseSession_cf(Value** ArgList, int Count)
 
     if (SM.IsSessionValidAndInitialized())
     {
-	HEMAX_MaxScriptInterface::PluginInstance->StopSession();
-        HEMAX_MaxScriptInterface::PluginInstance->GetEventHub()->SessionChanged();
+	SM.StopSession();
+        SM.GetEvents().EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
     }
 
     return &true_value;
@@ -149,7 +149,8 @@ LoadHda_cf(Value** ArgList, int Count)
 
     if (Success)
     {
-        Plugin->GetEventHub()->AssetLoaded();
+        HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+            HEMAX_EventType::AssetLoaded, nullptr);
 	return &true_value;
     }
     else
@@ -523,8 +524,8 @@ SetGeometryHdaInput_cf(Value** ArgList, int Count)
                             Subnetwork, InputNodes);
                 }
 
-                HEMAX_MaxScriptInterface::PluginInstance->
-                    GetEventHub()->InputChanged();
+                HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                    HEMAX_EventType::InputChanged, nullptr);
 
 		return &true_value;
 	    }
@@ -602,8 +603,8 @@ SetModifierHdaInput_cf(Value** ArgList, int Count)
                             Subnetwork, InputNodes);
                 }
 
-                HEMAX_MaxScriptInterface::PluginInstance->
-                    GetEventHub()->InputChanged();
+                HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                    HEMAX_EventType::InputChanged, nullptr);
 
 		return &true_value;
 	    }
@@ -675,8 +676,8 @@ SetGeometryHdaOpParmInput_cf(Value** ArgList, int Count)
                             *Parm, InputNodes);
                 }
 
-                HEMAX_MaxScriptInterface::PluginInstance->
-                    GetEventHub()->ParameterChanged();
+                HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                    HEMAX_EventType::ParameterChanged, nullptr);
 
 		return &true_value;
 	    }
@@ -744,8 +745,8 @@ SetModifierHdaOpParmInput_cf(Value** ArgList, int Count)
                             *Parm, InputNodes);
                 }
 
-                HEMAX_MaxScriptInterface::PluginInstance->
-                    GetEventHub()->ParameterChanged();
+                HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                    HEMAX_EventType::ParameterChanged, nullptr);
 
 		return &true_value;
 	    }
@@ -770,8 +771,8 @@ SetGeometryHdaAutoRecookingEnabled_cf(Value** ArgList, int Count)
         if (Hda)
         {
             Hda->Hda.MainNode.AutoRecookOnParameterUpdate = Enabled;
-            HEMAX_MaxScriptInterface::PluginInstance->
-                GetEventHub()->NodeChanged();
+            HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                HEMAX_EventType::NodeSettingsChanged, nullptr);
             return &true_value;
         }
     }
@@ -795,8 +796,8 @@ SetModifierHdaAutoRecookingEnabled_cf(Value** ArgList, int Count)
         if (Hda)
         {
             Hda->Hda.MainNode.AutoRecookOnParameterUpdate = Enabled;
-            HEMAX_MaxScriptInterface::PluginInstance->
-                GetEventHub()->NodeChanged();
+            HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+                HEMAX_EventType::NodeSettingsChanged, nullptr);
             return &true_value;
         }
     }
@@ -963,7 +964,10 @@ DeleteHda_cf(Value** ArgList, int Count)
         throw RuntimeError(L"The HDA could not be found.");
     }
 
-    HEMAX_MaxScriptInterface::PluginInstance->GetEventHub()->HdaPreDelete(Hda);
+    HEMAX_EventData_HdaPreDeleteNotification EventData;
+    EventData.Hda = Hda;
+    HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+        HEMAX_EventType::HdaPreDeleteNotification, &EventData);
     HEMAX_MaxScriptInterface::PluginInstance->Clear3dsmaxHdaInputConnections(
         Hda, false);
 
@@ -1341,8 +1345,8 @@ HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda,
 
     if (Success)
     {
-        HEMAX_MaxScriptInterface::PluginInstance->
-            GetEventHub()->ParameterChanged();
+        HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
+            HEMAX_EventType::ParameterChanged, nullptr);
     }
 
     return Success;

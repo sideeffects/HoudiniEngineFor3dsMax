@@ -6,6 +6,7 @@
 
 #include "../HEMAX_Events.h"
 #include "../HEMAX_Plugin.h"
+#include "../HEMAX_SessionManager.h"
 #include "../HEMAX_ShelfTool.h"
 #include "../HEMAX_ShelfDirectory.h"
 
@@ -243,7 +244,8 @@ HEMAX_ShelfTab::Slot_AddShelfDirButton_Clicked()
 		    Shelf->AddShelfDirectory(Folder.toStdString(), NameDialog.textValue().toStdString());
 
 		    ActiveShelf = Folder.toStdString();
-                    Plugin->GetEventHub()->ShelfUpdated();
+                    HEMAX_SessionManager::GetSessionManager().GetEvents()
+                        .EmitEvent(HEMAX_EventType::ShelfUpdated, nullptr);
 		}
 	    }
 	}
