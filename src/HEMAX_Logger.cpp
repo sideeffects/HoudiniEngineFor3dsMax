@@ -1,5 +1,6 @@
 #include "HEMAX_Logger.h"
 
+#include "HEMAX_UserPrefs.h"
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
@@ -16,7 +17,20 @@ HEMAX_Logger::Instance()
 
 HEMAX_Logger::~HEMAX_Logger() {}
 
-HEMAX_Logger::HEMAX_Logger() {}
+HEMAX_Logger::HEMAX_Logger()
+{
+    bool Setting;
+    HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
+
+    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Setting);
+    ConfigurePrintLevels(HEMAX_LOG_LEVEL_ERROR, Setting);
+
+    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Setting);
+    ConfigurePrintLevels(HEMAX_LOG_LEVEL_WARN, Setting);
+
+    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Setting);
+    ConfigurePrintLevels(HEMAX_LOG_LEVEL_INFO, Setting);
+}
 
 void
 HEMAX_Logger::AddEntry(const std::string& Log, HEMAX_LogLevel LogLevel)

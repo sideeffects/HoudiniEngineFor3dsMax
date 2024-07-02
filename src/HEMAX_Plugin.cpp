@@ -103,7 +103,6 @@ HEMAX_Plugin::HEMAX_Plugin(Interface* Interface, HMODULE LibHAPIL)
         PluginStore = new HEMAX_Store;
         // Initialize User Prefs
         HEMAX_UserPrefs::Get();
-        InitializeLogPrintLevels();
     }
     else
     {
@@ -132,11 +131,6 @@ HEMAX_Plugin::Init(std::string HapiToolsDir)
         {
             HEMAX_SessionManager::GetSessionManager().CreateSession();
         }
-
-        std::string HdaRepoDir;
-        UserPreferences.GetStringSetting(
-            HEMAX_SETTING_HDA_REPO_PATH, HdaRepoDir);
-        PluginStore->UserHdaRepository = HdaRepoDir;
 
         PluginStore->GetShelf().LoadShelvesFromJson(
                     UserPreferences.GetPluginConfigFolder());
@@ -1119,14 +1113,6 @@ HEMAX_Plugin::UpdateHdaLoadDirectory(std::string Directory)
 	PluginStore->LoadAllAssetsInDirectory(Directory);
         SM.GetEvents().EmitEvent(HEMAX_EventType::AssetLoaded, nullptr);
     }
-}
-
-void
-HEMAX_Plugin::UpdateHdaSearchPathDirectory(std::string Directory)
-{
-    HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_HDA_REPO_PATH,
-        Directory);
-    PluginStore->UserHdaRepository = Directory;
 }
 
 HEMAX_Store*
@@ -2172,23 +2158,4 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
     ManualModifierAddInProgress = false;
     
     return Clone->DisplayGeometry;
-}
-
-void
-HEMAX_Plugin::InitializeLogPrintLevels()
-{
-    bool Setting;
-    HEMAX_UserPrefs& Prefs = HEMAX_UserPrefs::Get();
-
-    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_ERRORS, Setting);
-    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_ERROR,
-        Setting);
-
-    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_WARNINGS, Setting);
-    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_WARN,
-        Setting);
-
-    Prefs.GetBoolSetting(HEMAX_SETTING_DEBUG_PRINT_INFO, Setting);
-    HEMAX_Logger::Instance().ConfigurePrintLevels(HEMAX_LOG_LEVEL_INFO,
-        Setting);
 }

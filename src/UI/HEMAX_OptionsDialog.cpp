@@ -658,7 +658,8 @@ HEMAX_OptionsDialog::SlotHdaSearchPathBrowse()
     if (!Dir.isEmpty())
     {
         HdaSearchPath->setText(Dir);
-        Plugin->UpdateHdaSearchPathDirectory(Dir.toStdString());
+        HEMAX_UserPrefs::Get().SetStringSetting(HEMAX_SETTING_HDA_REPO_PATH,
+            Dir.toStdString());
     }
 }
 

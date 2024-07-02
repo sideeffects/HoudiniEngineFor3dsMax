@@ -94,7 +94,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 	std::string GetNodeName(ULONG Node);
 
         void UpdateHdaLoadDirectory(std::string Directory);
-        void UpdateHdaSearchPathDirectory(std::string Directory);
 
 	HEMAX_Store* GetPluginStore();
 
@@ -201,6 +200,4 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	INode* CloneGeometryHda(HEMAX_GeometryHda* MaxHda);
 	Modifier* CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode);
-
-	void InitializeLogPrintLevels();
 };
