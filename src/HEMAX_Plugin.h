@@ -17,7 +17,6 @@
 
 extern std::string HEMAX_CurrentAssetSelection;
 
-class HEMAX_Events;
 class HEMAX_ModifierAsset;
 class HEMAX_ReferenceMaker;
 class HEMAX_3dsmaxHda;
@@ -53,9 +52,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 	~HEMAX_Plugin();
 
         void Init(std::string HapiToolsDir);
-
-        void SetEventHub(HEMAX_Events* _PluginEvents);
-        HEMAX_Events* GetEventHub();
 
 	void TimeChanged(TimeValue Time) override;
 	void SyncEntireScene();
@@ -161,7 +157,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 
 	Interface* MaxInterface;
 	HEMAX_Store* PluginStore;
-        HEMAX_Events* PluginEvents;
 
 	void ReconnectAllStrandedHdas(INode* StartingNode);
 	void ModifierDive(IDerivedObject* DerivedObject, INode* StartingNode);

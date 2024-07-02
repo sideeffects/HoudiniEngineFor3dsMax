@@ -184,18 +184,6 @@ HEMAX_Plugin::Init(std::string HapiToolsDir)
 }
 
 void
-HEMAX_Plugin::SetEventHub(HEMAX_Events* _PluginEvents)
-{
-    PluginEvents = _PluginEvents;
-}
-
-HEMAX_Events*
-HEMAX_Plugin::GetEventHub()
-{
-    return PluginEvents;
-}
-
-void
 HEMAX_Plugin::TimeChanged(TimeValue Time)
 {
     if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
