@@ -29,6 +29,11 @@
 #include <CUI/ICuiMenu.h>
 #endif
 
+#pragma push_macro("HAPI_DECL_RETURN")
+#define HAPI_DECL_RETURN(x) x
+#include <HAPI_Helpers.C>
+#pragma pop_macro("HAPI_DECL_RETURN")
+
 #ifdef HEMAX_VERSION_2025
 MaxSDK::MaxGuid HoudiniEngineMenuGuid("47dec1b8-78b6-44e3-ad16-f690946856d2");
 MaxSDK::MaxGuid HoudiniEngineOpenActionGuid("01a24d08-9f84-48ed-8b58-476d88f6b470");

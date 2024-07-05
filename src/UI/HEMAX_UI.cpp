@@ -105,7 +105,8 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
         this,
         SLOT(HandleSubnetworkInputSelection(HEMAX_Node*, int, bool)));
 
-    ShelfToolsWidget->SetShelf(&ActivePlugin->GetPluginStore()->GetShelf());
+    ShelfToolsWidget->SetShelf(
+        &HEMAX_SessionManager::GetSessionManager().GetStore().GetShelf());
 
     bool AutoStartWindow;
     HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_AUTO_START_WINDOW,
@@ -227,7 +228,7 @@ HEMAX_UI::Update()
 {
     ShelfToolsWidget->Update();
     std::vector<std::string> LoadedAssetList =
-        ActivePlugin->GetPluginStore()->GetListOfLoadedAssets();
+        HEMAX_SessionManager::GetSessionManager().GetStore().GetListOfLoadedAssets();
     HDAWidget->UpdateLoadedAssetList(&LoadedAssetList);
     MHAWidget->RefreshParameterUI(false);
 
@@ -251,8 +252,9 @@ HEMAX_UI::OnSessionChangedCallback()
 void
 HEMAX_UI::UpdateLoadedAssetLibrariesList()
 {
-    HEMAX_Store* Store = ActivePlugin->GetPluginStore();
-    std::vector<std::string> Paths = Store->GetListOfLoadedAssets();
+    HEMAX_Store& Store =
+        HEMAX_SessionManager::GetSessionManager().GetStore();
+    std::vector<std::string> Paths = Store.GetListOfLoadedAssets();
     HDAWidget->UpdateLoadedAssetList(&Paths);
 }
 

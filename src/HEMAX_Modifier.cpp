@@ -89,8 +89,8 @@ HEMAX_Modifier::BeginEditParams(IObjParam  *IP, ULONG Flags, Animatable *Prev)
     }
     else if (ThePlugin)
     {
-        HEMAX_3dsmaxHda* MaxHda = ThePlugin->GetPluginStore()->Find3dsmaxHda(
-                                                                Hda->MainNode);
+        HEMAX_3dsmaxHda* MaxHda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Hda->MainNode);
         HEMAX_EventData_SelectionSetChanged EventData;
         EventData.Hda = MaxHda;
         HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
@@ -472,8 +472,8 @@ HEMAX_Modifier::ReverseCollapse()
 
     HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
     ModifierHda->Recreate(Asset, AssetIndex, this, MaxNode);
-    ThePlugin->GetPluginStore()->Add3dsmaxHda(
-                        MaxNode->GetHandle(), ModifierHda); 
+    HEMAX_SessionManager::GetSessionManager().GetStore()
+        .Add3dsmaxHda(MaxNode->GetHandle(), ModifierHda);
     ThePlugin->ReloadHdaFromCustomAttributes(ModifierHda);
     HEMAX_EventData_SelectionSetChanged EventData;
     EventData.Hda = ModifierHda;

@@ -119,10 +119,9 @@ IsHdaLoaded_cf(Value** ArgList, int Count)
     std::wstring WHdaPath(ArgList[0]->to_string());
     std::string HdaPath = std::string(WHdaPath.begin(), WHdaPath.end()); 
 
-    HEMAX_Plugin* Plugin = HEMAX_MaxScriptInterface::PluginInstance;
-    HEMAX_Store* Store = Plugin->GetPluginStore();
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
 
-    if (Store->IsAssetLoaded(HdaPath))
+    if (Store.IsAssetLoaded(HdaPath))
     {
 	return &true_value;
     }
@@ -141,11 +140,10 @@ LoadHda_cf(Value** ArgList, int Count)
     std::wstring WHdaPath(ArgList[0]->to_string());
     std::string HdaPath = std::string(WHdaPath.begin(), WHdaPath.end());
 
-    HEMAX_Plugin* Plugin = HEMAX_MaxScriptInterface::PluginInstance;
-    HEMAX_Store* Store = Plugin->GetPluginStore();
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
 
     bool Success;
-    Store->LoadNewAsset(HdaPath, Success);
+    Store.LoadNewAsset(HdaPath, Success);
 
     if (Success)
     {
@@ -227,10 +225,13 @@ CreateModifierHda_cf(Value** ArgList, int Count)
 Value*
 CookHda_cf(Value** ArgList, int Count)
 {
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
+
     if (Count == 1)
     {
 	INode* Node = ArgList[0]->to_node();
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = Store.Find3dsmaxHda(Node->GetHandle());
+
 	if (Hda)
 	{
 	    HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(&(Hda->Hda.MainNode));
@@ -246,7 +247,8 @@ CookHda_cf(Value** ArgList, int Count)
     {
 	INode* Node = ArgList[0]->to_node();
 	Modifier* Modifier = ArgList[1]->to_modifier();
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Modifier);
+        HEMAX_3dsmaxHda* Hda = Store.Find3dsmaxHda(Node->GetHandle(), Modifier);
+
 	if (Hda)
 	{
 	    HEMAX_MaxScriptInterface::PluginInstance->HandleRecookRequest(&(Hda->Hda.MainNode));
@@ -271,8 +273,9 @@ SetGeometryHdaParameter_cf(Value** ArgList, int Count)
 	std::wstring WParamName(ArgList[1]->to_string());
 	std::string ParamName(WParamName.begin(), WParamName.end());
 
-	HEMAX_3dsmaxHda* Hda =
-            HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
+
 	if (Hda)
 	{
             HEMAX_Node* HapiNode = &Hda->Hda.MainNode;
@@ -306,7 +309,9 @@ SetModifierHdaParameter_cf(Value** ArgList, int Count)
 	std::wstring WParamName(ArgList[2]->to_string());
 	std::string ParamName(WParamName.begin(), WParamName.end());
 
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Modifier);
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle(), Modifier);
+
 	if (Hda)
 	{
             HEMAX_Node* HapiNode = &Hda->Hda.MainNode;
@@ -336,7 +341,9 @@ BakeHda_cf(Value** ArgList, int Count)
     if (Count == 1)
     {
 	INode* Node = ArgList[0]->to_node();
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
+
 	if (Hda && Hda->Type == HEMAX_GEOMETRY_HDA)
 	{
 	    HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Hda);
@@ -374,7 +381,9 @@ CopyModifierHda_cf(Value** ArgList, int Count)
 	Modifier* SourceMod = ArgList[1]->to_modifier();
 	INode* ToNode = ArgList[2]->to_node();
 
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(FromNode->GetHandle(), SourceMod);
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(FromNode->GetHandle(), SourceMod);
+
 	if (Hda)
 	{
 	    Modifier* Clone = HEMAX_MaxScriptInterface::PluginInstance->CopyHdaToNode(Hda, ToNode);
@@ -394,7 +403,9 @@ CloneObjectHda_cf(Value** ArgList, int Count)
     if (Count == 1)
     {
 	INode* Node = ArgList[0]->to_node();
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
+
 	if (Hda)
 	{
 	    INode* Clone = HEMAX_MaxScriptInterface::PluginInstance->CloneHda(Hda);
@@ -416,7 +427,8 @@ GetListOfGeometryHdaParameters_cf(Value** ArgList, int Count)
     INode* Node = ArgList[0]->to_node();
     if (Node)
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
 
 	if (Hda)
 	{
@@ -447,7 +459,9 @@ GetListOfModifierHdaParameters_cf(Value** ArgList, int Count)
 
     if (Node && Mod)
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Mod);
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle(), Mod);
+
 	if (Hda)
 	{
 	    std::vector<HEMAX_Parameter>& Parameters = Hda->Hda.MainNode.GetParameters();
@@ -504,8 +518,8 @@ SetGeometryHdaInput_cf(Value** ArgList, int Count)
 
     if (Node && (InputNodes.Count() > 0 || ClearInput))
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->
-				    Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
 	if (Hda)
 	{
 	    int InputCount = Hda->Hda.MainNode.Info.inputCount; 
@@ -577,8 +591,8 @@ SetModifierHdaInput_cf(Value** ArgList, int Count)
 
     if (Node && Mod && (InputNodes.Count() > 0 || ClearInput))
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->
-				    Find3dsmaxHda(Node->GetHandle(), Mod);	    
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle(), Mod);
 
 	if (Hda)
 	{
@@ -656,8 +670,8 @@ SetGeometryHdaOpParmInput_cf(Value** ArgList, int Count)
 
     if (Node && (InputNodes.Count() > 0 || ClearInput))
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
-				GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
 
 	if (Hda)
 	{
@@ -725,8 +739,8 @@ SetModifierHdaOpParmInput_cf(Value** ArgList, int Count)
 
     if (Node && Mod && (InputNodes.Count() > 0 || ClearInput))
     {
-	HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
-				GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Mod);
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle(), Mod);
 
 	if (Hda)
 	{
@@ -765,8 +779,8 @@ SetGeometryHdaAutoRecookingEnabled_cf(Value** ArgList, int Count)
 
     if (Node)
     {
-        HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
-            GetPluginStore()->Find3dsmaxHda(Node->GetHandle());
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle());
 
         if (Hda)
         {
@@ -790,8 +804,8 @@ SetModifierHdaAutoRecookingEnabled_cf(Value** ArgList, int Count)
 
     if (Node && Mod)
     {
-        HEMAX_3dsmaxHda* Hda = HEMAX_MaxScriptInterface::PluginInstance->
-            GetPluginStore()->Find3dsmaxHda(Node->GetHandle(), Mod);
+        HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()
+            .GetStore().Find3dsmaxHda(Node->GetHandle(), Mod);
 
         if (Hda)
         {
@@ -829,8 +843,7 @@ GetGeometryHdas_cf(Value** ArgList, int Count)
 {
     check_arg_count(GetGeometryHdas, 0, Count);
     std::vector<HEMAX_GeometryHda*> GeoHdas;
-    HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore()->
-        GetAllGeometryHdas(GeoHdas);
+    HEMAX_SessionManager::GetSessionManager().GetStore().GetAllGeometryHdas(GeoHdas);
     Array* Hdas = new Array((int)GeoHdas.size());
 
     for (int i = 0; i < GeoHdas.size(); i++)
@@ -880,18 +893,17 @@ GetHdaType_cf(Value** ArgList, int Count)
         throw RuntimeError(L"The method arguments must be a node and a modifier.");
     }
 
-    HEMAX_Store* Store = HEMAX_MaxScriptInterface::PluginInstance->
-        GetPluginStore();
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
 
     HEMAX_3dsmaxHda* Hda = nullptr;
 
     if (Count == 1)
     {
-        Hda = Store->Find3dsmaxHda(Node->GetHandle());
+        Hda = Store.Find3dsmaxHda(Node->GetHandle());
     }
     else if (Count == 2)
     {
-        Hda = Store->Find3dsmaxHda(Node->GetHandle(), Mod);
+        Hda = Store.Find3dsmaxHda(Node->GetHandle(), Mod);
     }
 
     if (!Hda)
@@ -945,18 +957,17 @@ DeleteHda_cf(Value** ArgList, int Count)
         throw RuntimeError(L"The method arguments must be a node and a modifier.");
     }
 
-    HEMAX_Store* Store = HEMAX_MaxScriptInterface::PluginInstance->
-        GetPluginStore();
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
 
     HEMAX_3dsmaxHda* Hda = nullptr;
 
     if (Count == 1)
     {
-        Hda = Store->Find3dsmaxHda(Node->GetHandle());
+        Hda = Store.Find3dsmaxHda(Node->GetHandle());
     }
     else if (Count == 2)
     {
-        Hda = Store->Find3dsmaxHda(Node->GetHandle(), Mod);
+        Hda = Store.Find3dsmaxHda(Node->GetHandle(), Mod);
     }
 
     if (!Hda)
@@ -973,11 +984,11 @@ DeleteHda_cf(Value** ArgList, int Count)
 
     if (Node && Mod)
     {
-        Store->Delete3dsmaxHda(Node->GetHandle(), Mod);
+        Store.Delete3dsmaxHda(Node->GetHandle(), Mod);
     }
     else
     {
-        Store->Delete3dsmaxHda(Node->GetHandle());
+        Store.Delete3dsmaxHda(Node->GetHandle());
     }
 
     return &true_value;
@@ -1032,13 +1043,12 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
    }
 
    HEMAX_3dsmaxHda* Hda = nullptr;
-   HEMAX_Store* Store =
-       HEMAX_MaxScriptInterface::PluginInstance->GetPluginStore();
+   HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
 
    if (Count == 3)
-       Hda = Store->Find3dsmaxHda(Node->GetHandle());
+       Hda = Store.Find3dsmaxHda(Node->GetHandle());
    else if (Count == 4)
-       Hda = Store->Find3dsmaxHda(Node->GetHandle(), Mod);
+       Hda = Store.Find3dsmaxHda(Node->GetHandle(), Mod);
 
    if (!Hda)
        throw RuntimeError(L"The HDA could not be found.");

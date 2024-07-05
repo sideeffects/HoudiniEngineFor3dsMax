@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HEMAX_Events.h"
+#include "HEMAX_Store.h"
 #include "HEMAX_Types.h"
 
 #include <HAPI_Common.h>
@@ -34,6 +35,7 @@ class HEMAX_SessionManager
         bool                                IsSessionValidAndInitialized();
 
         HEMAX_Events&                       GetEvents() { return Events; }
+        HEMAX_Store&                        GetStore() { return Store; }
 
         HAPI_Session                        Session;
 
@@ -49,4 +51,5 @@ class HEMAX_SessionManager
         bool                                ConnectSharedMemorySession();
 
         HEMAX_Events                        Events;
+        HEMAX_Store                         Store;
 };

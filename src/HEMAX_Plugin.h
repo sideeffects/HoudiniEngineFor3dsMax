@@ -95,8 +95,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 
         void UpdateHdaLoadDirectory(std::string Directory);
 
-	HEMAX_Store* GetPluginStore();
-
 	void HandleModifierStackCollapse(INode* TheNode, Modifier* HDAModifier);
 
 	void DirtyEditableNodes(ULONG ContainerNodeHandle);
@@ -155,7 +153,6 @@ class HEMAX_Plugin : public TimeChangeCallback
 	bool ManualModifierAddInProgress;
 
 	Interface* MaxInterface;
-	HEMAX_Store* PluginStore;
 
 	void ReconnectAllStrandedHdas(INode* StartingNode);
 	void ModifierDive(IDerivedObject* DerivedObject, INode* StartingNode);
