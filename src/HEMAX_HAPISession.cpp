@@ -100,6 +100,9 @@ HEMAX_HAPIThriftSocketSession::CreateSession()
 {
     HAPI_SessionInfo SessionInfo;
     SessionInfo.connectionCount = 0;
+    SessionInfo.portType = HAPI_TCP_PORT_ANY;
+    SessionInfo.minPort = 1024;
+    SessionInfo.maxPort = 65535;
     bool Result = HEMAX_HoudiniApi::CreateThriftSocketSession(this,
         HostName.c_str(), Port, &SessionInfo);
 
