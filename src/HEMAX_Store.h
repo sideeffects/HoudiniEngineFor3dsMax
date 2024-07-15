@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HEMAX_3dsMaxInput.h"
-#include "HEMAX_Asset.h"
 #include "HEMAX_Events.h"
 #include "HEMAX_Shelf.h"
 
@@ -22,23 +21,25 @@ const char* const HEMAX_ENV_HDA_PATH = "HEMAX_HDA_PATH";
 class HEMAX_Store : public HEMAX_EventHandler
 {
     public:
-        HEMAX_Store();
+        HEMAX_Store(HEMAX_Events& EventSystem);
 	~HEMAX_Store() = default;
 
         HEMAX_Shelf& GetShelf() { return ToolShelf; }
 
 	std::vector<std::string> GetListOfLoadedAssets();
-	HEMAX_Asset* FindAsset(std::string AssetPath);
+	HAPI_AssetLibraryId FindAsset(std::string AssetPath);
 	std::string LoadNewAsset(std::string Path, bool& Success);
-	void RemoveAllAssets();
 	bool RemoveAsset(std::string AssetPath);
 
         void LoadAssetsInHdaLoadPath();
 	void LoadAllAssetsInDirectory(std::string Directory);
 
+        std::string GetAssetPath(HAPI_AssetLibraryId AssetId);
 	bool IsAssetLoaded(std::string Path);
 
-	void EmptyOutStore();
+        HAPI_AssetLibraryId UpdateAssetDefinition(const std::string& Asset);
+
+        void DeleteStore();
 	void DeleteAll3dsMaxInputs();
 
 	HEMAX_3dsMaxInput* Find3dsMaxInput(ULONG MaxNodeHandle);
@@ -75,7 +76,8 @@ class HEMAX_Store : public HEMAX_EventHandler
 	std::vector<HEMAX_3dsmaxHda*> GetAllHdas();
         void GetAllGeometryHdas(std::vector<HEMAX_GeometryHda*>& HdaList);
 
-	std::vector<HEMAX_3dsmaxHda*> FindAllHdasUsingAssetDefinition(HEMAX_Asset* Asset);
+	std::vector<HEMAX_3dsmaxHda*> FindAllHdasUsingAssetDefinition(
+                HAPI_AssetLibraryId AssetId);
 
 	std::string UserHdaRepository;
 
@@ -83,10 +85,13 @@ class HEMAX_Store : public HEMAX_EventHandler
 
         HEMAX_Shelf ToolShelf;
 
-	std::unordered_map<std::string, HEMAX_Asset> LoadedAssetLibraries;
+	std::unordered_map<std::string, HAPI_AssetLibraryId> LoadedAssetLibraries;
 	std::unordered_map<ULONG, HEMAX_3dsMaxInput*> InputStore;
 	std::unordered_map<ULONG, HEMAX_GeometryHda*> MaxHdaStore;
 	std::unordered_map<ULONG, std::list<HEMAX_ModifierHda*>> ModifierHdaStore;
 
+        HAPI_Result LoadAssetLibrary(const std::string& Path,
+                                     bool AllowOverwrite,
+                                     HAPI_AssetLibraryId& AssetLibId);
 	void DeleteMaxNode(ULONG MaxNodeHandle, std::vector<ULONG>& ScheduledDeletionList);
 };

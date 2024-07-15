@@ -9,6 +9,7 @@ enum class HEMAX_EventType
 {
     SessionChanged,
     SessionReady,
+    PreSessionStopped,
     SessionStopped,
     ShelfUpdated,
     AssetLoaded,

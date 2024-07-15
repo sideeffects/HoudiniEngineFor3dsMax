@@ -40,7 +40,7 @@ class HEMAX_SessionManager
         HAPI_Session                        Session;
 
     private:
-	                                    HEMAX_SessionManager() = default;
+	                                    HEMAX_SessionManager();
 
         bool                                CreateSocketSession();
         bool                                CreateNamedPipeSession();

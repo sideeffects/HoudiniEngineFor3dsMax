@@ -1,6 +1,5 @@
 #pragma once
 
-#include "HEMAX_Asset.h"
 #include "HEMAX_Node.h"
 #include "HEMAX_Object.h"
 #include "HEMAX_DisplayGeoNode.h"
@@ -16,9 +15,14 @@ class HEMAX_Hda
     public:
 	HEMAX_Hda();
 
-	void Init(const HEMAX_Asset& Asset, int AssetIndex);
+	void Init(const std::string& OpName,
+                  const std::string& AssetPath,
+                  const int SelectedAssetIndex);
 	void Delete();
 	void Update();
+
+        const std::string& GetAssetPath() { return StoreAssetPath; }
+        int GetAssetIndex() { return AssetIndex; }
 
 	HEMAX_EditableNode FindEditableNodeFromName(std::string Name,
 						    bool& Success);
@@ -35,8 +39,6 @@ class HEMAX_Hda
 	HEMAX_Object TopLevelObjectNode;
 	HEMAX_DisplayGeoNode TopLevelSopNode;
 
-	HEMAX_Asset HdaAsset;
-	int HdaAssetIndex;
 	std::string Name;
 
 	std::unordered_map<HAPI_NodeId, HEMAX_MaterialNode> ShopNodes;
@@ -50,4 +52,7 @@ class HEMAX_Hda
         void CheckForTimeDependentNodes();
 
         bool MyHasTimeDependentNodes;
+
+        std::string StoreAssetPath;
+        int         AssetIndex = -1;
 };

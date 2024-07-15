@@ -7,14 +7,26 @@
 #include "HEMAX_Utilities.h"
 
 #include <dbgprint.h>
-#include <HAPI_Helpers.h>
 #include <sstream>
 #include <string>
+
+#pragma push_macro("HAPI_DECL_RETURN")
+#undef HAPI_DECL_RETURN
+#define HAPI_DECL_RETURN(x) x
+#include <HAPI_Helpers.h>
+#pragma pop_macro("HAPI_DECL_RETURN")
+
 
 // TODO: session refactor
 // We need to set these in HARS
 const char* const HAPI_CLIENT_NAME_ENV_VAR = "HAPI_CLIENT_NAME";
 const char* const HAPI_CLIENT_NAME_ENV_VAL = "3dsmax";
+
+HEMAX_SessionManager::HEMAX_SessionManager()
+    : Store(Events)
+{
+
+}
 
 HEMAX_SessionManager&
 HEMAX_SessionManager::GetSessionManager()
@@ -197,6 +209,8 @@ HEMAX_SessionManager::ConnectSession()
 bool
 HEMAX_SessionManager::StopSession()
 {
+    Events.EmitEvent(HEMAX_EventType::PreSessionStopped, nullptr);
+
     HEMAX_Logger::Instance().AddEntry("Stopping session...",
         HEMAX_LOG_LEVEL_INFO);
 

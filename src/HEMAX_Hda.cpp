@@ -11,12 +11,14 @@ HEMAX_Hda::HEMAX_Hda()
 }
 
 void
-HEMAX_Hda::Init(const HEMAX_Asset& Asset, int AssetIndex)
+HEMAX_Hda::Init(const std::string& OpName,
+                const std::string& AssetPath,
+                const int SelectedAssetIndex)
 {
-    HdaAsset = Asset;
-    HdaAssetIndex = AssetIndex;
+    StoreAssetPath = AssetPath;
+    AssetIndex = SelectedAssetIndex;
 
-    MainNode.Init(Asset.Names[AssetIndex]);
+    MainNode.Init(OpName);
 
     // If the node is invalid, it failed to initialize for some reason
     if (MainNode.Type == HAPI_NODETYPE_NONE)

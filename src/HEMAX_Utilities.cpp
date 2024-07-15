@@ -519,7 +519,9 @@ HEMAX_Utilities::GetHAPIString(HAPI_StringHandle Handle)
         return "";
     }
 
-    return std::string(StringBuf.begin(), StringBuf.end());
+    // Since HAPI returns the null character but we're just stuffing the c style
+    // string into a std::string, we can skip the null char.
+    return std::string(StringBuf.begin(), StringBuf.begin()+BufLen-1);
 }
 
 std::string
@@ -604,4 +606,33 @@ HEMAX_Utilities::ParmIsNodeType(HAPI_ParmType Type)
         return true;
     else
         return false;
+}
+
+std::string
+HEMAX_Utilities::GetAssetName(HAPI_AssetLibraryId AssetId, int AssetIndex)
+{
+    int AssetCount = 0;
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
+    std::vector<HAPI_StringHandle> AssetNameHandles(AssetCount);
+    HEMAX_HoudiniApi::GetAvailableAssets(&SM.Session, AssetId,
+        AssetNameHandles.data(), AssetCount);
+    return GetHAPIString(AssetNameHandles[AssetIndex]);
+}
+
+void
+HEMAX_Utilities::GetAssetNames(HAPI_AssetLibraryId AssetId,
+                               std::vector<std::string>& AssetNames)
+{
+    int AssetCount = 0;
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
+    std::vector<HAPI_StringHandle> AssetNameHandles(AssetCount);
+    HEMAX_HoudiniApi::GetAvailableAssets(&SM.Session, AssetId,
+        AssetNameHandles.data(), AssetCount);
+    AssetNames.clear(); 
+    for (auto&& Handle : AssetNameHandles)
+    {
+        AssetNames.push_back(GetHAPIString(Handle));
+    }
 }

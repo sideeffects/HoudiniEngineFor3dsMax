@@ -66,4 +66,8 @@ struct HEMAX_Utilities
     static bool ParmIsFloatType(HAPI_ParmType Type);
     static bool ParmIsStringType(HAPI_ParmType Type);
     static bool ParmIsNodeType(HAPI_ParmType Type);
+
+    static std::string  GetAssetName(HAPI_AssetLibraryId AssetId, int AssetIndex);
+    static void         GetAssetNames(HAPI_AssetLibraryId AssetId,
+                                      std::vector<std::string>& AssetNames);
 };

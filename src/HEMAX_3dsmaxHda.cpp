@@ -1,5 +1,6 @@
 #include "HEMAX_3dsmaxHda.h"
 
+#include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 
 void
@@ -1071,16 +1072,20 @@ HEMAX_3dsmaxHda::SetHardcodedHdaAssetPath(std::string AssetPath)
 void
 HEMAX_3dsmaxHda::CopyAllParameterValues(HEMAX_3dsmaxHda& Source)
 {
-    if (Hda.HdaAsset.Id != Source.Hda.HdaAsset.Id)
-    {
-	std::string Msg = "Attempting to copy parameter values from HDA " + Source.Hda.HdaAsset.Names[Source.Hda.HdaAssetIndex] +
-	    " to " + Hda.HdaAsset.Names[Hda.HdaAssetIndex] + ", but they are different assets";
-	HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_AssetLibraryId ThisAssetId = SM.GetStore().FindAsset(Hda.GetAssetPath());
+    HAPI_AssetLibraryId OtherAssetId = SM.GetStore().FindAsset(Source.Hda.GetAssetPath()); 
 
-	return;
+    if (ThisAssetId != OtherAssetId)
+    {
+        std::string Msg = "Could not copy parameter values because the HDAs "
+            "are different.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_WARN);
+        return;
     }
 
-    std::vector<HEMAX_Parameter>& SourceParms = Source.Hda.MainNode.GetParameters();
+    std::vector<HEMAX_Parameter>& SourceParms =
+        Source.Hda.MainNode.GetParameters();
 
     bool Finished = true;
     int ParmIndex = 0;
@@ -1090,7 +1095,8 @@ HEMAX_3dsmaxHda::CopyAllParameterValues(HEMAX_3dsmaxHda& Source)
 	Finished = true;
 	for (int p = ParmIndex; p < SourceParms.size(); p++)
 	{
-	    HEMAX_Parameter* DestParm = Hda.MainNode.GetParameter(SourceParms[p].GetName());
+	    HEMAX_Parameter* DestParm =
+                Hda.MainNode.GetParameter(SourceParms[p].GetName());
 	    if (DestParm)
 	    {
 		DestParm->CopyValuesFrom(SourceParms[p]);

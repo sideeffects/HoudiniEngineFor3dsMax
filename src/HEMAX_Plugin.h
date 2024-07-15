@@ -2,7 +2,6 @@
 
 #include "HEMAX_Mesh.h"
 #include "HEMAX_Store.h"
-#include "HEMAX_Asset.h"
 #include "HEMAX_Input.h"
 #include "HEMAX_Shelf.h"
 #include "HEMAX_Modifier.h"

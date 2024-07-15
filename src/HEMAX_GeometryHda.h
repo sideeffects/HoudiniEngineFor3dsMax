@@ -29,10 +29,17 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
     public:
 	HEMAX_GeometryHda();
 
-	void Init(HEMAX_Asset& Asset, int AssetIndex);
+	void Init(HAPI_AssetLibraryId AssetId,
+                  const std::string& AssetPath,
+                  int AssetIndex);
 
-	void Create(HEMAX_Asset& Asset, int AssetIndex);
-	void Create(INode* ContainerNode, HEMAX_Asset& Asset, int AssetIndex);
+	void Create(HAPI_AssetLibraryId AssetId,
+                    const std::string& AssetPath,
+                    int AssetIndex);
+	void Create(INode* ContainerNode,
+                    HAPI_AssetLibraryId AssetId,
+                    const std::string& AssetPath,
+                    int AssetIndex);
 
 	void CreateNewGeometryHda(HEMAX_Hda& Hda);
 

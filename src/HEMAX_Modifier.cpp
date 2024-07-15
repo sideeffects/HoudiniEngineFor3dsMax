@@ -120,8 +120,6 @@ void
 HEMAX_Modifier::SetHda(HEMAX_Hda* Hda)
 {
     this->Hda = Hda;
-    Asset = Hda->HdaAsset;
-    AssetIndex = Hda->HdaAssetIndex;
 }
 
 HEMAX_Hda*
@@ -471,7 +469,9 @@ HEMAX_Modifier::ReverseCollapse()
         return;
 
     HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
-    ModifierHda->Recreate(Asset, AssetIndex, this, MaxNode);
+    HEMAX_Store& Store = HEMAX_SessionManager::GetSessionManager().GetStore();
+    ModifierHda->Recreate(Store.FindAsset(Hda->GetAssetPath()),
+        Hda->GetAssetPath(), Hda->GetAssetIndex(), this, MaxNode);
     HEMAX_SessionManager::GetSessionManager().GetStore()
         .Add3dsmaxHda(MaxNode->GetHandle(), ModifierHda);
     ThePlugin->ReloadHdaFromCustomAttributes(ModifierHda);

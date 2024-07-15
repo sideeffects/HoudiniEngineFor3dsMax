@@ -30,6 +30,7 @@
 #endif
 
 #pragma push_macro("HAPI_DECL_RETURN")
+#undef HAPI_DECL_RETURN
 #define HAPI_DECL_RETURN(x) x
 #include <HAPI_Helpers.C>
 #pragma pop_macro("HAPI_DECL_RETURN")

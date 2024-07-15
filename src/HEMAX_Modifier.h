@@ -75,8 +75,6 @@ class HEMAX_Modifier : public Modifier
 
 	HEMAX_Hda* Hda;
 	HEMAX_Input* InputNode;
-        HEMAX_Asset Asset;
-        int AssetIndex;
 
 	bool HasBeenCreated;
 	HEMAX_Plugin* ThePlugin;

@@ -29,9 +29,12 @@ HEMAX_GeometryHda::HEMAX_GeometryHda()
 }
 
 void
-HEMAX_GeometryHda::Init(HEMAX_Asset& Asset, int AssetIndex)
+HEMAX_GeometryHda::Init(HAPI_AssetLibraryId AssetId,
+                        const std::string& AssetPath,
+                        int AssetIndex)
 {
-    Hda.Init(Asset, AssetIndex);
+    Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
+        AssetPath, AssetIndex);
 
     if (Hda.MainNode.Type != HAPI_NODETYPE_NONE)
     {
@@ -40,9 +43,11 @@ HEMAX_GeometryHda::Init(HEMAX_Asset& Asset, int AssetIndex)
 }
 
 void
-HEMAX_GeometryHda::Create(HEMAX_Asset& Asset, int AssetIndex)
+HEMAX_GeometryHda::Create(HAPI_AssetLibraryId AssetId,
+                          const std::string& AssetPath,
+                          int AssetIndex)
 {
-    Init(Asset, AssetIndex);
+    Init(AssetId, AssetPath, AssetIndex);
 
     if (Hda.MainNode.Type != HAPI_NODETYPE_NONE)
     {
@@ -52,9 +57,12 @@ HEMAX_GeometryHda::Create(HEMAX_Asset& Asset, int AssetIndex)
 }
 
 void
-HEMAX_GeometryHda::Create(INode* ContainerNode, HEMAX_Asset& Asset, int AssetIndex)
+HEMAX_GeometryHda::Create(INode* ContainerNode,
+                          HAPI_AssetLibraryId AssetId,
+                          const std::string& AssetPath,
+                          int AssetIndex)
 {
-    Init(Asset, AssetIndex);
+    Init(AssetId, AssetPath, AssetIndex);
     CreateNewGeometryHda(Hda, ContainerNode);
     InitializeParameterCustomAttributes();
 }
@@ -1451,13 +1459,13 @@ HEMAX_GeometryHda::GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda)
 
     HEMAX_StringParameterAttrib* MaxHoudiniAssetPath = new HEMAX_StringParameterAttrib;
     MaxHoudiniAssetPath->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME));
-    std::wstring WideAssetPath(Hda.HdaAsset.Path.begin(), Hda.HdaAsset.Path.end());
+    std::wstring WideAssetPath(Hda.GetAssetPath().begin(), Hda.GetAssetPath().end());
     MaxHoudiniAssetPath->PBlock->SetValue(0, 0, WideAssetPath.c_str());
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX, MaxHoudiniAssetPath);
 
     HEMAX_IntegerParameterAttrib* MaxHoudiniAssetLibIndex = new HEMAX_IntegerParameterAttrib;
     MaxHoudiniAssetLibIndex->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME));
-    MaxHoudiniAssetLibIndex->PBlock->SetValue(0, 0, Hda.HdaAssetIndex);
+    MaxHoudiniAssetLibIndex->PBlock->SetValue(0, 0, Hda.GetAssetIndex());
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX, MaxHoudiniAssetLibIndex);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniConvertOnSave = new HEMAX_ToggleParameterAttrib;

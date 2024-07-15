@@ -2,6 +2,7 @@
 
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Modifier.h"
+#include "HEMAX_Utilities.h"
 
 HEMAX_ModifierHda::HEMAX_ModifierHda()
 {
@@ -12,10 +13,12 @@ HEMAX_ModifierHda::HEMAX_ModifierHda()
 }
 
 bool
-HEMAX_ModifierHda::Create(HEMAX_Asset& Asset, int AssetIndex,
+HEMAX_ModifierHda::Create(HAPI_AssetLibraryId AssetId,
+                          const std::string& AssetPath, int AssetIndex,
 			  HEMAX_Modifier* Modifier, INode* MaxNode)
 {
-    Hda.Init(Asset, AssetIndex);
+    Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
+        AssetPath, AssetIndex);
 
     if (Hda.MainNode.Info.inputCount > 0)
     {
@@ -33,10 +36,12 @@ HEMAX_ModifierHda::Create(HEMAX_Asset& Asset, int AssetIndex,
 }
 
 void
-HEMAX_ModifierHda::Recreate(HEMAX_Asset& Asset, int AssetIndex,
+HEMAX_ModifierHda::Recreate(HAPI_AssetLibraryId AssetId,
+                            const std::string& AssetPath, int AssetIndex,
 			    HEMAX_Modifier* Modifier, INode* ContainerNode)
 {
-    Hda.Init(Asset, AssetIndex);
+    Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
+        AssetPath, AssetIndex);
     InitializeSubnetworks();
     RecreateExistingModifierHda(Hda, Modifier, ContainerNode);
 }
@@ -140,13 +145,13 @@ HEMAX_ModifierHda::GenerateBoilerplateModifierPluginCustomAttributes(HEMAX_Modif
 
 	HEMAX_StringParameterAttrib* ModifierAssetPath = new HEMAX_StringParameterAttrib;
 	ModifierAssetPath->SetParameterName(std::string(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME));
-	std::wstring WideAssetPath(Hda.HdaAsset.Path.begin(), Hda.HdaAsset.Path.end());
+	std::wstring WideAssetPath(Hda.GetAssetPath().begin(), Hda.GetAssetPath().end());
 	ModifierAssetPath->PBlock->SetValue(0, 0, WideAssetPath.c_str());
 	CustomAttributes->InsertCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_INDEX, ModifierAssetPath);
 
 	HEMAX_IntegerParameterAttrib* ModifierAssetLibIndex = new HEMAX_IntegerParameterAttrib;
 	ModifierAssetLibIndex->SetParameterName(std::string(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_NAME));
-	ModifierAssetLibIndex->PBlock->SetValue(0, 0, Hda.HdaAssetIndex);
+	ModifierAssetLibIndex->PBlock->SetValue(0, 0, Hda.GetAssetIndex());
 	CustomAttributes->InsertCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX, ModifierAssetLibIndex);
 
 	// Make custom attributes for the secondary sub-network inputs. First subnetwork input is reserved for the modifier stack input.

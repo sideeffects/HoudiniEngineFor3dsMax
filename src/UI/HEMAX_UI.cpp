@@ -169,6 +169,10 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
 
         HandleHdaPreDeleteEvent(EventData->Hda);
     });
+    RegisterCallback(HEMAX_EventType::PreSessionStopped,
+                    [this](HEMAX_EventData* Data) {
+        ChangeHdaSelection(nullptr, true);
+    });
 }
 
 HEMAX_UI::~HEMAX_UI()

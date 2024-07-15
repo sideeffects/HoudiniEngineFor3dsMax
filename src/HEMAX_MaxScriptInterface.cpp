@@ -911,10 +911,12 @@ GetHdaType_cf(Value** ArgList, int Count)
         throw RuntimeError(L"The HDA could not be found.");
     }
 
-    std::wstring HdaName = std::wstring(
-        Hda->Hda.HdaAsset.Names[Hda->Hda.HdaAssetIndex].begin(),
-        Hda->Hda.HdaAsset.Names[Hda->Hda.HdaAssetIndex].end());
-    Value* NameVal = Name::intern(HdaName.c_str());
+    HAPI_AssetLibraryId AssetId = Store.FindAsset(Hda->Hda.GetAssetPath());
+    std::string HdaName =
+        HEMAX_Utilities::GetAssetName(AssetId, Hda->Hda.GetAssetIndex());
+    std::wstring WHdaName = std::wstring(HdaName.begin(), HdaName.end());
+
+    Value* NameVal = Name::intern(WHdaName.c_str());
     return NameVal;
 }
 

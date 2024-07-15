@@ -291,38 +291,41 @@ HEMAX_Plugin::LoadNewAsset(std::string Path)
 void
 HEMAX_Plugin::CreateGeometryHDA(std::string Path)
 {
-    HEMAX_Asset* TheAsset = HEMAX_SessionManager::GetSessionManager()
-        .GetStore().FindAsset(Path);
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_AssetLibraryId AssetId = SM.GetStore().FindAsset(Path);
 
-    if (TheAsset)
+    if (AssetId == -1)
     {
-	if (TheAsset->AssetCount == 1)
-	{
-	    CreateGeometryHDA(Path, 0);
-	}
-	else
-	{
-	    std::vector<std::string>& AssetNames = TheAsset->Names;
+        std::string Msg = "Error creating geometry HDA: asset with path <"
+            + Path + "> could not be found";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+        return;
+    }
 
-	    HEMAX_AssetSelection AssetSelector(AssetNames);
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
 
-	    if (AssetSelector.exec())
-	    {
-		for (int s = 0; s < AssetNames.size(); ++s)
-		{
-		    if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
-		    {
-			CreateGeometryHDA(Path, s);
-		    }
-		}
-	    }
-	}
+    if (AssetCount == 1)
+    {
+        CreateGeometryHDA(Path, 0);
     }
     else
     {
-        std::string Msg = "HDA with path <" + Path + "> could not be created "
-            "because it has not been loaded.";
-        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+        std::vector<std::string> AssetNames;
+        HEMAX_Utilities::GetAssetNames(AssetId, AssetNames);
+
+        HEMAX_AssetSelection AssetSelector(AssetNames);
+
+        if (AssetSelector.exec())
+        {
+            for (int s = 0; s < AssetNames.size(); ++s)
+            {
+                if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
+                {
+                    CreateGeometryHDA(Path, s);
+                }
+            }
+        }
     }
 }
 
@@ -376,52 +379,56 @@ HEMAX_Plugin::CreateModifierHDAs(std::string Path)
 	SelectedNodes.push_back(GetCOREInterface()->GetSelNode(i));
     }
 
-    HEMAX_Asset* TheAsset = HEMAX_SessionManager::GetSessionManager()
-        .GetStore().FindAsset(Path);
-
-    if (TheAsset)
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_AssetLibraryId AssetId = SM.GetStore().FindAsset(Path);;
+    
+    if (AssetId == -1)
     {
-	if (TheAsset->AssetCount == 1)
-	{
-	    for (int i = 0; i < NumSelection; i++)
-	    {
-		HEMAX_3dsmaxHda* ModifierHda = CreateModifierHDA(
-                    SelectedNodes[i], Path, 0);
-		if (ModifierHda)
-		{
-                    HEMAX_EventData_SelectionSetChanged EventData;
-                    EventData.Hda = ModifierHda;
-                    HEMAX_SessionManager::GetSessionManager().GetEvents()
-                        .EmitEvent(HEMAX_EventType::SelectionSetChanged,
-                                &EventData);
-		}
-	    }
-	}
-	else
-	{
-	    std::vector<std::string>& AssetNames = TheAsset->Names;
-	    HEMAX_AssetSelection AssetSelector(AssetNames);
+        std::string Msg = "Error creating modifier HDA: asset with path <"
+            + Path + "> could not be found.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+        ManualModifierAddInProgress = false;
+        return;
+    }
 
-	    if (AssetSelector.exec())
-	    {
-		for (int s = 0; s < AssetNames.size(); s++)
-		{
-		    if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
-		    {
-			for (int i = 0; i < NumSelection; i++)
-			{
-			    CreateModifierHDA(SelectedNodes[i], Path, s);
-			}
-		    }
-		}
-	    }
-	}
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
+
+    if (AssetCount == 1)
+    {
+        for (int i = 0; i < NumSelection; i++)
+        {
+            HEMAX_3dsmaxHda* ModifierHda = CreateModifierHDA(
+                SelectedNodes[i], Path, 0);
+            if (ModifierHda)
+            {
+                HEMAX_EventData_SelectionSetChanged EventData;
+                EventData.Hda = ModifierHda;
+                HEMAX_SessionManager::GetSessionManager().GetEvents()
+                    .EmitEvent(HEMAX_EventType::SelectionSetChanged,
+                            &EventData);
+            }
+        }
     }
     else
     {
-        std::string Msg = "HDA with path <" + Path + "> could not be created "
-            "because it has not been loaded.";
-        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+        std::vector<std::string> AssetNames;
+        HEMAX_Utilities::GetAssetNames(AssetId, AssetNames);
+        HEMAX_AssetSelection AssetSelector(AssetNames);
+
+        if (AssetSelector.exec())
+        {
+            for (int s = 0; s < AssetNames.size(); s++)
+            {
+                if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
+                {
+                    for (int i = 0; i < NumSelection; i++)
+                    {
+                        CreateModifierHDA(SelectedNodes[i], Path, s);
+                    }
+                }
+            }
+        }
     }
 
     ManualModifierAddInProgress = false;
@@ -477,7 +484,7 @@ HEMAX_Plugin::HandleSceneFileOpening()
         HEMAX_EventType::SelectionSetChanged, &EventData);
 
     DestroyAllEditableNodeReferences();
-    HEMAX_SessionManager::GetSessionManager().GetStore().EmptyOutStore();
+    HEMAX_SessionManager::GetSessionManager().GetStore().DeleteStore();
 }
 
 void
@@ -507,7 +514,7 @@ HEMAX_Plugin::HandlePreNewAll()
         HEMAX_EventType::SelectionSetChanged, &EventData);
 
     DestroyAllEditableNodeReferences();
-    HEMAX_SessionManager::GetSessionManager().GetStore().EmptyOutStore();
+    HEMAX_SessionManager::GetSessionManager().GetStore().DeleteStore();
 
     if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
@@ -562,118 +569,127 @@ HEMAX_Plugin::HandleNodePreDelete(Tab<INode*>* NodesBeingDeleted)
 void
 HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
 {
-    if (!ManualModifierAddInProgress)
+    if (ManualModifierAddInProgress)
     {
-	std::wstring ModStackPluginName(_T(HEMAX_MODIFIER_STACK_PLUGIN_NAME));
+        // There's this really weird case where you drag and drop a
+        // a modifier. It will emit a modifier post-add signal and a mod
+        // pre-delete signal.
+        if (ModEvent->node && ModEvent->mod)
+        {
+            HEMAX_ModifierHda* ModifierHda =
+                HEMAX_SessionManager::GetSessionManager().GetStore()
+                    .Find3dsmaxHda(ModEvent->node->GetHandle(), ModEvent->mod);
+
+            if (ModifierHda)
+            {
+                ModifierHda->DisplayGeometry->SetIsBeingDragged(true);
+            }
+        }
+
+        return;
+    }
+
+    std::wstring ModStackPluginName(_T(HEMAX_MODIFIER_STACK_PLUGIN_NAME));
 #ifdef HEMAX_VERSION_2025
-        std::wstring ModifierName(ModEvent->mod->GetName(false).data());
+    std::wstring ModifierName(ModEvent->mod->GetName(false).data());
 #else
-	std::wstring ModifierName(ModEvent->mod->GetName());
+    std::wstring ModifierName(ModEvent->mod->GetName());
 #endif
 
-	if (ModifierName == ModStackPluginName)
-	{
-            HEMAX_HDASelectionDialog ModSelectionDialog(
-                HEMAX_SessionManager::GetSessionManager()
-                    .GetStore().GetListOfLoadedAssets());
+    if (ModifierName != ModStackPluginName)
+        return;
 
-	    if (ModSelectionDialog.exec())
-	    {
-		std::string SelectedAssetPath = ModSelectionDialog.GetSelectedAssetPath();
+    HEMAX_HDASelectionDialog ModSelectionDialog(
+        HEMAX_SessionManager::GetSessionManager()
+            .GetStore().GetListOfLoadedAssets());
 
-                HEMAX_Asset* TheAsset = HEMAX_SessionManager::GetSessionManager()
-                    .GetStore().FindAsset(SelectedAssetPath);
+    if (!ModSelectionDialog.exec())
+    {
+        GetCOREInterface7()->DeleteModifier(*(ModEvent->node), *(ModEvent->mod));
+        return;
+    }
 
-		if (TheAsset)
-		{
-		    if (TheAsset->AssetCount == 1)
-		    {
-			HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)ModEvent->mod;
-			HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
+    std::string SelectedAssetPath =
+        ModSelectionDialog.GetSelectedAssetPath();
 
-			if (ModifierHda->Create(*TheAsset, 0, ModifierPlugin, ModEvent->node))
-			{
-			    ModifierPlugin->RegisterPlugin(this);
-                            HEMAX_SessionManager::GetSessionManager().GetStore()
-                                .Add3dsmaxHda(ModEvent->node->GetHandle(),
-                                              ModifierHda);
-			    GetCOREInterface()->ForceCompleteRedraw();
-			    ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
-                            Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
-			    ModifierHda->DisplayGeometry->ForceNotify(Now);
-			}
-			else
-			{
-			    GetCOREInterface7()->DeleteModifier(*(ModEvent->node), *(ModEvent->mod));
-			    delete ModifierHda;
-			}
-		    }
-		    else
-		    {
-			std::vector<std::string>& AssetNames = TheAsset->Names;
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_AssetLibraryId AssetId =
+        SM.GetStore().FindAsset(SelectedAssetPath);
 
-			HEMAX_AssetSelection AssetSelector(AssetNames);
+    if (AssetId == -1)
+    {
+        std::string Msg = "Error creating modifier HDA: asset with path <"
+            + SelectedAssetPath + "> could not be found.";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
+        GetCOREInterface7()->DeleteModifier(*(ModEvent->node),
+            *(ModEvent->mod));
+        return;
+    }
 
-			if (AssetSelector.exec())
-			{
-			    for (int s = 0; s < AssetNames.size(); ++s)
-			    {
-				if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
-				{
-				    HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)ModEvent->mod;
-				    HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
 
-				    if (ModifierHda->Create(*TheAsset, s, ModifierPlugin, ModEvent->node))
-				    {
-					ModifierPlugin->RegisterPlugin(this);
-                                        HEMAX_SessionManager::GetSessionManager().GetStore()
-                                            .Add3dsmaxHda(ModEvent->node->GetHandle(), ModifierHda);
-					GetCOREInterface()->ForceCompleteRedraw();
-					ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
-                                        Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
-					ModifierHda->DisplayGeometry->ForceNotify(Now);
-				    }
-				    else
-				    {
-					GetCOREInterface7()->DeleteModifier(*(ModEvent->node), *(ModEvent->mod));
-					delete ModifierHda;
-				    }
-				}
-			    }
-			}
-		    }
-		}
-		else
-		{
-                    std::string Msg = "HDA with path <" + SelectedAssetPath +
-                        "> could not be created because it has not been loaded.";
-                    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR); 
-		    GetCOREInterface7()->DeleteModifier(*(ModEvent->node),
-                        *(ModEvent->mod));
-		}
-	    }
-	    else
-	    {
-		GetCOREInterface7()->DeleteModifier(*(ModEvent->node), *(ModEvent->mod));
-	    }
-	}
-	else
-	{
-	    // There's this really weird case where you drag and drop a
-	    // a modifier. It will emit a modifier post-add signal and a mod
-	    // pre-delete signal.
-	    if (ModEvent->node && ModEvent->mod)
-	    {
-                HEMAX_ModifierHda* ModifierHda =
-                    HEMAX_SessionManager::GetSessionManager().GetStore()
-                        .Find3dsmaxHda(ModEvent->node->GetHandle(), ModEvent->mod);
+    if (AssetCount == 1)
+    {
+        HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)ModEvent->mod;
+        HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
 
-		if (ModifierHda)
-		{
-		    ModifierHda->DisplayGeometry->SetIsBeingDragged(true);
-		}
-	    }
-	}
+        if (ModifierHda->Create(AssetCount, SelectedAssetPath, 0,
+                ModifierPlugin, ModEvent->node))
+        {
+            ModifierPlugin->RegisterPlugin(this);
+            HEMAX_SessionManager::GetSessionManager().GetStore()
+                .Add3dsmaxHda(ModEvent->node->GetHandle(),
+                              ModifierHda);
+            GetCOREInterface()->ForceCompleteRedraw();
+            ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
+            Interval Now(GetCOREInterface()->GetTime(), GetCOREInterface()->GetTime());
+            ModifierHda->DisplayGeometry->ForceNotify(Now);
+        }
+        else
+        {
+            GetCOREInterface7()->DeleteModifier(*(ModEvent->node), *(ModEvent->mod));
+            delete ModifierHda;
+        }
+    }
+    else
+    {
+        std::vector<std::string> AssetNames;
+        HEMAX_Utilities::GetAssetNames(AssetId, AssetNames);
+
+        HEMAX_AssetSelection AssetSelector(AssetNames);
+
+        if (AssetSelector.exec())
+        {
+            for (int s = 0; s < AssetNames.size(); ++s)
+            {
+                if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
+                {
+                    HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)ModEvent->mod;
+                    HEMAX_ModifierHda* ModifierHda = new HEMAX_ModifierHda;
+
+                    if (ModifierHda->Create(AssetId, SelectedAssetPath,
+                        s, ModifierPlugin, ModEvent->node))
+                    {
+                        ModifierPlugin->RegisterPlugin(this);
+                        HEMAX_SessionManager::GetSessionManager().GetStore()
+                            .Add3dsmaxHda(ModEvent->node->GetHandle(), ModifierHda);
+                        GetCOREInterface()->ForceCompleteRedraw();
+                        ModifierHda->DisplayGeometry->ApplyMaterialsToNode();
+                        Interval Now(
+                            GetCOREInterface()->GetTime(),
+                            GetCOREInterface()->GetTime());
+                        ModifierHda->DisplayGeometry->ForceNotify(Now);
+                    }
+                    else
+                    {
+                        GetCOREInterface7()->DeleteModifier(
+                            *(ModEvent->node), *(ModEvent->mod));
+                        delete ModifierHda;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -719,79 +735,88 @@ HEMAX_Plugin::HandleNodeCreated(INode* AddedNode)
 {
     Object* NodeObject = AddedNode->GetObjectRef();
 
-    if (NodeObject)
+    if (!NodeObject)
+        return;
+
+    if (NodeObject->ClassID() != HEMAX_GeometryPlugin_CLASS_ID)
+        return;
+
+    HEMAX_GeometryPlugin* Geom = static_cast<HEMAX_GeometryPlugin*>(NodeObject);
+
+    if (!Geom->IsStranded)
+        return;
+
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    
+    HAPI_AssetLibraryId CurrentAssetId =
+        SM.GetStore().FindAsset(HEMAX_CurrentAssetSelection);
+
+    if (CurrentAssetId == -1)
     {
-	if (NodeObject->ClassID() == HEMAX_GeometryPlugin_CLASS_ID)
-	{
-	    HEMAX_GeometryPlugin* Geom = static_cast<HEMAX_GeometryPlugin*>(NodeObject);
+        HEMAX_Logger::Instance().AddEntry("Could not create the geometry HDA "
+            "because no HDA was selected for it.", HEMAX_LOG_LEVEL_ERROR);
+        return;
+    }
 
-	    if (Geom->IsStranded)
-	    {
-                HEMAX_Asset* CurrentAsset = HEMAX_SessionManager::GetSessionManager()
-                    .GetStore().FindAsset(HEMAX_CurrentAssetSelection);
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, CurrentAssetId,
+        &AssetCount);
 
-		if (CurrentAsset)
-		{
-		    if (CurrentAsset->AssetCount == 1)
-		    {
-			HEMAX_GeometryHda* GeometryHda =
-                            new HEMAX_GeometryHda();
-			AddedNode->SetObjectRef(nullptr);
-			GeometryHda->Dummy = new DummyObject;
-			AddedNode->SetObjectRef(GeometryHda->Dummy);
+    if (AssetCount == 1)
+    {
+        HEMAX_GeometryHda* GeometryHda =
+            new HEMAX_GeometryHda();
+        AddedNode->SetObjectRef(nullptr);
+        GeometryHda->Dummy = new DummyObject;
+        AddedNode->SetObjectRef(GeometryHda->Dummy);
 
-			GeometryHda->Create(AddedNode, *CurrentAsset, 0);
-			ConstructReferencesForEditableCurve(GeometryHda);
-                        HEMAX_SessionManager::GetSessionManager().GetStore()
-                            .Add3dsmaxHda(GeometryHda->ContainerNode->GetHandle(),
-                                GeometryHda);
-			GetCOREInterface()->ForceCompleteRedraw();
-			GetCOREInterface()->SelectNode(
-                            GetCOREInterface()->GetINodeByHandle(
-                                GeometryHda->ContainerNode->GetHandle()));
+        GeometryHda->Create(AddedNode, CurrentAssetId,
+            SM.GetStore().GetAssetPath(CurrentAssetId), 0);
+        ConstructReferencesForEditableCurve(GeometryHda);
+        HEMAX_SessionManager::GetSessionManager().GetStore()
+            .Add3dsmaxHda(GeometryHda->ContainerNode->GetHandle(),
+                GeometryHda);
+        GetCOREInterface()->ForceCompleteRedraw();
+        GetCOREInterface()->SelectNode(
+            GetCOREInterface()->GetINodeByHandle(
+                GeometryHda->ContainerNode->GetHandle()));
 
-			NodeObject->MaybeAutoDelete();
-		    }
-		    else if (CurrentAsset->AssetCount > 1)
-		    {
-			std::vector<std::string>& AssetNames = CurrentAsset->Names;
+        NodeObject->MaybeAutoDelete();
+    }
+    else if (AssetCount > 1)
+    {
+        std::vector<std::string> AssetNames;
+        HEMAX_Utilities::GetAssetNames(CurrentAssetId, AssetNames);
 
-			HEMAX_AssetSelection AssetSelector(AssetNames);
+        HEMAX_AssetSelection AssetSelector(AssetNames);
 
-			if (AssetSelector.exec())
-			{
-			    for (int s = 0; s < AssetNames.size(); ++s)
-			    {
-				if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
-				{
-				    HEMAX_GeometryHda* GeometryHda =
-                                        new HEMAX_GeometryHda();
-				    AddedNode->SetObjectRef(nullptr);
-				    GeometryHda->Dummy = new DummyObject;
-				    AddedNode->SetObjectRef(GeometryHda->Dummy);
+        if (AssetSelector.exec())
+        {
+            for (int s = 0; s < AssetNames.size(); ++s)
+            {
+                if (AssetNames[s] == AssetSelector.GetSelectedAssetName())
+                {
+                    HEMAX_GeometryHda* GeometryHda =
+                        new HEMAX_GeometryHda();
+                    AddedNode->SetObjectRef(nullptr);
+                    GeometryHda->Dummy = new DummyObject;
+                    AddedNode->SetObjectRef(GeometryHda->Dummy);
 
-				    GeometryHda->Create(AddedNode, *CurrentAsset, 0);
-				    ConstructReferencesForEditableCurve(GeometryHda);
-                                    HEMAX_SessionManager::GetSessionManager().GetStore()
-                                        .Add3dsmaxHda(GeometryHda->ContainerNode->GetHandle(),
-                                            GeometryHda);
-				    GetCOREInterface()->ForceCompleteRedraw();
-				    GetCOREInterface()->SelectNode(
-                                        GetCOREInterface()->GetINodeByHandle(
-                                            GeometryHda->ContainerNode->GetHandle()));
+                    GeometryHda->Create(AddedNode, CurrentAssetId,
+                        SM.GetStore().GetAssetPath(CurrentAssetId), s);
+                    ConstructReferencesForEditableCurve(GeometryHda);
+                    HEMAX_SessionManager::GetSessionManager().GetStore()
+                        .Add3dsmaxHda(GeometryHda->ContainerNode->GetHandle(),
+                            GeometryHda);
+                    GetCOREInterface()->ForceCompleteRedraw();
+                    GetCOREInterface()->SelectNode(
+                        GetCOREInterface()->GetINodeByHandle(
+                            GeometryHda->ContainerNode->GetHandle()));
 
-				    NodeObject->MaybeAutoDelete();
-				}
-			    }
-			}
-		    }
-		}
-		else
-		{
-		    HEMAX_Logger::Instance().ShowDialog("HDA Missing", "No HDA is selected. Please select an HDA from the loaded assets list.", HEMAX_LOG_LEVEL_INFO);
-		}
-	    }
-	}
+                    NodeObject->MaybeAutoDelete();
+                }
+            }
+        }
     }
 }
 
@@ -866,83 +891,89 @@ HEMAX_Plugin::ReengageModifierHda(
         HEMAX_Modifier* Modifier,
         ICustAttribContainer* CustAttribs)
 {
-    if (CustAttribs)
-    {
-	CustAttrib* AssetPathAttrib = CustAttribs->GetCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_INDEX);
+    if (!CustAttribs)
+        return;
 
-	if (AssetPathAttrib)
-	{
+    CustAttrib* AssetPathAttrib = CustAttribs->GetCustAttrib(
+        HEMAX_HOUDINI_MODIFIER_ASSET_PATH_INDEX);
+
+    if (!AssetPathAttrib)
+        return;
+
 #ifdef HEMAX_VERSION_2025
-            std::wstring WideName(AssetPathAttrib->GetName(false));
+    std::wstring WideName(AssetPathAttrib->GetName(false));
 #else
-	    std::wstring WideName(AssetPathAttrib->GetName());
+    std::wstring WideName(AssetPathAttrib->GetName());
 #endif
-	    std::string AttribName(WideName.begin(), WideName.end());
-	    std::string AssetPathName(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME);
+    std::string AttribName(WideName.begin(), WideName.end());
+    std::string AssetPathName(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME);
 
-	    if (AttribName == AssetPathName)
-	    {
-		// All is good now. Begin reconnecting the modifier to the HDA
-		const wchar_t* WidePath;
-		AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
+    if (AttribName != AssetPathName)
+        return;
 
-		std::wstring WStringPath(WidePath);
-		std::string AssetPath(WStringPath.begin(), WStringPath.end());
+    // All is good now. Begin reconnecting the modifier to the HDA
+    const wchar_t* WidePath;
+    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
 
-                HEMAX_Store& PluginStore =
-                    HEMAX_SessionManager::GetSessionManager().GetStore();
-		HEMAX_Asset* TheAsset = PluginStore.FindAsset(AssetPath);
+    std::wstring WStringPath(WidePath);
+    std::string AssetPath(WStringPath.begin(), WStringPath.end());
 
-		std::string AssetFoundLocation = AssetPath;
-		bool Success = true;
+    HEMAX_SessionManager& SM =
+        HEMAX_SessionManager::GetSessionManager();
+    HEMAX_Store& PluginStore = SM.GetStore();
+    HAPI_AssetLibraryId AssetId = PluginStore.FindAsset(AssetPath);
 
-		if (!TheAsset)
-		{
-		    AssetFoundLocation = PluginStore.LoadNewAsset(AssetPath, Success);
-		}
+    if (AssetId == -1)
+    {
+        bool Success = false;
+        PluginStore.LoadNewAsset(AssetPath, Success);
 
-		if (Success)
-		{
-		    TheAsset = PluginStore.FindAsset(AssetPath);
+        if (!Success)
+        {
+            std::string Msg = "Could not reload modifier HDA "
+                "because the required HDA <" + AssetPath + "> could "
+                "not be loaded.";
+            HEMAX_Logger::Instance().AddEntry(Msg,
+                HEMAX_LOG_LEVEL_ERROR);
+            return;
+        }
 
-		    int Index = 0;
-
-		    if (TheAsset)
-		    {
-			HEMAX_ModifierHda* MaxHda = nullptr;
-			if (TheAsset->AssetCount == 1)
-			{
-			    MaxHda = new HEMAX_ModifierHda;
-			    MaxHda->Recreate(*TheAsset, Index, Modifier, Node);
-			}
-			else if (TheAsset->AssetCount > 1)
-			{
-			    MaxHda = new HEMAX_ModifierHda;
-			    CustAttrib* AssetLibraryIndex = CustAttribs->GetCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX);
-			    AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0, Index, FOREVER);
-			    MaxHda->Recreate(*TheAsset, Index, Modifier, Node);
-			}
-
-			if (MaxHda)
-			{
-			    PluginStore.Add3dsmaxHda(Node->GetHandle(), MaxHda);
-			    Modifier->RegisterPlugin(this);
-			    ReloadHdaFromCustomAttributes(MaxHda);
-			    UpdateEntireHda(MaxHda);
-			}
-		    }
-                    else
-                    {
-                        std::string Msg = "Could not reload modifier HDA "
-                            "because the required HDA <" + AssetPath + "> is "
-                            "not loaded.";
-                        HEMAX_Logger::Instance().AddEntry(Msg,
-                            HEMAX_LOG_LEVEL_ERROR);
-                    }
-		}
-	    }
-	}
+        AssetId = PluginStore.FindAsset(AssetPath);
     }
+
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session,
+        AssetId, &AssetCount);
+
+    HEMAX_ModifierHda* MaxHda = nullptr;
+
+    if (AssetCount == 1)
+    {
+        MaxHda = new HEMAX_ModifierHda;
+        MaxHda->Recreate(AssetId, AssetPath, 0, Modifier, Node);
+    }
+    else if (AssetCount > 1)
+    {
+        MaxHda = new HEMAX_ModifierHda;
+        CustAttrib* AssetLibraryIndex = CustAttribs->GetCustAttrib(
+            HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX);
+        int AssetIndex = 0;
+        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0,
+            AssetIndex, FOREVER);
+        MaxHda->Recreate(AssetId, AssetPath, AssetIndex, Modifier, Node);
+    }
+    else
+    {
+        std::string Msg = "Could not reload modifier HDA because "
+            "no assets were found in the HDA (" + AssetPath + ")";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+        return;
+    }
+
+    PluginStore.Add3dsmaxHda(Node->GetHandle(), MaxHda);
+    Modifier->RegisterPlugin(this);
+    ReloadHdaFromCustomAttributes(MaxHda);
+    UpdateEntireHda(MaxHda);
 }
 
 void
@@ -950,89 +981,92 @@ HEMAX_Plugin::ReengageGeometryHda(
         INode* Node, 
         ICustAttribContainer* CustAttribs)
 {
+    if (!CustAttribs)
+        return;
+
     CustAttrib* AssetPathAttrib = CustAttribs->GetCustAttrib(
-                                    HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX);
+        HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX);
 
-    if (AssetPathAttrib)
-    {
+    if (!AssetPathAttrib)
+        return;
+
 #ifdef HEMAX_VERSION_2025
-        std::wstring WideName(AssetPathAttrib->GetName(false));
+    std::wstring WideName(AssetPathAttrib->GetName(false));
 #else
-	std::wstring WideName(AssetPathAttrib->GetName());
+    std::wstring WideName(AssetPathAttrib->GetName());
 #endif
-	std::string AttribName(WideName.begin(), WideName.end());
-	std::string AssetPathName(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME);
+    std::string AttribName(WideName.begin(), WideName.end());
+    std::string AssetPathName(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME);
 
-	if (AttribName == AssetPathName)
-	{
-	    // All is good now. Begin reconnecting the asset.
+    if (AttribName != AssetPathName)
+        return;
 
-	    const wchar_t* WidePath;
-	    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
+    // All is good now. Begin reconnecting the asset.
 
-	    std::wstring WStringPath(WidePath);
-	    std::string AssetPath(WStringPath.begin(), WStringPath.end());
+    const wchar_t* WidePath;
+    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
 
-            HEMAX_Store& PluginStore =
-                HEMAX_SessionManager::GetSessionManager().GetStore();
-	    HEMAX_Asset* TheAsset = PluginStore.FindAsset(AssetPath);
+    std::wstring WStringPath(WidePath);
+    std::string AssetPath(WStringPath.begin(), WStringPath.end());
 
-	    std::string AssetFoundLocation = AssetPath;
-	    bool Success = true;
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_AssetLibraryId AssetId = SM.GetStore().FindAsset(AssetPath);
 
-	    if (!TheAsset)
-	    {
-		AssetFoundLocation = PluginStore.LoadNewAsset(AssetPath, Success);
-	    }
+    if (AssetId == -1)
+    {
+        bool Success = false;
+        SM.GetStore().LoadNewAsset(AssetPath, Success);
 
-	    if (Success)
-	    {
-		TheAsset = PluginStore.FindAsset(AssetFoundLocation);
+        if (!Success)
+        {
+            std::string Msg = "Could not reload geometry HDA because the "
+                "required HDA <" + AssetPath + "> could not be loaded.";
+            HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+            return;
+        }
 
-                if (TheAsset)
-                {
-                    HEMAX_GeometryHda* GeometryHda = nullptr;
-
-                    if (TheAsset->AssetCount == 1)
-                    {
-                        GeometryHda = new HEMAX_GeometryHda();
-                        GeometryHda->Init(*TheAsset, 0);
-                        ConstructReferencesForEditableCurve(GeometryHda);
-                    }
-                    else
-                    {
-                        CustAttrib* AssetLibraryIndex =
-                            CustAttribs->GetCustAttrib(
-                                HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX);
-                        int Index;
-                        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0,
-                            Index, FOREVER);
-
-                        GeometryHda = new HEMAX_GeometryHda();
-                        GeometryHda->Init(*TheAsset, Index);
-                        ConstructReferencesForEditableCurve(GeometryHda);
-                    }
-
-                    if (GeometryHda)
-                    {
-                        PluginStore.Add3dsmaxHda(Node->GetHandle(), GeometryHda);
-                        GeometryHda->SetContainerNode(Node);
-                        GeometryHda->SetCustomAttributeContainer(
-                            Node->GetCustAttribContainer());
-                        ReloadHdaFromCustomAttributes(GeometryHda);
-                        GeometryHda->CreateGeometryHdaFromContainerNode();
-                        UpdateEntireHda(GeometryHda);
-                    }
-                }
-                else
-                {
-                    std::string Msg = "Could not reload geometry HDA because "
-                        "the required HDA <" + AssetPath + "> is not loaded.";
-                    HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
-                }
-	    }
-	}
+        AssetId = SM.GetStore().FindAsset(AssetPath);
     }
+
+    int AssetCount = 0;
+    HEMAX_HoudiniApi::GetAvailableAssetCount(&SM.Session, AssetId, &AssetCount);
+
+    HEMAX_GeometryHda* GeometryHda = nullptr;
+
+    if (AssetCount == 1)
+    {
+        GeometryHda = new HEMAX_GeometryHda();
+        GeometryHda->Init(AssetId, AssetPath, 0);
+        ConstructReferencesForEditableCurve(GeometryHda);
+    }
+    else if (AssetCount > 1)
+    {
+        CustAttrib* AssetLibraryIndex =
+            CustAttribs->GetCustAttrib(
+                HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX);
+        int AssetIndex;
+        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0,
+            AssetIndex, FOREVER);
+
+        GeometryHda = new HEMAX_GeometryHda();
+        GeometryHda->Init(AssetId, AssetPath, AssetIndex);
+        ConstructReferencesForEditableCurve(GeometryHda);
+    }
+    else
+    {
+        std::string Msg = "Could not reload geometry HDA because no assets "
+            "were found in the HDA (" + AssetPath + ")";
+        HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+        return;
+    }
+
+    SM.GetStore().Add3dsmaxHda(Node->GetHandle(), GeometryHda);
+    GeometryHda->SetContainerNode(Node);
+    GeometryHda->SetCustomAttributeContainer(
+        Node->GetCustAttribContainer());
+    ReloadHdaFromCustomAttributes(GeometryHda);
+    GeometryHda->CreateGeometryHdaFromContainerNode();
+    UpdateEntireHda(GeometryHda);
 }
 
 void
@@ -1736,6 +1770,7 @@ HEMAX_Plugin::HandleRecookRequest(HEMAX_Node* Node)
 void
 HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 {
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HEMAX_Store& PluginStore =
         HEMAX_SessionManager::GetSessionManager().GetStore();
 
@@ -1744,33 +1779,41 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
     if (!Hda)
         return;
 
-    HEMAX_Asset *Asset = PluginStore.FindAsset(Hda->Hda.HdaAsset.Path);
+    HAPI_AssetLibraryId AssetId =
+        PluginStore.FindAsset(Hda->Hda.GetAssetPath());
 
-    if (!Asset)
+    if (AssetId == -1)
     {
-        std::string Msg = "Could not reload the asset definition of HDA <" +
-            Hda->Hda.HdaAsset.Path + "> because the HDA is not currently "
-            "loaded.";
+        std::string Msg = "The asset to reload (" + Hda->Hda.GetAssetPath()
+            + ") could not be found.";
         HEMAX_Logger::Instance().AddEntry(Msg, HEMAX_LOG_LEVEL_ERROR);
+        return;
     }
 
-    Asset->UpdateAssetDefinition();
-
+    // Before updating the asset defintion, we first need to get all of the
+    // assets that are currently using that definition.
     std::vector<HEMAX_3dsmaxHda*> HdasToReload =
-        PluginStore.FindAllHdasUsingAssetDefinition(Asset);
+        PluginStore.FindAllHdasUsingAssetDefinition(AssetId);
+
+    HAPI_AssetLibraryId NewAssetId = PluginStore.UpdateAssetDefinition(
+        Hda->Hda.GetAssetPath());
+
+    if (NewAssetId == -1)
+        return;
 
     for (int i = 0; i < HdasToReload.size(); i++)
     {
         if (HdasToReload[i]->Type == HEMAX_GEOMETRY_HDA)
         {
-            int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
+            int AssetIndex = HdasToReload[i]->Hda.GetAssetIndex();
 
             HEMAX_GeometryHda* GeometryHda =
                 static_cast<HEMAX_GeometryHda*>(HdasToReload[i]);
 
             HEMAX_GeometryHda* CreatedAsset =
                 new HEMAX_GeometryHda();
-            CreatedAsset->Create(*Asset, AssetIndex);
+            CreatedAsset->Create(NewAssetId,
+                PluginStore.GetAssetPath(NewAssetId), AssetIndex);
             ConstructReferencesForEditableCurve(CreatedAsset);
             PluginStore.Add3dsmaxHda(
                     CreatedAsset->ContainerNode->GetHandle(), CreatedAsset);
@@ -1844,44 +1887,55 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
         }
         else if (HdasToReload[i]->Type == HEMAX_MODIFIER_HDA)
         {
-            HEMAX_ModifierHda* ModifierHda = static_cast<HEMAX_ModifierHda*>(HdasToReload[i]);
+            HEMAX_ModifierHda* ModifierHda =
+                static_cast<HEMAX_ModifierHda*>(HdasToReload[i]);
             INode* Node = ModifierHda->ContainerNode;
-            int AssetIndex = HdasToReload[i]->Hda.HdaAssetIndex;
+            int AssetIndex = HdasToReload[i]->Hda.GetAssetIndex();
             int ModifierIndex, DerivedObjIndex;
 
-            if (GetCOREInterface7()->FindModifier(*(ModifierHda->ContainerNode), *(ModifierHda->DisplayGeometry), ModifierIndex, DerivedObjIndex))
+            if (!GetCOREInterface7()->FindModifier(
+                    *(ModifierHda->ContainerNode),
+                    *(ModifierHda->DisplayGeometry),
+                    ModifierIndex, DerivedObjIndex))
             {
-                ManualModifierAddInProgress = true;
+                continue;
+            }
 
-                HEMAX_Modifier* ModifierPlugin = (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
-                GetCOREInterface7()->AddModifier(*Node, *ModifierPlugin, ModifierIndex);
+            ManualModifierAddInProgress = true;
 
-                HEMAX_ModifierHda* NewModifierHda = new HEMAX_ModifierHda;
+            HEMAX_Modifier* ModifierPlugin =
+                (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(
+                    OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
+            GetCOREInterface7()->AddModifier(*Node,
+                *ModifierPlugin, ModifierIndex);
 
-                if (NewModifierHda->Create(*Asset, AssetIndex, ModifierPlugin, Node))
-                {
-                    ModifierPlugin->RegisterPlugin(this);
-                    PluginStore.Add3dsmaxHda(Node->GetHandle(), NewModifierHda);
-                    NewModifierHda->CopyAllParameterValues(*ModifierHda);
-                    UpdateEntireHda(NewModifierHda);
+            HEMAX_ModifierHda* NewModifierHda = new HEMAX_ModifierHda;
+
+            if (NewModifierHda->Create(AssetId,
+                    PluginStore.GetAssetPath(NewAssetId),
+                    AssetIndex, ModifierPlugin, Node))
+            {
+                ModifierPlugin->RegisterPlugin(this);
+                PluginStore.Add3dsmaxHda(Node->GetHandle(), NewModifierHda);
+                NewModifierHda->CopyAllParameterValues(*ModifierHda);
+                UpdateEntireHda(NewModifierHda);
 
 #ifdef HEMAX_VERSION_2025
-                    std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
+                std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
 #else
-                    std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
+                std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
 #endif
-                    NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
-                }
-                else
-                {
-                    GetCOREInterface7()->DeleteModifier((*Node), ModifierIndex);
-                    delete ModifierPlugin;
-                }
+                NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
+            }
+            else
+            {
+                GetCOREInterface7()->DeleteModifier((*Node), ModifierIndex);
+                delete ModifierPlugin;
+            }
 
-                ManualModifierAddInProgress = false;
+            ManualModifierAddInProgress = false;
 
-                GetCOREInterface7()->DeleteModifier(*(ModifierHda->ContainerNode), ModifierIndex+1);
-            }		    
+            GetCOREInterface7()->DeleteModifier(*(ModifierHda->ContainerNode), ModifierIndex+1);
         }
     }
 }
@@ -2072,8 +2126,8 @@ INode*
 HEMAX_Plugin::CloneGeometryHda(HEMAX_GeometryHda* MaxHda)
 {
     INode* CloneContainerNode = nullptr;
-    HEMAX_GeometryHda* Clone = CreateGeometryHDA(MaxHda->Hda.HdaAsset.Path,
-                                                 MaxHda->Hda.HdaAssetIndex);
+    HEMAX_GeometryHda* Clone = CreateGeometryHDA(
+        MaxHda->Hda.GetAssetPath(), MaxHda->Hda.GetAssetIndex());
 
     if (!Clone)
         return nullptr;
@@ -2153,7 +2207,7 @@ HEMAX_Plugin::CloneModifierHda(HEMAX_3dsmaxHda* MaxHda, INode* MaxNode)
     ManualModifierAddInProgress = true;
 
     HEMAX_ModifierHda* Clone = CreateModifierHDA(MaxNode,
-        MaxHda->Hda.HdaAsset.Path, MaxHda->Hda.HdaAssetIndex);
+        MaxHda->Hda.GetAssetPath(), MaxHda->Hda.GetAssetIndex());
 
     if (!Clone)
     {
