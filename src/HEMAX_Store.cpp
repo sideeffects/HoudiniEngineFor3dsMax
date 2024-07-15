@@ -23,10 +23,6 @@ HEMAX_Store::HEMAX_Store(HEMAX_Events& EventSystem)
     : HEMAX_EventHandler(EventSystem)
     , ToolShelf(this)
 {
-    RegisterCallback(HEMAX_EventType::SessionReady,
-            [this](HEMAX_EventData* Data) {
-        this->LoadAssetsInHdaLoadPath();
-    });
     RegisterCallback(HEMAX_EventType::PreSessionStopped,
             [this](HEMAX_EventData* Data) {
         this->DeleteStore();

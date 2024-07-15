@@ -44,7 +44,7 @@ typedef struct
     CloneType Type;
 } HEMAX_CloneEvent;
 
-class HEMAX_Plugin : public TimeChangeCallback
+class HEMAX_Plugin : public TimeChangeCallback, public HEMAX_EventHandler
 {
     public:
 	HEMAX_Plugin(Interface* Interface, HMODULE LibHAPIL);

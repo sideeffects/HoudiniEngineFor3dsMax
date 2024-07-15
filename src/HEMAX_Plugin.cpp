@@ -94,6 +94,7 @@ NodeCreatedHandler(void* PluginPointer, NotifyInfo* Info)
 
 HEMAX_Plugin::HEMAX_Plugin(Interface* Interface, HMODULE LibHAPIL)
     : MaxInterface(Interface)
+    , HEMAX_EventHandler(HEMAX_SessionManager::GetSessionManager().GetStore())
     , ManualModifierAddInProgress(false)
 {
     HEMAX_HoudiniApi::InitializeHAPI(LibHAPIL);
@@ -110,6 +111,15 @@ HEMAX_Plugin::HEMAX_Plugin(Interface* Interface, HMODULE LibHAPIL)
                 "addresses could not be determined.",
                 HEMAX_LOG_LEVEL_ERROR);
     }
+
+    RegisterCallback(HEMAX_EventType::SessionReady,
+            [this](HEMAX_EventData* Data) {
+        this->SessionStarted(); 
+    });
+    RegisterCallback(HEMAX_EventType::SessionStopped,
+            [this](HEMAX_EventData* Data) {
+        this->SessionStopped();
+    });
 }
 
 HEMAX_Plugin::~HEMAX_Plugin()
@@ -1093,6 +1103,8 @@ HEMAX_Plugin::SessionStarted()
     INode* RootNode = GetCOREInterface()->GetRootNode();
     ReconnectAllStrandedHdas(RootNode);
     HEMAX_SessionManager::GetSessionManager().GetStore()
+        .LoadAssetsInHdaLoadPath();
+    HEMAX_SessionManager::GetSessionManager().GetStore()
         .GetShelf().LoadToolAssets();
     HEMAX_SessionManager::GetSessionManager().GetEvents()
         .EmitEvent(HEMAX_EventType::AssetLoaded, nullptr);
@@ -1101,12 +1113,6 @@ HEMAX_Plugin::SessionStarted()
 void
 HEMAX_Plugin::SessionStopped()
 {
-    HEMAX_EventData_SelectionSetChanged EventData;
-    EventData.Hda = nullptr;
-    EventData.ForceUnlock = true;
-    HEMAX_SessionManager::GetSessionManager().GetEvents().EmitEvent(
-        HEMAX_EventType::SelectionSetChanged, &EventData);
-
     DestroyAllEditableNodeReferences();
 }
 
