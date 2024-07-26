@@ -142,4 +142,5 @@ END
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
-
+// IMAGE RESOURCES
+IDI_HEMAX_HOUDINI_ENGINE_LOGO IDI_HEMAX_PNG_RESOURCE "HoudiniEngine.png"

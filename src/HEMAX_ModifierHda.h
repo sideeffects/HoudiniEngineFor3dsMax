@@ -35,6 +35,8 @@ class HEMAX_ModifierHda : public HEMAX_3dsmaxHda
 
 	void		Update3dsmaxHda();
 
+        virtual std::string Get3dsMaxContainerName() override;
+
 	INode*		ContainerNode;
 
 	int		MaxStampIndex;

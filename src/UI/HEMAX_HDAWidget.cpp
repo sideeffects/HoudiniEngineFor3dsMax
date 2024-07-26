@@ -2,230 +2,319 @@
 
 #include "moc_HEMAX_HDAWidget.cpp"
 
-#include "../HEMAX_Logger.h"
-#include "../HEMAX_Plugin.h"
+#include "HEMAX_ParameterWidget.h"
+#include "../HEMAX_3dsmaxHda.h"
 #include "../HEMAX_SessionManager.h"
-
-#if defined(HEMAX_VERSION_2018) || \
-    defined(HEMAX_VERSION_2019) || \
-    defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021) || \
-    defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
-#include <QtWidgets\qapplication.h>
-#include <QtWidgets\qfiledialog.h>
-#include <QtWidgets\qmenu.h>
-#include <QtGui\qclipboard.h>
-#endif
+#include "../resource.h"
 
 #ifdef HEMAX_VERSION_2017
-#include <QtGui\qapplication.h>
-#include <QtGui\qfiledialog.h>
-#include <QtGui\qmenu.h>
-#include <QtGui\qclipboard.h>
+#include <QtGui/qboxlayout.h>
+#include <QtGui/qimage.h>
+#include <QtGui/qlabel.h>
+#include <QtGui/qpixmap.h>
+#include <QtGui/qpushbutton.h>
+#include <QtGui/qtoolbutton.h>
+#else
+#include <QtGui/qimage.h>
+#include <QtGui/qpixmap.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qtoolbutton.h>
 #endif
 
-HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin)
-    : HEMAX_HDAWidget(ActivePlugin, "Loaded Houdini Digital Assets")
+#include <sstream>
+#include <string>
+#include <windows.h>
+
+HEMAX_HDAWidget::HEMAX_HDAWidget()
 {
-}
+    bool LoadEngineLogoResult = LoadHoudiniEngineLogo();
 
-HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin,
-                                 std::string AssetsBoxTitle)
-    : Plugin(ActivePlugin)
-{
-    MainLayout = new QVBoxLayout;
+    SessionStatusWidget = new QWidget;
+    SessionStatusWidgetLayout = new QHBoxLayout;
+    SessionStatusLabel = new QLabel;
 
-    MainBox = new QWidget(this);
-    MainBoxLayout = new QVBoxLayout;
+    SessionStatusWidget->setLayout(SessionStatusWidgetLayout);
+    SessionStatusWidgetLayout->addWidget(SessionStatusLabel, 0,
+        Qt::AlignCenter);
 
-    AssetLoadOptionsBox = new QGroupBox;
-    AssetLoadOptionsBoxLayout = new QGridLayout;
-    AssetLoadOptionsPathLabel = new QLabel("Asset Path:");
-    AssetLoadOptionsPath = new QLineEdit;
-    AssetLoadOptionsPathBrowse = new QPushButton("...");
-    AssetLoadButton = new QPushButton("Load Asset");
+    SelectionWidget = new QWidget;
+    SelectionWidgetLayout = new QHBoxLayout;
+    CurrentSelectionLabel = new QLabel;
+    LockSelectionButton = new QPushButton;
+    SelectionWidgetLayout->addWidget(CurrentSelectionLabel, 2, Qt::AlignRight);
+    SelectionWidgetLayout->addWidget(LockSelectionButton, 3);
+    SelectionWidget->setLayout(SelectionWidgetLayout);
 
-    LoadedAssetsBox = new QGroupBox(AssetsBoxTitle.c_str());
-    LoadedAssetsBoxLayout = new QVBoxLayout;
+    CookControlsWidget = new QWidget;
+    CookControlsWidgetLayout = new QVBoxLayout;
+    CookControlsHeader = new QToolButton;
+    CookControlsHeader->setText("Cook");
+    CookControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    CookControlsHeader->setArrowType(Qt::DownArrow);
+    CookControlsCollapsibleWidget = new QWidget;
+    CookControlsContentLayout = new QHBoxLayout;
+    CookControlsCollapsibleWidget->setLayout(CookControlsContentLayout);
+    RecookButton = new QPushButton("Recook");
+    RebuildButton = new QPushButton("Rebuild");
+    ResetParametersButton = new QPushButton("Reset Parameters");
+    CookControlsContentLayout->addWidget(RecookButton);
+    CookControlsContentLayout->addWidget(RebuildButton);
+    CookControlsContentLayout->addWidget(ResetParametersButton);
+    CookControlsWidgetLayout->addWidget(CookControlsHeader);
+    CookControlsWidgetLayout->addWidget(CookControlsCollapsibleWidget);
+    CookControlsWidget->setLayout(CookControlsWidgetLayout);
 
-    LoadedAssetsList = new QListWidget;
-    LoadedAssetsList->setContextMenuPolicy(Qt::CustomContextMenu);
-    LoadSelectedAssetButton = new QPushButton("Create Object");
-    LoadSelectedAssetButton->setMinimumHeight(HEMAX_HDAWIDGET_CREATE_BUTTONS_MIN_HEIGHT);
-    CreateModifiersButton = new QPushButton("Create Modifier HDA On Selected Objects");
-    CreateModifiersButton->setMinimumHeight(HEMAX_HDAWIDGET_CREATE_BUTTONS_MIN_HEIGHT);
+    BakeControlsWidget = new QWidget;
+    BakeControlsWidgetLayout = new QVBoxLayout;
+    BakeControlsHeader = new QToolButton;
+    BakeControlsHeader->setText("Bake");
+    BakeControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    BakeControlsHeader->setArrowType(Qt::DownArrow);
+    BakeControlsWidgetLayout->addWidget(BakeControlsHeader);
+    BakeControlsCollapsibleWidget = new QWidget;
+    BakeControlsContentLayout = new QHBoxLayout;
+    BakeControlsCollapsibleWidget->setLayout(BakeControlsContentLayout);
+    BakeButton = new QPushButton("Bake");
+    BakeControlsContentLayout->addWidget(BakeButton);
+    BakeControlsWidgetLayout->addWidget(BakeControlsCollapsibleWidget);
+    BakeControlsWidget->setLayout(BakeControlsWidgetLayout);
 
-    MainLayout->setAlignment(Qt::AlignTop);
-    MainBoxLayout->setAlignment(Qt::AlignTop);
-    LoadedAssetsBox->setAlignment(Qt::AlignTop);
-    LoadedAssetsBoxLayout->setAlignment(Qt::AlignTop);
+    CloneControlsWidget = new QWidget;
+    CloneControlsWidgetLayout = new QVBoxLayout;
+    CloneControlsHeader = new QToolButton;
+    CloneControlsHeader->setText("Clone");
+    CloneControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    CloneControlsHeader->setArrowType(Qt::DownArrow);
+    CloneControlsWidgetLayout->addWidget(CloneControlsHeader);
+    CloneControlsCollapsibleWidget = new QWidget;
+    CloneControlsContentLayout = new QHBoxLayout;
+    CloneControlsCollapsibleWidget->setLayout(CloneControlsContentLayout);
+    CloneButton = new QPushButton("Clone");
+    CloneControlsContentLayout->addWidget(CloneButton);
+    CloneControlsWidgetLayout->addWidget(CloneControlsCollapsibleWidget);
+    CloneControlsWidget->setLayout(CloneControlsWidgetLayout);
 
-    AssetLoadOptionsBoxLayout->addWidget(AssetLoadOptionsPathLabel, 0, 0);
-    AssetLoadOptionsBoxLayout->addWidget(AssetLoadOptionsPath, 1, 0);
-    AssetLoadOptionsBoxLayout->addWidget(AssetLoadOptionsPathBrowse, 1, 1);
-    AssetLoadOptionsBoxLayout->addWidget(AssetLoadButton, 2, 1);
+    ParametersWidget = new QWidget;
+    ParametersWidgetLayout = new QVBoxLayout;
+    ParametersHeader = new QToolButton;
+    ParametersHeader->setText("Parameters");
+    ParametersHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ParametersHeader->setArrowType(Qt::DownArrow);
+    ParametersWidgetLayout->addWidget(ParametersHeader);
+    ParametersContentWidget = new HEMAX_ParameterWidget;
+    ParametersWidgetLayout->addWidget(ParametersContentWidget);
+    ParametersWidget->setLayout(ParametersWidgetLayout);
 
-    AssetLoadOptionsBox->setLayout(AssetLoadOptionsBoxLayout);
+    HDAWidgetLayout = new QVBoxLayout;
 
-    LoadedAssetsBoxLayout->addWidget(LoadedAssetsList);
-    LoadedAssetsBoxLayout->addWidget(LoadSelectedAssetButton);
-    LoadedAssetsBoxLayout->addWidget(CreateModifiersButton);
+    HDAWidgetLayout->setAlignment(Qt::AlignTop);
 
-    LoadSelectedAssetButton->setDisabled(true);
-    CreateModifiersButton->setDisabled(true);
-    LoadedAssetsList->setMaximumHeight(HEMAX_HDAWIDGET_MAX_LIST_HEIGHT);
+    if (LoadEngineLogoResult)
+        HDAWidgetLayout->addWidget(HoudiniEngineBannerLabel);
+    HDAWidgetLayout->addWidget(SessionStatusWidget);
+    HDAWidgetLayout->addWidget(SelectionWidget);
+    HDAWidgetLayout->addWidget(CookControlsWidget);
+    HDAWidgetLayout->addWidget(BakeControlsWidget);
+    HDAWidgetLayout->addWidget(CloneControlsWidget);
+    HDAWidgetLayout->addWidget(ParametersWidget);
 
-    LoadedAssetsBox->setLayout(LoadedAssetsBoxLayout);
+    CookControlsHeader->setStyleSheet(
+        "border: none; text-align: left");
+    BakeControlsHeader->setStyleSheet(
+        "border: none; text-align: left");
+    CloneControlsHeader->setStyleSheet(
+        "border: none; text-align: left");
+    ParametersHeader->setStyleSheet(
+        "border: none; text-align: left");
 
-    MainBoxLayout->addWidget(AssetLoadOptionsBox);
-    MainBoxLayout->addWidget(LoadedAssetsBox);
+    this->setLayout(HDAWidgetLayout);
 
-    MainBox->setLayout(MainBoxLayout);
-    MainLayout->addWidget(MainBox);
+    Update();
 
-    this->setLayout(MainLayout);
-
-    QObject::connect(AssetLoadButton, SIGNAL(clicked()),
-                     this, SLOT(LoadAssetTriggered()));
-    QObject::connect(LoadSelectedAssetButton, SIGNAL(clicked()),
-                     this, SLOT(CreateGeometryHdaTriggered()));
-    QObject::connect(CreateModifiersButton, SIGNAL(clicked()),
-                     this, SLOT(CreateModifierHdasTriggered()));
-
-    QObject::connect(AssetLoadOptionsPathBrowse, SIGNAL(clicked()),
-                     this, SLOT(SlotAssetLoadOptionsPathBrowse()));
-    QObject::connect(LoadedAssetsList, SIGNAL(itemClicked(QListWidgetItem*)),
-                     this, SLOT(SlotLoadedAssetItemClicked(QListWidgetItem*)));
-    QObject::connect(LoadedAssetsList,
-                     SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(SlotShowAssetContextMenu(QPoint)));
-}
-
-void
-HEMAX_HDAWidget::LoadAssetTriggered()
-{
-    Plugin->LoadNewAsset(GetCurrentAssetLoadPath());
-}
-
-void
-HEMAX_HDAWidget::CreateGeometryHdaTriggered()
-{
-    std::string AssetPath = GetSelectedAssetPath();
-    HEMAX_CurrentAssetSelection = AssetPath;
-    Plugin->CreateGeometryHDA(AssetPath);
-}
-
-void
-HEMAX_HDAWidget::CreateModifierHdasTriggered()
-{
-    Plugin->CreateModifierHDAs(GetSelectedAssetPath()); 
-}
-
-void
-HEMAX_HDAWidget::SlotAssetLoadOptionsPathBrowse()
-{
-    AssetLoadOptionsPath->setText(QFileDialog::getOpenFileName());
-}
-
-std::string
-HEMAX_HDAWidget::GetCurrentAssetLoadPath()
-{
-    return AssetLoadOptionsPath->text().toStdString();
-}
-
-std::string
-HEMAX_HDAWidget::GetSelectedAssetPath()
-{
-    return SelectedAssetPath.toStdString();
-}
-
-void
-HEMAX_HDAWidget::SlotLoadedAssetItemClicked(QListWidgetItem* Item)
-{
-    LoadSelectedAssetButton->setDisabled(false);
-    CreateModifiersButton->setDisabled(false);
-
-    SelectedAssetPath = Item->toolTip();
+    QObject::connect(CookControlsHeader, SIGNAL(clicked()),
+        this, SLOT(CookControlsHeaderClickedSlot()));
+    QObject::connect(BakeControlsHeader, SIGNAL(clicked()),
+        this, SLOT(BakeControlsHeaderClickedSlot()));
+    QObject::connect(CloneControlsHeader, SIGNAL(clicked()),
+        this, SLOT(CloneControlsHeaderClickedSlot()));
+    QObject::connect(ParametersHeader, SIGNAL(clicked()),
+        this, SLOT(ParametersHeaderClickedSlot()));
 }
 
 void
-HEMAX_HDAWidget::UpdateLoadedAssetList(std::vector<std::string>* Paths)
+HEMAX_HDAWidget::Update()
 {
-    LoadedAssetsList->clear();
-    LoadSelectedAssetButton->setDisabled(true);
-    CreateModifiersButton->setDisabled(true);
+    UpdateSessionStatusWidget();
+    UpdateSelectionWidget();
+}
 
-    for (int i = 0; i < Paths->size(); ++i)
+void
+HEMAX_HDAWidget::SetSelection(HEMAX_3dsmaxHda* SelectedHda)
+{
+    Selection = SelectedHda;
+    Update();
+}
+
+void
+HEMAX_HDAWidget::UpdateSessionStatusWidget()
+{
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+
+    if (SM.IsSessionValidAndInitialized())
     {
-	QFileInfo HDAFile(Paths->at(i).c_str());
-
-	LoadedAssetsList->addItem(HDAFile.fileName());
-	LoadedAssetsList->item(i)->setToolTip(Paths->at(i).c_str());
+        SessionStatusLabel->setText("Houdini Engine Session READY");
+        SessionStatusLabel->setStyleSheet("color: lime");
     }
-
-    LoadedAssetsList->sortItems();
-}
-
-void
-HEMAX_HDAWidget::SetAssetLoadWidgetEnabled(bool Enabled)
-{
-    AssetLoadOptionsBox->setEnabled(Enabled);
-    AssetLoadOptionsBox->setVisible(Enabled);
-}
-
-void
-HEMAX_HDAWidget::SlotShowAssetContextMenu(QPoint Position)
-{
-    QPoint MenuSpawn = LoadedAssetsList->mapToGlobal(Position);
-    QListWidgetItem* Item = LoadedAssetsList->itemAt(Position);
-
-    if (!Item)
-        return;
-
-    QString FullAssetPath = Item->toolTip();
-    SelectedAssetPath = FullAssetPath;
-    CurrentContextMenuSelection = FullAssetPath;
-
-    QMenu AssetMenu;
-    QAction* GeoHdaAction = AssetMenu.addAction("Create Geometry HDA", this,
-        SLOT(CreateGeometryHdaTriggered()));
-    QAction* ModifierHdaAction = AssetMenu.addAction(
-        "Create Modifier HDA On Selected Objects", this,
-        SLOT(CreateModifierHdasTriggered()));
-    AssetMenu.addSeparator();
-    AssetMenu.addAction("Remove Asset", this,
-        SLOT(SlotRemoveAssetClicked()));
-    AssetMenu.addAction("Copy Asset Path", this,
-        SLOT(SlotCopyAssetPathClicked()));
-
-    if (!HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
+    else
     {
-        GeoHdaAction->setDisabled(true);
-        ModifierHdaAction->setDisabled(true);
-    }
-
-    AssetMenu.exec(MenuSpawn);
-}
-
-void
-HEMAX_HDAWidget::SlotRemoveAssetClicked()
-{
-    if (!Plugin->RemoveAsset(CurrentContextMenuSelection.toStdString()))
-    {
-        HEMAX_Logger::Instance().ShowDialog(
-                "Cannot remove asset",
-                "Could not remove asset because it is in use "
-                "by HDAs in the scene.",
-                HEMAX_LOG_LEVEL_INFO);
+        SessionStatusLabel->setText("Houdini Engine Session STOPPED");
+        SessionStatusLabel->setStyleSheet("color: yellow");
     }
 }
 
 void
-HEMAX_HDAWidget::SlotCopyAssetPathClicked()
+HEMAX_HDAWidget::UpdateSelectionWidget()
 {
-    QClipboard* Clipboard = QApplication::clipboard();
-    Clipboard->setText(CurrentContextMenuSelection);
+    if (Selection)
+    {
+        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+        std::stringstream Sstream;
+        Sstream << Selection->Get3dsMaxContainerName() << " ("
+            << Selection->Hda.MainNode.AssetName << ")";
+        CurrentSelectionLabel->setText(Sstream.str().c_str());
+    }
+    else
+    {
+        CurrentSelectionLabel->setText("No Asset Selected");
+    }
+
+    if (Locked)
+    {
+        LockSelectionButton->setText("Unlock Selection");
+    }
+    else
+    {
+        LockSelectionButton->setText("Lock Selection");
+    }
+}
+
+bool
+HEMAX_HDAWidget::LoadHoudiniEngineLogo()
+{
+    HMODULE ModuleHandle = GetModuleHandleA("HoudiniEngineFor3DSMax.dlu");
+    
+    if (!ModuleHandle)
+        return false;
+
+    HRSRC ResourceHandle = FindResource(ModuleHandle,
+        MAKEINTRESOURCE(IDI_HEMAX_HOUDINI_ENGINE_LOGO),
+        MAKEINTRESOURCE(IDI_HEMAX_PNG_RESOURCE));
+
+    if (!ResourceHandle)
+        return false;
+
+    HGLOBAL ResourceDataHandle = LoadResource(ModuleHandle, ResourceHandle);
+
+    if (!ResourceDataHandle)
+        return false;
+
+    LPVOID PngData = LockResource(ResourceDataHandle);
+
+    if (!PngData)
+        return false;
+
+    DWORD NumBytes = SizeofResource(ModuleHandle, ResourceHandle);
+
+    if (NumBytes == 0)
+        return false;
+
+    HoudiniEngineBannerLabel = new QLabel;
+    HoudiniEngineLogoImage = new QImage;
+    bool LoadResult =
+        HoudiniEngineLogoImage->loadFromData(
+            (const uchar*)PngData, NumBytes, "PNG");
+
+    if (!LoadResult)
+    {
+        delete HoudiniEngineLogoImage;
+        HoudiniEngineLogoImage = nullptr;
+        delete HoudiniEngineBannerLabel;
+        HoudiniEngineBannerLabel = nullptr;
+        return false;
+    }
+
+    HoudiniEngineBannerLabel->setPixmap(
+        QPixmap::fromImage(*HoudiniEngineLogoImage));
+
+    return true;
+}
+
+void
+HEMAX_HDAWidget::CookControlsHeaderClickedSlot()
+{
+    static int MaxHeight = CookControlsCollapsibleWidget->maximumHeight();
+
+    if (CookControlsCollapsibleWidget->maximumHeight() > 0)
+    {
+        CookControlsCollapsibleWidget->setMaximumHeight(0);
+        CookControlsHeader->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        CookControlsCollapsibleWidget->setMaximumHeight(MaxHeight);
+        CookControlsHeader->setArrowType(Qt::DownArrow);
+    }
+}
+
+void
+HEMAX_HDAWidget::BakeControlsHeaderClickedSlot()
+{
+    static int MaxHeight = BakeControlsCollapsibleWidget->maximumHeight();
+
+    if (BakeControlsCollapsibleWidget->maximumHeight() > 0)
+    {
+        BakeControlsCollapsibleWidget->setMaximumHeight(0);
+        BakeControlsHeader->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        BakeControlsCollapsibleWidget->setMaximumHeight(MaxHeight);
+        BakeControlsHeader->setArrowType(Qt::DownArrow);
+    }
+}
+
+void
+HEMAX_HDAWidget::CloneControlsHeaderClickedSlot()
+{
+    static int MaxHeight = CloneControlsCollapsibleWidget->maximumHeight();
+
+    if (CloneControlsCollapsibleWidget->maximumHeight() > 0)
+    {
+        CloneControlsCollapsibleWidget->setMaximumHeight(0);
+        CloneControlsHeader->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        CloneControlsCollapsibleWidget->setMaximumHeight(MaxHeight);
+        CloneControlsHeader->setArrowType(Qt::DownArrow);
+    }
+}
+
+void
+HEMAX_HDAWidget::ParametersHeaderClickedSlot()
+{
+    static int MaxHeight = ParametersContentWidget->maximumHeight();
+
+    if (ParametersContentWidget->maximumHeight() > 0)
+    {
+        ParametersContentWidget->setMaximumHeight(0);
+        ParametersHeader->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        ParametersContentWidget->setMaximumHeight(MaxHeight);
+        ParametersHeader->setArrowType(Qt::DownArrow);
+    }
 }

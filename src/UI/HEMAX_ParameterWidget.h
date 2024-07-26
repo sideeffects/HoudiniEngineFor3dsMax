@@ -69,8 +69,6 @@ class HEMAX_ParameterWidget : public QWidget
 	void SelectHDA(HEMAX_Node* TheSelectedNode);
 	void RefreshUI(bool DeleteLater = true);
 
-	HEMAX_Node* GetCurrentSelectedNode();
-
     protected:
 	QVBoxLayout* MainBoxLayout;
 

@@ -6,6 +6,8 @@
 #include "../HEMAX_Logger.h"
 #include "../HEMAX_UserPrefs.h"
 
+#include "HEMAX_HDAWidget.h"
+
 #include "moc_HEMAX_UI.cpp"
 
 std::string HEMAX_CurrentAssetSelection = "";
@@ -24,11 +26,13 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
     TabContainer = new QTabWidget;
 
     ShelfToolsWidget = new HEMAX_ShelfTab(ActivePlugin, false);
-    HDAWidget = new HEMAX_HDAWidget(ActivePlugin);
+    AssetWidget = new HEMAX_AssetWidget(ActivePlugin);
+    HdaWidget = new HEMAX_HDAWidget;
     MHAWidget = new HEMAX_MaxHoudiniAssetWidget(ActivePlugin);
     OutputLogTab = new HEMAX_OutputLogWidget;
 
-    TabContainer->addTab(HDAWidget, "Load Assets");
+    TabContainer->addTab(AssetWidget, "Load Assets");
+    TabContainer->addTab(HdaWidget, "Houdini Digital Asset");
     TabContainer->addTab(MHAWidget, "Parameters");
     TabContainer->addTab(ShelfToolsWidget, "Shelf");
     TabContainer->addTab(OutputLogTab, "Output Log");
@@ -179,8 +183,8 @@ HEMAX_UI::~HEMAX_UI()
 {
     if (MHAWidget)
         delete MHAWidget;
-    if (HDAWidget)
-        delete HDAWidget;
+    if (AssetWidget)
+        delete AssetWidget;
     if (ShelfToolsWidget)
         delete ShelfToolsWidget;
     if (OutputLogTab)
@@ -195,6 +199,8 @@ HEMAX_UI::~HEMAX_UI()
 void
 HEMAX_UI::ChangeHdaSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock)
 {
+    HdaWidget->SetSelection(Hda);
+
     MHAWidget->SetSelection(Hda, ForceUnlock);
 
     if (Hda)
@@ -233,7 +239,8 @@ HEMAX_UI::Update()
     ShelfToolsWidget->Update();
     std::vector<std::string> LoadedAssetList =
         HEMAX_SessionManager::GetSessionManager().GetStore().GetListOfLoadedAssets();
-    HDAWidget->UpdateLoadedAssetList(&LoadedAssetList);
+    AssetWidget->UpdateLoadedAssetList(&LoadedAssetList);
+    HdaWidget->Update();
     MHAWidget->RefreshParameterUI(false);
 
     if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
@@ -259,7 +266,7 @@ HEMAX_UI::UpdateLoadedAssetLibrariesList()
     HEMAX_Store& Store =
         HEMAX_SessionManager::GetSessionManager().GetStore();
     std::vector<std::string> Paths = Store.GetListOfLoadedAssets();
-    HDAWidget->UpdateLoadedAssetList(&Paths);
+    AssetWidget->UpdateLoadedAssetList(&Paths);
 }
 
 void

@@ -2,7 +2,7 @@
 
 #include "../HEMAX_Events.h"
 #include "../HEMAX_Plugin.h"
-#include "HEMAX_HDAWidget.h"
+#include "HEMAX_AssetWidget.h"
 #include "HEMAX_MaxHoudiniAssetWidget.h"
 #include "HEMAX_OutputLogWidget.h"
 #include "HEMAX_ShelfTab.h"
@@ -35,8 +35,9 @@
 #include <maxapi.h>
 #pragma warning(pop)
 
-class HEMAX_Plugin;
 class HEMAX_3dsmaxHda;
+class HEMAX_HDAWidget;
+class HEMAX_Plugin;
 
 class HEMAX_UI : public QDockWidget, public HEMAX_EventHandler
 {
@@ -64,7 +65,8 @@ class HEMAX_UI : public QDockWidget, public HEMAX_EventHandler
 	QTabWidget* TabContainer = nullptr;
 
 	HEMAX_ShelfTab* ShelfToolsWidget = nullptr;
-	HEMAX_HDAWidget* HDAWidget = nullptr;
+	HEMAX_AssetWidget* AssetWidget = nullptr;
+        HEMAX_HDAWidget* HdaWidget = nullptr;
 	HEMAX_MaxHoudiniAssetWidget* MHAWidget = nullptr;
         HEMAX_OutputLogWidget* OutputLogTab = nullptr;
 

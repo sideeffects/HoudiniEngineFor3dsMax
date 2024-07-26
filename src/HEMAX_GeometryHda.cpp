@@ -1018,6 +1018,18 @@ HEMAX_GeometryHda::SetContainerNode(INode* Node)
     ContainerNode = Node;
 }
 
+std::string
+HEMAX_GeometryHda::Get3dsMaxContainerName()
+{
+    if (ContainerNode)
+    {
+        std::wstring WName(ContainerNode->GetName());
+        return std::string(WName.begin(), WName.end());
+    }
+
+    return "";
+}
+
 bool
 HEMAX_GeometryHda::IsINodeADisplayGeometry(INode* Node)
 {

@@ -55,6 +55,8 @@ class HEMAX_3dsmaxHda
 	void UpdateAllCustomAttributes();
 	void ClearParameterCustomAttributes();
 
+        virtual std::string Get3dsMaxContainerName() = 0;
+
 protected:
 
         virtual HEMAX_NodeListParameterAttrib* CreateNodeListCustAttrib(

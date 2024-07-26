@@ -1,96 +1,91 @@
 #pragma once
 
-#if defined(HEMAX_VERSION_2018) || \
-    defined(HEMAX_VERSION_2019) || \
-    defined(HEMAX_VERSION_2020) || \
-    defined(HEMAX_VERSION_2021) || \
-    defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qgroupbox.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qlistwidget.h>
-#endif
-
 #ifdef HEMAX_VERSION_2017
 #include <QtGui/qwidget.h>
-#include <QtGui/qgroupbox.h>
-#include <QtGui/qboxlayout.h>
-#include <QtGui/qlayout.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qlineedit.h>
-#include <QtGui/qpushbutton.h>
-#include <QtGui/qlistwidget.h>
+#else
+#include <QtWidgets/qwidget.h>
 #endif
 
-#include <string>
+class HEMAX_3dsmaxHda;
+class HEMAX_ParameterWidget;
 
-#define HEMAX_HDAWIDGET_MAX_LIST_HEIGHT 350
-#define HEMAX_HDAWIDGET_CREATE_BUTTONS_MIN_HEIGHT 50
-
-class HEMAX_Plugin;
+class QHBoxLayout;
+class QImage;
+class QLabel;
+class QPushButton;
+class QToolButton;
+class QVBoxLayout;
 
 class HEMAX_HDAWidget : public QWidget
 {
     Q_OBJECT
 
-    public:
-	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin);
-	HEMAX_HDAWidget(HEMAX_Plugin* ActivePlugin, std::string AssetsBoxTitle);
-	~HEMAX_HDAWidget() = default;
+public:
+                                    HEMAX_HDAWidget();
 
-	std::string GetCurrentAssetLoadPath();
-	std::string GetSelectedAssetPath();
+    void                            Update();
+    void                            SetSelection(HEMAX_3dsmaxHda* SelectedHda);
 
-	void UpdateLoadedAssetList(std::vector<std::string>* Paths);
+private:
 
-	void SetAssetLoadWidgetEnabled(bool Enabled);
+    HEMAX_3dsmaxHda*                Selection                       = nullptr;
 
-    private:
+    bool                            Locked                          = false;
 
-        HEMAX_Plugin* Plugin;
+    void                            UpdateSessionStatusWidget();
+    void                            UpdateSelectionWidget();
 
-    private:
+    bool                            LoadHoudiniEngineLogo();
 
-	QVBoxLayout* MainLayout;
+private:
 
-	QWidget* MainBox;
-	QVBoxLayout* MainBoxLayout;
+    QVBoxLayout*                    HDAWidgetLayout                 = nullptr;
 
-	QGroupBox* AssetLoadOptionsBox;
-	QGridLayout* AssetLoadOptionsBoxLayout;
-	QLabel* AssetLoadOptionsPathLabel;
-	QLineEdit* AssetLoadOptionsPath;
-	QPushButton* AssetLoadOptionsPathBrowse;
-	QPushButton* AssetLoadButton;
+    QLabel*                         HoudiniEngineBannerLabel        = nullptr;
+    QImage*                         HoudiniEngineLogoImage          = nullptr;
 
-	QGroupBox* LoadedAssetsBox;
-	QVBoxLayout* LoadedAssetsBoxLayout;
-	QListWidget* LoadedAssetsList;
-	QPushButton* LoadSelectedAssetButton;
-	QPushButton* CreateModifiersButton;
+    QWidget*                        SessionStatusWidget             = nullptr;
+    QHBoxLayout*                    SessionStatusWidgetLayout       = nullptr;
+    QLabel*                         SessionStatusLabel              = nullptr;
 
-	QString SelectedAssetPath;
-	QString CurrentContextMenuSelection;
+    QWidget*                        SelectionWidget                 = nullptr;
+    QHBoxLayout*                    SelectionWidgetLayout           = nullptr;
+    QLabel*                         CurrentSelectionLabel           = nullptr;
+    QPushButton*                    LockSelectionButton             = nullptr;
 
-    private slots:
+    QWidget*                        CookControlsWidget              = nullptr;
+    QVBoxLayout*                    CookControlsWidgetLayout        = nullptr;
+    QToolButton*                    CookControlsHeader              = nullptr;
+    QWidget*                        CookControlsCollapsibleWidget   = nullptr;
+    QHBoxLayout*                    CookControlsContentLayout       = nullptr;
+    QPushButton*                    RecookButton                    = nullptr;
+    QPushButton*                    RebuildButton                   = nullptr;
+    QPushButton*                    ResetParametersButton           = nullptr;
 
-        void LoadAssetTriggered();
-        void CreateGeometryHdaTriggered();
-        void CreateModifierHdasTriggered();
+    QWidget*                        BakeControlsWidget              = nullptr;
+    QVBoxLayout*                    BakeControlsWidgetLayout        = nullptr;
+    QToolButton*                    BakeControlsHeader              = nullptr;
+    QWidget*                        BakeControlsCollapsibleWidget   = nullptr;
+    QHBoxLayout*                    BakeControlsContentLayout       = nullptr;
+    QPushButton*                    BakeButton                      = nullptr;
 
-	void SlotAssetLoadOptionsPathBrowse();
-	void SlotLoadedAssetItemClicked(QListWidgetItem* Item);
+    QWidget*                        CloneControlsWidget             = nullptr;
+    QVBoxLayout*                    CloneControlsWidgetLayout       = nullptr;
+    QToolButton*                    CloneControlsHeader             = nullptr;
+    QWidget*                        CloneControlsCollapsibleWidget  = nullptr;
+    QHBoxLayout*                    CloneControlsContentLayout      = nullptr;
+    QPushButton*                    CloneButton                     = nullptr;
 
-	void SlotShowAssetContextMenu(QPoint Position);
+    QWidget*                        ParametersWidget                = nullptr;
+    QVBoxLayout*                    ParametersWidgetLayout          = nullptr;
+    QToolButton*                    ParametersHeader                = nullptr;
+    HEMAX_ParameterWidget*          ParametersContentWidget         = nullptr;
 
-	void SlotRemoveAssetClicked();
-	void SlotCopyAssetPathClicked();
+private slots:
+
+    void                            CookControlsHeaderClickedSlot();
+    void                            BakeControlsHeaderClickedSlot();
+    void                            CloneControlsHeaderClickedSlot();
+    void                            ParametersHeaderClickedSlot();
 
 };

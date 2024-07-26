@@ -132,12 +132,6 @@ HEMAX_ParameterWidget::RefreshUI(bool DeleteLater)
     UpdateParameterUI(DeleteLater);
 }
 
-HEMAX_Node *
-HEMAX_ParameterWidget::GetCurrentSelectedNode()
-{
-    return CurrentNode;
-}
-
 void
 HEMAX_ParameterWidget::DisableSubnetworkInputUI(int Subnetwork)
 {
