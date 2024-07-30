@@ -40,7 +40,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
     CloneHdaButton = new QPushButton("Clone");
     CopyToNodeButton = new QPushButton("Copy To Different Object");
 
-    CreateMHAOptionsUI();
     CreateAdvancedOptionsUI();
 
     HdaActionButtonsLayout->setAlignment(Qt::AlignTop);
@@ -52,7 +51,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
     HdaActionButtonsLayout->addWidget(BakeHdaButton, 1, 0);
     HdaActionButtonsLayout->addWidget(CloneHdaButton, 1, 1);
 
-    MainBoxLayout->insertWidget(2, MHAOptionsBox);
     MainBoxLayout->addWidget(AdvancedOptionsBox);
 
     RecookHdaButton->setVisible(false);
@@ -60,7 +58,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
     BakeHdaButton->setVisible(false);
     CloneHdaButton->setVisible(false);
     CopyToNodeButton->setVisible(false);
-    MHAOptionsBox->setVisible(false);
     AdvancedOptionsBox->setVisible(false);
 
     QObject::connect(this, SIGNAL(Signal_CookNode(HEMAX_Node*)),
@@ -81,16 +78,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
     QObject::connect(CopyToNodeButton, SIGNAL(clicked()),
                      this, SLOT(Slot_CopyToNodeButton()));
 
-    QObject::connect(MHAOptions_PushTransformToHAPI,
-                     SIGNAL(stateChanged(int)),
-                     this,
-                     SLOT(Slot_MHAOptions_PushTransformToHAPI(int)));
-
-    QObject::connect(MHAOptions_ApplyHAPITransformToNode,
-                     SIGNAL(stateChanged(int)),
-                     this,
-                     SLOT(Slot_MHAOptions_ApplyHAPITransformToNode(int)));
-
     QObject::connect(AdvancedOptionsEnabledCheckbox,
                      SIGNAL(stateChanged(int)),
                      this,
@@ -100,51 +87,6 @@ HEMAX_MaxHoudiniAssetWidget::HEMAX_MaxHoudiniAssetWidget(
                      SIGNAL(clicked()),
                      this,
                      SLOT(Slot_AdvancedOptionsHdaPathSave()));
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::Slot_LockSelectionButton_Clicked()
-{
-    HandleLockSelectionButtonChanged(!SelectionLocked);
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::Slot_RecookHdaButton()
-{
-    if (Selection)
-    {
-        Plugin->HandleRecookRequest(&Selection->Hda.MainNode);
-    }
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::Slot_ReloadHdaButton()
-{
-    if (Selection)
-    {
-        QMessageBox ConfirmationDialog;
-        ConfirmationDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
-        ConfirmationDialog.setWindowTitle("Reload Asset Definition");
-        ConfirmationDialog.setText("This will delete and recreate all HDAs "
-                "in your scene that are using this asset definition.");
-        ConfirmationDialog.setInformativeText(
-                "Are you sure that you want to continue?");
-        ConfirmationDialog.setStandardButtons(
-                (QMessageBox::Ok | QMessageBox::Cancel));
-        int Result = ConfirmationDialog.exec();
-
-        if (Result == QMessageBox::Ok)
-        {
-            HEMAX_Node* MainNode = &(Selection->Hda.MainNode);
-
-            if (IsSelectionLocked())
-            {
-                HandleLockSelectionButtonChanged(false);
-            }
-
-            Plugin->ReloadAssetDefinition(MainNode);
-        }
-    }
 }
 
 void
@@ -205,41 +147,6 @@ HEMAX_MaxHoudiniAssetWidget::Slot_CopyToNodeButton()
 }
 
 void
-HEMAX_MaxHoudiniAssetWidget::Slot_MHAOptions_PushTransformToHAPI(int State)
-{
-    if (Selection && Selection->Type == HEMAX_GEOMETRY_HDA)
-    {
-	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
-	GeometryHda->SetPushTransformsOption(State);
-    }
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::Slot_MHAOptions_ApplyHAPITransformToNode(int State)
-{
-    if (Selection && Selection->Type == HEMAX_GEOMETRY_HDA)
-    {
-	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
-	GeometryHda->SetApplyHAPITransformOption(State);
-    }
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::SetSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock)
-{
-    if (ForceUnlock && SelectionLocked)
-    {
-	Slot_LockSelectionButton_Clicked();
-    }
-
-    if (!SelectionLocked)
-    {
-	Selection = Hda;
-	UpdateWidget();
-    }
-}
-
-void
 HEMAX_MaxHoudiniAssetWidget::UpdateWidget()
 {
     HideHdaActionButtonsUI();
@@ -251,21 +158,17 @@ HEMAX_MaxHoudiniAssetWidget::UpdateWidget()
     else if (Selection->Type == HEMAX_GEOMETRY_HDA)
     {
 	UpdateHdaActionButtonsUI(Selection->Type);
-	SelectHDA(&Selection->Hda.MainNode);
-	// Hide for now
-	//MHAOptionsBox->setVisible(true);
+	SelectHDA(Selection);
 	
 	HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Selection);
 
-	MHAOptions_PushTransformToHAPI->setChecked(GeometryHda->IsPushTransformsOptionEnabled());
-	MHAOptions_ApplyHAPITransformToNode->setChecked(GeometryHda->ShouldApplyHAPITransform());
 	AdvancedOptionsBox->setVisible(true);
 	PushSubnetworkInputNames();
 	PushParameterInputNames();
     }
     else if (Selection->Type == HEMAX_MODIFIER_HDA)
     {
-	SelectHDA(&Selection->Hda.MainNode);
+	SelectHDA(Selection);
 	UpdateHdaActionButtonsUI(Selection->Type);
 	AdvancedOptionsBox->setVisible(true);
 
@@ -359,6 +262,7 @@ HEMAX_MaxHoudiniAssetWidget::PushParameterInputNames()
     }
 }
 
+/*
 void
 HEMAX_MaxHoudiniAssetWidget::RefreshParameterUI(bool DeleteLater)
 {
@@ -374,48 +278,12 @@ HEMAX_MaxHoudiniAssetWidget::RefreshParameterUI(bool DeleteLater)
     PushSubnetworkInputNames();
     PushParameterInputNames();
 }
+*/
 
 HEMAX_3dsmaxHda*
 HEMAX_MaxHoudiniAssetWidget::GetCurrentHdaSelection()
 {
     return Selection;
-}
-
-bool
-HEMAX_MaxHoudiniAssetWidget::IsSelectionLocked()
-{
-    return SelectionLocked;
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::HandleLockSelectionButtonChanged(int Locked)
-{
-    // This means it's about to be unlocked
-    if (!Locked)
-    {
-	Selection = nullptr;
-	HideHdaActionButtonsUI();
-    }
-
-    HEMAX_ParameterWidget::SetSelectionLocked(Locked);
-}
-
-void
-HEMAX_MaxHoudiniAssetWidget::CreateMHAOptionsUI()
-{
-    MHAOptionsBox = new QGroupBox("Houdini Digital Asset Options");
-    MHAOptionsBoxLayout = new QGridLayout;
-
-    MHAOptions_PushTransformToHAPI = new QCheckBox("Push transform to HAPI");
-    MHAOptions_ApplyHAPITransformToNode = new QCheckBox("Apply HAPI transform to 3DS Max Node");
-
-    MHAOptionsBox->setAlignment(Qt::AlignTop);
-    MHAOptionsBoxLayout->setAlignment(Qt::AlignTop);
-
-    MHAOptionsBoxLayout->addWidget(MHAOptions_PushTransformToHAPI, 1, 0);
-    MHAOptionsBoxLayout->addWidget(MHAOptions_ApplyHAPITransformToNode, 2, 0);
-
-    MHAOptionsBox->setLayout(MHAOptionsBoxLayout);
 }
 
 void
@@ -489,7 +357,6 @@ HEMAX_MaxHoudiniAssetWidget::HideHdaActionButtonsUI()
     BakeHdaButton->setVisible(false);
     CloneHdaButton->setVisible(false);
     CopyToNodeButton->setVisible(false);
-    MHAOptionsBox->setVisible(false);
     AdvancedOptionsBox->setVisible(false);
 }
 

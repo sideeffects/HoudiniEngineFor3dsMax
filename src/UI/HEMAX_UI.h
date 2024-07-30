@@ -3,7 +3,6 @@
 #include "../HEMAX_Events.h"
 #include "../HEMAX_Plugin.h"
 #include "HEMAX_AssetWidget.h"
-#include "HEMAX_MaxHoudiniAssetWidget.h"
 #include "HEMAX_OutputLogWidget.h"
 #include "HEMAX_ShelfTab.h"
 
@@ -67,37 +66,7 @@ class HEMAX_UI : public QDockWidget, public HEMAX_EventHandler
 	HEMAX_ShelfTab* ShelfToolsWidget = nullptr;
 	HEMAX_AssetWidget* AssetWidget = nullptr;
         HEMAX_HDAWidget* HdaWidget = nullptr;
-	HEMAX_MaxHoudiniAssetWidget* MHAWidget = nullptr;
         HEMAX_OutputLogWidget* OutputLogTab = nullptr;
 
 	HEMAX_Plugin* ActivePlugin = nullptr;
-
-    private slots:
-
-	void HandleInputSelection(HEMAX_Node* Node,
-                                  HEMAX_Parameter Parameter,
-                                  bool ClearSelection);
-
-	void HandleSubnetworkInputSelection(HEMAX_Node*, int, bool);
-
-	void Slot_HandleUpdateParameterIntValues(HEMAX_Node* Node,
-                                                 HEMAX_Parameter Parameter,
-                                                 std::vector<int> IntValues,
-                                                 bool DoNotRefreshUI);
-
-	void Slot_HandleUpdateParameterFloatValues(
-                                HEMAX_Node* Node,
-                                HEMAX_Parameter Parameter,
-                                std::vector<float> FloatValues,
-                                bool DoNotRefreshUI);
-
-	void Slot_HandleUpdateParameterStringValues(
-                                HEMAX_Node* Node,
-                                HEMAX_Parameter Parameter,
-                                std::vector<std::string> StringValues);
-
-	void Slot_HandleUpdateMultiParameterList(
-                            HEMAX_Node* Node,
-                            HEMAX_Parameter Parameter,
-                            HEMAX_MultiParameterChangeInfo ChangeInfo);
 };

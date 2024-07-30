@@ -2,6 +2,8 @@
 
 #include "moc_HEMAX_ParameterWidget.cpp"
 
+#include "../HEMAX_3dsmaxHda.h"
+#include "../HEMAX_Node.h"
 #include "../HEMAX_Parameter.h"
 #include "../HEMAX_UserPrefs.h"
 
@@ -36,13 +38,6 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
     MainBox = new QWidget(this);
     MainBoxLayout = new QVBoxLayout;
 
-    ParametersBox = new QGroupBox;
-    ParametersBoxLayout = new QGridLayout;
-    ParametersSelectedAssetLabel = new QLabel("Active Asset:");
-    ParametersSelectedAssetName = new QLabel(NoHDAText);
-    ParametersSelectionLockedButton =
-	new QPushButton("Lock to Current Selection");
-
     NodeOptionsBox = new QGroupBox("Node Options");
     NodeOptionsBoxLayout = new QGridLayout;
     NodeOptions_AutoRecook = new QCheckBox(NodeOptionAutoRecookLabel);
@@ -61,16 +56,7 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
     NodeOptionsBoxLayout->setAlignment(Qt::AlignTop);
     NodeInputBox->setAlignment(Qt::AlignTop);
     NodeInputBoxLayout->setAlignment(Qt::AlignTop);
-    ParametersBoxLayout->setAlignment(Qt::AlignTop);
     ParametersDetailGridLayout->setAlignment(Qt::AlignTop);
-
-    ParametersBoxLayout->addWidget(ParametersSelectedAssetLabel, 0, 0);
-    ParametersBoxLayout->addWidget(ParametersSelectedAssetName, 0, 1);
-    ParametersBoxLayout->addWidget(ParametersSelectionLockedButton, 1, 0);
-
-    ParametersBox->setLayout(ParametersBoxLayout);
-
-    MainBoxLayout->addWidget(ParametersBox);
 
     NodeOptionsBoxLayout->addWidget(NodeOptions_AutoRecook, 0, 0);
     NodeOptionsBoxLayout->addWidget(NodeOptions_RealtimeRecook, 1, 0);
@@ -93,15 +79,13 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
 
     this->setLayout(MainLayout);
 
-    CurrentNode = nullptr;
+    SelectedHda = nullptr;
     SelectionLocked = false;
 
     NodeOptionsBox->setVisible(false);
     NodeInputBox->setVisible(false);
     ParametersDetailBox->setVisible(false);
 
-    QObject::connect(ParametersSelectionLockedButton, SIGNAL(clicked()), this,
-	    SLOT(Slot_LockSelectionButton_Clicked()));
     QObject::connect(NodeOptions_AutoRecook, SIGNAL(stateChanged(int)), this,
 	    SLOT(Slot_NodeOptions_AutoRecook_StateChanged(int)));
     QObject::connect(NodeOptions_RealtimeRecook, SIGNAL(stateChanged(int)),
@@ -112,18 +96,14 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
 }
 
 void
-HEMAX_ParameterWidget::SelectHDA(HEMAX_Node *TheSelectedNode)
+HEMAX_ParameterWidget::SelectHDA(HEMAX_3dsmaxHda* Hda)
 {
-    if (!SelectionLocked)
-    {
-	if (!CurrentNode || !TheSelectedNode ||
-		(CurrentNode != TheSelectedNode))
-	{
-	    CurrentNode = TheSelectedNode;
-	    LastActiveFolderTabs.clear();
-	    UpdateParameterUI(false);
-	}
-    }
+    if (Hda == SelectedHda)
+        return;
+
+    SelectedHda = Hda;
+    LastActiveFolderTabs.clear();
+    UpdateParameterUI(false);
 }
 
 void
@@ -141,27 +121,19 @@ HEMAX_ParameterWidget::DisableSubnetworkInputUI(int Subnetwork)
     }
 }
 
-void
-HEMAX_ParameterWidget::SetSelectionLocked(bool Locked)
+HEMAX_Node*
+HEMAX_ParameterWidget::GetCurrentNode()
 {
-    if (Locked && CurrentNode)
-    {
-        SelectionLocked = true;
-        ParametersSelectionLockedButton->setText("Unlock");
-    }
+    if (SelectedHda)
+        return &SelectedHda->Hda.MainNode;
     else
-    {
-        SelectionLocked = false;
-	ParametersSelectionLockedButton->setText("Lock to Current Selection");
-	SelectHDA(nullptr);
-    }
+        return nullptr;
 }
 
 void
 HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 {
     OpParmWidgets.clear();
-    ParametersSelectedAssetName->setText(NoHDAText);
     NodeOptionsBox->setVisible(false);
     NodeInputBox->setVisible(false);
     ParametersDetailBox->setVisible(false);
@@ -212,6 +184,8 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 	SubnetworkInputs.clear();
     }
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
+
     if (CurrentNode)
     {
 	if (CurrentNode->Type == HAPI_NODETYPE_SOP)
@@ -234,8 +208,6 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 			SLOT(Slot_PWNODE_SubnetworkClearSelection()));
 	    }
 	}
-
-	ParametersSelectedAssetName->setText(CurrentNode->AssetName.c_str());
 
 	std::unordered_map<int, HEMAX_ParameterWidget_Folder *> ConstructionMap;
 	std::unordered_map<int, HEMAX_ParameterWidget_MultiParameter *>
@@ -831,21 +803,9 @@ HEMAX_ParameterWidget::CreateParameterWidget_Color(HEMAX_Parameter& Parameter, s
 }
 
 void
-HEMAX_ParameterWidget::Slot_LockSelectionButton_Clicked()
-{
-    if (SelectionLocked)
-    {
-        SetSelectionLocked(false);
-    }
-    else
-    {
-        SetSelectionLocked(true);
-    }
-}
-
-void
 HEMAX_ParameterWidget::Slot_NodeOptions_AutoRecook_StateChanged(int State)
 {
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (CurrentNode)
     {
 	CurrentNode->AutoRecookOnParameterUpdate = State;
@@ -857,6 +817,7 @@ HEMAX_ParameterWidget::Slot_NodeOptions_AutoRecook_StateChanged(int State)
 void
 HEMAX_ParameterWidget::Slot_NodeOptions_RealtimeRecook_StateChanged(int State)
 {
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (CurrentNode)
     {
 	CurrentNode->RealtimeRecookEnabled = State;
@@ -866,6 +827,7 @@ HEMAX_ParameterWidget::Slot_NodeOptions_RealtimeRecook_StateChanged(int State)
 void
 HEMAX_ParameterWidget::Slot_NodeOptions_InputUpdate_StateChanged(int State)
 {
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (CurrentNode)
     {
 	CurrentNode->AutoRecookOnInputChange = State;
@@ -880,6 +842,7 @@ HEMAX_ParameterWidget::Slot_PWINTEGER_EditingFinished()
     HEMAX_ParameterWidget_Integer *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Integer *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -922,6 +885,7 @@ HEMAX_ParameterWidget::Slot_PWINTEGER_SliderDone()
     HEMAX_ParameterWidget_Integer *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Integer *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -953,6 +917,7 @@ HEMAX_ParameterWidget::Slot_PWINTEGER_SliderDrag()
     HEMAX_ParameterWidget_Integer *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Integer *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate &&
@@ -983,6 +948,7 @@ HEMAX_ParameterWidget::Slot_PWINTEGERCHOICE_Selection(int Index)
     HEMAX_ParameterWidget_Integer_Choice *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Integer_Choice *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1015,6 +981,7 @@ HEMAX_ParameterWidget::Slot_PWSTRING_EditingFinished()
     HEMAX_ParameterWidget_String *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_String *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1048,6 +1015,7 @@ HEMAX_ParameterWidget::Slot_PWSTRINGCHOICE_Selection(int Index)
     HEMAX_ParameterWidget_String_Choice *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_String_Choice *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1081,6 +1049,7 @@ HEMAX_ParameterWidget::Slot_PWFLOAT_EditingFinished()
     HEMAX_ParameterWidget_Float *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Float *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1125,6 +1094,7 @@ HEMAX_ParameterWidget::Slot_PWFLOAT_SliderDone()
     HEMAX_ParameterWidget_Float *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Float *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1176,6 +1146,7 @@ HEMAX_ParameterWidget::Slot_PWFLOAT_SliderDrag()
     HEMAX_ParameterWidget_Float *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Float *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate &&
@@ -1222,6 +1193,7 @@ HEMAX_ParameterWidget::Slot_PWTOGGLE_StateChanged()
     HEMAX_ParameterWidget_Toggle *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Toggle *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1254,6 +1226,7 @@ HEMAX_ParameterWidget::Slot_PWCOLOR_Update()
 
     HEMAX_ParameterWidget_Color *HEMAX_Sender = qobject_cast<HEMAX_ParameterWidget_Color*>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1307,6 +1280,7 @@ HEMAX_ParameterWidget::Slot_PWBUTTONCHOICE_Selection(int Index)
 	    qobject_cast<HEMAX_ParameterWidget_Button_Choice *>(
 		    Sender->parent());
 
+        HEMAX_Node* CurrentNode = GetCurrentNode();
 	if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
 	{
 	    if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1333,6 +1307,7 @@ HEMAX_ParameterWidget::Slot_PWBUTTON_Clicked()
     HEMAX_ParameterWidget_Button *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Button *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1357,6 +1332,7 @@ HEMAX_ParameterWidget::Slot_PWFILEPATH_Updated()
     HEMAX_ParameterWidget_FilePath *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_FilePath *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1388,6 +1364,7 @@ HEMAX_ParameterWidget::Slot_PWFILEPATH_Selected()
     HEMAX_ParameterWidget_FilePath *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_FilePath *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
         HEMAX_Parameter* Parameter = CurrentNode->GetParameter(
@@ -1419,6 +1396,7 @@ HEMAX_ParameterWidget::Slot_PWNODE_InputSelection()
     HEMAX_ParameterWidget_Node *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Node *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1440,6 +1418,7 @@ HEMAX_ParameterWidget::Slot_PWNODE_ClearSelection()
     HEMAX_ParameterWidget_Node *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Node *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1461,6 +1440,7 @@ HEMAX_ParameterWidget::Slot_PWNODE_SubnetworkInputSelection()
     HEMAX_ParameterWidget_Node *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Node *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1486,6 +1466,7 @@ HEMAX_ParameterWidget::Slot_PWNODE_SubnetworkClearSelection()
     HEMAX_ParameterWidget_Node *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_Node *>(Sender->parent());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (CurrentNode->AutoRecookOnParameterUpdate)
@@ -1513,6 +1494,7 @@ HEMAX_ParameterWidget::Slot_PWMULTIPARAMETER_Add(int Position, bool DoNotCook)
     HEMAX_ParameterWidget_MultiParameter *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_MultiParameter *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (!DoNotCook)
@@ -1555,6 +1537,7 @@ HEMAX_ParameterWidget::Slot_PWMULTIPARAMETER_Remove(int Position,
     HEMAX_ParameterWidget_MultiParameter *HEMAX_Sender =
 	qobject_cast<HEMAX_ParameterWidget_MultiParameter *>(Sender);
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!HEMAX_Sender->IsUIInvalid() && CurrentNode)
     {
 	if (!DoNotCook)
@@ -1598,6 +1581,7 @@ HEMAX_ParameterWidget::Slot_PWFOLDERLIST_FolderChanged(int Index)
 	qobject_cast<HEMAX_ParameterWidget_Folderlist *>(
 		HEMAX_Sender->parentWidget());
 
+    HEMAX_Node* CurrentNode = GetCurrentNode();
     if (!FolderlistSender->IsUIInvalid() && CurrentNode)
     {
 	int OldActiveTab = FolderlistSender->CurrentlyActiveIndex;

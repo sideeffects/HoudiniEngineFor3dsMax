@@ -4,6 +4,7 @@
 
 #include "HEMAX_ParameterWidget.h"
 #include "../HEMAX_3dsmaxHda.h"
+#include "../HEMAX_Plugin.h"
 #include "../HEMAX_SessionManager.h"
 #include "../resource.h"
 
@@ -11,6 +12,7 @@
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qlabel.h>
+#include <QtGui/qmessagebox.h>
 #include <QtGui/qpixmap.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qtoolbutton.h>
@@ -18,6 +20,7 @@
 #include <QtGui/qimage.h>
 #include <QtGui/qpixmap.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbutton.h>
@@ -27,7 +30,8 @@
 #include <string>
 #include <windows.h>
 
-HEMAX_HDAWidget::HEMAX_HDAWidget()
+HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
+    : Plugin(ThePlugin)
 {
     bool LoadEngineLogoResult = LoadHoudiniEngineLogo();
 
@@ -49,6 +53,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget()
 
     CookControlsWidget = new QWidget;
     CookControlsWidgetLayout = new QVBoxLayout;
+    CookControlsWidgetLayout->setSpacing(0);
+    CookControlsWidgetLayout->setContentsMargins(0, 0, 0, 0);
     CookControlsHeader = new QToolButton;
     CookControlsHeader->setText("Cook");
     CookControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -68,6 +74,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget()
 
     BakeControlsWidget = new QWidget;
     BakeControlsWidgetLayout = new QVBoxLayout;
+    BakeControlsWidgetLayout->setSpacing(0);
+    BakeControlsWidgetLayout->setContentsMargins(0, 0, 0, 0);
     BakeControlsHeader = new QToolButton;
     BakeControlsHeader->setText("Bake");
     BakeControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -83,6 +91,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget()
 
     CloneControlsWidget = new QWidget;
     CloneControlsWidgetLayout = new QVBoxLayout;
+    CloneControlsWidgetLayout->setSpacing(0);
+    CloneControlsWidgetLayout->setContentsMargins(0, 0, 0, 0);
     CloneControlsHeader = new QToolButton;
     CloneControlsHeader->setText("Clone");
     CloneControlsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -108,11 +118,15 @@ HEMAX_HDAWidget::HEMAX_HDAWidget()
     ParametersWidget->setLayout(ParametersWidgetLayout);
 
     HDAWidgetLayout = new QVBoxLayout;
-
+    HDAWidgetLayout->setSpacing(0);
+    HDAWidgetLayout->setContentsMargins(0, 0, 0, 0);
     HDAWidgetLayout->setAlignment(Qt::AlignTop);
 
     if (LoadEngineLogoResult)
+    {
         HDAWidgetLayout->addWidget(HoudiniEngineBannerLabel);
+        HDAWidgetLayout->addWidget(HoudiniEngineLogoSeparator);
+    }
     HDAWidgetLayout->addWidget(SessionStatusWidget);
     HDAWidgetLayout->addWidget(SelectionWidget);
     HDAWidgetLayout->addWidget(CookControlsWidget);
@@ -141,6 +155,51 @@ HEMAX_HDAWidget::HEMAX_HDAWidget()
         this, SLOT(CloneControlsHeaderClickedSlot()));
     QObject::connect(ParametersHeader, SIGNAL(clicked()),
         this, SLOT(ParametersHeaderClickedSlot()));
+    QObject::connect(RecookButton, SIGNAL(clicked()),
+        this, SLOT(RecookButtonClickedSlot()));
+    QObject::connect(RebuildButton, SIGNAL(clicked()),
+        this, SLOT(RebuildButtonClickedSlot()));
+    QObject::connect(ResetParametersButton, SIGNAL(clicked()),
+        this, SLOT(ResetParametersButtonClickedSlot()));
+    QObject::connect(LockSelectionButton, SIGNAL(clicked()),
+        this, SLOT(LockSelectionButtonClickedSlot()));
+
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_CookNode(HEMAX_Node*)),
+        this, SLOT(CookNodeSlot(HEMAX_Node*)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_InputSelection(HEMAX_Node*, HEMAX_Parameter, bool)),
+        this, SLOT(InputSelectionSlot(HEMAX_Node*, HEMAX_Parameter, bool)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_SubnetworkInputSelection(
+                    HEMAX_Node*, int, bool)),
+        this,
+        SLOT(SubnetworkInputSelectionSlot(HEMAX_Node*, int, bool)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_UpdateParameterIntValues(
+                HEMAX_Node*, HEMAX_Parameter, std::vector<int>, bool)),
+        this,
+        SLOT(UpdateParameterIntValuesSlot(HEMAX_Node*, HEMAX_Parameter,
+                std::vector<int>, bool)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_UpdateParameterFloatValues(HEMAX_Node*, HEMAX_Parameter,
+                std::vector<float>, bool)),
+        this,
+        SLOT(UpdateParameterFloatValuesSlot(HEMAX_Node*, HEMAX_Parameter,
+                std::vector<float>, bool)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_UpdateParameterStringValues(HEMAX_Node*, HEMAX_Parameter,
+                std::vector<std::string>)),
+        this,
+        SLOT(UpdateParameterStringValuesSlot(HEMAX_Node*, HEMAX_Parameter,
+                std::vector<std::string>)));
+    QObject::connect(ParametersContentWidget,
+        SIGNAL(Signal_UpdateMultiParameterList(HEMAX_Node*, HEMAX_Parameter,
+                HEMAX_MultiParameterChangeInfo)),
+        this,
+        SLOT(UpdateMultiParameterListSlot(HEMAX_Node*, HEMAX_Parameter,
+                HEMAX_MultiParameterChangeInfo)));
+
 }
 
 void
@@ -148,13 +207,24 @@ HEMAX_HDAWidget::Update()
 {
     UpdateSessionStatusWidget();
     UpdateSelectionWidget();
+    ParametersContentWidget->RefreshUI(false);
 }
 
 void
-HEMAX_HDAWidget::SetSelection(HEMAX_3dsmaxHda* SelectedHda)
+HEMAX_HDAWidget::SetSelection(HEMAX_3dsmaxHda* SelectedHda, bool ForceUnlock)
 {
-    Selection = SelectedHda;
-    Update();
+    if (!Locked || ForceUnlock)
+    {
+        Selection = SelectedHda;
+        ParametersContentWidget->SelectHDA(SelectedHda);
+        Update();
+    }
+}
+
+void
+HEMAX_HDAWidget::UpdateParameters(bool DeleteWidgetsLater)
+{
+    ParametersContentWidget->RefreshUI(DeleteWidgetsLater);
 }
 
 void
@@ -248,6 +318,9 @@ HEMAX_HDAWidget::LoadHoudiniEngineLogo()
     HoudiniEngineBannerLabel->setPixmap(
         QPixmap::fromImage(*HoudiniEngineLogoImage));
 
+    HoudiniEngineLogoSeparator = new QFrame;
+    HoudiniEngineLogoSeparator->setFrameShape(QFrame::Shape::HLine);
+
     return true;
 }
 
@@ -317,4 +390,126 @@ HEMAX_HDAWidget::ParametersHeaderClickedSlot()
         ParametersContentWidget->setMaximumHeight(MaxHeight);
         ParametersHeader->setArrowType(Qt::DownArrow);
     }
+}
+
+void
+HEMAX_HDAWidget::RecookButtonClickedSlot()
+{
+    if (Selection)
+    {
+        Plugin->HandleRecookRequest(&Selection->Hda.MainNode);
+    } 
+}
+
+void
+HEMAX_HDAWidget::RebuildButtonClickedSlot()
+{
+    if (!Selection)
+        return;
+
+    QMessageBox ConfirmationDialog;
+    ConfirmationDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
+    ConfirmationDialog.setWindowTitle("Rebuild Asset");
+
+    std::stringstream SStream;
+    SStream << "This will delete and recreate all nodes in your scene that are "
+        "using the currently selected HDA ("
+        << Selection->Hda.MainNode.AssetName << ")";
+    ConfirmationDialog.setText(SStream.str().c_str());
+    ConfirmationDialog.setInformativeText(
+            "Are you sure that you want to continue?");
+    ConfirmationDialog.setStandardButtons(
+            (QMessageBox::Ok | QMessageBox::Cancel));
+    int Result = ConfirmationDialog.exec();
+
+    if (Result == QMessageBox::Ok)
+    {
+        HEMAX_Node* MainNode = &(Selection->Hda.MainNode);
+        Plugin->ReloadAssetDefinition(MainNode);
+    }
+}
+
+void
+HEMAX_HDAWidget::ResetParametersButtonClickedSlot()
+{
+    // TODO: ui
+}
+
+void
+HEMAX_HDAWidget::LockSelectionButtonClickedSlot()
+{
+    if (!Locked && Selection)
+        Locked = true;
+    else
+        Locked = false;
+
+    Update();
+}
+
+void
+HEMAX_HDAWidget::CookNodeSlot(HEMAX_Node* Node)
+{
+
+}
+
+void
+HEMAX_HDAWidget::InputSelectionSlot(HEMAX_Node* Node,
+        HEMAX_Parameter Parameter, bool ClearSelection)
+{
+    if (ClearSelection)
+        Plugin->HandleParameterInputCleared(Node, Parameter);
+    else
+        Plugin->HandleParameterInputSelection(Node, Parameter);
+
+    UpdateParameters();
+}
+
+void
+HEMAX_HDAWidget::SubnetworkInputSelectionSlot(HEMAX_Node* Node,
+        int Subnetwork, bool ClearSelection)
+{
+    if (ClearSelection)
+        Plugin->HandleSubnetworkInputCleared(Node, Subnetwork);
+    else
+        Plugin->HandleSubnetworkInputSelection(Node, Subnetwork);
+
+    UpdateParameters();
+}
+
+void
+HEMAX_HDAWidget::UpdateParameterIntValuesSlot(HEMAX_Node* Node,
+        HEMAX_Parameter Parameter, std::vector<int> Values, bool SkipUpdateUI)
+{
+    Plugin->HandleParameterIntValuesUpdate(Node, Parameter, Values);
+
+    if (Node->AutoRecookOnParameterUpdate && !SkipUpdateUI)
+        UpdateParameters();
+}
+
+void
+HEMAX_HDAWidget::UpdateParameterFloatValuesSlot(HEMAX_Node* Node,
+        HEMAX_Parameter Parameter, std::vector<float> Values, bool SkipUpdateUI)
+{
+    Plugin->HandleParameterFloatValuesUpdate(Node, Parameter, Values);
+
+    if (Node->AutoRecookOnParameterUpdate && !SkipUpdateUI)
+        UpdateParameters();
+}
+
+void
+HEMAX_HDAWidget::UpdateParameterStringValuesSlot(HEMAX_Node* Node,
+        HEMAX_Parameter Parameter, std::vector<std::string> Values)
+{
+    Plugin->HandleParameterStringValuesUpdate(Node, Parameter, Values);
+
+    if (Node->AutoRecookOnParameterUpdate)
+        UpdateParameters();
+}
+
+void
+HEMAX_HDAWidget::UpdateMultiParameterListSlot(HEMAX_Node* Node,
+        HEMAX_Parameter Parameter, HEMAX_MultiParameterChangeInfo ChangeInfo)
+{
+    Plugin->HandleMultiParameterUpdate(Node, Parameter, ChangeInfo);
+    UpdateParameters();
 }

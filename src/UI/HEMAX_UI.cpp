@@ -27,13 +27,11 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
 
     ShelfToolsWidget = new HEMAX_ShelfTab(ActivePlugin, false);
     AssetWidget = new HEMAX_AssetWidget(ActivePlugin);
-    HdaWidget = new HEMAX_HDAWidget;
-    MHAWidget = new HEMAX_MaxHoudiniAssetWidget(ActivePlugin);
+    HdaWidget = new HEMAX_HDAWidget(ActivePlugin);
     OutputLogTab = new HEMAX_OutputLogWidget;
 
     TabContainer->addTab(AssetWidget, "Load Assets");
     TabContainer->addTab(HdaWidget, "Houdini Digital Asset");
-    TabContainer->addTab(MHAWidget, "Parameters");
     TabContainer->addTab(ShelfToolsWidget, "Shelf");
     TabContainer->addTab(OutputLogTab, "Output Log");
 
@@ -53,61 +51,6 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
 	this->resize(HEMAX_2017_WINDOW_START_WIDTH,
                      HEMAX_2017_WINDOW_START_HEIGHT);
     }
-
-    QObject::connect(MHAWidget,
-                     SIGNAL(Signal_UpdateParameterIntValues(HEMAX_Node*,
-                                                            HEMAX_Parameter,
-                                                            std::vector<int>,
-                                                            bool)),
-                     this,
-                     SLOT(Slot_HandleUpdateParameterIntValues(HEMAX_Node*,
-                                                              HEMAX_Parameter,
-                                                              std::vector<int>,
-                                                              bool)));
-
-    QObject::connect(
-            MHAWidget,
-            SIGNAL(Signal_UpdateParameterFloatValues(HEMAX_Node*,
-                                                     HEMAX_Parameter,
-                                                     std::vector<float>,
-                                                     bool)),
-            this,
-            SLOT(Slot_HandleUpdateParameterFloatValues(HEMAX_Node*,
-                                                       HEMAX_Parameter,
-                                                       std::vector<float>,
-                                                       bool)));
-
-    QObject::connect(
-        MHAWidget,
-        SIGNAL(Signal_UpdateParameterStringValues(HEMAX_Node*,
-                                                  HEMAX_Parameter,
-                                                  std::vector<std::string>)),
-        this,
-        SLOT(Slot_HandleUpdateParameterStringValues(HEMAX_Node*,
-                                                    HEMAX_Parameter,
-                                                    std::vector<std::string>)));
-
-    QObject::connect(
-        MHAWidget,
-        SIGNAL(Signal_UpdateMultiParameterList(HEMAX_Node*,
-                                               HEMAX_Parameter,
-                                               HEMAX_MultiParameterChangeInfo)),
-        this,
-        SLOT(Slot_HandleUpdateMultiParameterList(HEMAX_Node*,
-                                                 HEMAX_Parameter,
-                                                 HEMAX_MultiParameterChangeInfo)));
-
-    QObject::connect(
-        MHAWidget,
-        SIGNAL(Signal_InputSelection(HEMAX_Node*, HEMAX_Parameter, bool)),
-        this,
-        SLOT(HandleInputSelection(HEMAX_Node*, HEMAX_Parameter, bool)));
-
-    QObject::connect(
-        MHAWidget,
-        SIGNAL(Signal_SubnetworkInputSelection(HEMAX_Node*, int, bool)),
-        this,
-        SLOT(HandleSubnetworkInputSelection(HEMAX_Node*, int, bool)));
 
     ShelfToolsWidget->SetShelf(
         &HEMAX_SessionManager::GetSessionManager().GetStore().GetShelf());
@@ -181,8 +124,6 @@ HEMAX_UI::HEMAX_UI(QMainWindow* MainWindow, HEMAX_Plugin* Plugin)
 
 HEMAX_UI::~HEMAX_UI()
 {
-    if (MHAWidget)
-        delete MHAWidget;
     if (AssetWidget)
         delete AssetWidget;
     if (ShelfToolsWidget)
@@ -201,24 +142,22 @@ HEMAX_UI::ChangeHdaSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock)
 {
     HdaWidget->SetSelection(Hda);
 
-    MHAWidget->SetSelection(Hda, ForceUnlock);
-
     if (Hda)
     {
-	TabContainer->setCurrentWidget(MHAWidget);
+	TabContainer->setCurrentWidget(HdaWidget);
     }
 }
 
 HEMAX_3dsmaxHda*
 HEMAX_UI::GetCurrentHdaSelection()
 {
-    return MHAWidget->GetCurrentHdaSelection();
+    return HdaWidget->GetSelection();
 }
 
 void
 HEMAX_UI::SetSelectionLocked(bool Locked)
 {
-    MHAWidget->HandleLockSelectionButtonChanged(Locked);
+    HdaWidget->SetLocked(Locked);
 }
 
 void
@@ -241,7 +180,6 @@ HEMAX_UI::Update()
         HEMAX_SessionManager::GetSessionManager().GetStore().GetListOfLoadedAssets();
     AssetWidget->UpdateLoadedAssetList(&LoadedAssetList);
     HdaWidget->Update();
-    MHAWidget->RefreshParameterUI(false);
 
     if (HEMAX_SessionManager::GetSessionManager().IsSessionValidAndInitialized())
     {
@@ -270,104 +208,8 @@ HEMAX_UI::UpdateLoadedAssetLibrariesList()
 }
 
 void
-HEMAX_UI::HandleInputSelection(HEMAX_Node* Node,
-                               HEMAX_Parameter Parameter,
-                               bool ClearSelection)
-{
-    if (ClearSelection)
-    {
-	ActivePlugin->HandleParameterInputCleared(Node, Parameter);
-    }
-    else
-    {
-	ActivePlugin->HandleParameterInputSelection(Node, Parameter);
-    }
-
-    MHAWidget->RefreshParameterUI();
-}
-
-void
-HEMAX_UI::HandleSubnetworkInputSelection(HEMAX_Node* Node,
-                                         int Subnetwork,
-                                         bool ClearSelection)
-{
-    if (ClearSelection)
-    {
-	ActivePlugin->HandleSubnetworkInputCleared(Node, Subnetwork);
-    }
-    else
-    {
-	ActivePlugin->HandleSubnetworkInputSelection(Node, Subnetwork);
-    }
-
-    MHAWidget->RefreshParameterUI();
-}
-
-void
-HEMAX_UI::Slot_HandleUpdateParameterIntValues(HEMAX_Node* Node,
-                                              HEMAX_Parameter Parameter,
-                                              std::vector<int> IntValues,
-                                              bool DoNotRefreshUI)
-{
-    ActivePlugin->HandleParameterIntValuesUpdate(Node, Parameter, IntValues);
-
-    if (Node->AutoRecookOnParameterUpdate && !DoNotRefreshUI)
-    {
-	MHAWidget->RefreshParameterUI();
-	TabContainer->setCurrentWidget(MHAWidget);
-    }
-}
-
-void
-HEMAX_UI::Slot_HandleUpdateParameterFloatValues(HEMAX_Node* Node,
-                                                HEMAX_Parameter Parameter,
-                                                std::vector<float> FloatValues,
-                                                bool DoNotRefreshUI)
-{
-    ActivePlugin->HandleParameterFloatValuesUpdate(Node,
-                                                   Parameter,
-                                                   FloatValues);
-
-    if (Node->AutoRecookOnParameterUpdate && !DoNotRefreshUI)
-    {
-	MHAWidget->RefreshParameterUI();
-	TabContainer->setCurrentWidget(MHAWidget);
-    }
-}
-
-void
-HEMAX_UI::Slot_HandleUpdateParameterStringValues(
-                                        HEMAX_Node* Node,
-                                        HEMAX_Parameter Parameter,
-                                        std::vector<std::string> StringValues)
-{
-    ActivePlugin->HandleParameterStringValuesUpdate(Node,
-                                                    Parameter,
-                                                    StringValues);
-
-    if (Node->AutoRecookOnParameterUpdate)
-    {
-	MHAWidget->RefreshParameterUI();
-	TabContainer->setCurrentWidget(MHAWidget);
-    }
-}
-
-void
-HEMAX_UI::Slot_HandleUpdateMultiParameterList(
-                                    HEMAX_Node* Node,
-                                    HEMAX_Parameter Parameter,
-                                    HEMAX_MultiParameterChangeInfo ChangeInfo)
-{
-    ActivePlugin->HandleMultiParameterUpdate(Node, Parameter, ChangeInfo);
-    MHAWidget->RefreshParameterUI();
-    TabContainer->setCurrentWidget(MHAWidget);
-}
-
-void
 HEMAX_UI::HandleHdaPreDeleteEvent(HEMAX_3dsmaxHda* Hda)
 {
     if (GetCurrentHdaSelection() == Hda)
-    {
         ChangeHdaSelection(nullptr, true);
-    }
 }

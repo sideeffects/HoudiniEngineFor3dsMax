@@ -35,13 +35,16 @@
 #include <QtGui/qcolordialog.h>
 #endif
 
-#include "../HEMAX_Node.h"
-
 #include <string>
 #include <vector>
 
+#include "../HEMAX_Parameter.h"
+
 #define HEMAX_MULTIPARAM_MAX_BUTTON_WIDTH 20
 #define HEMAX_SPACER_ITEM_WIDTH 40
+
+class HEMAX_3dsmaxHda;
+class HEMAX_Node;
 
 class HEMAX_ParameterWidget_Parameter : public QWidget
 {
@@ -66,7 +69,7 @@ class HEMAX_ParameterWidget : public QWidget
 	HEMAX_ParameterWidget();
 	virtual ~HEMAX_ParameterWidget() = default;
 
-	void SelectHDA(HEMAX_Node* TheSelectedNode);
+        void SelectHDA(HEMAX_3dsmaxHda* Hda);
 	void RefreshUI(bool DeleteLater = true);
 
     protected:
@@ -76,14 +79,14 @@ class HEMAX_ParameterWidget : public QWidget
 
 	void DisableSubnetworkInputUI(int Subnetwork);
 
-        void SetSelectionLocked(bool Locked);
-
 	std::vector<QWidget*> SubnetworkInputs;
 	std::vector<QWidget*> ParameterWidgets;
 
 	std::vector<QWidget*> OpParmWidgets;
 
     private:
+
+        HEMAX_Node* GetCurrentNode();
 
 	void UpdateParameterUI(bool ScheduleDeleteLater);
 
@@ -93,12 +96,6 @@ class HEMAX_ParameterWidget : public QWidget
 
 	QGroupBox* NodeInputBox;
 	QGridLayout* NodeInputBoxLayout;
-
-	QGroupBox* ParametersBox;
-	QGridLayout* ParametersBoxLayout;
-	QLabel* ParametersSelectedAssetLabel;
-	QLabel* ParametersSelectedAssetName;
-	QPushButton* ParametersSelectionLockedButton;
 
 	QGroupBox* NodeOptionsBox;
 	QGridLayout* NodeOptionsBoxLayout;
@@ -110,20 +107,17 @@ class HEMAX_ParameterWidget : public QWidget
 	QGridLayout* ParametersDetailGridLayout;
 	std::vector<QHBoxLayout*> ParametersDetailRows;
 
-	HEMAX_Node* CurrentNode;
+        HEMAX_3dsmaxHda* SelectedHda;
 
 	std::vector<std::string> LastActiveFolderTabs;
 
 	void AddWidgetToNewRow(QWidget* TheWidget);
 	void AppendWidgetToPreviousRow(QWidget* TheWidget);
 
-	HEMAX_ParameterWidget_Parameter* CreateParameterWidget_Color(HEMAX_Parameter& Parameter, std::string Label);
+	HEMAX_ParameterWidget_Parameter* CreateParameterWidget_Color(
+                HEMAX_Parameter& Parameter, std::string Label);
 
 	int CurrentRow;
-
-    protected slots:
-
-	virtual void Slot_LockSelectionButton_Clicked();
 
     private slots:
 
@@ -166,7 +160,6 @@ class HEMAX_ParameterWidget : public QWidget
     signals:
 
         void Signal_CookNode(HEMAX_Node *);
-	void Signal_ReloadAssetDefinition(HEMAX_Node *);
 	void Signal_InputSelection(HEMAX_Node*, HEMAX_Parameter, bool);
 	void Signal_SubnetworkInputSelection(HEMAX_Node*, int, bool);
 	void Signal_UpdateParameterIntValues(HEMAX_Node*, HEMAX_Parameter, std::vector<int>, bool);
