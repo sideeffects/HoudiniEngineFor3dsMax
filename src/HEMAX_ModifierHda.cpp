@@ -187,14 +187,11 @@ HEMAX_ModifierHda::Update3dsmaxHda()
     UpdateModifierHda();
 }
 
-std::string
+M_STD_STRING
 HEMAX_ModifierHda::Get3dsMaxContainerName()
 {
-    if (ContainerNode)
-    {
-        std::wstring WName(ContainerNode->GetName());
-        return std::string(WName.begin(), WName.end());
-    }
+    if (!ContainerNode)
+        return _T("");
 
-    return "";
+    return ContainerNode->GetName();
 }

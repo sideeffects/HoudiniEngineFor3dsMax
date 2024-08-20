@@ -13,7 +13,7 @@ class HEMAX_Node
 	HEMAX_Node();
 	HEMAX_Node(HAPI_NodeId NodeId, HAPI_NodeType NodeType);
 
-	void Init(const std::string& Asset);
+	void Init(const M_STD_STRING& Asset);
 	void Cook();
 	void Delete();
 
@@ -36,7 +36,7 @@ class HEMAX_Node
 	HAPI_NodeInfo Info;
 	HAPI_NodeType Type;	
 
-	std::string AssetName;
+	M_STD_STRING AssetName;
 	std::string NodeName;
 
 	std::vector<HEMAX_Parameter> Parameters;

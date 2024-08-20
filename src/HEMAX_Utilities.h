@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <QtCore/qstring.h>
+
 #pragma warning(push, 0)
 #include <istdplug.h>
 #include <linshape.h>
@@ -70,4 +72,9 @@ struct HEMAX_Utilities
     static std::string  GetAssetName(HAPI_AssetLibraryId AssetId, int AssetIndex);
     static void         GetAssetNames(HAPI_AssetLibraryId AssetId,
                                       std::vector<std::string>& AssetNames);
+
+    static std::string  GetUtf8String(const M_STD_STRING& String);
+    static std::wstring GetWideString(const M_STD_STRING& String);
+    static std::wstring GetWideString(const std::string& String);
+    static QString      GetQString(const M_STD_STRING& String);
 };

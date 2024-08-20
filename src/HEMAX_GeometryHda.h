@@ -70,7 +70,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 
 	void SetContainerNode(INode* Node);
 
-        virtual std::string Get3dsMaxContainerName() override;
+        virtual M_STD_STRING Get3dsMaxContainerName() override;
 
 	DummyObject* Dummy;
 	INode* ContainerNode;

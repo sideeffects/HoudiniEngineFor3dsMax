@@ -7,6 +7,7 @@
 
 #pragma warning(push, 0)
 #include <simpobj.h>
+#include <strbasic.h>
 #include <units.h>
 #pragma warning(pop)
 
@@ -635,4 +636,55 @@ HEMAX_Utilities::GetAssetNames(HAPI_AssetLibraryId AssetId,
     {
         AssetNames.push_back(GetHAPIString(Handle));
     }
+}
+
+std::string
+HEMAX_Utilities::GetUtf8String(const M_STD_STRING& String)
+{
+#ifdef _UNICODE
+    int size = WideCharToMultiByte(CP_UTF8, 0, String.data(),
+            (int)String.size(), 0, 0, 0, 0);
+    std::string Utf8String(size, ' ');
+    WideCharToMultiByte(CP_UTF8, 0, String.data(), (int)String.size(),
+        Utf8String.data(), size, 0, 0);
+    return Utf8String;
+#else
+    return String;
+#endif
+}
+
+std::wstring
+HEMAX_Utilities::GetWideString(const M_STD_STRING& String)
+{
+#ifdef _UNICODE
+    return String;
+#else
+    int size = MultiByteToWideChar(CP_UTF8, 0, String.data(),
+        (int)String.size(), 0, 0);
+    std::wstring Utf16String(size, ' ');
+    MultiByteToWideChar(CP_UTF8, 0, String.data(), (int)String.size(),
+        Utf16String.data(), size);
+    return Utf16String;
+#endif
+}
+
+std::wstring
+HEMAX_Utilities::GetWideString(const std::string& String)
+{
+    int size = MultiByteToWideChar(CP_UTF8, 0, String.data(),
+        (int)String.size(), 0, 0);
+    std::wstring Utf16String(size, ' ');
+    MultiByteToWideChar(CP_UTF8, 0, String.data(), (int)String.size(),
+        Utf16String.data(), size);
+    return Utf16String;
+}
+
+QString
+HEMAX_Utilities::GetQString(const M_STD_STRING& String)
+{
+#ifdef _UNICODE
+    return QString::fromWCharArray(String.c_str());
+#else
+    return QString(String);
+#endif
 }

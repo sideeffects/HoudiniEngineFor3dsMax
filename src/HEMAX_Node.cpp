@@ -24,13 +24,14 @@ HEMAX_Node::HEMAX_Node(HAPI_NodeId NodeId, HAPI_NodeType NodeType)
 }
 
 void
-HEMAX_Node::Init(const std::string& Asset)
+HEMAX_Node::Init(const M_STD_STRING& Asset)
 {
     AssetName = Asset;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-    if (HEMAX_HoudiniApi::CreateNode(&SM.Session, -1, AssetName.c_str(), nullptr,
+    if (HEMAX_HoudiniApi::CreateNode(&SM.Session, -1,
+            HEMAX_Utilities::GetUtf8String(AssetName).c_str(), nullptr,
             false, &Info.id) == HAPI_RESULT_SUCCESS)
     {
         HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, Info.id, &Info);

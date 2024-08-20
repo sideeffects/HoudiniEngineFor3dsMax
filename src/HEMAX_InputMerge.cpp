@@ -5,7 +5,7 @@
 
 HEMAX_InputMerge::HEMAX_InputMerge()
 {
-    Node.Init(HEMAX_INPUT_MERGE_ASSET_NAME);
+    Node.Init(_T(HEMAX_INPUT_MERGE_ASSET_NAME));
     Node.Cook();
 }
 

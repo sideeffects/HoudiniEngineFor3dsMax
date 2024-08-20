@@ -8,6 +8,7 @@
 
 #pragma warning(push, 0)
 #include <icustattribcontainer.h>
+#include <strbasic.h>
 #pragma warning(pop)
 
 #include <unordered_map>
@@ -55,7 +56,7 @@ class HEMAX_3dsmaxHda
 	void UpdateAllCustomAttributes();
 	void ClearParameterCustomAttributes();
 
-        virtual std::string Get3dsMaxContainerName() = 0;
+        virtual M_STD_STRING Get3dsMaxContainerName() = 0;
 
 protected:
 

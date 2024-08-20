@@ -7,6 +7,7 @@
 
 #pragma warning(push, 0)
 #include <icustattribcontainer.h>
+#include <strbasic.h>
 #pragma warning(pop)
 
 class HEMAX_Modifier;
@@ -35,7 +36,7 @@ class HEMAX_ModifierHda : public HEMAX_3dsmaxHda
 
 	void		Update3dsmaxHda();
 
-        virtual std::string Get3dsMaxContainerName() override;
+        virtual M_STD_STRING Get3dsMaxContainerName() override;
 
 	INode*		ContainerNode;
 

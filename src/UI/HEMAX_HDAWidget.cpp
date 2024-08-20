@@ -250,10 +250,11 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
     if (Selection)
     {
         HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-        std::stringstream Sstream;
-        Sstream << Selection->Get3dsMaxContainerName() << " ("
-            << Selection->Hda.MainNode.AssetName << ")";
-        CurrentSelectionLabel->setText(Sstream.str().c_str());
+        M_STD_OSTRINGSTREAM Sstream;
+        Sstream << Selection->Get3dsMaxContainerName() << _T(" (")
+            << Selection->Hda.MainNode.AssetName << _T(")");
+        CurrentSelectionLabel->setText(
+            HEMAX_Utilities::GetQString(Sstream.str()));
     }
     else
     {
@@ -411,11 +412,11 @@ HEMAX_HDAWidget::RebuildButtonClickedSlot()
     ConfirmationDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
     ConfirmationDialog.setWindowTitle("Rebuild Asset");
 
-    std::stringstream SStream;
-    SStream << "This will delete and recreate all nodes in your scene that are "
-        "using the currently selected HDA ("
-        << Selection->Hda.MainNode.AssetName << ")";
-    ConfirmationDialog.setText(SStream.str().c_str());
+    M_STD_OSTRINGSTREAM SStream;
+    SStream << _T("This will delete and recreate all nodes in your scene that are ")
+        _T("using the currently selected HDA (")
+        << Selection->Hda.MainNode.AssetName << _T(")");
+    ConfirmationDialog.setText(HEMAX_Utilities::GetQString(SStream.str()));
     ConfirmationDialog.setInformativeText(
             "Are you sure that you want to continue?");
     ConfirmationDialog.setStandardButtons(
