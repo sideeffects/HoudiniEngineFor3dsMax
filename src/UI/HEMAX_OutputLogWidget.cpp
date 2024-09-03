@@ -112,7 +112,7 @@ HEMAX_OutputLogWidget::SaveLog()
         {
             int ErrorOccurred = false;
             QFile LogFile(FileChooser.selectedFiles()[0]);
-            if (LogFile.open(QIODeviceBase::WriteOnly))
+            if (LogFile.open(QIODevice::WriteOnly))
             {
                 QTextStream OutStream(&LogFile);
                 OutStream << LogText->toPlainText();
