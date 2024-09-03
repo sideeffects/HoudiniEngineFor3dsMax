@@ -285,7 +285,7 @@ HEMAX_Plugin::LoadNewAsset(std::string Path)
         HEMAX_Store& PluginStore =
             HEMAX_SessionManager::GetSessionManager().GetStore();
 
-	if (!PluginStore.FindAsset(Path))
+	if (PluginStore.FindAsset(Path) == -1)
 	{
 	    bool Success;
 	    PluginStore.LoadNewAsset(Path, Success);
