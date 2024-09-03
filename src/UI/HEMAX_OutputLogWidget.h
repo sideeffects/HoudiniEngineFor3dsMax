@@ -41,9 +41,11 @@ private:
     QVBoxLayout*                Layout = nullptr;
     QTextEdit*                  LogText = nullptr;
     QPushButton*                ClearButton = nullptr;
+    QPushButton*                SaveLogButton = nullptr;
 
 private slots:
 
     void                        ClearLog();
+    void                        SaveLog();
 
 };
