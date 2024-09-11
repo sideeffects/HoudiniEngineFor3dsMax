@@ -39,7 +39,6 @@ class HEMAX_Parameter
 	std::vector<HEMAX_ParmChoice> GetStringParameterChoiceLists();
 
 	HAPI_NodeId GetInputNodeId();
-	std::string GetInputNodeName();
 
 	void UpdateIntVals(std::vector<int>& Vals);
 	void UpdateFloatVals(std::vector<float>& Vals);

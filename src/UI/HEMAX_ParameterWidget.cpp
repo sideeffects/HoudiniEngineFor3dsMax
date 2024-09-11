@@ -193,8 +193,29 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 	    for (int s = 0; s < CurrentNode->Info.inputCount; ++s)
 	    {
 		std::string WidgetLabel = CurrentNode->InputLabels[s];
+                std::string WidgetValue;
 
-		SubnetworkInputs.push_back(new HEMAX_ParameterWidget_Node(-1, WidgetLabel, ""));
+                if (SelectedHda->SubnetworkNodeInputs[s])
+                {
+                    M_STD_OSTRINGSTREAM SStream;
+                    for (auto&& Input : SelectedHda->SubnetworkNodeInputs[s]->MaxInputs)
+                    {
+                        INode* Node = GetCOREInterface()->GetINodeByHandle(
+                            Input->Get3dsMaxNodeHandle());
+
+                        if (SStream.str().size() > 0)
+                            SStream << L" ";
+
+                        SStream << Node->GetName();
+                    }
+                    WidgetValue = HEMAX_Utilities::GetUtf8String(SStream.str());
+                }
+
+		SubnetworkInputs.push_back(new HEMAX_ParameterWidget_Node(
+                    -1, WidgetLabel, WidgetValue));
+
+                if (SelectedHda->Type == HEMAX_MODIFIER_HDA)
+                    SubnetworkInputs[s]->setDisabled(true);
 
 		NodeInputBoxLayout->addWidget(SubnetworkInputs[s], s, 0);
 
@@ -612,8 +633,26 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		    }
 		    case (HAPI_PARMTYPE_NODE):
 		    {
-			std::string InputNodeName =
-			    CurrentParameter->GetInputNodeName();
+                        std::string InputNodeName;
+                        auto Search = SelectedHda->InputNodeMap.find(
+                            CurrentParameter->Info.id);
+
+                        if (Search != SelectedHda->InputNodeMap.end())
+                        {
+                            M_STD_OSTRINGSTREAM SStream;
+                            for (auto&& Input : Search->second->MaxInputs)
+                            {
+                                INode* Node = GetCOREInterface()->GetINodeByHandle(
+                                    Input->Get3dsMaxNodeHandle());
+
+                                if (SStream.str().size() > 0)
+                                    SStream << " ";
+
+                                SStream << Node->GetName();
+                            }
+                            InputNodeName = HEMAX_Utilities::GetUtf8String(
+                                SStream.str());
+                        }
 
 			WidgetToAdd = new HEMAX_ParameterWidget_Node(
 				CurrentParameter->Info.id, CurrentParameterName,

@@ -13,9 +13,9 @@
 #pragma push_macro("HAPI_DECL_RETURN")
 #undef HAPI_DECL_RETURN
 #define HAPI_DECL_RETURN(x) x
+#define HAPI_DECL_RETURN(x) x
 #include <HAPI_Helpers.h>
 #pragma pop_macro("HAPI_DECL_RETURN")
-
 
 // TODO: session refactor
 // We need to set these in HARS
@@ -184,6 +184,7 @@ HEMAX_SessionManager::ConnectSession()
             HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
 
         HAPI_CookOptions CookOptions = HAPI_CookOptions_Create();
+        CookOptions.cacheMeshTopology = true;
         CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
         HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
             &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),

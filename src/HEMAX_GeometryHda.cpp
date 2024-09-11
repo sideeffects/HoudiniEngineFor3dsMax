@@ -141,8 +141,7 @@ HEMAX_GeometryHda::CreateGeometryHdaFromContainerNode()
 		    {
 			HEMAX_Part* Part = nullptr;
                         std::string NodeName =
-                            HEMAX_Utilities::WideStringToStringUnsafe(
-                                Child->GetName());
+                            HEMAX_Utilities::GetUtf8String(Child->GetName());
                         HEMAX_DisplayGeoNode* SopNode =
                             Hda.TopLevelObjectNode.FindSopNodeFromName(NodeName);
 			if (SopNode)
@@ -560,13 +559,13 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
         {
             if (BakeDummyObj && BakedParent)
             {
-                LayerName = HEMAX_Utilities::WideStringToStringUnsafe(
-                                                BakedParent->GetName());
+                LayerName = HEMAX_Utilities::GetUtf8String(
+                        BakedParent->GetName());
             }
             else
             {
-                LayerName = HEMAX_Utilities::WideStringToStringUnsafe(
-                                                ContainerNode->GetName());
+                LayerName = HEMAX_Utilities::GetUtf8String(
+                        ContainerNode->GetName());
             }
         }
 
@@ -1643,7 +1642,7 @@ HEMAX_GeometryHda::GetEditableNodeName(INode* Node)
 	HEMAX_StringParameterAttrib* NameAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_NAME_INDEX));
 	const MCHAR* Name;
 	NameAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
-	return HEMAX_Utilities::WideStringToStringUnsafe(Name);
+	return HEMAX_Utilities::GetUtf8String(Name);
     }
     else
     {

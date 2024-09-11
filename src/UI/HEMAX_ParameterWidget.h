@@ -487,7 +487,8 @@ class HEMAX_ParameterWidget_Node : public HEMAX_ParameterWidget_Parameter
     friend class HEMAX_ParameterWidget;
 
     public:
-	HEMAX_ParameterWidget_Node(int ParameterId, std::string Label, std::string InputNodeName);
+	HEMAX_ParameterWidget_Node(int ParameterId,
+            std::string Label, std::string InputNodeName);
 	~HEMAX_ParameterWidget_Node() = default;
 
 	void SetHelpToolTip(std::string HelpString) override;

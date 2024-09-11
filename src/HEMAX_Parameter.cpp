@@ -183,27 +183,6 @@ HEMAX_Parameter::GetInputNodeId()
     return -1;
 }
 
-std::string
-HEMAX_Parameter::GetInputNodeName()
-{
-    std::string InputNodeName = "";
-
-    HAPI_NodeId InputNodeId = GetInputNodeId();
-
-    if (InputNodeId > -1)
-    {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-	HAPI_NodeInfo InputNodeInfo;
-        if (HEMAX_HoudiniApi::GetNodeInfo(&SM.Session, InputNodeId,
-                &InputNodeInfo) == HAPI_RESULT_SUCCESS)
-	{
-	    InputNodeName = HEMAX_Utilities::GetHAPIString(InputNodeInfo.nameSH);
-	}
-    }
-
-    return InputNodeName;
-}
-
 void
 HEMAX_Parameter::UpdateIntVals(std::vector<int>& Vals)
 {

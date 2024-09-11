@@ -132,7 +132,7 @@ HEMAX_UserPrefs::HEMAX_UserPrefs()
                                     UserPrefsFile.c_str());
 
 	    std::string RealValue
-		    = HEMAX_Utilities::WideStringToStringUnsafe(Output);
+		    = HEMAX_Utilities::GetUtf8String(Output);
 	    Iter->second.SettingValue = RealValue;
 	}
 
@@ -311,10 +311,10 @@ std::string
 HEMAX_UserPrefs::GetPluginConfigFolder()
 {
 #ifdef HEMAX_VERSION_2025
-    return HEMAX_Utilities::WideStringToStringUnsafe(
+    return HEMAX_Utilities::GetUtf8String(
         GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY).data());
 #else
-    return HEMAX_Utilities::WideStringToStringUnsafe(
+    return HEMAX_Utilities::GetUtf8String(
     		GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY));
 #endif
 }

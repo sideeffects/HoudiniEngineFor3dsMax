@@ -62,7 +62,6 @@ struct HEMAX_Utilities
 
     static std::string GetHAPIString(HAPI_StringHandle Handle);
     static std::string GetConnectionError();
-    static std::string WideStringToStringUnsafe(const std::wstring& In);
 
     static bool ParmIsIntType(HAPI_ParmType Type);
     static bool ParmIsFloatType(HAPI_ParmType Type);

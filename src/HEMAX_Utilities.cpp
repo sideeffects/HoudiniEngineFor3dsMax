@@ -544,15 +544,6 @@ HEMAX_Utilities::GetConnectionError()
     return std::string(StringBuf.begin(), StringBuf.end());
 }
 
-std::string
-HEMAX_Utilities::WideStringToStringUnsafe(const std::wstring& In)
-{
-#pragma warning(disable:4244)
-    std::string Out(In.begin(), In.end());
-#pragma warning(default:4244)
-    return Out;
-}
-
 bool
 HEMAX_Utilities::ParmIsIntType(HAPI_ParmType Type)
 {

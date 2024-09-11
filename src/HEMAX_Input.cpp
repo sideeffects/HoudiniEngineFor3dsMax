@@ -125,9 +125,7 @@ HEMAX_Input::GetInputNodeName()
     INode* Node = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
 
     if (Node)
-    {
-	return HEMAX_Utilities::WideStringToStringUnsafe(Node->GetName());
-    }
+	return HEMAX_Utilities::GetUtf8String(Node->GetName());
 
     return "";
 }
@@ -174,8 +172,8 @@ HEMAX_Input::CreateInputNode(std::string Name)
             if (ParentNode && ParentNode->IsGroupHead())
             {
                 GroupMembership = true;
-                GroupHeadName = HEMAX_Utilities::WideStringToStringUnsafe(
-                                                        ParentNode->GetName()); 
+                GroupHeadName = HEMAX_Utilities::GetUtf8String(
+                        ParentNode->GetName()); 
             }
         }
     }
@@ -189,7 +187,7 @@ HEMAX_Input::SetInputMetadataAttributes(int PrimCount)
     if (!SourceNode)
         return;
 
-    std::string NodeName = HEMAX_Utilities::WideStringToStringUnsafe(
+    std::string NodeName = HEMAX_Utilities::GetUtf8String(
             SourceNode->GetName());
     const char* CharBuf = NodeName.c_str();
 

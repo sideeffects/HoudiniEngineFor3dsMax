@@ -1069,7 +1069,7 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
         Index = ArgList[3]->to_int();
    }
 
-   std::string ParameterName = HEMAX_Utilities::WideStringToStringUnsafe(WName);
+   std::string ParameterName = HEMAX_Utilities::GetUtf8String(WName);
 
    std::vector<HEMAX_Parameter>& Parameters = Hda->Hda.MainNode.GetParameters();
    HEMAX_Parameter* Parameter = nullptr;
@@ -1150,7 +1150,7 @@ GetHoudiniEngineOption_cf(Value** ArgList, int Count)
 
     std::wstring WOptionName(ArgList[0]->to_string());
     std::string OptionName =
-        HEMAX_Utilities::WideStringToStringUnsafe(WOptionName);
+        HEMAX_Utilities::GetUtf8String(WOptionName);
     
     HEMAX_UserPrefs_Setting_Type OptionType =
         HEMAX_UserPrefs::Get().GetSettingType(OptionName);
@@ -1200,7 +1200,7 @@ SetHoudiniEngineOption_cf(Value** ArgList, int Count)
 
     std::wstring WOptionName(ArgList[0]->to_string());
     std::string OptionName =
-        HEMAX_Utilities::WideStringToStringUnsafe(WOptionName); 
+        HEMAX_Utilities::GetUtf8String(WOptionName); 
     HEMAX_UserPrefs_Setting_Type ExpectedType =
         HEMAX_UserPrefs::Get().GetSettingType(OptionName);
 
@@ -1218,7 +1218,7 @@ SetHoudiniEngineOption_cf(Value** ArgList, int Count)
         {
             std::wstring WOptionVal(ArgList[1]->to_string());
             std::string OptionVal =
-                HEMAX_Utilities::WideStringToStringUnsafe(WOptionVal);
+                HEMAX_Utilities::GetUtf8String(WOptionVal);
             HEMAX_UserPrefs::Get().SetStringSetting(OptionName, OptionVal);
             HEMAXLauncher::GetInstance()->UpdateOptionsDialog();
             return &true_value;

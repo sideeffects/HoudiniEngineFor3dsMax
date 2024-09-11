@@ -60,10 +60,10 @@ GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::st
 	    {
 #ifdef HEMAX_VERSION_2025
                 std::string AttribName =
-                    HEMAX_Utilities::WideStringToStringUnsafe(Attrib->GetName(false));
+                    HEMAX_Utilities::GetUtf8String(Attrib->GetName(false));
 #else
 		std::string AttribName =
-                    HEMAX_Utilities::WideStringToStringUnsafe(Attrib->GetName());
+                    HEMAX_Utilities::GetUtf8String(Attrib->GetName());
 #endif
 
 		if (AttribName == ParameterName)
@@ -482,7 +482,7 @@ HEMAX_StringParameterAttrib::GetStringValue()
     {
 	const MCHAR* Name;
 	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
-	return HEMAX_Utilities::WideStringToStringUnsafe(Name);
+	return HEMAX_Utilities::GetUtf8String(Name);
     }
 
     return "";

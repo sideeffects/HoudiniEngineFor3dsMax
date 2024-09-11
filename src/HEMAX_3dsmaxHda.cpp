@@ -836,8 +836,7 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	    const MCHAR* Val;
 	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
 
-            std::string StringValue = HEMAX_Utilities::WideStringToStringUnsafe(
-                Val);
+            std::string StringValue = HEMAX_Utilities::GetUtf8String(Val);
 	    std::vector<std::string> StringValues = { StringValue };
 
 	    Parameter.UpdateStringVals(StringValues);
@@ -856,8 +855,7 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 		const MCHAR* Val;
 		Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
 
-		std::string StringValue
-			= HEMAX_Utilities::WideStringToStringUnsafe(Val);
+		std::string StringValue = HEMAX_Utilities::GetUtf8String(Val);
 		StringValues.push_back(StringValue);
 	    }
 	}

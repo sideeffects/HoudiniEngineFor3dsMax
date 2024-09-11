@@ -68,8 +68,6 @@ class HEMAX_Logger
 
         void StoreEntry(const std::string& Log, HEMAX_LogLevel LogLevel);
 
-        std::wstring ConvertToWideString(const std::string& Msg);
-
 	bool ShouldPrint(HEMAX_LogLevel Level);
 
         void InvokeOnEntryAddedCallbacks(int EntryIndex);
