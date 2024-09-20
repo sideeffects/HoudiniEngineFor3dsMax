@@ -1,7 +1,9 @@
 #include "HEMAX_Path.h"
 
+#pragma warning(push, 0)
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
+#pragma warning(pop)
 
 #include "HEMAX_Logger.h"
 

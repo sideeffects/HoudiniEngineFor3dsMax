@@ -6,6 +6,7 @@
 #include "HEMAX_Types.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <simpobj.h>
 #include <strbasic.h>
 #include <units.h>
@@ -139,18 +140,19 @@ HEMAX_MaxTransform
 HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
 {
     TimeValue Time = GetCOREInterface()->GetTime();
+    Interval Forever = FOREVER;
 
     Point3 Translation;
-    Node->GetTMController()->GetPositionController()->GetValue(Time,
-            Translation, FOREVER);
+    Node->GetTMController()->GetPositionController()->GetValue(
+        Time, &Translation, Forever);
 
     Quat Rotation;
-    Node->GetTMController()->GetRotationController()->GetValue(Time,
-            Rotation, FOREVER);
+    Node->GetTMController()->GetRotationController()->GetValue(
+        Time, &Rotation, Forever);
 
     Point3 Scale;
-    Node->GetTMController()->GetScaleController()->GetValue(Time,
-            Scale, FOREVER);
+    Node->GetTMController()->GetScaleController()->GetValue(
+        Time, &Scale, Forever);
 
     HEMAX_MaxTransform MaxTransform;
 
@@ -212,7 +214,8 @@ HEMAX_Utilities::ApplyTransformToINode(INode* Node,
 
     TimeValue TimeStamp(0);
 
-    Node->SetNodeTM(TimeStamp, (Transformation*CurrentTM));
+    Matrix3 NewTM = Transformation*CurrentTM;
+    Node->SetNodeTM(TimeStamp, NewTM);
 }
 
 Matrix3

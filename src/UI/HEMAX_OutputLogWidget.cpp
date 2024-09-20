@@ -20,12 +20,14 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtCore/QTime>
 #include <QtCore/qfile.h>
 #include <QtCore/qtextstream.h>
 #include <QtGui/qerrormessage.h>
 #include <QtGui/qfiledialog.h>
 #include <QtGui/qmessagebox.h>
+#pragma warning(pop)
 #endif
 
 #include <sstream>

@@ -24,9 +24,11 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qabstractitemview.h>
 #include <QtGui/qfiledialog.h>
 #include <QtGui/qcolordialog.h>
+#pragma warning(pop)
 #endif
 
 const char *NoHDAText = "No Houdini Digital Asset selected";
@@ -1542,7 +1544,6 @@ HEMAX_ParameterWidget::Slot_PWMULTIPARAMETER_Add(int Position, bool DoNotCook)
 	}
 
 	HEMAX_Parameter* Parameter = CurrentNode->GetParameter(HEMAX_Sender->ParameterId);
-	int ParameterId = Parameter->Info.id;
 
 	Parameter->InsertInstance(Position);
 	++AddCount;
@@ -1587,7 +1588,6 @@ HEMAX_ParameterWidget::Slot_PWMULTIPARAMETER_Remove(int Position,
 	HEMAX_Parameter* Parameter = CurrentNode->GetParameter(HEMAX_Sender->ParameterId);
 
 	Parameter->RemoveInstance(Position);
-	int ParameterId = Parameter->Info.id;
 
 	++RemoveCount;
 

@@ -77,8 +77,6 @@ HEMAX_Input_NURBS::~HEMAX_Input_NURBS()
 void
 HEMAX_Input_NURBS::RebuildAfterChange()
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
     Node->Delete();
     BuildInputNode();
 }

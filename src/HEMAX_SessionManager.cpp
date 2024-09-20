@@ -10,13 +10,6 @@
 #include <sstream>
 #include <string>
 
-#pragma push_macro("HAPI_DECL_RETURN")
-#undef HAPI_DECL_RETURN
-#define HAPI_DECL_RETURN(x) x
-#define HAPI_DECL_RETURN(x) x
-#include <HAPI_Helpers.h>
-#pragma pop_macro("HAPI_DECL_RETURN")
-
 // TODO: session refactor
 // We need to set these in HARS
 const char* const HAPI_CLIENT_NAME_ENV_VAR = "HAPI_CLIENT_NAME";
@@ -96,7 +89,7 @@ HEMAX_SessionManager::CreateSession()
     HEMAX_UserPrefs::Get().GetStringSetting(
         HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
 
-    HAPI_CookOptions CookOptions = HAPI_CookOptions_Create();
+    HAPI_CookOptions CookOptions = HEMAX_HoudiniApi::CookOptions_Create();
     CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
     HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
         &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
@@ -183,7 +176,7 @@ HEMAX_SessionManager::ConnectSession()
         HEMAX_UserPrefs::Get().GetStringSetting(
             HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
 
-        HAPI_CookOptions CookOptions = HAPI_CookOptions_Create();
+        HAPI_CookOptions CookOptions = HEMAX_HoudiniApi::CookOptions_Create();
         CookOptions.cacheMeshTopology = true;
         CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
         HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
@@ -276,7 +269,8 @@ HEMAX_SessionManager::CreateSocketSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+    HAPI_ThriftServerOptions ServerOptions =
+        HEMAX_HoudiniApi::ThriftServerOptions_Create();
     HAPI_ProcessId ProcessId;
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServer(
             &ServerOptions, Port, &ProcessId, nullptr);
@@ -306,7 +300,7 @@ HEMAX_SessionManager::CreateSocketSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     Result = HEMAX_HoudiniApi::CreateThriftSocketSession(&Session,
         Host.c_str(), Port, &SessionInfo);
 
@@ -349,7 +343,8 @@ HEMAX_SessionManager::CreateNamedPipeSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+    HAPI_ThriftServerOptions ServerOptions =
+        HEMAX_HoudiniApi::ThriftServerOptions_Create();
     HAPI_ProcessId ProcessId;
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftNamedPipeServer(
             &ServerOptions, PipeName.c_str(), &ProcessId, nullptr);
@@ -378,7 +373,7 @@ HEMAX_SessionManager::CreateNamedPipeSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(&Session,
         PipeName.c_str(), &SessionInfo);
 
@@ -438,7 +433,8 @@ HEMAX_SessionManager::CreateSharedMemorySession()
         return false;
     }
 
-    HAPI_ThriftServerOptions ServerOptions = HAPI_ThriftServerOptions_Create();
+    HAPI_ThriftServerOptions ServerOptions =
+        HEMAX_HoudiniApi::ThriftServerOptions_Create();
 
     if (BufferType == "Fixed")
     {
@@ -490,7 +486,7 @@ HEMAX_SessionManager::CreateSharedMemorySession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     SessionInfo.sharedMemoryBufferType = ServerOptions.sharedMemoryBufferType;
     SessionInfo.sharedMemoryBufferSize = ServerOptions.sharedMemoryBufferSize;
     Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(&Session,
@@ -547,7 +543,7 @@ HEMAX_SessionManager::ConnectSocketSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSocketSession(&Session,
         Host.c_str(), Port, &SessionInfo);
 
@@ -589,7 +585,7 @@ HEMAX_SessionManager::ConnectNamedPipeSession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftNamedPipeSession(&Session,
         PipeName.c_str(), &SessionInfo);
 
@@ -670,7 +666,7 @@ HEMAX_SessionManager::ConnectSharedMemorySession()
 
     HEMAX_HoudiniApi::ClearConnectionError();
 
-    HAPI_SessionInfo SessionInfo = HAPI_SessionInfo_Create();
+    HAPI_SessionInfo SessionInfo = HEMAX_HoudiniApi::SessionInfo_Create();
     SessionInfo.sharedMemoryBufferType = SharedMemoryBufferType;
     SessionInfo.sharedMemoryBufferSize = BufferSize;
     HAPI_Result Result = HEMAX_HoudiniApi::CreateThriftSharedMemorySession(

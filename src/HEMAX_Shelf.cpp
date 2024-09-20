@@ -4,7 +4,10 @@
 #include <Windows.h>
 #include <fstream>
 #include <iostream>
+
+#pragma warning(push, 0)
 #include <json.hpp>
+#pragma warning(pop)
 
 #include "HEMAX_Logger.h"
 #include "HEMAX_ShelfTool.h"

@@ -51,8 +51,6 @@ HEMAX_ModifierHda::CreateNewModifierHda(HEMAX_Hda& Hda, HEMAX_Modifier* Modifier
 {
     if (Hda.HdaType == SOP_LEVEL_HDA)
     {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
 	ContainerNode = MaxNode;
 
 	InitModifierPluginCustAttribContainer(Modifier);
@@ -76,8 +74,6 @@ HEMAX_ModifierHda::CreateNewModifierHda(HEMAX_Hda& Hda, HEMAX_Modifier* Modifier
 void
 HEMAX_ModifierHda::RecreateExistingModifierHda(HEMAX_Hda& Hda, HEMAX_Modifier* Modifier, INode* MaxNode)
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
     ContainerNode = MaxNode;
     DisplayGeometry = Modifier;
     CustomAttributes = Modifier->GetCustAttribContainer();

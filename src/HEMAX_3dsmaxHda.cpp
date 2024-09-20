@@ -79,8 +79,6 @@ HEMAX_3dsmaxHda::GetAllParameter3dsmaxInputs()
 void
 HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
 {
-    HEMAX_Input* InputNode = nullptr;
-
     HEMAX_InputInstance* ParameterInput = FindParameterInput(ParamId);
     HEMAX_Parameter* Parameter = Hda.MainNode.GetParameter(ParamId);
 
@@ -126,8 +124,6 @@ HEMAX_3dsmaxHda::FindSubnetworkInput(int Subnetwork)
 void
 HEMAX_3dsmaxHda::UpdateSubnetworkInput(int Subnetwork)
 {
-    HEMAX_Input* InputNode = nullptr;
-
     if (SubnetworkNodeInputs[Subnetwork])
     {
 	if (SubnetworkNodeInputs[Subnetwork]->MergeNode)
@@ -798,7 +794,9 @@ HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std
 	if (Search != CustomAttributeMap.end())
 	{
 	    int IntValue;
-	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), IntValue, FOREVER);
+            Interval Forever = FOREVER;
+	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(),
+                IntValue, Forever);
 
 	    std::vector<int> IntValues = { IntValue };
 	    Parameter.UpdateIntVals(IntValues);
@@ -815,7 +813,9 @@ HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std
 	    if (Search != CustomAttributeMap.end())
 	    {
 		int IntValue;
-		Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), IntValue, FOREVER);
+                Interval Forever = FOREVER;
+		Search->second->PBlock->GetValue(0,
+                    GetCOREInterface()->GetTime(), IntValue, Forever);
 		IntValues.push_back(IntValue);
 	    }
 	}
@@ -834,7 +834,9 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	if (Search != CustomAttributeMap.end())
 	{
 	    const MCHAR* Val;
-	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
+            Interval Forever = FOREVER;
+	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(),
+                Val, Forever);
 
             std::string StringValue = HEMAX_Utilities::GetUtf8String(Val);
 	    std::vector<std::string> StringValues = { StringValue };
@@ -853,7 +855,9 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	    if (Search != CustomAttributeMap.end())
 	    {
 		const MCHAR* Val;
-		Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Val, FOREVER);
+                Interval Forever = FOREVER;
+		Search->second->PBlock->GetValue(0,
+                    GetCOREInterface()->GetTime(), Val, Forever);
 
 		std::string StringValue = HEMAX_Utilities::GetUtf8String(Val);
 		StringValues.push_back(StringValue);
@@ -874,7 +878,9 @@ HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, s
 	if (Search != CustomAttributeMap.end())
 	{
 	    float FloatValue;
-	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), FloatValue, FOREVER);
+            Interval Forever = FOREVER;
+	    Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(),
+                FloatValue, Forever);
 
 	    std::vector<float> FloatValues = { FloatValue };
 	    Parameter.UpdateFloatVals(FloatValues);
@@ -892,7 +898,9 @@ HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, s
 	    if (Search != CustomAttributeMap.end())
 	    {
 		float FloatValue;
-		Search->second->PBlock->GetValue(0, GetCOREInterface()->GetTime(), FloatValue, FOREVER);
+                Interval Forever = FOREVER;
+		Search->second->PBlock->GetValue(0,
+                    GetCOREInterface()->GetTime(), FloatValue, Forever);
 		FloatValues.push_back(FloatValue);
 	    }
 	}
@@ -914,7 +922,8 @@ HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	if (Search != CustomAttributeMap.end())
 	{
 	    int ToggleValue;
-	    Search->second->PBlock->GetValue(0, 0, ToggleValue, FOREVER);
+            Interval Forever = FOREVER;
+	    Search->second->PBlock->GetValue(0, 0, ToggleValue, Forever);
 
 	    std::vector<int> ToggleValues = { ToggleValue };
 	    Parameter.UpdateIntVals(ToggleValues);
@@ -932,7 +941,8 @@ HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	    if (Search != CustomAttributeMap.end())
 	    {
 		int IntValue;
-		Search->second->PBlock->GetValue(0, 0, IntValue, FOREVER);
+                Interval Forever = FOREVER;
+		Search->second->PBlock->GetValue(0, 0, IntValue, Forever);
 		IntValues.push_back(IntValue);
 	    }
 	}

@@ -3,6 +3,7 @@
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <MeshNormalSpec.h>
 #include <MNNormalSpec.h>
 #pragma warning(pop)
@@ -112,30 +113,26 @@ HEMAX_MeshList<T>::MergeEqualTuples()
 
     for (unsigned int i = 0; i < Size; i++)
     {
-	unsigned int SetIndex = -1;
-
         std::vector<T> vecTuple(&List[i*TupleSize], &List[i*TupleSize + TupleSize]);
 
 	auto Search = SetIndexMap.find(vecTuple);
 
-	if (Search != SetIndexMap.end())
-	{
-	    SetIndex = Search->second;
-	}
-	
-	if (SetIndex == -1)
-	{
-	    SetIndex = (unsigned int)TupleSet.size()/TupleSize;
+        if (Search == SetIndexMap.end())
+        {
+	    unsigned int SetIndex = (unsigned int)TupleSet.size()/TupleSize;
 	    SetIndexMap.insert({vecTuple, SetIndex});
 
 	    for (unsigned int t = 0; t < TupleSize; t++)
 	    {
 		TupleSet.push_back(List[(i*TupleSize)+t]);
-	    }	
-	    
-	}
-
-	IndexMapping.push_back(SetIndex);
+            }
+            
+            IndexMapping.push_back(SetIndex);
+        }
+        else
+        {
+            IndexMapping.push_back(Search->second);
+        }
     }	
 
     IsMerged = true;
@@ -989,7 +986,6 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
 
 	    for (int f = 0; f < GetFaceCount(); f++)
 	    {
-		MNNormalFace& NormFace = SpecNormals->Face(f);
 		for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
 		{
 		    GetVertexNormalAtIndex(CurrentIndex, NormalVals);
@@ -1012,10 +1008,10 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
     // the map, even if inbetween maps are empty.
     MaxMesh.SetMapNum(MaxMapLayer+1);
 
-    MNMap* UVMap;
-    MNMap* CdMap;
-    MNMap* AlphaMap;
-    MNMap* IlluminationMap;
+    MNMap* UVMap = nullptr;
+    MNMap* CdMap = nullptr;
+    MNMap* AlphaMap = nullptr;
+    MNMap* IlluminationMap = nullptr;
 
     if (DoUVsExist())
     {
@@ -1328,8 +1324,6 @@ HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
                     else
                         UVMap->v[p].z = 0.0f;
 		}
-
-                int VIndex = 0;
 
                 for (int f = 0; f < GetFaceCount(); f++)
                 {

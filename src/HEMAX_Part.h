@@ -7,9 +7,10 @@
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <inode.h>
 #include <ref.h>
-#pragma pop
+#pragma warning(pop)
 
 #include <vector>
 #include <string>

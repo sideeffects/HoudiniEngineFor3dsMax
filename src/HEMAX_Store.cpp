@@ -10,11 +10,14 @@
 #include "HEMAX_UserPrefs.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <icustattribcontainer.h>
 #pragma warning(pop)
 
+#pragma warning(push, 0)
 #include <QtCore\qfileinfo.h>
 #include <QtCore\qdir.h>
+#pragma warning(pop)
 
 #include <sstream>
 #include <string>
@@ -639,7 +642,10 @@ HEMAX_Store::Find3dsmaxHdaViaChildGeometry(ULONG NodeHandle)
 	if (CustomAttributes->GetNumCustAttribs() > HEMAX_MAX_GEO_MAX_INDEX)
 	{
 	    CustAttrib* StampLookup = CustomAttributes->GetCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX);
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
             std::wstring CustAttribName = StampLookup->GetName(false);
 #else
 	    std::wstring CustAttribName = StampLookup->GetName();

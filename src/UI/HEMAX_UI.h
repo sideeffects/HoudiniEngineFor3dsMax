@@ -21,16 +21,19 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qscrollarea.h>
 #include <QtGui/qtabwidget.h>
 #include <QtGui/qdockwidget.h>
 #include <QtGui/qmainwindow.h>
+#pragma warning(pop)
 #endif
 
 #define HEMAX_2017_WINDOW_START_HEIGHT 600
 #define HEMAX_2017_WINDOW_START_WIDTH 600
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <maxapi.h>
 #pragma warning(pop)
 

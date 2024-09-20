@@ -14,9 +14,11 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qdialog.h>
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qlabel.h>
+#pragma warning(pop)
 #endif
 
 class HEMAX_VersionDialog : public QDialog

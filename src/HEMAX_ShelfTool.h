@@ -3,7 +3,10 @@
 #include <string>
 
 #include "HEMAX_Store.h"
+
+#pragma warning(push, 0)
 #include <json.hpp>
+#pragma warning(pop)
 
 enum ShelfToolType
 {

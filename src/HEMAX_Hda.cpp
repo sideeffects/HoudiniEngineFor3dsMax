@@ -81,7 +81,6 @@ HEMAX_Hda::Update()
 HEMAX_EditableNode
 HEMAX_Hda::FindEditableNodeFromName(std::string Name, bool& Success)
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     for (int i = 0; i < EditableNodes.size(); i++)
     {
 	std::string NodeName =

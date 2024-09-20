@@ -7,6 +7,7 @@
 #include <QtCore/qstring.h>
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <istdplug.h>
 #include <linshape.h>
 #pragma warning(pop)

@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <custattrib.h>
 #include <iparamb2.h>
 #pragma warning(pop)
@@ -84,7 +85,7 @@ class HEMAX_ParameterAttrib : public CustAttrib
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
-        const TCHAR* GetName(bool Localized = false) override;
+        const TCHAR* GetName(bool Localized) override;
 #else
         const TCHAR* GetName() override;
 #endif
@@ -101,8 +102,27 @@ class HEMAX_ParameterAttrib : public CustAttrib
 	IParamBlock2* GetParamBlock(int i);
 	IParamBlock2* GetParamBlockByID(BlockID Id);
 
-	IOResult Save(ISave* Save);
-	IOResult Load(ILoad* Load);
+	IOResult Save(ISave* Save) override;
+#if !defined(HEMAX_VERSION_2017) && \
+    !defined(HEMAX_VERSION_2018) && \
+    !defined(HEMAX_VERSION_2019) && \
+    !defined(HEMAX_VERSION_2020) && \
+    !defined(HEMAX_VERSION_2021) && \
+    !defined(HEMAX_VERSION_2022) && \
+    !defined(HEMAX_VERSION_2023)
+        IOResult Save(ISave* Save, ChannelMask) override;
+#endif
+
+	IOResult Load(ILoad* Load) override;
+#if !defined(HEMAX_VERSION_2017) && \
+    !defined(HEMAX_VERSION_2018) && \
+    !defined(HEMAX_VERSION_2019) && \
+    !defined(HEMAX_VERSION_2020) && \
+    !defined(HEMAX_VERSION_2021) && \
+    !defined(HEMAX_VERSION_2022) && \
+    !defined(HEMAX_VERSION_2023)
+        IOResult Load(ILoad* Load, ChannelMask) override;
+#endif
 
     protected:
 	std::string ParameterName;

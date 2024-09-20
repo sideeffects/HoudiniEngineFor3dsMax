@@ -618,7 +618,6 @@ HEMAX_Part::ToString()
 
     if (Valid)
     {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	std::string PartName = HEMAX_Utilities::GetHAPIString(Info.nameSH);    
 	RetString = "Part: [Name:" + PartName + "] [NodeId:" + std::to_string(NodeId) + "] [PartId:" + std::to_string(Info.id) + "]";
     }

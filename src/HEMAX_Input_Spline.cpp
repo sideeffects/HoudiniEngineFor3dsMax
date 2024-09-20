@@ -50,8 +50,6 @@ HEMAX_Input_Spline::~HEMAX_Input_Spline()
 void
 HEMAX_Input_Spline::RebuildAfterChange()
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-
     Node->Delete();
     BuildInputNode();
 }

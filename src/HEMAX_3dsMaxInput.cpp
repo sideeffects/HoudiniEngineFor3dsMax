@@ -1,6 +1,7 @@
 #include "HEMAX_3dsMaxInput.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <surf_api.h>
 #include <linshape.h>
 #pragma warning(pop)
@@ -38,13 +39,9 @@ ULONG
 HEMAX_3dsMaxInput::Get3dsMaxNodeHandle()
 {
     if (MaxNode)
-    {
 	return MaxNode->GetHandle();
-    }
     else
-    {
-	return -1;
-    }
+        return INode::kNullHandle;
 }
 
 HEMAX_Input*

@@ -1,6 +1,8 @@
 #include "HEMAX_HDASelectionDialog.h"
 
+#pragma warning(push, 0)
 #include <QtCore/qfileinfo.h>
+#pragma warning(pop)
 
 #include "moc_HEMAX_HDASelectionDialog.cpp"
 

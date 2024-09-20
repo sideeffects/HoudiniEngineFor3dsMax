@@ -21,10 +21,12 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui\qapplication.h>
 #include <QtGui\qfiledialog.h>
 #include <QtGui\qmenu.h>
 #include <QtGui\qclipboard.h>
+#pragma warning(pop)
 #endif
 
 HEMAX_AssetWidget::HEMAX_AssetWidget(HEMAX_Plugin* ActivePlugin)

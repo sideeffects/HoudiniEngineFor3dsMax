@@ -9,6 +9,7 @@
 #include "../resource.h"
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qlabel.h>
@@ -16,6 +17,7 @@
 #include <QtGui/qpixmap.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qtoolbutton.h>
+#pragma warning(pop)
 #else
 #include <QtGui/qimage.h>
 #include <QtGui/qpixmap.h>
@@ -249,7 +251,6 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
 {
     if (Selection)
     {
-        HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
         M_STD_OSTRINGSTREAM Sstream;
         Sstream << Selection->Get3dsMaxContainerName() << _T(" (")
             << Selection->Hda.MainNode.AssetName << _T(")");

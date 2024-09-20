@@ -4,7 +4,10 @@
 #include "HEMAX_Utilities.h"
 
 #include <Windows.h>
+
+#pragma warning(push, 0)
 #include <json.hpp>
+#pragma warning(pop)
 
 #define HEMAX_SESSION_PIPE_NAME_DEFAULT             "hapi"
 #define HEMAX_SESSION_HOST_NAME_DEFAULT             "localhost"

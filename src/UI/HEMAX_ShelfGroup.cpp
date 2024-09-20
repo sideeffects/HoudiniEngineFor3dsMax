@@ -2,9 +2,11 @@
 
 #include "moc_HEMAX_ShelfGroup.cpp"
 
+#pragma warning(push, 0)
 #include <QtCore/qvariant.h>
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
+#pragma warning(pop)
 
 #if defined(HEMAX_VERSION_2018) || \
     defined(HEMAX_VERSION_2019) || \
@@ -18,7 +20,9 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui\qmenu.h>
+#pragma warning(pop)
 #endif
 
 HEMAX_ShelfGroup::HEMAX_ShelfGroup()

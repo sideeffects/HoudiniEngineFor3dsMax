@@ -17,12 +17,14 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qwidget.h>
 #include <QtGui/qlayout.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qcombobox.h>
 #include <QtGui/qlabel.h>
 #include <QtGui/qboxlayout.h>
+#pragma warning(pop)
 #endif
 
 #include "HEMAX_ShelfGroup.h"

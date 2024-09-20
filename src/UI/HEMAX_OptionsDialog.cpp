@@ -31,6 +31,7 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qcheckbox.h>
 #include <QtGui/qcombobox.h>
 #include <QtGui/qboxlayout.h>
@@ -42,6 +43,7 @@
 #include <QtGui/qmessagebox.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qtabwidget.h>
+#pragma warning(pop)
 #endif
 
 #define HEMAX_DEBUG_DEFAULT_HIP_NAME "debug_hip_file.hip"
@@ -699,7 +701,7 @@ HEMAX_OptionsDialog::SlotSessionPort()
         HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_PORT,
             std::stoi(SessionPort->text().toStdString()));
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         QMessageBox ErrorPrompt(QMessageBox::Icon::Critical, "Invalid Input",
             "Invalid port number was provided. Please enter a valid port "
@@ -733,7 +735,7 @@ HEMAX_OptionsDialog::SlotSessionSharedMemoryBufferSize()
             HEMAX_SETTING_SESSION_SHARED_MEMORY_BUFFER_SIZE,
             std::stoi(SessionSharedMemoryBufferSize->text().toStdString()));
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         QMessageBox ErrorPrompt(QMessageBox::Icon::Critical, "Invalid Input",
             "Invalid shared memory buffer size was provided. Please enter a "

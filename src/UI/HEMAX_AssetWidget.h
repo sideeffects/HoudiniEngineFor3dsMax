@@ -19,6 +19,7 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qwidget.h>
 #include <QtGui/qgroupbox.h>
 #include <QtGui/qboxlayout.h>
@@ -27,6 +28,7 @@
 #include <QtGui/qlineedit.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qlistwidget.h>
+#pragma warning(pop)
 #endif
 
 #include <string>

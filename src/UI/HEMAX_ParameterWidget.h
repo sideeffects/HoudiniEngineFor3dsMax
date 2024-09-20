@@ -22,6 +22,7 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qwidget.h>
 #include <QtGui/qgroupbox.h>
 #include <QtGui/qboxlayout.h>
@@ -33,6 +34,7 @@
 #include <QtGui/qcheckbox.h>
 #include <QtGui/qcombobox.h>
 #include <QtGui/qcolordialog.h>
+#pragma warning(pop)
 #endif
 
 #include <string>

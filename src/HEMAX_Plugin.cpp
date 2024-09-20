@@ -20,6 +20,7 @@
 #include "UI/HEMAX_HDASelectionDialog.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <icustattribcontainer.h>
 #include <custattrib.h>
 #include <modstack.h>
@@ -229,8 +230,6 @@ HEMAX_Plugin::SelectionSetChangeHandler()
 
     if (SelectedMaxNodeCount == 1)
     {
-	bool HEMAXNodeFound = false;
-
 	ULONG SelectedNode = GetCOREInterface()->GetSelNode(0)->GetHandle();
 
 	AssetToSelect = PluginStore.FindGeometryHda(SelectedNode);
@@ -600,7 +599,10 @@ HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
     }
 
     std::wstring ModStackPluginName(_T(HEMAX_MODIFIER_STACK_PLUGIN_NAME));
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     std::wstring ModifierName(ModEvent->mod->GetName(false).data());
 #else
     std::wstring ModifierName(ModEvent->mod->GetName());
@@ -910,7 +912,10 @@ HEMAX_Plugin::ReengageModifierHda(
     if (!AssetPathAttrib)
         return;
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     std::wstring WideName(AssetPathAttrib->GetName(false));
 #else
     std::wstring WideName(AssetPathAttrib->GetName());
@@ -923,7 +928,8 @@ HEMAX_Plugin::ReengageModifierHda(
 
     // All is good now. Begin reconnecting the modifier to the HDA
     const wchar_t* WidePath;
-    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
+    Interval Forever = FOREVER;
+    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, Forever);
 
     std::wstring WStringPath(WidePath);
     std::string AssetPath(WStringPath.begin(), WStringPath.end());
@@ -968,8 +974,9 @@ HEMAX_Plugin::ReengageModifierHda(
         CustAttrib* AssetLibraryIndex = CustAttribs->GetCustAttrib(
             HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX);
         int AssetIndex = 0;
-        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0,
-            AssetIndex, FOREVER);
+        Interval Forever = FOREVER;
+        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0, AssetIndex,
+            Forever);
         MaxHda->Recreate(AssetId, AssetPath, AssetIndex, Modifier, Node);
     }
     else
@@ -1000,7 +1007,10 @@ HEMAX_Plugin::ReengageGeometryHda(
     if (!AssetPathAttrib)
         return;
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
     std::wstring WideName(AssetPathAttrib->GetName(false));
 #else
     std::wstring WideName(AssetPathAttrib->GetName());
@@ -1014,7 +1024,8 @@ HEMAX_Plugin::ReengageGeometryHda(
     // All is good now. Begin reconnecting the asset.
 
     const wchar_t* WidePath;
-    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, FOREVER);
+    Interval Forever = FOREVER;
+    AssetPathAttrib->GetParamBlock(0)->GetValue(0, 0, WidePath, Forever);
 
     std::wstring WStringPath(WidePath);
     std::string AssetPath(WStringPath.begin(), WStringPath.end());
@@ -1055,8 +1066,9 @@ HEMAX_Plugin::ReengageGeometryHda(
             CustAttribs->GetCustAttrib(
                 HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX);
         int AssetIndex;
-        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0,
-            AssetIndex, FOREVER);
+        Interval Forever = FOREVER;
+        AssetLibraryIndex->GetParamBlock(0)->GetValue(0, 0, AssetIndex,
+            Forever);
 
         GeometryHda = new HEMAX_GeometryHda();
         GeometryHda->Init(AssetId, AssetPath, AssetIndex);
@@ -1776,7 +1788,6 @@ HEMAX_Plugin::HandleRecookRequest(HEMAX_Node* Node)
 void
 HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 {
-    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HEMAX_Store& PluginStore =
         HEMAX_SessionManager::GetSessionManager().GetStore();
 
@@ -1895,7 +1906,7 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
         {
             HEMAX_ModifierHda* ModifierHda =
                 static_cast<HEMAX_ModifierHda*>(HdasToReload[i]);
-            INode* Node = ModifierHda->ContainerNode;
+            INode* ModContainerNode = ModifierHda->ContainerNode;
             int AssetIndex = HdasToReload[i]->Hda.GetAssetIndex();
             int ModifierIndex, DerivedObjIndex;
 
@@ -1912,30 +1923,35 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
             HEMAX_Modifier* ModifierPlugin =
                 (HEMAX_Modifier*)GetCOREInterface()->CreateInstance(
                     OSM_CLASS_ID, HEMAX_Modifier_CLASS_ID);
-            GetCOREInterface7()->AddModifier(*Node,
+            GetCOREInterface7()->AddModifier(*ModContainerNode,
                 *ModifierPlugin, ModifierIndex);
 
             HEMAX_ModifierHda* NewModifierHda = new HEMAX_ModifierHda;
 
             if (NewModifierHda->Create(AssetId,
                     PluginStore.GetAssetPath(NewAssetId),
-                    AssetIndex, ModifierPlugin, Node))
+                    AssetIndex, ModifierPlugin, ModContainerNode))
             {
                 ModifierPlugin->RegisterPlugin(this);
-                PluginStore.Add3dsmaxHda(Node->GetHandle(), NewModifierHda);
+                PluginStore.Add3dsmaxHda(ModContainerNode->GetHandle(),
+                    NewModifierHda);
                 NewModifierHda->CopyAllParameterValues(*ModifierHda);
                 UpdateEntireHda(NewModifierHda);
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
                 std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
 #else
-                std::wstring ModName = ModifierHda->DisplayGeometry->GetName();
+                std::wstring ModName = ModifierHda->DisplayGeometry->GetName().data();
 #endif
                 NewModifierHda->DisplayGeometry->SetName(ModName.c_str());
             }
             else
             {
-                GetCOREInterface7()->DeleteModifier((*Node), ModifierIndex);
+                GetCOREInterface7()->DeleteModifier(
+                    (*ModContainerNode), ModifierIndex);
                 delete ModifierPlugin;
             }
 
@@ -2193,8 +2209,8 @@ HEMAX_Plugin::CloneGeometryHda(HEMAX_GeometryHda* MaxHda)
 
     INode* SourceContainerNode = MaxHda->ContainerNode;
     TimeValue CurTime = GetCOREInterface()->GetTime();
-    CloneContainerNode->SetNodeTM(CurTime,
-                                  SourceContainerNode->GetNodeTM(CurTime));
+    Matrix3 SourceNodeTM = SourceContainerNode->GetNodeTM(CurTime);
+    CloneContainerNode->SetNodeTM(CurTime, SourceNodeTM);
 
     HEMAX_EventData_SelectionSetChanged EventData;
     EventData.Hda = nullptr;

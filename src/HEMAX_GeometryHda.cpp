@@ -10,6 +10,7 @@
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <custattrib.h>
 #include <icustattribcontainer.h>
 #include <ilayer.h>
@@ -662,8 +663,8 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
             {
                 BakedNode->SetName(ChildNode->GetName());
                 BakedNode->SetMtl(ChildNode->GetMtl());
-                BakedNode->SetNodeTM(CurrentTime,
-                                     ChildNode->GetNodeTM(CurrentTime));
+                Matrix3 ChildNodeTM = ChildNode->GetNodeTM(CurrentTime);
+                BakedNode->SetNodeTM(CurrentTime, ChildNodeTM);
                 BakeResults.push_back(BakedNode);
 
                 if (BakedParent && BakeDummyObj)
@@ -744,8 +745,8 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
 
             BakedNode->SetName(SkippedNodes[c]->GetName());
             BakedNode->SetMtl(SkippedNodes[c]->GetMtl());
-            BakedNode->SetNodeTM(CurrentTime,
-                SkippedNodes[c]->GetNodeTM(CurrentTime));
+            Matrix3 NodeTM = SkippedNodes[c]->GetNodeTM(CurrentTime);
+            BakedNode->SetNodeTM(CurrentTime, NodeTM);
             BakeResults.push_back(BakedNode);
 
             if (BakedParent && BakeDummyObj)
@@ -791,9 +792,10 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                     BakedInstance->SetName(SkippedNodes[c]->GetName());
                     BakedInstance->SetMtl(SkippedNodes[c]->GetMtl());
                     TimeValue CurrentTime = GetCOREInterface()->GetTime();
+                    Matrix3 NodeTM = SkippedNodes[c]->GetNodeTM(CurrentTime);
                     BakedInstance->SetNodeTM(
                         CurrentTime,
-                        SkippedNodes[c]->GetNodeTM(CurrentTime));
+                        NodeTM);
                     BakeResults.push_back(BakedInstance);
 
                     if (BakedParent && BakeDummyObj)
@@ -838,7 +840,6 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
                 auto NodeSearch = SourceToBakedNodeMap.find(It->first);
                 if (NodeSearch != SourceToBakedNodeMap.end())
                 {
-                    INode* SourceINode = NodeSearch->first;
                     INode* BakedINode = NodeSearch->second;
                     const PackedPrimInfo& PrimInfo = It->second;
 
@@ -940,7 +941,9 @@ HEMAX_GeometryHda::IsPushTransformsOptionEnabled()
 
 	    if (PushTransformAttrib)
 	    {
-		PushTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
+                Interval Forever = FOREVER;
+		PushTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled,
+                    Forever);
 	    }
 	}
     }
@@ -982,7 +985,9 @@ HEMAX_GeometryHda::ShouldApplyHAPITransform()
 
 	    if (ApplyTransformAttrib)
 	    {
-		ApplyTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled, FOREVER);
+                Interval Forever = FOREVER;
+		ApplyTransformAttrib->GetParamBlock(0)->GetValue(0, 0, Enabled,
+                    Forever);
 	    }
 	}
     }
@@ -1067,7 +1072,9 @@ HEMAX_GeometryHda::GetPartIdFromCustomAttributes(INode* Node)
 	    CustAttrib* PartCustAttrib = Node->GetCustAttribContainer()->GetCustAttrib(HEMAX_MAX_GEO_PART_STAMP_INDEX);
 	    HEMAX_ParameterAttrib* Attrib = dynamic_cast<HEMAX_ParameterAttrib*>(PartCustAttrib);
 	    int Value;
-	    Attrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
+            Interval Forever = FOREVER;
+	    Attrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value,
+                Forever);
 	    return Value;
 	}
     }
@@ -1226,9 +1233,11 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 			INode* ParentNode = ContainerNode;
 			for (int c = 0; c < ClonedNodeTab.Count(); c++)
 			{
+                            Matrix3 ParentNodeTM = ParentNode->GetNodeTM(
+                                GetCOREInterface()->GetTime());
 			    ClonedNodeTab[c]->SetNodeTM(
                                 GetCOREInterface()->GetTime(),
-                                ParentNode->GetNodeTM(GetCOREInterface()->GetTime()));
+                                ParentNodeTM);
 			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c],
                                 InstIt->second.InstanceTransforms[s]);
 			    ClonedNodeTab[c]->Hide(false);
@@ -1284,8 +1293,10 @@ HEMAX_GeometryHda::CreateInstances(HEMAX_Hda& Hda)
 			for (int c = 0; c < ClonedNodeTab.Count(); c++)
 			{
 			    TimeValue CurrentTime = GetCOREInterface()->GetTime();
+                            Matrix3 ParentNodeTM = ParentNode->GetNodeTM(
+                                CurrentTime);
 			    ClonedNodeTab[c]->SetNodeTM(CurrentTime,
-							ParentNode->GetNodeTM(CurrentTime));
+				ParentNodeTM);
 			    HEMAX_Utilities::ApplyTransformToINode(ClonedNodeTab[c],
 								   InstIt->second.InstanceTransforms[s]);
 			    ClonedNodeTab[c]->Hide(false);
@@ -1355,7 +1366,8 @@ HEMAX_GeometryHda::CreatePackedPrimitives(HEMAX_Part& Part, HEMAX_DisplayGeoNode
                     INode* ClonedNodeSource = ClonedNodeSourceTab[0];
 		    INode* ParentNode = ContainerNode;
 		    TimeValue CurTime = GetCOREInterface()->GetTime();  
-		    ClonedNode->SetNodeTM(CurTime, ParentNode->GetNodeTM(CurTime));
+                    Matrix3 ParentNodeTM = ParentNode->GetNodeTM(CurTime);
+		    ClonedNode->SetNodeTM(CurTime, ParentNodeTM);
 		    HEMAX_Utilities::ApplyTransformToINode(
                             ClonedNode,
 			    InstanceInfo.InstancedTransforms[i]);
@@ -1641,7 +1653,9 @@ HEMAX_GeometryHda::GetEditableNodeName(INode* Node)
     {
 	HEMAX_StringParameterAttrib* NameAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_NAME_INDEX));
 	const MCHAR* Name;
-	NameAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
+        Interval Forever = FOREVER;
+	NameAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name,
+            Forever);
 	return HEMAX_Utilities::GetUtf8String(Name);
     }
     else
@@ -1659,7 +1673,9 @@ HEMAX_GeometryHda::GetEditablePartNumber(INode* Node)
     {
 	HEMAX_IntegerParameterAttrib* PartAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(CustAttribs->GetCustAttrib(HEMAX_EDITABLE_NODE_PART_NUM_INDEX));
 	int PartNum;
-	PartAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), PartNum, FOREVER);
+        Interval Forever = FOREVER;
+	PartAttrib->PBlock->GetValue(0, GetCOREInterface()->GetTime(), PartNum,
+            Forever);
 	return PartNum;
     }
     else
@@ -1838,10 +1854,11 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
 
     // First look up the material in the scene
-    std::wstring WideMatName(Mesh->MaterialPath.begin(),
-                             Mesh->MaterialPath.end());
+    std::wstring MatName = HEMAX_Utilities::GetWideString(Mesh->MaterialPath);
+    WStr MatNameWStr(MatName.c_str());
+    MSTR MatNameMStr = MatNameWStr.ToMSTR();
     MtlBaseLib* SceneMatLib = GetCOREInterface()->GetSceneMtls();
-    int MatNum = SceneMatLib->FindMtlByName(WStr(WideMatName.c_str()));
+    int MatNum = SceneMatLib->FindMtlByName(MatNameMStr);
 
     if (MatNum > -1)
     {
@@ -1853,15 +1870,15 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
     {
 	// This means the material wasn't found in the scene,
 	// and we will have to try to load it from file
-	for (int s = (int)WideMatName.size() - 1; s >= 0; s--)
+	for (int s = (int)MatName.size() - 1; s >= 0; s--)
 	{
-	    if (WideMatName[s] == L':')
+	    if (MatName[s] == L':')
 	    {
 		int SplitIndex = s;
-		std::wstring MatLibPath = WideMatName.substr(0, SplitIndex);
-		std::wstring MatName = WideMatName.substr(
+		std::wstring MatLibPath = MatName.substr(0, SplitIndex);
+		std::wstring MatName = MatName.substr(
                                         SplitIndex + 1,
-                                        WideMatName.size() - SplitIndex - 1);
+                                        MatName.size() - SplitIndex - 1);
 
 		MtlBaseLib& CurrentMatLib = GetCOREInterface()->GetMaterialLibrary();
 		int Result = GetCOREInterface()->LoadMaterialLib(
@@ -1870,8 +1887,10 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
 
 		if (Result)
 		{
-		    int CustomMatNum = CurrentMatLib.FindMtlByName(
-                                                        WStr(MatName.c_str()));
+                    WStr MatNameWStr(MatName.c_str());
+                    MSTR MatNameMStr = MatNameWStr.ToMSTR();
+		    int CustomMatNum =
+                        CurrentMatLib.FindMtlByName(MatNameMStr);
 		    if (CustomMatNum > -1)
 		    {
 			MtlBase* Mat = CurrentMatLib[CustomMatNum];

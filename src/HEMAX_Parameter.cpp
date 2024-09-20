@@ -41,10 +41,7 @@ std::string&
 HEMAX_Parameter::GetName()
 {
     if (Name == "")
-    {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	Name = HEMAX_Utilities::GetHAPIString(Info.nameSH);
-    }
 
     return Name;
 }
@@ -53,10 +50,7 @@ std::string&
 HEMAX_Parameter::GetLabel()
 {
     if (Label == "")
-    {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	Label = HEMAX_Utilities::GetHAPIString(Info.labelSH);
-    }
 
     return Label;
 }
@@ -65,10 +59,7 @@ std::string&
 HEMAX_Parameter::GetHelp()
 {
     if (Help == "" && Info.helpSH != 0)
-    {
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 	Help = HEMAX_Utilities::GetHAPIString(Info.helpSH);	
-    }
 
     return Help;
 }

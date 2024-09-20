@@ -6,6 +6,7 @@
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <surf_api.h>
 #include <linshape.h>
 #pragma warning(pop)
@@ -143,7 +144,16 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 
 	CurveSet.AppendObject(TheCurve);
 
-	Matrix3 Mat(1);
+#if defined(HEMAX_VERSION_2017) || \
+    defined(HEMAX_VERSION_2018) || \
+    defined(HEMAX_VERSION_2019) || \
+    defined(HEMAX_VERSION_2020) || \
+    defined(HEMAX_VERSION_2021)
+    Matrix3 Mat(1);
+#else
+    Matrix3 Mat;
+#endif
+
 	Object* Obj = CreateNURBSObject((IObjParam*)GetCOREInterface(), &CurveSet, Mat);
 	Object* NurbsCVObj = Obj->ConvertToType(HEMAX_FRAME_ZERO, EDITABLE_CVCURVE_CLASS_ID);
 

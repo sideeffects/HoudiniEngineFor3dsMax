@@ -6,6 +6,7 @@
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <triobj.h>
 #include <polyobj.h>
 #include <MeshNormalSpec.h>
@@ -356,8 +357,6 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     {
 	std::unordered_map<int, int> NoSGTable;
 
-	MNVert* Vertices = MaxMesh.v;
-
 	Tab<MaxSDK::VertexNormal*> VertexNormals;
 	Tab<Point3> FaceNormals;
 
@@ -429,7 +428,6 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
     }
     else
     {
-	int SpecNormalCount = SpecifiedNormals->GetNumNormals();
 	int SpecFaceCount = SpecifiedNormals->GetNumFaces();
 
 	for (int f = 0; f < SpecFaceCount; f++)

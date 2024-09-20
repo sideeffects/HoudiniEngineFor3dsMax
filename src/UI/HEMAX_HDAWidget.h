@@ -1,7 +1,9 @@
 #pragma once
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qwidget.h>
+#pragma warning(pop)
 #else
 #include <QtWidgets/qwidget.h>
 #endif

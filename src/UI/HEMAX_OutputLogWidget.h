@@ -15,10 +15,12 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qtextedit.h>
 #include <QtGui/qwidget.h>
+#pragma warning(pop)
 #endif
 
 #include "../HEMAX_Logger.h"

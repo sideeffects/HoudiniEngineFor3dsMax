@@ -16,11 +16,13 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qdialog.h>
 #include <QtGui/qgroupbox.h>
 #include <QtGui/qboxlayout.h>
 #include <QtGui/qlistwidget.h>
 #include <QtGui/qpushbutton.h>
+#pragma warning(pop)
 #endif
 
 const int HEMAX_AssetSelection_DefaultWidth = 600;

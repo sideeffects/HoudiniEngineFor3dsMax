@@ -15,10 +15,12 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qwidget.h>
 #include <QtGui/qgridlayout.h>
 #include <QtGui/qbuttongroup.h>
 #include <QtGui/qtoolbutton.h>
+#pragma warning(pop)
 #endif
 
 #include <vector>

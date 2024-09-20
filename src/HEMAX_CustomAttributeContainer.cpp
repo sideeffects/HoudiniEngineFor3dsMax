@@ -3,6 +3,7 @@
 #include "resource.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <icustattribcontainer.h>
 #include <simpobj.h>
 #pragma warning(pop)
@@ -27,7 +28,10 @@ DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int Cus
 
 	    if (Attrib)
 	    {
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
                 std::wstring AttribName(Attrib->GetName(false));
 #else
 		std::wstring AttribName(Attrib->GetName());
@@ -58,7 +62,10 @@ GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::st
 
 	    if (Attrib)
 	    {
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2022) || \
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025)
                 std::string AttribName =
                     HEMAX_Utilities::GetUtf8String(Attrib->GetName(false));
 #else
@@ -301,6 +308,20 @@ HEMAX_ParameterAttrib::Save(ISave* Save)
     return IO_OK;
 }
 
+#if !defined(HEMAX_VERSION_2017) && \
+    !defined(HEMAX_VERSION_2018) && \
+    !defined(HEMAX_VERSION_2019) && \
+    !defined(HEMAX_VERSION_2020) && \
+    !defined(HEMAX_VERSION_2021) && \
+    !defined(HEMAX_VERSION_2022) && \
+    !defined(HEMAX_VERSION_2023)
+IOResult
+HEMAX_ParameterAttrib::Save(ISave* Save, ChannelMask)
+{
+    return this->Save(Save);
+}
+#endif
+
 IOResult
 HEMAX_ParameterAttrib::Load(ILoad* Load)
 {
@@ -343,6 +364,20 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
     return IO_OK;
 }
 
+#if !defined(HEMAX_VERSION_2017) && \
+    !defined(HEMAX_VERSION_2018) && \
+    !defined(HEMAX_VERSION_2019) && \
+    !defined(HEMAX_VERSION_2020) && \
+    !defined(HEMAX_VERSION_2021) && \
+    !defined(HEMAX_VERSION_2022) && \
+    !defined(HEMAX_VERSION_2023)
+IOResult
+HEMAX_ParameterAttrib::Load(ILoad* Load, ChannelMask)
+{
+    return this->Load(Load);
+}
+#endif
+
 /////////////////////////////////////////////
 ////////////// INTEGER //////////////////////
 /////////////////////////////////////////////
@@ -374,7 +409,8 @@ HEMAX_IntegerParameterAttrib::GetIntValue()
     if (PBlock)
     {
 	int Value;
-	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, FOREVER);
+        Interval Forever = FOREVER;
+	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Value, Forever);
 	return Value;
     }
 
@@ -481,7 +517,8 @@ HEMAX_StringParameterAttrib::GetStringValue()
     if (PBlock)
     {
 	const MCHAR* Name;
-	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, FOREVER);
+        Interval Forever = FOREVER;
+	PBlock->GetValue(0, GetCOREInterface()->GetTime(), Name, Forever);
 	return HEMAX_Utilities::GetUtf8String(Name);
     }
 

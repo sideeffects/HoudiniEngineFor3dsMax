@@ -11,6 +11,7 @@
 #include "HEMAX_Types.h"
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <linshape.h>
 #include <mnmesh.h>
 #include <modstack.h>
@@ -184,7 +185,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
             if (HEMAX_Utilities::IsOnlyClosedSplines(MaxLinearShape) ||
                 HEMAX_Utilities::IsOnlyOpenSplines(MaxLinearShape))
             {
-                ULONG NodeHandle = -1;
+                ULONG NodeHandle = INode::kNullHandle;
                 if (MaxNode)
                     NodeHandle = MaxNode->GetHandle();
 
@@ -200,7 +201,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	}
 	else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
 	{
-            ULONG NodeHandle = -1;
+            ULONG NodeHandle = INode::kNullHandle;
             if (MaxNode)
                 NodeHandle = MaxNode->GetHandle();
 	    InputNode = new HEMAX_Input_NURBS(HEMAX_INPUT_SUBNETWORK, MaxObject,
@@ -216,7 +217,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 	else if (MaxObject->CanConvertToType(polyObjectClassID))
 	{
 	    MaxPolyObject = (PolyObject*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), polyObjectClassID);
-            ULONG NodeHandle = -1;
+            ULONG NodeHandle = INode::kNullHandle;
             if (MaxNode)
                 NodeHandle = MaxNode->GetHandle();
 	    InputNode = new HEMAX_Input_Geometry(HEMAX_INPUT_SUBNETWORK, MaxPolyObject, NodeHandle);
@@ -228,8 +229,6 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 		    HEMAX_LOG_LEVEL_WARN);
 	    return;
 	}
-
-	HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
 	if (InputNode)
 	{
@@ -310,9 +309,12 @@ HEMAX_Modifier::ApplyMaterialsToNode()
 	    {
 		if (!(TheMesh->MaterialPath.empty()))
 		{
-		    std::wstring WideMatName(TheMesh->MaterialPath.begin(), TheMesh->MaterialPath.end());
+                    std::wstring WideMatName = HEMAX_Utilities::GetWideString(
+                        TheMesh->MaterialPath);
+                    WStr WideMatNameWStr(WideMatName.c_str());
+                    MSTR WideMatNameMStr = WideMatNameWStr.ToMSTR();
 		    MtlBaseLib* SceneMatLib = GetCOREInterface()->GetSceneMtls();
-		    int MatNum = SceneMatLib->FindMtlByName(WStr(WideMatName.c_str()));
+		    int MatNum = SceneMatLib->FindMtlByName(WideMatNameMStr);
 
 		    if (MatNum > -1)
 		    {
@@ -337,7 +339,9 @@ HEMAX_Modifier::ApplyMaterialsToNode()
 
 				if (Result)
 				{
-				    int CustomMatNum = CurrentMatLib.FindMtlByName(WStr(MatName.c_str()));
+                                    WStr MatNameWStr(MatName.c_str());
+                                    MSTR MatNameMStr = MatNameWStr.ToMSTR();
+				    int CustomMatNum = CurrentMatLib.FindMtlByName(MatNameMStr);
 				    if (CustomMatNum > -1)
 				    {
 					MtlBase* Mat = CurrentMatLib[CustomMatNum];

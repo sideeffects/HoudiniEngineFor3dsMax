@@ -20,20 +20,18 @@
 #include <sstream>
 
 #pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <maxapi.h>
 #include <maxscript/maxscript.h>
 #pragma warning(pop)
 
 #ifdef HEMAX_VERSION_2025
+#pragma warning(push, 0)
+#pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <CUI/ICuiMenuManager.h>
 #include <CUI/ICuiMenu.h>
+#pragma warning(pop)
 #endif
-
-#pragma push_macro("HAPI_DECL_RETURN")
-#undef HAPI_DECL_RETURN
-#define HAPI_DECL_RETURN(x) x
-#include <HAPI_Helpers.C>
-#pragma pop_macro("HAPI_DECL_RETURN")
 
 #ifdef HEMAX_VERSION_2025
 MaxSDK::MaxGuid HoudiniEngineMenuGuid("47dec1b8-78b6-44e3-ad16-f690946856d2");
@@ -65,6 +63,8 @@ const wchar_t* const LIB_HAPIL_SUBDIRECTORY = L"bin";
 const wchar_t* const HOUDINI_TOOLS_SUBDIRECTORY = L"engine\\tools";
 const wchar_t* const HOUDINI_HARS_LOCATION_ENV_VAR = L"HOUDINI_HARS_LOCATION";
 const wchar_t* const HOUDINI_HFS_ENV_VAR = L"HFS";
+
+MSTR theHoudiniEngineActionTableName = GetString(IDS_CATEGORY);
 
 static ActionDescription MenuActions[] = {
     OPEN_HEMAX_ACTION,
@@ -111,7 +111,7 @@ static ActionDescription MenuActions[] = {
 HEMAXActionTable::HEMAXActionTable()
     : ActionTable(HEMAX_Actions_Id,
                   HEMAX_Context_Id,
-                  TSTR(GetString(IDS_CATEGORY)),
+                  theHoudiniEngineActionTableName,
                   nullptr,
                   sizeof(MenuActions) / sizeof(MenuActions[0]),
       MenuActions,
@@ -530,7 +530,6 @@ HEMAXLauncher::InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager)
     if (!PluginMenu)
         return;
 
-    ActionTable* HoudiniEngineActionTable = GetHEMAXLauncherDesc()->GetActionTable(0);
     GetCOREInterface()->GetActionManager()->ActivateActionTable(this, HEMAX_Actions_Id);
 
     PluginMenu->CreateAction(HoudiniEngineOpenActionGuid, HEMAX_Actions_Id,

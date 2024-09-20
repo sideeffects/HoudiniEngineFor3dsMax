@@ -23,8 +23,10 @@
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#pragma warning(push, 0)
 #include <QtGui/qfiledialog.h>
 #include <QtGui/qinputdialog.h>
+#pragma warning(pop)
 #endif
 
 HEMAX_ShelfTab::HEMAX_ShelfTab(HEMAX_Plugin* ActivePlugin, bool Active)
