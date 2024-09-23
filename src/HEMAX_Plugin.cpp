@@ -139,7 +139,9 @@ HEMAX_Plugin::Init(std::string HapiToolsDir)
         
         if (AutoStartSession)
         {
-            HEMAX_SessionManager::GetSessionManager().CreateSession();
+            HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+            if (!SM.ConnectSession())
+                SM.CreateSession();
         }
 
         HEMAX_Store& PluginStore = HEMAX_SessionManager::GetSessionManager()

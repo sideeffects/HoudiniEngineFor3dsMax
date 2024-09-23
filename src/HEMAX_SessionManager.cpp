@@ -76,36 +76,8 @@ HEMAX_SessionManager::CreateSession()
     if (!Result)
         return false;
 
-    std::string HoudiniEnv, OtlSearch, DsoSearch, ImageDsoSearch, AudioDsoSearch;
-
-    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
-        HoudiniEnv);
-    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
-        OtlSearch);
-    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
-        DsoSearch);
-    HEMAX_UserPrefs::Get().GetStringSetting(
-        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, ImageDsoSearch);
-    HEMAX_UserPrefs::Get().GetStringSetting(
-        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
-
-    HAPI_CookOptions CookOptions = HEMAX_HoudiniApi::CookOptions_Create();
-    CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
-    HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
-        &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
-        DsoSearch.c_str(), ImageDsoSearch.c_str(), AudioDsoSearch.c_str());
-
-    if (InitResult == HAPI_RESULT_SUCCESS)
-    {
-        HEMAX_Logger::Instance().AddEntry(
-            "Session initalized and ready to use.", HEMAX_LOG_LEVEL_INFO);
-
-        HEMAX_Time::PushTimelineSettings();
-        HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
-
-        Events.EmitEvent(HEMAX_EventType::SessionReady, nullptr);
-    }
-    
+    InitializeSession();
+   
     Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return true;
@@ -163,33 +135,7 @@ HEMAX_SessionManager::ConnectSession()
 
     if (HEMAX_HoudiniApi::IsInitialized(&Session) != HAPI_RESULT_SUCCESS)
     {
-        std::string HoudiniEnv, OtlSearch, DsoSearch, ImageDsoSearch, AudioDsoSearch;
-
-        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
-            HoudiniEnv);
-        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
-            OtlSearch);
-        HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
-            DsoSearch);
-        HEMAX_UserPrefs::Get().GetStringSetting(
-            HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, ImageDsoSearch);
-        HEMAX_UserPrefs::Get().GetStringSetting(
-            HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
-
-        HAPI_CookOptions CookOptions = HEMAX_HoudiniApi::CookOptions_Create();
-        CookOptions.cacheMeshTopology = true;
-        CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
-        HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
-            &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
-            DsoSearch.c_str(), ImageDsoSearch.c_str(), AudioDsoSearch.c_str());
-
-        if (InitResult)
-        {
-            HEMAX_Time::PushTimelineSettings();
-            HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
-
-            Events.EmitEvent(HEMAX_EventType::SessionReady, nullptr);
-        }
+        InitializeSession();
     }
 
     HEMAX_Logger::Instance().AddEntry("Finished connecting to session",
@@ -242,6 +188,13 @@ HEMAX_SessionManager::RestartSession()
     Events.EmitEvent(HEMAX_EventType::SessionChanged, nullptr);
 
     return Success;
+}
+
+bool
+HEMAX_SessionManager::IsSessionValidAndInitialized()
+{
+    return (HEMAX_HoudiniApi::IsSessionValid(&Session) == HAPI_RESULT_SUCCESS &&
+            HEMAX_HoudiniApi::IsInitialized(&Session) == HAPI_RESULT_SUCCESS);
 }
 
 bool
@@ -698,9 +651,39 @@ HEMAX_SessionManager::ConnectSharedMemorySession()
     return true;
 }
 
-bool
-HEMAX_SessionManager::IsSessionValidAndInitialized()
+void
+HEMAX_SessionManager::InitializeSession()
 {
-    return (HEMAX_HoudiniApi::IsSessionValid(&Session) == HAPI_RESULT_SUCCESS &&
-            HEMAX_HoudiniApi::IsInitialized(&Session) == HAPI_RESULT_SUCCESS);
+    std::string HoudiniEnv, OtlSearch, DsoSearch, ImageDsoSearch, AudioDsoSearch;
+
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_ENV_FILES,
+        HoudiniEnv);
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_OTL_SEARCH,
+        OtlSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_SESSION_DSO_SEARCH,
+        DsoSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(
+        HEMAX_SETTING_SESSION_IMAGE_DSO_SEARCH, ImageDsoSearch);
+    HEMAX_UserPrefs::Get().GetStringSetting(
+        HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH, AudioDsoSearch);
+
+    HAPI_CookOptions CookOptions = HEMAX_HoudiniApi::CookOptions_Create();
+    CookOptions.packedPrimInstancingMode = HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT;
+    HAPI_Result InitResult = HEMAX_HoudiniApi::Initialize(&Session,
+        &CookOptions, false, -1, HoudiniEnv.c_str(), OtlSearch.c_str(),
+        DsoSearch.c_str(), ImageDsoSearch.c_str(), AudioDsoSearch.c_str());
+
+    if (InitResult == HAPI_RESULT_SUCCESS)
+    {
+        HEMAX_Logger::Instance().AddEntry(
+            "Session initalized and ready to use.", HEMAX_LOG_LEVEL_INFO);
+
+        HEMAX_Time::PushTimelineSettings();
+        HEMAX_Time::PushCurrentTime(GetCOREInterface()->GetTime());
+
+        HEMAX_HoudiniApi::SetServerEnvString(&Session,
+            HAPI_CLIENT_NAME_ENV_VAR, HAPI_CLIENT_NAME_ENV_VAL);
+
+        Events.EmitEvent(HEMAX_EventType::SessionReady, nullptr);
+    }
 }

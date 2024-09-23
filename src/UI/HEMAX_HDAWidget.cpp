@@ -215,7 +215,10 @@ HEMAX_HDAWidget::Update()
 void
 HEMAX_HDAWidget::SetSelection(HEMAX_3dsmaxHda* SelectedHda, bool ForceUnlock)
 {
-    if (!Locked || ForceUnlock)
+    if (ForceUnlock)
+        Locked = false;
+
+    if (!Locked)
     {
         Selection = SelectedHda;
         ParametersContentWidget->SelectHDA(SelectedHda);

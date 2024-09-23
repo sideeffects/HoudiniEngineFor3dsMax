@@ -50,6 +50,8 @@ class HEMAX_SessionManager
         bool                                ConnectNamedPipeSession();
         bool                                ConnectSharedMemorySession();
 
+        void                                InitializeSession();
+
         HEMAX_Events                        Events;
         HEMAX_Store                         Store;
 };

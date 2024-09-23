@@ -140,7 +140,7 @@ HEMAX_UI::~HEMAX_UI()
 void
 HEMAX_UI::ChangeHdaSelection(HEMAX_3dsmaxHda* Hda, bool ForceUnlock)
 {
-    HdaWidget->SetSelection(Hda);
+    HdaWidget->SetSelection(Hda, ForceUnlock);
 
     if (Hda)
     {
