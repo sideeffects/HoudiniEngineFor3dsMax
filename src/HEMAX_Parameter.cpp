@@ -316,4 +316,3 @@ HEMAX_Parameter::CopyValuesFrom(const HEMAX_Parameter& Other)
     }
 
 }
-

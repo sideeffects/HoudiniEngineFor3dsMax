@@ -1770,6 +1770,16 @@ HEMAX_Plugin::Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda,
 }
 
 void
+HEMAX_Plugin::ResetParameters(HEMAX_3dsmaxHda* Hda)
+{
+    if (!Hda)
+        return;
+
+    Hda->ResetParameters();
+    UpdateEntireHda(Hda);
+}
+
+void
 HEMAX_Plugin::HandleRecookRequest(HEMAX_Node* Node)
 {
     HEMAX_3dsmaxHda* Hda = HEMAX_SessionManager::GetSessionManager()

@@ -44,10 +44,10 @@ class HEMAX_3dsmaxHda
 	std::vector<HEMAX_Parameter> GetAllParametersWithInputs();
 	std::vector<HEMAX_InputInstance*> GetAllParameter3dsmaxInputs();
 
-        void ResetParameters();
-
 	void UpdateParameterInputNode(HAPI_ParmId ParamId);
 	void ClearParameterInputNode(HAPI_ParmId ParamId);
+
+        void ResetParameters();
 
 	void SetSubnetworkInput(int Subnetwork, HEMAX_InputInstance* Input);
 	HEMAX_InputInstance* FindSubnetworkInput(int Subnetwork);

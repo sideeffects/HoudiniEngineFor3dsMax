@@ -1,5 +1,6 @@
 #include "HEMAX_3dsmaxHda.h"
 
+#include "HEMAX_HoudiniApi.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_Logger.h"
 
@@ -77,12 +78,6 @@ HEMAX_3dsmaxHda::GetAllParameter3dsmaxInputs()
 }
 
 void
-HEMAX_3dsmaxHda::ResetParameters()
-{
-   // TODO: 001 
-}
-
-void
 HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
 {
     HEMAX_InputInstance* ParameterInput = FindParameterInput(ParamId);
@@ -105,6 +100,22 @@ HEMAX_3dsmaxHda::ClearParameterInputNode(HAPI_ParmId ParamId)
 	Search->second = nullptr;
 	InputNodeMap.erase(Search);
     }
+}
+
+void
+HEMAX_3dsmaxHda::ResetParameters()
+{
+    // TODO: this still needs to handle subnetwork inputs and parm op inputs
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    auto&& Parameters = Hda.MainNode.GetParameters();
+    for (auto&& Parameter : Parameters)
+    {
+        HEMAX_HoudiniApi::RevertParmToDefaults(&SM.Session,
+            Hda.MainNode.Info.id, Parameter.GetName().c_str());
+    }
+
+    ClearParameterCustomAttributes();
+    InitializeParameterCustomAttributes();
 }
 
 void

@@ -437,7 +437,8 @@ HEMAX_HDAWidget::RebuildButtonClickedSlot()
 void
 HEMAX_HDAWidget::ResetParametersButtonClickedSlot()
 {
-    // TODO: ui
+    Plugin->ResetParameters(Selection);
+    Update();
 }
 
 void

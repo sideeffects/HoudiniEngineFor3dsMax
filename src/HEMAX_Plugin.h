@@ -148,6 +148,8 @@ class HEMAX_Plugin : public TimeChangeCallback, public HEMAX_EventHandler
 	void Clear3dsmaxHdaInputConnections(HEMAX_3dsmaxHda* Hda,
                                             bool UpdateHda = true);
 
+        void ResetParameters(HEMAX_3dsmaxHda* Hda);
+
     private:
 
 	bool ManualModifierAddInProgress;
