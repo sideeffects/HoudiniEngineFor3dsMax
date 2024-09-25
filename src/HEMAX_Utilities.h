@@ -77,4 +77,6 @@ struct HEMAX_Utilities
     static std::wstring GetWideString(const M_STD_STRING& String);
     static std::wstring GetWideString(const std::string& String);
     static QString      GetQString(const M_STD_STRING& String);
+    static TSTR         ToTSTR(const std::string& String);
+    static TSTR         ToTSTR(const std::wstring& String);
 };

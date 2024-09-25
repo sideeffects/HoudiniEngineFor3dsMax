@@ -1011,7 +1011,7 @@ HEMAX_GeometryHda::SetCustomAttributeContainer(ICustAttribContainer* Container)
         if (CustAttrib)
         {
             CustomAttributeMap.insert(
-                { CustAttrib->GetParameterName(), CustAttrib });
+                { CustAttrib->GetParameterName().data(), CustAttrib });
         }
     }
 }
@@ -1473,33 +1473,33 @@ HEMAX_GeometryHda::GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda)
 {
     // Generate HEMAX boilerplate custom attributes. These are necessary for reloading the scene
     HEMAX_StringParameterAttrib* MaxHoudiniAssetStamp = new HEMAX_StringParameterAttrib;
-    MaxHoudiniAssetStamp->SetParameterName(std::string(HEMAX_MAX_HOUDINI_STAMP_NAME));
+    MaxHoudiniAssetStamp->SetParameterName(HEMAX_MAX_HOUDINI_STAMP_NAME);
     MaxHoudiniAssetStamp->PBlock->SetValue(0, 0, L"TRUE");
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_STAMP_INDEX, MaxHoudiniAssetStamp);
 
     HEMAX_StringParameterAttrib* MaxHoudiniAssetPath = new HEMAX_StringParameterAttrib;
-    MaxHoudiniAssetPath->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME));
+    MaxHoudiniAssetPath->SetParameterName(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME);
     std::wstring WideAssetPath(Hda.GetAssetPath().begin(), Hda.GetAssetPath().end());
     MaxHoudiniAssetPath->PBlock->SetValue(0, 0, WideAssetPath.c_str());
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX, MaxHoudiniAssetPath);
 
     HEMAX_IntegerParameterAttrib* MaxHoudiniAssetLibIndex = new HEMAX_IntegerParameterAttrib;
-    MaxHoudiniAssetLibIndex->SetParameterName(std::string(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME));
+    MaxHoudiniAssetLibIndex->SetParameterName(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME);
     MaxHoudiniAssetLibIndex->PBlock->SetValue(0, 0, Hda.GetAssetIndex());
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX, MaxHoudiniAssetLibIndex);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniConvertOnSave = new HEMAX_ToggleParameterAttrib;
-    MaxHoudiniConvertOnSave->SetParameterName(std::string(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_NAME));
+    MaxHoudiniConvertOnSave->SetParameterName(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_NAME);
     MaxHoudiniConvertOnSave->PBlock->SetValue(0, 0, 0);
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_SAVE_CONVERSION_INDEX, MaxHoudiniConvertOnSave);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniPushTransform = new HEMAX_ToggleParameterAttrib;
-    MaxHoudiniPushTransform->SetParameterName(std::string(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_NAME));
+    MaxHoudiniPushTransform->SetParameterName(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_NAME);
     MaxHoudiniPushTransform->PBlock->SetValue(0, 0, 0);
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX, MaxHoudiniPushTransform);
 
     HEMAX_ToggleParameterAttrib* MaxHoudiniApplyHAPITransform = new HEMAX_ToggleParameterAttrib;
-    MaxHoudiniApplyHAPITransform->SetParameterName(std::string(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_NAME));
+    MaxHoudiniApplyHAPITransform->SetParameterName(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_NAME);
     MaxHoudiniApplyHAPITransform->PBlock->SetValue(0, 0, 0);
     CustomAttributes->InsertCustAttrib(HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX, MaxHoudiniApplyHAPITransform);
 
@@ -1508,10 +1508,12 @@ HEMAX_GeometryHda::GenerateBoilerplateGeometryCustomAttributes(HEMAX_Hda& Hda)
     {
 	HEMAX_NodeListParameterAttrib* InputCustAttrib =
             new HEMAX_NodeListParameterAttrib;
-	InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
+        TSTR InputCustAttribName;
+        InputCustAttribName.printf(_T("subnetwork_%d"), s);
+	InputCustAttrib->SetParameterName(InputCustAttribName);
 	InputCustAttrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK, s);
 	CustomAttributes->AppendCustAttrib(InputCustAttrib);
-	CustomAttributeMap.insert({ "subnetwork_" + std::to_string(s), InputCustAttrib });
+	CustomAttributeMap.insert({ InputCustAttribName.data(), InputCustAttrib });
     }
 
     MaxStampIndex = HEMAX_MAX_HOUDINI_MAX_INDEX;
@@ -1532,11 +1534,11 @@ void
 HEMAX_GeometryHda::GenerateBoilerplateGeometryPluginCustomAttributes(INode* PluginNode, HAPI_PartId Part)
 {
     HEMAX_StringParameterAttrib* MaxGeoStamp = new HEMAX_StringParameterAttrib;
-    MaxGeoStamp->SetParameterName(std::string(HEMAX_MAX_GEO_STAMP_NAME));
-    MaxGeoStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), L"TRUE");
+    MaxGeoStamp->SetParameterName(HEMAX_MAX_GEO_STAMP_NAME);
+    MaxGeoStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), _T("TRUE"));
 
     HEMAX_IntegerParameterAttrib* PartStamp = new HEMAX_IntegerParameterAttrib;
-    PartStamp->SetParameterName(std::string(HEMAX_MAX_GEO_PART_STAMP_NAME));
+    PartStamp->SetParameterName(HEMAX_MAX_GEO_PART_STAMP_NAME);
     PartStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), Part);
 
     if (PluginNode->GetCustAttribContainer())
@@ -1550,7 +1552,9 @@ HEMAX_NodeListParameterAttrib*
 HEMAX_GeometryHda::CreateNodeListCustAttrib(int Subnetwork)
 {
     HEMAX_NodeListParameterAttrib* Attrib = new HEMAX_NodeListParameterAttrib;
-    Attrib->SetParameterName("subnetwork_" + std::to_string(Subnetwork));
+    TSTR AttribName;
+    AttribName.printf(_T("subnetwork_%d"), Subnetwork);
+    Attrib->SetParameterName(AttribName);
     Attrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK,
         Subnetwork);
     return Attrib;
@@ -1594,8 +1598,8 @@ HEMAX_GeometryHda::StampInstanceNode(INode* Node)
     }
 
     HEMAX_StringParameterAttrib* InstanceStamp = new HEMAX_StringParameterAttrib;
-    InstanceStamp->SetParameterName(std::string(HEMAX_MAX_GEO_INSTANCE_STAMP_NAME));
-    InstanceStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), L"TRUE");
+    InstanceStamp->SetParameterName(HEMAX_MAX_GEO_INSTANCE_STAMP_NAME);
+    InstanceStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), _T("TRUE"));
     CustAttribs->InsertCustAttrib(HEMAX_MAX_GEO_INSTANCE_STAMP_INDEX, InstanceStamp);
 }
 
@@ -1611,8 +1615,8 @@ HEMAX_GeometryHda::StampPackedPrimitiveNode(INode* Node)
     }
 
     HEMAX_StringParameterAttrib* PackedPrimStamp = new HEMAX_StringParameterAttrib;
-    PackedPrimStamp->SetParameterName(std::string(HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME));
-    PackedPrimStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), L"TRUE");
+    PackedPrimStamp->SetParameterName(HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME);
+    PackedPrimStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), _T("TRUE"));
     CustAttribs->InsertCustAttrib(HEMAX_MAX_GEO_PACKED_PRIM_STAMP_INDEX, PackedPrimStamp);
 }
 
@@ -1628,18 +1632,18 @@ HEMAX_GeometryHda::StampEditableNode(INode* Node, std::string EditableNodeName, 
     }
 
     HEMAX_StringParameterAttrib* EditableStamp = new HEMAX_StringParameterAttrib;
-    EditableStamp->SetParameterName(std::string(HEMAX_EDITABLE_NODE_STAMP_NAME));
-    EditableStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), L"TRUE");
+    EditableStamp->SetParameterName(HEMAX_EDITABLE_NODE_STAMP_NAME);
+    EditableStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), _T("TRUE"));
     CustAttribs->InsertCustAttrib(HEMAX_EDITABLE_NODE_STAMP_INDEX, EditableStamp);
 
     HEMAX_StringParameterAttrib* NameStamp = new HEMAX_StringParameterAttrib;
-    NameStamp->SetParameterName(std::string(HEMAX_EDITABLE_NODE_NAME_NAME));
+    NameStamp->SetParameterName(HEMAX_EDITABLE_NODE_NAME_NAME);
     std::wstring WideName(EditableNodeName.begin(), EditableNodeName.end());
     NameStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), WideName.c_str());
     CustAttribs->InsertCustAttrib(HEMAX_EDITABLE_NODE_NAME_INDEX, NameStamp);
 
     HEMAX_IntegerParameterAttrib* PartStamp = new HEMAX_IntegerParameterAttrib;
-    PartStamp->SetParameterName(std::string(HEMAX_EDITABLE_NODE_PART_NUM_NAME));
+    PartStamp->SetParameterName(HEMAX_EDITABLE_NODE_PART_NUM_NAME);
     PartStamp->PBlock->SetValue(0, GetCOREInterface()->GetTime(), PartNum);
     CustAttribs->InsertCustAttrib(HEMAX_EDITABLE_NODE_PART_NUM_INDEX, PartStamp);
 }

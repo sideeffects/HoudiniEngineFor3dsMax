@@ -454,7 +454,7 @@ HEMAX_HDAWidget::LockSelectionButtonClickedSlot()
 void
 HEMAX_HDAWidget::CookNodeSlot(HEMAX_Node* Node)
 {
-
+    Node->Cook();
 }
 
 void

@@ -22,47 +22,47 @@ class HEMAX_3dsmaxHda;
 #define HEMAX_PARAMETER_ATTRIB_NAME_CHUNK 1000
 
 #define HEMAX_MAX_HOUDINI_STAMP_INDEX 0
-const char* const HEMAX_MAX_HOUDINI_STAMP_NAME = "MaxHoudiniAssetStamp";
+const TSTR HEMAX_MAX_HOUDINI_STAMP_NAME(_T("MaxHoudiniAssetStamp"));
 #define HEMAX_MAX_HOUDINI_ASSET_PATH_INDEX 1
-const char* const HEMAX_MAX_HOUDINI_ASSET_PATH_NAME = "MaxHoudiniAssetPath";
+const TSTR HEMAX_MAX_HOUDINI_ASSET_PATH_NAME(_T("MaxHoudiniAssetPath"));
 #define HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_INDEX 2
-const char* const HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME = "MaxHoudiniAssetLibraryNumber";
+const TSTR HEMAX_MAX_HOUDINI_ASSET_LIBRARY_NUMBER_NAME(_T("MaxHoudiniAssetLibraryNumber"));
 #define HEMAX_MAX_HOUDINI_SAVE_CONVERSION_INDEX 3
-const char* const HEMAX_MAX_HOUDINI_SAVE_CONVERSION_NAME = "MaxHoudiniSaveConversion";
+const TSTR HEMAX_MAX_HOUDINI_SAVE_CONVERSION_NAME(_T("MaxHoudiniSaveConversion"));
 #define HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_INDEX 4
-const char* const HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_NAME = "MaxHoudiniAssetPushTransformToHAPI";
+const TSTR HEMAX_MAX_HOUDINI_PUSH_TRANSFORM_NAME(_T("MaxHoudiniAssetPushTransformToHAPI"));
 #define HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_INDEX 5
-const char* const HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_NAME = "MaxHoudiniAssetApplyHAPITransform";
+const TSTR HEMAX_MAX_HOUDINI_APPLY_HAPI_TRANSFORM_NAME(_T("MaxHoudiniAssetApplyHAPITransform"));
 #define HEMAX_MAX_HOUDINI_MAX_INDEX 5
 
 #define HEMAX_HOUDINI_MODIFIER_STAMP_INDEX 0
-const char* const HEMAX_HOUDINI_MODIFIER_STAMP_NAME = "MaxModifierAssetStamp";
+const TSTR HEMAX_HOUDINI_MODIFIER_STAMP_NAME(_T("MaxModifierAssetStamp"));
 #define HEMAX_HOUDINI_MODIFIER_ASSET_PATH_INDEX 1
-const char* const HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME = "MaxModifierAssetPath";
+const TSTR HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME(_T("MaxModifierAssetPath"));
 #define HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX 2
-const char* const HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_NAME = "MaxModifierAssetLibraryNumber";
+const TSTR HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_NAME(_T("MaxModifierAssetLibraryNumber"));
 #define HEMAX_HOUDINI_MODIFIER_MAX_INDEX 2
 
 #define HEMAX_MAX_GEO_STAMP_INDEX 0
-const char* const HEMAX_MAX_GEO_STAMP_NAME = "MaxHoudiniGeoStamp";
+const TSTR HEMAX_MAX_GEO_STAMP_NAME(_T("MaxHoudiniGeoStamp"));
 #define HEMAX_MAX_GEO_PART_STAMP_INDEX 1
-const char* const HEMAX_MAX_GEO_PART_STAMP_NAME = "MaxHoudiniGeoPartNum";
+const TSTR HEMAX_MAX_GEO_PART_STAMP_NAME(_T("MaxHoudiniGeoPartNum"));
 #define HEMAX_MAX_GEO_MAX_INDEX 1
 
 #define HEMAX_MAX_GEO_INSTANCE_STAMP_INDEX 0
-const char* const HEMAX_MAX_GEO_INSTANCE_STAMP_NAME = "MaxHoudiniGeoInstanceStamp";
+const TSTR HEMAX_MAX_GEO_INSTANCE_STAMP_NAME(_T("MaxHoudiniGeoInstanceStamp"));
 #define HEMAX_MAX_GEO_INSTANCE_MAX_INDEX 0
 
 #define HEMAX_MAX_GEO_PACKED_PRIM_STAMP_INDEX 0
-const char* const HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME = "MaxHoudiniGeoPackedPrimStamp";
+const TSTR HEMAX_MAX_GEO_PACKED_PRIM_STAMP_NAME(_T("MaxHoudiniGeoPackedPrimStamp"));
 #define HEMAX_MAX_GEO_PACKED_PRIM_MAX_INDEX 0
 
 #define HEMAX_EDITABLE_NODE_STAMP_INDEX 0
-const char* const HEMAX_EDITABLE_NODE_STAMP_NAME = "MaxHoudiniEditableNodeStamp";
+const TSTR HEMAX_EDITABLE_NODE_STAMP_NAME(_T("MaxHoudiniEditableNodeStamp"));
 #define HEMAX_EDITABLE_NODE_NAME_INDEX 1
-const char* const HEMAX_EDITABLE_NODE_NAME_NAME = "MaxHoudiniEditableNodeName";
+const TSTR HEMAX_EDITABLE_NODE_NAME_NAME(_T("MaxHoudiniEditableNodeName"));
 #define HEMAX_EDITABLE_NODE_PART_NUM_INDEX 2
-const char* const HEMAX_EDITABLE_NODE_PART_NUM_NAME = "MaxHoudiniEditableNodePartNum";
+const TSTR HEMAX_EDITABLE_NODE_PART_NUM_NAME(_T("MaxHoudiniEditableNodePartNum"));
 #define HEMAX_EDITABLE_NODE_MAX_INDEX 2
 
 ClassDesc2* GetHEMAX_IntegerParameterAttrib_ClassDesc();
@@ -78,9 +78,9 @@ class HEMAX_ParameterAttrib : public CustAttrib
     public:
 	IParamBlock2* PBlock;
 
-	std::string GetParameterName();
+	const TSTR& GetParameterName() const;
+	void SetParameterName(const TSTR& Name);
 
-	void SetParameterName(std::string Name);
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
@@ -89,10 +89,10 @@ class HEMAX_ParameterAttrib : public CustAttrib
 #else
         const TCHAR* GetName() override;
 #endif
+
 	SClass_ID SuperClassID();
 
 	int NumRefs();
-
 	int NumSubs();
 	Animatable* SubAnim(int i);
 
@@ -125,8 +125,7 @@ class HEMAX_ParameterAttrib : public CustAttrib
 #endif
 
     protected:
-	std::string ParameterName;
-	std::wstring WideParameterName;
+        TSTR ParameterName;
 
 	void SetReference(int i, RefTargetHandle RTarget);
 };
@@ -138,7 +137,9 @@ class HEMAX_IntegerParameterAttrib : public HEMAX_ParameterAttrib
 
 	Class_ID ClassID();
 
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 	int GetIntValue();
 };
@@ -171,7 +172,9 @@ class HEMAX_StringParameterAttrib : public HEMAX_ParameterAttrib
 
 	Class_ID ClassID();
 
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 	void SetStringValue(std::string Value);
 	std::string GetStringValue();
@@ -206,7 +209,9 @@ class HEMAX_FloatParameterAttrib : public HEMAX_ParameterAttrib
 
 	Class_ID ClassID();
 
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 };
 
@@ -238,7 +243,9 @@ class HEMAX_ToggleParameterAttrib : public HEMAX_ParameterAttrib
 
 	Class_ID ClassID();
 
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 };
 
@@ -267,11 +274,14 @@ class HEMAX_NodeParameterAttrib : public HEMAX_ParameterAttrib
     public:
 
 	HEMAX_NodeParameterAttrib();
-	void CreateMaxHoudiniAssetLink(INode* Hda, HEMAX_InputType InputType, int Id);
+	void CreateMaxHoudiniAssetLink(
+            INode* Hda, HEMAX_InputType InputType, int Id);
 	void UpdateOwner(INode* Hda);
 	void SetMessagesBlocked(bool Block);
 	Class_ID ClassID();
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 #if defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
@@ -318,7 +328,9 @@ class HEMAX_NodeListParameterAttrib : public HEMAX_ParameterAttrib
 	void UpdateOwner(INode* Hda);
 	void SetMessagesBlocked(bool Block);
 	Class_ID ClassID();
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 #if defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
@@ -363,7 +375,9 @@ class HEMAX_MultiParameterAttrib : public HEMAX_ParameterAttrib
 
 	Class_ID ClassID();
 
-	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
+	RefResult NotifyRefChanged(const Interval& ChangeInt,
+            RefTargetHandle hTarget, PartID& PartID, RefMessage Message,
+            BOOL Propagate);
 
 };
 
@@ -387,8 +401,21 @@ class HEMAX_MultiParameterAttrib_ClassDesc : public ClassDesc2
 	HINSTANCE HInstance();
 };
 
-bool DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int CustomAttributeIndex, std::string CustomAttributeName);
-CustAttrib* GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName);
-HEMAX_StringParameterAttrib* GetStringParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName);
-HEMAX_IntegerParameterAttrib* GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName);
-bool CheckForCustomAttributeOnNode(INode* Node, std::string CustomAttributeName);
+bool
+DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer,
+        int CustomAttributeIndex, const TSTR& CustomAttributeName);
+
+CustAttrib*
+GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName);
+
+HEMAX_StringParameterAttrib*
+GetStringParameterAttrib(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName);
+
+HEMAX_IntegerParameterAttrib*
+GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName);
+
+bool
+CheckForCustomAttributeOnNode(INode* Node, const TSTR& CustomAttributeName);

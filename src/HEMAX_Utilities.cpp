@@ -682,3 +682,31 @@ HEMAX_Utilities::GetQString(const M_STD_STRING& String)
     return QString(String);
 #endif
 }
+
+TSTR
+HEMAX_Utilities::ToTSTR(const std::string& String)
+{
+#ifdef UNICODE
+    std::wstring WideString = HEMAX_Utilities::GetWideString(String);
+    TSTR ConvertedString(WideString.c_str());
+#else
+    std::string WideString = HEMAX_Utilities::GetUtf8String(String);
+    TSTR ConvertedString(WideString.c_str());
+#endif
+
+    return ConvertedString;
+}
+
+TSTR
+HEMAX_Utilities::ToTSTR(const std::wstring& String)
+{
+#ifdef UNICODE
+    std::wstring WideString = HEMAX_Utilities::GetWideString(String);
+    TSTR ConvertedString(WideString.c_str());
+#else
+    std::string WideString = HEMAX_Utilities::GetUtf8String(String);
+    TSTR ConvertedString(WideString.c_str());
+#endif
+
+    return ConvertedString;
+}

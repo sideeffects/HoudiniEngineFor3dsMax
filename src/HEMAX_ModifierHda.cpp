@@ -86,7 +86,7 @@ HEMAX_ModifierHda::RecreateExistingModifierHda(HEMAX_Hda& Hda, HEMAX_Modifier* M
         if (CustAttrib)
         {
             CustomAttributeMap.insert(
-                {CustAttrib->GetParameterName(), CustAttrib});
+                {CustAttrib->GetParameterName().data(), CustAttrib});
         }
     }
 
@@ -129,37 +129,39 @@ HEMAX_ModifierHda::InitModifierPluginCustAttribContainer(HEMAX_Modifier* Modifie
 }
 
 void
-HEMAX_ModifierHda::GenerateBoilerplateModifierPluginCustomAttributes(HEMAX_Modifier* ModifierPlugin, HEMAX_Hda& Hda)
+HEMAX_ModifierHda::GenerateBoilerplateModifierPluginCustomAttributes(
+        HEMAX_Modifier* ModifierPlugin, HEMAX_Hda& Hda)
 {
     if (CustomAttributes)
     {
 	// Generate HEMAX boilerplate custom attributes. These are necessary for reloading the scene
 	HEMAX_StringParameterAttrib* ModifierAssetStamp = new HEMAX_StringParameterAttrib;
-	ModifierAssetStamp->SetParameterName(std::string(HEMAX_HOUDINI_MODIFIER_STAMP_NAME));
+	ModifierAssetStamp->SetParameterName(HEMAX_HOUDINI_MODIFIER_STAMP_NAME);
 	ModifierAssetStamp->PBlock->SetValue(0, 0, L"TRUE");
 	CustomAttributes->InsertCustAttrib(HEMAX_HOUDINI_MODIFIER_STAMP_INDEX, ModifierAssetStamp);
 
 	HEMAX_StringParameterAttrib* ModifierAssetPath = new HEMAX_StringParameterAttrib;
-	ModifierAssetPath->SetParameterName(std::string(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME));
+	ModifierAssetPath->SetParameterName(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME);
 	std::wstring WideAssetPath(Hda.GetAssetPath().begin(), Hda.GetAssetPath().end());
 	ModifierAssetPath->PBlock->SetValue(0, 0, WideAssetPath.c_str());
 	CustomAttributes->InsertCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_INDEX, ModifierAssetPath);
 
 	HEMAX_IntegerParameterAttrib* ModifierAssetLibIndex = new HEMAX_IntegerParameterAttrib;
-	ModifierAssetLibIndex->SetParameterName(std::string(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_NAME));
+	ModifierAssetLibIndex->SetParameterName(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_NAME);
 	ModifierAssetLibIndex->PBlock->SetValue(0, 0, Hda.GetAssetIndex());
 	CustomAttributes->InsertCustAttrib(HEMAX_HOUDINI_MODIFIER_ASSET_LIBRARY_NUMBER_INDEX, ModifierAssetLibIndex);
 
-	// Make custom attributes for the secondary sub-network inputs. First subnetwork input is reserved for the modifier stack input.
+	// Make custom attributes for the secondary sub-network inputs.
+        // First subnetwork input is reserved for the modifier stack input.
 	for (int s = 1; s < Hda.MainNode.Info.inputCount; s++)
 	{
 	    HEMAX_NodeListParameterAttrib* InputCustAttrib =
                 new HEMAX_NodeListParameterAttrib;
-	    InputCustAttrib->SetParameterName("subnetwork_" + std::to_string(s));
-	    // TODO what is this doing?
-	    //InputCustAttrib->CreateMaxHoudiniAssetLink(this, HEMAX_INPUT_SUBNETWORK, s);
+            TSTR SubnetParmName;
+            SubnetParmName.printf(_T("subnetwork_%d"), s);
+            InputCustAttrib->SetParameterName(SubnetParmName);
 	    CustomAttributes->AppendCustAttrib(InputCustAttrib);
-	    CustomAttributeMap.insert({ "subnetwork_" + std::to_string(s), InputCustAttrib });
+	    CustomAttributeMap.insert({ SubnetParmName.data(), InputCustAttrib });
 	}
 
 	MaxStampIndex = HEMAX_HOUDINI_MODIFIER_MAX_INDEX;
@@ -170,7 +172,9 @@ HEMAX_NodeListParameterAttrib*
 HEMAX_ModifierHda::CreateNodeListCustAttrib(int Subnetwork)
 {
     HEMAX_NodeListParameterAttrib* Attrib = new HEMAX_NodeListParameterAttrib;
-    Attrib->SetParameterName("subnetwork_" + std::to_string(Subnetwork));
+    TSTR AttribName;
+    AttribName.printf(_T("subnetwork_%d"), Subnetwork);
+    Attrib->SetParameterName(AttribName);
     Attrib->CreateMaxHoudiniAssetLink(ContainerNode, HEMAX_INPUT_SUBNETWORK,
         Subnetwork);
     return Attrib;

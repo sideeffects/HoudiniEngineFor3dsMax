@@ -77,6 +77,12 @@ HEMAX_3dsmaxHda::GetAllParameter3dsmaxInputs()
 }
 
 void
+HEMAX_3dsmaxHda::ResetParameters()
+{
+   // TODO: 001 
+}
+
+void
 HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
 {
     HEMAX_InputInstance* ParameterInput = FindParameterInput(ParamId);
@@ -153,7 +159,8 @@ HEMAX_3dsmaxHda::UpdateMultiParameterList(HEMAX_Parameter Parameter)
 }
 
 std::string
-HEMAX_3dsmaxHda::GetCustAttribStringValue(std::string CustAttribName, bool& Success)
+HEMAX_3dsmaxHda::GetCustAttribStringValue(const TSTR& CustAttribName,
+        bool& Success)
 {
     Success = false;
 
@@ -187,13 +194,14 @@ void
 HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 {
     ICustAttribContainer* CustAttribContainer = GetCustAttribContainer();
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap = GetCustAttribMap();
+    auto&& CustAttribMap = GetCustAttribMap();
 
     std::vector<HEMAX_Parameter>& Parameters = Hda.MainNode.GetParameters();
 
     for (auto It = Parameters.begin(); It != Parameters.end(); It++)
     {
 	HEMAX_Parameter* Parameter = &(*It);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter->GetName());
 
 	switch (Parameter->Type)
 	{
@@ -204,23 +212,24 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		if (Parameter->Info.size == 1)
 		{
 		    HEMAX_IntegerParameterAttrib* ParmCustAttrib = new HEMAX_IntegerParameterAttrib;
-		    ParmCustAttrib->SetParameterName(Parameter->GetName());
+		    ParmCustAttrib->SetParameterName(ParameterName);
 		    ParmCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[0]);
 
 		    CustAttribContainer->AppendCustAttrib(ParmCustAttrib);
-		    CustAttribMap->insert({ Parameter->GetName(), ParmCustAttrib });
+		    CustAttribMap->insert({ ParameterName.data(), ParmCustAttrib });
 		}
 		else if (Parameter->Info.size > 1)
 		{
 		    for (int z = 0; z < Parameter->Info.size; z++)
 		    {
 			HEMAX_IntegerParameterAttrib* ParmCustAttrib = new HEMAX_IntegerParameterAttrib;
-			std::string CustAttribName = Parameter->GetName() + "__" + std::to_string(z);
+                        TSTR CustAttribName;
+                        CustAttribName.printf(_T("%s__%d"), ParameterName, z);
 			ParmCustAttrib->SetParameterName(CustAttribName);
 			ParmCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[z]);
 
 			CustAttribContainer->AppendCustAttrib(ParmCustAttrib);
-			CustAttribMap->insert({ Parameter->GetName(), ParmCustAttrib });
+			CustAttribMap->insert({ CustAttribName.data(), ParmCustAttrib });
 		    }
 		}
 	    } break;
@@ -235,25 +244,28 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		if (Parameter->Info.size == 1)
 		{
 		    HEMAX_StringParameterAttrib* ParamCustAttrib = new HEMAX_StringParameterAttrib;
-		    ParamCustAttrib->SetParameterName(Parameter->GetName());
+		    ParamCustAttrib->SetParameterName(ParameterName);
+                    // TODO: 001 fix
 		    std::wstring WideVal(ParameterValues[0].begin(), ParameterValues[0].end());
 		    ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), WideVal.c_str());
 
 		    CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-		    CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
+		    CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 		}
 		else if (Parameter->Info.size > 1)
 		{
 		    for (int z = 0; z < Parameter->Info.size; ++z)
 		    {
 			HEMAX_StringParameterAttrib* ParamCustAttrib = new HEMAX_StringParameterAttrib;
-			std::string CustAttribName = Parameter->GetName() + "__" + std::to_string(z);
+                        TSTR CustAttribName;
+                        CustAttribName.printf(_T("%s__%d"), ParameterName, z);
 			ParamCustAttrib->SetParameterName(CustAttribName);
+                        // TODO: 001 fix
 			std::wstring WideVal(ParameterValues[z].begin(), ParameterValues[z].end());
 			ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), WideVal.c_str());
 
 			CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-			CustAttribMap->insert({ CustAttribName, ParamCustAttrib });
+			CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 		    }
 		}
 	    } break;
@@ -265,23 +277,25 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		if (Parameter->Info.size == 1)
 		{
 		    HEMAX_FloatParameterAttrib* ParamCustAttrib = new HEMAX_FloatParameterAttrib;
-		    ParamCustAttrib->SetParameterName(Parameter->GetName());
+		    ParamCustAttrib->SetParameterName(ParameterName);
 		    ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[0]);
 
 		    CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-		    CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
+		    CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 		}
 		else if (Parameter->Info.size > 1)
 		{
 		    for (int z = 0; z < Parameter->Info.size; ++z)
 		    {
 			HEMAX_FloatParameterAttrib* ParamCustAttrib = new HEMAX_FloatParameterAttrib;
-			std::string CustAttribName = Parameter->GetName() + "__" + std::to_string(z);
+                        TSTR CustAttribName;
+                        CustAttribName.printf(_T("%s__%d"),
+                            Parameter->GetName(), z);
 			ParamCustAttrib->SetParameterName(CustAttribName);
 			ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[z]);
 
 			CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-			CustAttribMap->insert({ CustAttribName, ParamCustAttrib });
+			CustAttribMap->insert({ CustAttribName.data(), ParamCustAttrib });
 		    }
 		}
 	    } break;
@@ -292,11 +306,11 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		if (Parameter->Info.size == 1)
 		{
 		    HEMAX_ToggleParameterAttrib* ParamCustAttrib = new HEMAX_ToggleParameterAttrib;
-		    ParamCustAttrib->SetParameterName(Parameter->GetName());
+		    ParamCustAttrib->SetParameterName(ParameterName);
 		    ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[0]);
 
 		    CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-		    CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
+		    CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 		}
 		else if (Parameter->Info.size > 1)
 		{
@@ -304,12 +318,14 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 		    {
 			HEMAX_ToggleParameterAttrib* ParamCustAttrib = new HEMAX_ToggleParameterAttrib;
 
-			std::string CustAttribName = Parameter->GetName() + "__" + std::to_string(z);
+                        TSTR CustAttribName;
+                        CustAttribName.printf(_T("%s__%d"),
+                            Parameter->GetName(), z);
 			ParamCustAttrib->SetParameterName(CustAttribName);
 			ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), ParameterValues[z]);
 
 			CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-			CustAttribMap->insert({ CustAttribName, ParamCustAttrib });
+			CustAttribMap->insert({ CustAttribName.data(), ParamCustAttrib });
 		    }
 		}
 	    } break;
@@ -317,20 +333,20 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 	    {
 		HEMAX_NodeListParameterAttrib* ParamCustAttrib =
                     new HEMAX_NodeListParameterAttrib;
-		ParamCustAttrib->SetParameterName(Parameter->GetName());
+		ParamCustAttrib->SetParameterName(ParameterName);
 		CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-		CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
+		CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 	    } break;
 	    case (HAPI_PARMTYPE_MULTIPARMLIST):
 	    {
 		HEMAX_MultiParameterAttrib* ParamCustAttrib = new HEMAX_MultiParameterAttrib;
-		ParamCustAttrib->SetParameterName(Parameter->GetName());
+		ParamCustAttrib->SetParameterName(ParameterName);
 		int InstanceCount = Parameter->Info.instanceCount;
 		int InstanceLength = Parameter->Info.instanceLength;
 		ParamCustAttrib->PBlock->SetValue(0, GetCOREInterface()->GetTime(), InstanceCount);
 		ParamCustAttrib->PBlock->SetValue(1, GetCOREInterface()->GetTime(), InstanceLength);
 		CustAttribContainer->AppendCustAttrib(ParamCustAttrib);
-		CustAttribMap->insert({ Parameter->GetName(), ParamCustAttrib });
+		CustAttribMap->insert({ ParameterName.data(), ParamCustAttrib });
 	    } break;
 	    default:
 	    {
@@ -401,7 +417,7 @@ HEMAX_3dsmaxHda::UpdateAllCustomAttributes()
 void
 HEMAX_3dsmaxHda::ClearParameterCustomAttributes()
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    auto&& CustomAttributeMap = GetCustAttribMap();
     ICustAttribContainer* CustAttribs = GetCustAttribContainer();
 
     int LowestIndex = -1;
@@ -438,12 +454,12 @@ HEMAX_3dsmaxHda::ClearParameterCustomAttributes()
 void
 HEMAX_3dsmaxHda::UpdateIntCustomAttribute(HEMAX_Parameter& Parameter, std::vector<int>& IntValues)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    auto&& CustomAttributeMap = GetCustAttribMap();
 
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap->find(ParameterName);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	if (Search != CustomAttributeMap->end())
 	{
@@ -454,8 +470,9 @@ HEMAX_3dsmaxHda::UpdateIntCustomAttribute(HEMAX_Parameter& Parameter, std::vecto
     {
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap->find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	    if (Search != CustomAttributeMap->end())
 	    {
@@ -468,12 +485,12 @@ HEMAX_3dsmaxHda::UpdateIntCustomAttribute(HEMAX_Parameter& Parameter, std::vecto
 void
 HEMAX_3dsmaxHda::UpdateFloatCustomAttribute(HEMAX_Parameter& Parameter, std::vector<float>& FloatValues)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    auto&& CustomAttributeMap = GetCustAttribMap();
 
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap->find(ParameterName);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	if (Search != CustomAttributeMap->end())
 	{
@@ -484,8 +501,9 @@ HEMAX_3dsmaxHda::UpdateFloatCustomAttribute(HEMAX_Parameter& Parameter, std::vec
     {
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap->find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	    if (Search != CustomAttributeMap->end())
 	    {
@@ -498,12 +516,12 @@ HEMAX_3dsmaxHda::UpdateFloatCustomAttribute(HEMAX_Parameter& Parameter, std::vec
 void
 HEMAX_3dsmaxHda::UpdateStringCustomAttribute(HEMAX_Parameter& Parameter, std::vector<std::string>& StringValues)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    auto&& CustomAttributeMap = GetCustAttribMap();
 
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap->find(ParameterName);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	if (Search != CustomAttributeMap->end())
 	{
@@ -515,8 +533,9 @@ HEMAX_3dsmaxHda::UpdateStringCustomAttribute(HEMAX_Parameter& Parameter, std::ve
     {
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap->find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	    if (Search != CustomAttributeMap->end())
 	    {
@@ -530,12 +549,12 @@ HEMAX_3dsmaxHda::UpdateStringCustomAttribute(HEMAX_Parameter& Parameter, std::ve
 void
 HEMAX_3dsmaxHda::UpdateToggleCustomAttribute(HEMAX_Parameter& Parameter, std::vector<int>& ToggleValues)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustomAttributeMap = GetCustAttribMap();
+    auto&& CustomAttributeMap = GetCustAttribMap();
 
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap->find(ParameterName);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	if (Search != CustomAttributeMap->end())
 	{
@@ -546,8 +565,10 @@ HEMAX_3dsmaxHda::UpdateToggleCustomAttribute(HEMAX_Parameter& Parameter, std::ve
     {
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap->find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
 	    if (Search != CustomAttributeMap->end())
 	    {
@@ -562,11 +583,10 @@ HEMAX_3dsmaxHda::UpdateInputNodeCustomAttribute(
         HEMAX_Parameter& Parameter,
         const INodeTab& InputNodes)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
-        GetCustAttribMap();
-    std::string ParmName = Parameter.GetName();
-    
-    auto Search = CustAttribMap->find(ParmName);
+    auto&& CustAttribMap = GetCustAttribMap();
+
+    TSTR ParmName = HEMAX_Utilities::ToTSTR(Parameter.GetName());  
+    auto Search = CustAttribMap->find(ParmName.data());
 
     if (Search == CustAttribMap->end())
         return;
@@ -593,10 +613,10 @@ HEMAX_3dsmaxHda::UpdateSubnetworkCustomAttribute(
         int Subnetwork,
         const INodeTab& InputNodes)
 {
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
-        GetCustAttribMap();
-    std::string SubnetworkName = "subnetwork_" + std::to_string(Subnetwork);
-    auto Search = CustAttribMap->find(SubnetworkName);
+    auto&& CustAttribMap = GetCustAttribMap();
+    TSTR SubnetworkName;
+    SubnetworkName.printf(_T("subnetwork_%d"), Subnetwork);
+    auto Search = CustAttribMap->find(SubnetworkName.data());
 
     if (Search == CustAttribMap->end())
         return;
@@ -623,16 +643,16 @@ HEMAX_3dsmaxHda::ReloadSubnetworkInputsFromCustomAttributes()
 {
     std::vector<HEMAX_SubnetworkInputMapping> Mapping;
 
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>* CustAttribMap =
-        GetCustAttribMap();
+    auto&& CustAttribMap = GetCustAttribMap();
 
     for (int z = 0; z < Hda.MainNode.Info.inputCount; z++)
     {
         HEMAX_SubnetworkInputMapping Entry;
         Entry.Subnetwork = z;
 
-        std::string SubnetworkSearch = "subnetwork_" + std::to_string(z);
-        auto Search = CustAttribMap->find(SubnetworkSearch);
+        TSTR SubnetworkSearch;
+        SubnetworkSearch.printf(_T("subnetwork_"), z);
+        auto Search = CustAttribMap->find(SubnetworkSearch.data());
 
         if (Search == CustAttribMap->end())
         {
@@ -689,9 +709,6 @@ std::vector<HEMAX_ParameterInputMapping>
 HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 {
     std::vector<HEMAX_ParameterInputMapping> InputMap;
-    std::unordered_map<std::string, HEMAX_ParameterAttrib*>*
-        CustomAttributeMap = GetCustAttribMap();
-
     bool AnotherPassRequired = false;
     std::unordered_map<std::string, bool> CompletionMap;
 
@@ -713,7 +730,7 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 		    {
 			case (HAPI_PARMTYPE_INT):
 			{
-			    RemakeIntParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+			    RemakeIntParameterFromCustAttrib(Parameter);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
@@ -723,27 +740,27 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 			case (HAPI_PARMTYPE_PATH_FILE_GEO):
 			case (HAPI_PARMTYPE_PATH_FILE_IMAGE):
 			{
-			    RemakeStringParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+			    RemakeStringParameterFromCustAttrib(Parameter);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
 			case (HAPI_PARMTYPE_FLOAT):
 			case (HAPI_PARMTYPE_COLOR):
 			{
-			    RemakeFloatParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+			    RemakeFloatParameterFromCustAttrib(Parameter);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
 			case (HAPI_PARMTYPE_TOGGLE):
 			{
-			    RemakeToggleParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+			    RemakeToggleParameterFromCustAttrib(Parameter);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
 			case (HAPI_PARMTYPE_NODE):
 			{
 			    HEMAX_ParameterInputMapping InputEntry =
-                                RemakeInputParameterFromCustAttrib(Parameter, *CustomAttributeMap);
+                                RemakeInputParameterFromCustAttrib(Parameter);
 			    if (InputEntry.Nodes.size() > 0)
 			    {
 				InputMap.push_back(InputEntry);
@@ -754,7 +771,7 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 			case (HAPI_PARMTYPE_MULTIPARMLIST):
 			{
 			    AnotherPassRequired = true;
-			    RemakeMultiParameter(Parameter, *CustomAttributeMap);
+			    RemakeMultiParameter(Parameter);
 			    CompletionMap.insert({ ParameterName, true });
 			    break;
 			}
@@ -784,14 +801,16 @@ HEMAX_3dsmaxHda::ReloadParametersFromCustomAttributes()
 }
 
 void
-HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter)
 {
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap.find(ParameterName);
+        TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	if (Search != CustomAttributeMap.end())
+	if (Search != CustomAttributeMap->end())
 	{
 	    int IntValue;
             Interval Forever = FOREVER;
@@ -807,10 +826,11 @@ HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std
 	std::vector<int> IntValues;
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap.find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	    if (Search != CustomAttributeMap.end())
+	    if (Search != CustomAttributeMap->end())
 	    {
 		int IntValue;
                 Interval Forever = FOREVER;
@@ -824,14 +844,16 @@ HEMAX_3dsmaxHda::RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter, std
 }
 
 void
-HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter)
 {
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap.find(ParameterName);
+	TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	if (Search != CustomAttributeMap.end())
+	if (Search != CustomAttributeMap->end())
 	{
 	    const MCHAR* Val;
             Interval Forever = FOREVER;
@@ -849,10 +871,12 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 	std::vector<std::string> StringValues;
 	for (int p = 0; p < Parameter.Info.size; p++)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap.find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
 
-	    if (Search != CustomAttributeMap.end())
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
+
+	    if (Search != CustomAttributeMap->end())
 	    {
 		const MCHAR* Val;
                 Interval Forever = FOREVER;
@@ -868,14 +892,16 @@ HEMAX_3dsmaxHda::RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 }
 
 void
-HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter)
 {
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap.find(ParameterName);
+	TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	if (Search != CustomAttributeMap.end())
+	if (Search != CustomAttributeMap->end())
 	{
 	    float FloatValue;
             Interval Forever = FOREVER;
@@ -892,10 +918,11 @@ HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, s
 
 	for (int p = 0; p < Parameter.Info.size; ++p)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap.find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	    if (Search != CustomAttributeMap.end())
+	    if (Search != CustomAttributeMap->end())
 	    {
 		float FloatValue;
                 Interval Forever = FOREVER;
@@ -909,17 +936,17 @@ HEMAX_3dsmaxHda::RemakeFloatParameterFromCustAttrib(HEMAX_Parameter Parameter, s
 }
 
 void
-HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter)
 {
-    std::string ParameterName = Parameter.GetName();
-    auto Search = CustomAttributeMap.find(ParameterName);
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
+    TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
 
     if (Parameter.Info.size == 1)
     {
-	std::string ParameterName = Parameter.GetName();
-	auto Search = CustomAttributeMap.find(ParameterName);
+	auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	if (Search != CustomAttributeMap.end())
+	if (Search != CustomAttributeMap->end())
 	{
 	    int ToggleValue;
             Interval Forever = FOREVER;
@@ -935,10 +962,11 @@ HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 
 	for (int p = 0; p < Parameter.Info.size; ++p)
 	{
-	    std::string ParameterName = Parameter.GetName() + "__" + std::to_string(p);
-	    auto Search = CustomAttributeMap.find(ParameterName);
+            TSTR ParameterName;
+            ParameterName.printf(_T("%s__%d"), Parameter.GetName(), p);
+	    auto Search = CustomAttributeMap->find(ParameterName.data());
 
-	    if (Search != CustomAttributeMap.end())
+	    if (Search != CustomAttributeMap->end())
 	    {
 		int IntValue;
                 Interval Forever = FOREVER;
@@ -951,19 +979,19 @@ HEMAX_3dsmaxHda::RemakeToggleParameterFromCustAttrib(HEMAX_Parameter Parameter, 
 }
 
 HEMAX_ParameterInputMapping
-HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter,
-        std::unordered_map<std::string,
-            HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter)
 {
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
     HEMAX_ParameterInputMapping Entry;
 
-    std::string ParameterName = Parameter.GetName();
-    auto Search = CustomAttributeMap.find(ParameterName);
+    TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+    auto Search = CustomAttributeMap->find(ParameterName.data());
 
-    if (Search == CustomAttributeMap.end())
+    if (Search == CustomAttributeMap->end())
         return Entry;
 
-    Entry.ParameterName = ParameterName;
+    Entry.ParameterName = Parameter.GetName();
 
     // If this is true, this means that an old scene file from before multi
     // inputs were supported is being loaded. We must load the input node and
@@ -1008,11 +1036,13 @@ HEMAX_3dsmaxHda::RemakeInputParameterFromCustAttrib(HEMAX_Parameter Parameter,
 }
 
 void
-HEMAX_3dsmaxHda::RemakeMultiParameter(HEMAX_Parameter Parameter, std::unordered_map<std::string, HEMAX_ParameterAttrib*>& CustomAttributeMap)
+HEMAX_3dsmaxHda::RemakeMultiParameter(HEMAX_Parameter Parameter)
 {
-    std::string ParameterName = Parameter.GetName();
-    auto Search = CustomAttributeMap.find(ParameterName);
-    if (Search != CustomAttributeMap.end())
+    auto&& CustomAttributeMap = GetCustAttribMap();
+
+    TSTR ParameterName = HEMAX_Utilities::ToTSTR(Parameter.GetName());
+    auto Search = CustomAttributeMap->find(ParameterName.data());
+    if (Search != CustomAttributeMap->end())
     {
 	HEMAX_MultiParameterAttrib* CustAttrib =
             (HEMAX_MultiParameterAttrib*)Search->second;

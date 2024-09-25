@@ -634,35 +634,32 @@ HEMAX_GeometryHda*
 HEMAX_Store::Find3dsmaxHdaViaChildGeometry(ULONG NodeHandle)
 {
     INode* MaxNode = GetCOREInterface()->GetINodeByHandle(NodeHandle);
-
     ICustAttribContainer* CustomAttributes = MaxNode->GetCustAttribContainer();
 
-    if (CustomAttributes)
+    if (!CustomAttributes)
+        return nullptr;
+
+    if (CustomAttributes->GetNumCustAttribs() > HEMAX_MAX_GEO_MAX_INDEX)
     {
-	if (CustomAttributes->GetNumCustAttribs() > HEMAX_MAX_GEO_MAX_INDEX)
-	{
-	    CustAttrib* StampLookup = CustomAttributes->GetCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX);
+        CustAttrib* StampLookup = CustomAttributes->GetCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX);
 #if defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
-            std::wstring CustAttribName = StampLookup->GetName(false);
+defined(HEMAX_VERSION_2023) || \
+defined(HEMAX_VERSION_2024) || \
+defined(HEMAX_VERSION_2025)
+        TSTR CustAttribName = StampLookup->GetName(false);
 #else
-	    std::wstring CustAttribName = StampLookup->GetName();
+        TSTR CustAttribName = StampLookup->GetName();
 #endif
-	    std::string Name = std::string(CustAttribName.begin(), CustAttribName.end());
-	    std::string GeoStampName = std::string(HEMAX_MAX_GEO_STAMP_NAME);
 
-	    if (Name == GeoStampName)
-	    {
-		INode* ParentNode = MaxNode->GetParentNode();
+        if (CustAttribName != HEMAX_MAX_GEO_STAMP_NAME)
+            return nullptr;
 
-		if (ParentNode)
-		{
-		    return FindGeometryHda(ParentNode->GetHandle());
-		}
-	    }
-	}
+        INode* ParentNode = MaxNode->GetParentNode();
+
+        if (!ParentNode)
+            return nullptr;
+
+        return FindGeometryHda(ParentNode->GetHandle());
     }
 
     return nullptr;

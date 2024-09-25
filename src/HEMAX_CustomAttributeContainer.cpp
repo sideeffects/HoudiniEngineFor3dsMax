@@ -18,138 +18,126 @@ extern HINSTANCE hInstance;
 /////////////////////////////////////////////
 
 bool
-DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer, int CustomAttributeIndex, std::string CustomAttributeName)
+DoesCustomAttributeExist(ICustAttribContainer* CustomAttributeContainer,
+        int CustomAttributeIndex, const TSTR& CustomAttributeName)
 {
-    if (CustomAttributeContainer)
-    {
-	if (CustomAttributeContainer->GetNumCustAttribs() > CustomAttributeIndex)
-	{
-	    CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(CustomAttributeIndex);
+    if (!CustomAttributeContainer)
+        return false;
 
-	    if (Attrib)
-	    {
+    if (CustomAttributeContainer->GetNumCustAttribs() <= CustomAttributeIndex)
+        return false;
+
+    CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(CustomAttributeIndex);
+
+    if (!Attrib)
+        return false;
+
 #if defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
-                std::wstring AttribName(Attrib->GetName(false));
+defined(HEMAX_VERSION_2023) || \
+defined(HEMAX_VERSION_2024) || \
+defined(HEMAX_VERSION_2025)
+    TSTR AttribName(Attrib->GetName(false));
 #else
-		std::wstring AttribName(Attrib->GetName());
+    TSTR AttribName(Attrib->GetName());
 #endif
-                std::wstring WCustomAttributeName(CustomAttributeName.begin(),
-                    CustomAttributeName.end());
 
-		if (AttribName == WCustomAttributeName)
-		{
-		    return true;
-		}
-	    }
-	}
-
-    }
+    if (CustomAttributeName == AttribName)
+        return true;
 
     return false;
 }
 
 CustAttrib*
-GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName)
+GetCustomAttributeByName(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName)
 {
-    if (CustomAttributeContainer)
-    {
-	for (int i = 0; i < CustomAttributeContainer->GetNumCustAttribs(); ++i)
-	{
-	    CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(i);
+    if (!CustomAttributeContainer)
+        return nullptr;
 
-	    if (Attrib)
-	    {
+    for (int i = 0; i < CustomAttributeContainer->GetNumCustAttribs(); ++i)
+    {
+        CustAttrib* Attrib = CustomAttributeContainer->GetCustAttrib(i);
+
+        if (!Attrib)
+            continue;
+
 #if defined(HEMAX_VERSION_2022) || \
-    defined(HEMAX_VERSION_2023) || \
-    defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
-                std::string AttribName =
-                    HEMAX_Utilities::GetUtf8String(Attrib->GetName(false));
+defined(HEMAX_VERSION_2023) || \
+defined(HEMAX_VERSION_2024) || \
+defined(HEMAX_VERSION_2025)
+        TSTR AttribName = Attrib->GetName(false);
 #else
-		std::string AttribName =
-                    HEMAX_Utilities::GetUtf8String(Attrib->GetName());
+        TSTR AttribName = Attrib->GetName();
 #endif
 
-		if (AttribName == ParameterName)
-		{
-		    return Attrib;
-		}
-	    }
-	}
+        if (AttribName == ParameterName)
+            return Attrib;
     }
 
     return nullptr;
 }
 
 HEMAX_StringParameterAttrib*
-GetStringParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName)
+GetStringParameterAttrib(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName)
 {
     if (!CustomAttributeContainer)
-    {
 	return nullptr;
-    }
 
-    CustAttrib* Attrib = GetCustomAttributeByName(CustomAttributeContainer, ParameterName);
+    CustAttrib* Attrib = GetCustomAttributeByName(
+            CustomAttributeContainer, ParameterName);
 
-    if (Attrib)
-    {
-	HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
-	if (ParmAttrib)
-	{
-	    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
-	    if (ParamType == TYPE_STRING)
-	    {
-		HEMAX_StringParameterAttrib* StringAttrib = dynamic_cast<HEMAX_StringParameterAttrib*>(Attrib);
-		return StringAttrib;
-	    }
-	}
-    }
+    if (!Attrib)
+        return nullptr;
+
+    HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
+
+    if (!ParmAttrib)
+        return nullptr;
+
+    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
+
+    if (ParamType == TYPE_STRING)
+        return dynamic_cast<HEMAX_StringParameterAttrib*>(Attrib);
 
     return nullptr;
 }
 
 HEMAX_IntegerParameterAttrib*
-GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer, std::string ParameterName)
+GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer,
+        const TSTR& ParameterName)
 {
     if (!CustomAttributeContainer)
-    {
 	return nullptr;
-    }
 
-    CustAttrib* Attrib = GetCustomAttributeByName(CustomAttributeContainer, ParameterName);
+    CustAttrib* Attrib = GetCustomAttributeByName(
+        CustomAttributeContainer, ParameterName);
 
-    if (Attrib)
-    {
-	HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
-	if (ParmAttrib)
-	{
-	    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
-	    if (ParamType == TYPE_INT)
-	    {
-		HEMAX_IntegerParameterAttrib* IntegerAttrib = dynamic_cast<HEMAX_IntegerParameterAttrib*>(Attrib);
-		return IntegerAttrib;
-	    }
-	}
-    }
+    if (!Attrib)
+        return nullptr;
+
+    HEMAX_ParameterAttrib* ParmAttrib = dynamic_cast<HEMAX_ParameterAttrib*>(Attrib);
+
+    if (!ParmAttrib)
+        return nullptr;
+
+    ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
+    if (ParamType == TYPE_INT)
+        return dynamic_cast<HEMAX_IntegerParameterAttrib*>(Attrib);
 
     return nullptr;
 }
 
 bool
-CheckForCustomAttributeOnNode(INode* Node, std::string CustomAttributeName)
+CheckForCustomAttributeOnNode(INode* Node, const TSTR& CustomAttributeName)
 {
     ICustAttribContainer* Container = Node->GetCustAttribContainer();
 
-    if (Container)
-    {
-	if (GetCustomAttributeByName(Container, CustomAttributeName))
-	{
-	    return true;
-	}
-    }
+    if (!Container)
+        return false;
+
+    if (GetCustomAttributeByName(Container, CustomAttributeName))
+        return true;
 
     return false;
 }
@@ -204,17 +192,16 @@ GetHEMAX_MultiParameterAttrib_ClassDesc()
 ////////////// COMMON ///////////////////////
 /////////////////////////////////////////////
 
-std::string
-HEMAX_ParameterAttrib::GetParameterName()
+const TSTR&
+HEMAX_ParameterAttrib::GetParameterName() const
 {
     return ParameterName;
 }
 
 void
-HEMAX_ParameterAttrib::SetParameterName(std::string Name)
+HEMAX_ParameterAttrib::SetParameterName(const TSTR& Name)
 {
     ParameterName = Name;
-    WideParameterName = std::wstring(ParameterName.begin(), ParameterName.end());
 }
 
 #if defined(HEMAX_VERSION_2022) || \
@@ -224,13 +211,13 @@ HEMAX_ParameterAttrib::SetParameterName(std::string Name)
 const TCHAR*
 HEMAX_ParameterAttrib::GetName(bool Localized)
 {
-    return WideParameterName.c_str();
+    return ParameterName.data();
 }
 #else
 const TCHAR*
 HEMAX_ParameterAttrib::GetName()
 {
-    return WideParameterName.c_str();
+    return ParameterName.data();
 }
 #endif
 
@@ -302,7 +289,7 @@ IOResult
 HEMAX_ParameterAttrib::Save(ISave* Save)
 {
     Save->BeginChunk(HEMAX_PARAMETER_ATTRIB_NAME_CHUNK);
-    Save->WriteCString(ParameterName.c_str());
+    Save->WriteCString(ParameterName.data());
     Save->EndChunk();
 
     return IO_OK;
@@ -327,7 +314,11 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
 {
     IOResult LoadResult;
 
-    char** StringBuf = new char*;
+#ifdef UNICODE
+    wchar_t* StringBuf;
+#else
+    char* StringBuf;
+#endif
 
     while (IO_OK == (LoadResult = Load->OpenChunk()))
     {
@@ -335,11 +326,11 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
 	{
 	    case HEMAX_PARAMETER_ATTRIB_NAME_CHUNK:
 		{
-		    LoadResult = Load->ReadCStringChunk(StringBuf);
+		    LoadResult = Load->ReadCStringChunk(&StringBuf);
 
 		    if (LoadResult == IO_OK)
 		    {
-			ParameterName = *StringBuf;
+			ParameterName = StringBuf;
 		    }
 
 		    Load->CloseChunk();
@@ -356,10 +347,6 @@ HEMAX_ParameterAttrib::Load(ILoad* Load)
 	    return LoadResult;
 	}
     }
-
-    delete StringBuf;
-
-    WideParameterName = std::wstring(ParameterName.begin(), ParameterName.end());
 
     return IO_OK;
 }

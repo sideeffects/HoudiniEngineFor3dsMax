@@ -843,11 +843,9 @@ HEMAX_Plugin::ReconnectAllStrandedHdas(INode* StartingNode)
     }
 
     // Check for geometry HDAs
-    std::string HdaStampName(HEMAX_MAX_HOUDINI_STAMP_NAME);
-
     if (DoesCustomAttributeExist(StartingNode->GetCustAttribContainer(),
                                  HEMAX_MAX_HOUDINI_STAMP_INDEX,
-                                 HdaStampName))
+                                 HEMAX_MAX_HOUDINI_STAMP_NAME))
     {
 	ReengageGeometryHda(StartingNode,
                             StartingNode->GetCustAttribContainer());
@@ -918,14 +916,12 @@ HEMAX_Plugin::ReengageModifierHda(
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
-    std::wstring WideName(AssetPathAttrib->GetName(false));
+    TSTR AssetPathAttribName(AssetPathAttrib->GetName(false));
 #else
-    std::wstring WideName(AssetPathAttrib->GetName());
+    TSTR AssetPathAttribName(AssetPathAttrib->GetName());
 #endif
-    std::string AttribName(WideName.begin(), WideName.end());
-    std::string AssetPathName(HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME);
 
-    if (AttribName != AssetPathName)
+    if (AssetPathAttribName != HEMAX_HOUDINI_MODIFIER_ASSET_PATH_NAME)
         return;
 
     // All is good now. Begin reconnecting the modifier to the HDA
@@ -1013,14 +1009,12 @@ HEMAX_Plugin::ReengageGeometryHda(
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
-    std::wstring WideName(AssetPathAttrib->GetName(false));
+    TSTR AssetPathAttribName(AssetPathAttrib->GetName(false));
 #else
-    std::wstring WideName(AssetPathAttrib->GetName());
+    TSTR AssetPathAttribName(AssetPathAttrib->GetName());
 #endif
-    std::string AttribName(WideName.begin(), WideName.end());
-    std::string AssetPathName(HEMAX_MAX_HOUDINI_ASSET_PATH_NAME);
 
-    if (AttribName != AssetPathName)
+    if (AssetPathAttribName != HEMAX_MAX_HOUDINI_ASSET_PATH_NAME)
         return;
 
     // All is good now. Begin reconnecting the asset.
