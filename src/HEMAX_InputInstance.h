@@ -1,41 +1,37 @@
 #pragma once
 
 #include "HEMAX_3dsMaxInput.h"
-#include "HEMAX_InputMerge.h"
+#include "HEMAX_Node.h"
+#include "HEMAX_Utilities.h"
 
 #include <vector>
 
-struct HEMAX_InputInstance
+class HEMAX_InputInstance
 {
-    HEMAX_InputInstance(
-            const std::vector<HEMAX_3dsMaxInput*>& Inputs,
-            HEMAX_InputMerge* Merge)
-        : MergeNode(Merge)
-    {
-        for (auto&& Input : Inputs)
-            MaxInputs.push_back(Input);
-    }
+public:
+    HEMAX_InputInstance(const HEMAX_Node& Owner, int Subnetwork);
+    HEMAX_InputInstance(const HEMAX_Node& Owner,
+            const std::string& ParameterName);
+    ~HEMAX_InputInstance();
 
-    ~HEMAX_InputInstance()
-    {
-    }
+    void MergeInput(HEMAX_3dsMaxInput* Input);
+    void MergeInputRelativeTo(HEMAX_3dsMaxInput* Input,
+                              const HEMAX_MaxTransform& MaxTransform);
 
-    void RefreshConnection()
-    {
-        if (MergeNode)
-        {
-            MergeNode->RemoveAllMergedInputs();
+    void RefreshConnection();
 
-            for (auto&& Input : MaxInputs)
-            {
-                if (!Input)
-                    continue;
+    HEMAX_Node& GetMergedInputs();
 
-                MergeNode->MergeInput(*(Input->GetInputNode()));    
-            }
-        }
-    }
+    void RemoveInput(HEMAX_3dsMaxInput* Input);
 
+    const std::vector<HEMAX_3dsMaxInput*>& GetMaxInputs() const
+        { return MaxInputs; }
+
+    int GetMergedInputCount() const { return MergeCount; }
+
+private:
     std::vector<HEMAX_3dsMaxInput*> MaxInputs;
-    HEMAX_InputMerge* MergeNode = nullptr;
+    HEMAX_InputUsage InputUsage;
+    HEMAX_Node MergeNode;
+    int MergeCount = 0;
 };

@@ -7,9 +7,9 @@
 class HEMAX_Input
 {
     public:
-	HAPI_NodeId GetInputNodeId();
-	HAPI_NodeId GetOwnerNodeId();
-	std::string GetInputNodeName();
+	HAPI_NodeId GetInputNodeId() const;
+	HAPI_NodeId GetOwnerNodeId() const;
+	std::string GetInputNodeName() const;
 	ULONG GetMaxNodeHandle();
 
 	virtual void RebuildAfterChange() = 0;

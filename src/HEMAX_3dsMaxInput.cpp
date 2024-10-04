@@ -14,7 +14,7 @@
 #include "HEMAX_Utilities.h"
 
 HEMAX_3dsMaxInput::HEMAX_3dsMaxInput(INode* Node)
-    : MaxNode(Node), InputNode(nullptr), InputCount(0), Dirty(false)
+    : MaxNode(Node)
 {
     if (MaxNode)
     {
@@ -23,20 +23,20 @@ HEMAX_3dsMaxInput::HEMAX_3dsMaxInput(INode* Node)
     }
 }
 
-HEMAX_3dsMaxInput::~HEMAX_3dsMaxInput()
-{
-    DeleteInputNode();
-}
-
 RefResult
-HEMAX_3dsMaxInput::NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle HTarget, PartID& PartID, RefMessage Message, BOOL Propagate)
+HEMAX_3dsMaxInput::NotifyRefChanged(
+        const Interval& ChangeInt,
+        RefTargetHandle HTarget,
+        PartID& PartID,
+        RefMessage Message,
+        BOOL Propagate)
 {
     Dirty = true;
     return REF_SUCCEED;
 }
 
 ULONG
-HEMAX_3dsMaxInput::Get3dsMaxNodeHandle()
+HEMAX_3dsMaxInput::Get3dsMaxNodeHandle() const
 {
     if (MaxNode)
 	return MaxNode->GetHandle();
@@ -47,7 +47,7 @@ HEMAX_3dsMaxInput::Get3dsMaxNodeHandle()
 HEMAX_Input*
 HEMAX_3dsMaxInput::GetInputNode()
 {
-    return InputNode;
+    return InputNode.get();
 }
 
 bool
@@ -59,75 +59,36 @@ HEMAX_3dsMaxInput::IsDirty()
 void
 HEMAX_3dsMaxInput::UpdateInputNode()
 {
-    if (Dirty)
-    {
-	DeleteInputNode();
-	CreateInputNode();
-	Dirty = false;
-    }
+    if (!Dirty)
+        return;
+
+    DeleteInputNode();
+    CreateInputNode();
+    Dirty = false;
 }
 
 int
-HEMAX_3dsMaxInput::GetInputCount()
+HEMAX_3dsMaxInput::GetUsageCount()
 {
-    return InputCount;
+    return Usages.size();
 }
 
 void
-HEMAX_3dsMaxInput::IncrementInputCount()
+HEMAX_3dsMaxInput::AddUsage(const HEMAX_InputUsage& Usage)
 {
-    InputCount++;
+    Usages.push_back(Usage);
 }
 
 void
-HEMAX_3dsMaxInput::DecrementInputCount()
+HEMAX_3dsMaxInput::RemoveUsage(const HEMAX_InputUsage& Usage)
 {
-    InputCount--;
-}
-
-void
-HEMAX_3dsMaxInput::AddSubnetworkUsage(HEMAX_Node Node, int Subnetwork)
-{
-    HEMAX_InputUsage NewUsage;
-    NewUsage.Node = Node;
-    NewUsage.Subnetwork = Subnetwork;
-    NewUsage.Parameter = "";
-
-    Usages.push_back(NewUsage);
-}
-
-void
-HEMAX_3dsMaxInput::AddParameterUsage(HEMAX_Node Node, std::string Parameter)
-{
-    HEMAX_InputUsage NewUsage;
-    NewUsage.Node = Node;
-    NewUsage.Subnetwork = -1;
-    NewUsage.Parameter = Parameter;
-
-    Usages.push_back(NewUsage);
-}
-
-void
-HEMAX_3dsMaxInput::RemoveSubnetworkUsage(HEMAX_Node Node, int Subnetwork)
-{
-    for (int i = 0; i < Usages.size(); i++)
+    for (int i = 0; i < Usages.size(); ++i)
     {
-	if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Subnetwork == Subnetwork)
-	{
-	    Usages.erase(Usages.begin() + i);
-	}
-    }
-}
-
-void
-HEMAX_3dsMaxInput::RemoveParameterUsage(HEMAX_Node Node, std::string Parameter)
-{
-    for (int i = 0; i < Usages.size(); i++)
-    {
-	if (Usages[i].Node.Info.id == Node.Info.id && Usages[i].Parameter == Parameter)
-	{
-	    Usages.erase(Usages.begin() + i);
-	}
+        if (Usages[i] == Usage)
+        {
+            Usages.erase(Usages.begin() + i);
+            return;
+        }
     }
 }
 
@@ -140,50 +101,49 @@ HEMAX_3dsMaxInput::GetInputUsages()
 void
 HEMAX_3dsMaxInput::CreateInputNode()
 {
-    if (MaxNode)
+    if (!MaxNode)
+        return;
+
+    ObjectState MaxObjectState = MaxNode->EvalWorldState(GetCOREInterface()->GetTime());
+    Object* MaxObject = MaxObjectState.obj;
+
+    if (!MaxObject)
+        return;
+
+    if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
     {
-	ObjectState MaxObjectState = MaxNode->EvalWorldState(GetCOREInterface()->GetTime());
-	Object* MaxObject = MaxObjectState.obj;
+        // A closed linear shape will be treated like input geometry since it should just be a polygon in Houdini
+        // Otherwise, treat it as an input spline
 
-	if (!MaxObject)
-	    return;
+        LinearShape* MaxLinearShape =
+            (LinearShape*)MaxObject->ConvertToType(
+                    GetCOREInterface()->GetTime(),
+                    Class_ID(LINEARSHAPE_CLASS_ID, 0));
 
-	if (MaxObject->CanConvertToType(Class_ID(LINEARSHAPE_CLASS_ID, 0)))
-	{
-	    // A closed linear shape will be treated like input geometry since it should just be a polygon in Houdini
-	    // Otherwise, treat it as an input spline
-
-	    LinearShape* MaxLinearShape = (LinearShape*)MaxObject->ConvertToType(GetCOREInterface()->GetTime(), Class_ID(LINEARSHAPE_CLASS_ID, 0));
-
-            if (HEMAX_Utilities::IsOnlyClosedSplines(MaxLinearShape) ||
-                HEMAX_Utilities::IsOnlyOpenSplines(MaxLinearShape))
-            {
-                InputNode = new HEMAX_Input_Spline(MaxNode->GetHandle());
-            }
-            else
-            {
-                HEMAX_Logger::Instance().AddEntry("A shape must contain "
-                    "exclusively closed splines or exclusively open splines to "
-                    "be sent to Houdini", HEMAX_LOG_LEVEL_WARN);
-            }
-	}
-	else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
-	{
-	    InputNode = new HEMAX_Input_NURBS(MaxNode->GetHandle());
-	}
-	else
-	{
-	    InputNode = new HEMAX_Input_Geometry(MaxNode->GetHandle());
-	}
+        if (HEMAX_Utilities::IsOnlyClosedSplines(MaxLinearShape) ||
+            HEMAX_Utilities::IsOnlyOpenSplines(MaxLinearShape))
+        {
+            InputNode.reset(new HEMAX_Input_Spline(MaxNode->GetHandle()));
+        }
+        else
+        {
+            HEMAX_Logger::Instance().AddEntry("A shape must contain "
+                "exclusively closed splines or exclusively open splines to "
+                "be sent to Houdini", HEMAX_LOG_LEVEL_WARN);
+        }
+    }
+    else if (MaxObject->CanConvertToType(EDITABLE_CVCURVE_CLASS_ID))
+    {
+        InputNode.reset(new HEMAX_Input_NURBS(MaxNode->GetHandle()));
+    }
+    else
+    {
+        InputNode.reset(new HEMAX_Input_Geometry(MaxNode->GetHandle()));
     }
 }
 
 void
 HEMAX_3dsMaxInput::DeleteInputNode()
 {
-    if (InputNode)
-    {
-	delete InputNode;
-	InputNode = nullptr;
-    }
+    InputNode.reset();
 }

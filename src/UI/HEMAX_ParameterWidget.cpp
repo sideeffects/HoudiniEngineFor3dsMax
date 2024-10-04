@@ -3,6 +3,7 @@
 #include "moc_HEMAX_ParameterWidget.cpp"
 
 #include "../HEMAX_3dsmaxHda.h"
+#include "../HEMAX_3dsMaxInput.h"
 #include "../HEMAX_Node.h"
 #include "../HEMAX_Parameter.h"
 #include "../HEMAX_UserPrefs.h"
@@ -197,10 +198,13 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		std::string WidgetLabel = CurrentNode->InputLabels[s];
                 std::string WidgetValue;
 
-                if (SelectedHda->SubnetworkNodeInputs[s])
+                if (SelectedHda->HasSubnetworkInput(s))
                 {
+                    HEMAX_InputInstance* InputInstance =
+                        SelectedHda->GetSubnetworkInput(s);
+                    auto&& MaxInputs = InputInstance->GetMaxInputs();
                     M_STD_OSTRINGSTREAM SStream;
-                    for (auto&& Input : SelectedHda->SubnetworkNodeInputs[s]->MaxInputs)
+                    for (auto&& Input : MaxInputs)
                     {
                         INode* Node = GetCOREInterface()->GetINodeByHandle(
                             Input->Get3dsMaxNodeHandle());
@@ -635,14 +639,17 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		    }
 		    case (HAPI_PARMTYPE_NODE):
 		    {
-                        std::string InputNodeName;
-                        auto Search = SelectedHda->InputNodeMap.find(
-                            CurrentParameter->Info.id);
+                        HEMAX_InputInstance* InputInstance =
+                            SelectedHda->FindParameterInput(*CurrentParameter);
 
-                        if (Search != SelectedHda->InputNodeMap.end())
+                        std::string InputNodeName;
+
+                        if (InputInstance)
                         {
                             M_STD_OSTRINGSTREAM SStream;
-                            for (auto&& Input : Search->second->MaxInputs)
+                            auto&& MaxInputs = InputInstance->GetMaxInputs();
+
+                            for (auto&& Input : MaxInputs)
                             {
                                 INode* Node = GetCOREInterface()->GetINodeByHandle(
                                     Input->Get3dsMaxNodeHandle());
@@ -652,6 +659,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 
                                 SStream << Node->GetName();
                             }
+
                             InputNodeName = HEMAX_Utilities::GetUtf8String(
                                 SStream.str());
                         }

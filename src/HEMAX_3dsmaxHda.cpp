@@ -5,20 +5,6 @@
 #include "HEMAX_Logger.h"
 
 void
-HEMAX_3dsmaxHda::InitializeSubnetworks()
-{
-    if (Hda.MainNode.Info.inputCount > 0)
-    {
-	SubnetworkNodeInputs.resize(Hda.MainNode.Info.inputCount);
-
-	for (int i = 0; i < SubnetworkNodeInputs.size(); i++)
-	{
-	    SubnetworkNodeInputs[i] = nullptr;
-	}
-    }
-}
-
-void
 HEMAX_3dsmaxHda::Cook3dsmaxHda()
 {
     Hda.MainNode.Cook();
@@ -29,23 +15,47 @@ HEMAX_3dsmaxHda::Cook3dsmaxHda()
     }
 }
 
-void
-HEMAX_3dsmaxHda::SetParameterInput(HAPI_ParmId ParamId, HEMAX_InputInstance* Input)
+HEMAX_InputInstance*
+HEMAX_3dsmaxHda::InitParameterInput(HEMAX_Parameter& Parm)
 {
-    InputNodeMap.insert_or_assign(ParamId, Input);
+    if (FindParameterInput(Parm))
+        return nullptr;
+
+    auto Result = InputNodeMap.emplace(std::piecewise_construct,
+            std::forward_as_tuple(Parm.Info.id),
+            std::forward_as_tuple(Hda.MainNode, Parm.GetName()));
+
+    if (!Result.second)
+        return nullptr;;
+
+    return &(Result.first->second);
 }
 
 HEMAX_InputInstance*
-HEMAX_3dsmaxHda::FindParameterInput(HAPI_ParmId ParamId)
+HEMAX_3dsmaxHda::FindParameterInput(const HEMAX_Parameter& Parm)
 {
-    auto Search = InputNodeMap.find(ParamId);
+    auto Search = InputNodeMap.find(Parm.Info.id);
 
     if (Search != InputNodeMap.end())
     {
-	return Search->second;
+	return &(Search->second);
     }
 
     return nullptr;
+}
+
+void
+HEMAX_3dsmaxHda::ClearParameterInput(HEMAX_Parameter* Parameter)
+{
+    auto Search = InputNodeMap.find(Parameter->Info.id);
+
+    if (Search == InputNodeMap.end())
+        return;
+
+    InputNodeMap.erase(Parameter->Info.id);
+
+    INodeTab NoInputNodes;
+    UpdateInputNodeCustomAttribute(*Parameter, NoInputNodes);
 }
 
 std::vector<HEMAX_Parameter>
@@ -68,38 +78,21 @@ HEMAX_3dsmaxHda::GetAllParameter3dsmaxInputs()
 
     for (auto It = InputNodeMap.begin(); It != InputNodeMap.end(); It++)
     {
-	if (It->second)
-	{
-	    Instances.push_back(It->second);
-	}
+	Instances.push_back(&It->second);
     }
 
     return Instances;
 }
 
 void
-HEMAX_3dsmaxHda::UpdateParameterInputNode(HAPI_ParmId ParamId)
+HEMAX_3dsmaxHda::UpdateParameterInputNode(HEMAX_Parameter& Parm)
 {
-    HEMAX_InputInstance* ParameterInput = FindParameterInput(ParamId);
-    HEMAX_Parameter* Parameter = Hda.MainNode.GetParameter(ParamId);
+    HEMAX_InputInstance* ParameterInput = FindParameterInput(Parm);
 
-    if (ParameterInput && ParameterInput->MergeNode)
-    {
-	Parameter->UpdateInputNode(
-            ParameterInput->MergeNode->GetMergedInputs().Info.id);
-    }
-}
+    if (!ParameterInput)
+        return;
 
-void
-HEMAX_3dsmaxHda::ClearParameterInputNode(HAPI_ParmId ParamId)
-{
-    auto Search = InputNodeMap.find(ParamId);
-
-    if (Search != InputNodeMap.end())
-    {
-	Search->second = nullptr;
-	InputNodeMap.erase(Search);
-    }
+    Parm.UpdateInputNode(ParameterInput->GetMergedInputs().Info.id);
 }
 
 void
@@ -118,47 +111,98 @@ HEMAX_3dsmaxHda::ResetParameters()
     InitializeParameterCustomAttributes();
 }
 
-void
-HEMAX_3dsmaxHda::SetSubnetworkInput(int Subnetwork, HEMAX_InputInstance* Input)
+bool
+HEMAX_3dsmaxHda::HasSubnetworkInput(int Subnetwork)
 {
-    SubnetworkNodeInputs[Subnetwork] = Input;
+    auto Search = SubnetworkNodeInputs.find(Subnetwork);
+    return Search != SubnetworkNodeInputs.end();
 }
 
 HEMAX_InputInstance*
-HEMAX_3dsmaxHda::FindSubnetworkInput(int Subnetwork)
+HEMAX_3dsmaxHda::GetSubnetworkInput(int Subnetwork)
 {
-    if (Subnetwork >= 0 && Subnetwork < SubnetworkNodeInputs.size())
-    {
-	if (SubnetworkNodeInputs[Subnetwork])
-	{
-	    return SubnetworkNodeInputs[Subnetwork];
-	}
-    }
+    if (Subnetwork >= Hda.MainNode.Info.inputCount)
+        return nullptr;
 
-    return nullptr;
+    if (!HasSubnetworkInput(Subnetwork))
+        SubnetworkNodeInputs.emplace(std::piecewise_construct,
+                std::forward_as_tuple(Subnetwork),
+                std::forward_as_tuple(Hda.MainNode, Subnetwork));
+
+    auto Search = SubnetworkNodeInputs.find(Subnetwork);
+
+    if (Search != SubnetworkNodeInputs.end())
+        return &Search->second;
+    else
+        return nullptr;
 }
 
 void
 HEMAX_3dsmaxHda::UpdateSubnetworkInput(int Subnetwork)
 {
-    if (SubnetworkNodeInputs[Subnetwork])
+    auto Search = SubnetworkNodeInputs.find(Subnetwork);
+    if (Search == SubnetworkNodeInputs.end())
     {
-	if (SubnetworkNodeInputs[Subnetwork]->MergeNode)
-	{
-	    HEMAX_Node HapiInputNode = SubnetworkNodeInputs[Subnetwork]->MergeNode->GetMergedInputs();
-	    Hda.MainNode.ConnectInputNode(HapiInputNode.Info.id, Subnetwork);
-	}
-	else
-	{
-	    Hda.MainNode.DisconnectInputNode(Subnetwork);
-	}
+        Hda.MainNode.DisconnectInputNode(Subnetwork);
     }
+    else
+    {
+        HEMAX_Node& InputNode = Search->second.GetMergedInputs();
+        Hda.MainNode.ConnectInputNode(InputNode.Info.id, Subnetwork);
+    }    
 }
 
 void
 HEMAX_3dsmaxHda::ClearSubnetworkInput(int Subnetwork)
 {
-    SubnetworkNodeInputs[Subnetwork] = nullptr;
+    SubnetworkNodeInputs.erase(Subnetwork);
+    UpdateSubnetworkInput(Subnetwork);
+
+    INodeTab NoNodes;
+    UpdateSubnetworkCustomAttribute(Subnetwork, NoNodes);
+}
+
+void
+HEMAX_3dsmaxHda::RemoveAllUsages(HEMAX_3dsMaxInput* Input)
+{
+    for (auto It = SubnetworkNodeInputs.begin();
+         It != SubnetworkNodeInputs.end();)
+    {
+        It->second.RemoveInput(Input);
+
+        if (It->second.GetMergedInputCount() == 0)
+            It = SubnetworkNodeInputs.erase(It);
+        else
+            It++;
+    }
+
+    for (auto It = InputNodeMap.begin(); It != InputNodeMap.end();)
+    {
+        It->second.RemoveInput(Input);
+
+        if (It->second.GetMergedInputCount() == 0)
+            It = InputNodeMap.erase(It);
+        else
+            It++;
+    } 
+}
+
+void
+HEMAX_3dsmaxHda::RefreshInputConnections()
+{
+    for (auto&& InputIter = SubnetworkNodeInputs.begin();
+         InputIter != SubnetworkNodeInputs.end();
+         InputIter++)
+    {
+        InputIter->second.RefreshConnection();
+    }
+
+    for (auto&& InputIter = InputNodeMap.begin();
+         InputIter != InputNodeMap.end();
+         InputIter++)
+    {
+        InputIter->second.RefreshConnection();
+    }
 }
 
 void
@@ -370,19 +414,21 @@ HEMAX_3dsmaxHda::InitializeParameterCustomAttributes()
 void
 HEMAX_3dsmaxHda::UpdateAllCustomAttributes()
 {
-    for (auto InputIter = InputNodeMap.begin(); InputIter != InputNodeMap.end(); InputIter++)
+    for (auto&& InputIter = InputNodeMap.begin();
+         InputIter != InputNodeMap.end();
+         InputIter++)
     {
-	if (InputIter->second)
-	{
-	    HEMAX_Parameter* TheParameter = Hda.MainNode.GetParameter(InputIter->first);
-            INodeTab InputNodes;
-            for (auto&& Input : InputIter->second->MaxInputs)
-            {
-                InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
-                    Input->Get3dsMaxNodeHandle()));
-            }
-	    UpdateInputNodeCustomAttribute(*TheParameter, InputNodes);
-	}
+        HEMAX_Parameter* Parameter = Hda.MainNode.GetParameter(InputIter->first);
+        auto&& MaxInputs = InputIter->second.GetMaxInputs();
+
+        INodeTab InputNodes;
+
+        for (auto&& Input : MaxInputs)
+        {
+            InputNodes.AppendNode(GetCOREInterface()->GetINodeByHandle(
+                Input->Get3dsMaxNodeHandle()));
+        }
+        UpdateInputNodeCustomAttribute(*Parameter, InputNodes);
     }
 
     std::vector<HEMAX_Parameter>& NodeParameters = Hda.MainNode.GetParameters();

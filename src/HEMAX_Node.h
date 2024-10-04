@@ -13,7 +13,7 @@ class HEMAX_Node
 	HEMAX_Node();
 	HEMAX_Node(HAPI_NodeId NodeId, HAPI_NodeType NodeType);
 
-	void Init(const M_STD_STRING& Asset);
+	void Init(const std::string& Asset);
 	void Cook();
 	void Delete();
 
@@ -21,7 +21,7 @@ class HEMAX_Node
 
 	std::vector<HEMAX_Parameter>& GetParameters();
 	HEMAX_Parameter* GetParameter(HAPI_ParmId ParmId);
-	HEMAX_Parameter* GetParameter(std::string ParmName);
+	HEMAX_Parameter* GetParameter(const std::string& ParmName);
 	std::vector<HEMAX_Parameter> GetAllMultiParameterInstances(int MultiId);
 
 	void SetTransform(HEMAX_MaxTransform& Xform);
@@ -36,7 +36,7 @@ class HEMAX_Node
 	HAPI_NodeInfo Info;
 	HAPI_NodeType Type;	
 
-	M_STD_STRING AssetName;
+        std::string AssetName;
 	std::string NodeName;
 
 	std::vector<HEMAX_Parameter> Parameters;

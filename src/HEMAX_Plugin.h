@@ -190,7 +190,6 @@ class HEMAX_Plugin : public TimeChangeCallback, public HEMAX_EventHandler
         void Clear3dsmaxHdaSubnetworkInput(
                 HEMAX_3dsmaxHda* Hda, int Subnetwork);
 
-	void RefreshInputConnections(HEMAX_3dsmaxHda* Hda);
 	void UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda);
 
 	void Handle3dsMaxInputSourceDeletion(HEMAX_3dsMaxInput* MaxInput);

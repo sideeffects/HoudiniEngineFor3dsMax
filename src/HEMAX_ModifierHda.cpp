@@ -20,11 +20,6 @@ HEMAX_ModifierHda::Create(HAPI_AssetLibraryId AssetId,
     Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
         AssetPath, AssetIndex);
 
-    if (Hda.MainNode.Info.inputCount > 0)
-    {
-	SubnetworkNodeInputs.resize(Hda.MainNode.Info.inputCount);
-    }
-
     bool Success = CreateNewModifierHda(Hda, Modifier, MaxNode);
 
     if (Success)
@@ -42,7 +37,6 @@ HEMAX_ModifierHda::Recreate(HAPI_AssetLibraryId AssetId,
 {
     Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
         AssetPath, AssetIndex);
-    InitializeSubnetworks();
     RecreateExistingModifierHda(Hda, Modifier, ContainerNode);
 }
 

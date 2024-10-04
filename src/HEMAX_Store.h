@@ -41,7 +41,6 @@ class HEMAX_Store : public HEMAX_EventHandler
         HAPI_AssetLibraryId UpdateAssetDefinition(const std::string& Asset);
 
         void DeleteStore();
-	void DeleteAll3dsMaxInputs();
 
 	HEMAX_3dsMaxInput* Find3dsMaxInput(ULONG MaxNodeHandle);
 	void Add3dsMaxInput(HEMAX_3dsMaxInput* Input);

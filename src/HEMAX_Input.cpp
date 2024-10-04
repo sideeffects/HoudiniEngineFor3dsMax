@@ -103,13 +103,13 @@ HEMAX_Input::~HEMAX_Input()
 }
 
 HAPI_NodeId
-HEMAX_Input::GetOwnerNodeId()
+HEMAX_Input::GetOwnerNodeId() const
 {
     return OwnerNodeId;
 }
 
 HAPI_NodeId
-HEMAX_Input::GetInputNodeId()
+HEMAX_Input::GetInputNodeId() const
 {
     return Node->Info.id;
 }
@@ -121,7 +121,7 @@ HEMAX_Input::GetMaxNodeHandle()
 }
 
 std::string
-HEMAX_Input::GetInputNodeName()
+HEMAX_Input::GetInputNodeName() const
 {
     INode* Node = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
 

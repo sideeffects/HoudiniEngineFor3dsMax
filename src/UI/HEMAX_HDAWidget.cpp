@@ -256,7 +256,8 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
     {
         M_STD_OSTRINGSTREAM Sstream;
         Sstream << Selection->Get3dsMaxContainerName() << _T(" (")
-            << Selection->Hda.MainNode.AssetName << _T(")");
+            << HEMAX_Utilities::GetWideString(Selection->Hda.MainNode.AssetName)
+            << _T(")");
         CurrentSelectionLabel->setText(
             HEMAX_Utilities::GetQString(Sstream.str()));
     }
@@ -419,7 +420,8 @@ HEMAX_HDAWidget::RebuildButtonClickedSlot()
     M_STD_OSTRINGSTREAM SStream;
     SStream << _T("This will delete and recreate all nodes in your scene that are ")
         _T("using the currently selected HDA (")
-        << Selection->Hda.MainNode.AssetName << _T(")");
+        << HEMAX_Utilities::GetWideString(Selection->Hda.MainNode.AssetName)
+        << _T(")");
     ConfirmationDialog.setText(HEMAX_Utilities::GetQString(SStream.str()));
     ConfirmationDialog.setInformativeText(
             "Are you sure that you want to continue?");

@@ -1117,17 +1117,19 @@ GetHdaParameterValue_cf(Value** ArgList, int Count)
     else if (HEMAX_Utilities::ParmIsNodeType(Parameter->Type))
     {
         HEMAX_InputInstance* InputInst = nullptr;
-        InputInst = Hda->FindParameterInput(Parameter->Info.id);
+        InputInst = Hda->FindParameterInput(*Parameter);
 
         if (!InputInst)
             return &undefined;
 
-        if (InputInst->MaxInputs.size() <= 0)
+        auto&& MaxInputs = InputInst->GetMaxInputs();
+
+        if (MaxInputs.size() <= 0)
             return &undefined;
 
         Array* NodeList = new Array(0);
 
-        for (auto&& Input : InputInst->MaxInputs)
+        for (auto&& Input : MaxInputs)
         {
             NodeList->append(MAXNode::intern(
                 GetCOREInterface()->GetINodeByHandle(
@@ -1307,7 +1309,8 @@ HEMAX_MaxScriptInterface::UpdateParameter(HEMAX_3dsmaxHda& MaxHda,
 {
     bool Success = true;
 
-    HEMAX_MaxScriptArgType ArgType = HEMAX_MaxScriptInterface::ResolveParameterTypeToMaxScriptType(Parm.Type);
+    HEMAX_MaxScriptArgType ArgType =
+        HEMAX_MaxScriptInterface::ResolveParameterTypeToMaxScriptType(Parm.Type);
 
     switch (ArgType)
     {

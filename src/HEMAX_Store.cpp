@@ -275,19 +275,18 @@ void
 HEMAX_Store::DeleteStore()
 {
     LoadedAssetLibraries.clear();
-    DeleteAll3dsMaxInputs();
 
     for (auto It = MaxHdaStore.begin(); It != MaxHdaStore.end(); It++)
     {
 	if (It->second)
 	{
 	    HEMAX_GeometryHda* GeomHda = It->second;
-	    MaxHdaStore.erase(It);
 	    GeomHda->Hda.Delete();
 	    delete GeomHda;
-	    GeomHda = nullptr;
 	}
     }
+
+    MaxHdaStore.clear();
 
     for (auto It = ModifierHdaStore.begin(); It != ModifierHdaStore.end(); It++)
     {
@@ -303,20 +302,6 @@ HEMAX_Store::DeleteStore()
     }
 
     ModifierHdaStore.clear();
-}
-
-void
-HEMAX_Store::DeleteAll3dsMaxInputs()
-{
-    for (auto It = InputStore.begin(); It != InputStore.end(); It++)
-    {
-	if (It->second)
-	{
-	    delete It->second;
-	}
-    }
-
-    InputStore.clear();
 }
 
 HEMAX_3dsMaxInput*

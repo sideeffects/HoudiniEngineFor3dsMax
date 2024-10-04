@@ -36,11 +36,6 @@ HEMAX_GeometryHda::Init(HAPI_AssetLibraryId AssetId,
 {
     Hda.Init(HEMAX_Utilities::GetAssetName(AssetId, AssetIndex),
         AssetPath, AssetIndex);
-
-    if (Hda.MainNode.Type != HAPI_NODETYPE_NONE)
-    {
-        InitializeSubnetworks(); 
-    }
 }
 
 void

@@ -39,20 +39,29 @@ class HEMAX_3dsmaxHda
 	virtual void Update3dsmaxHda() = 0;
 
 	void SetParameterInput(HAPI_ParmId ParamId, HEMAX_InputInstance* Input);
-	HEMAX_InputInstance* FindParameterInput(HAPI_ParmId Paramid);
+        HEMAX_InputInstance* InitParameterInput(HEMAX_Parameter& Parm);
+	HEMAX_InputInstance* FindParameterInput(const HEMAX_Parameter& Parm);
+        void ClearParameterInput(HEMAX_Parameter* Parameter);
 
 	std::vector<HEMAX_Parameter> GetAllParametersWithInputs();
 	std::vector<HEMAX_InputInstance*> GetAllParameter3dsmaxInputs();
 
-	void UpdateParameterInputNode(HAPI_ParmId ParamId);
-	void ClearParameterInputNode(HAPI_ParmId ParamId);
+	void UpdateParameterInputNode(HEMAX_Parameter& Parm);
 
         void ResetParameters();
 
-	void SetSubnetworkInput(int Subnetwork, HEMAX_InputInstance* Input);
-	HEMAX_InputInstance* FindSubnetworkInput(int Subnetwork);
+        bool HasSubnetworkInput(int Subnetwork);
+        HEMAX_InputInstance* GetSubnetworkInput(int Subnetwork);
 	void UpdateSubnetworkInput(int Subnetwork);
 	void ClearSubnetworkInput(int Subnetwork);
+
+        void RemoveAllUsages(HEMAX_3dsMaxInput* Input);
+
+        std::unordered_map<HAPI_ParmId, HEMAX_InputInstance>& GetInputNodeMap()
+            { return InputNodeMap; }
+
+        void RefreshInputConnections();
+
 	void UpdateMultiParameterList(HEMAX_Parameter Parameter);
 
 	std::string GetCustAttribStringValue(const TSTR& CustAttribName,
@@ -103,12 +112,10 @@ public:
 	HEMAX_HdaType Type;
 	HEMAX_Hda Hda;
 
-	std::vector<HEMAX_InputInstance*> SubnetworkNodeInputs;
-	std::unordered_map<HAPI_ParmId, HEMAX_InputInstance*> InputNodeMap;
-
     protected:
 
-	void InitializeSubnetworks();
+        std::unordered_map<int, HEMAX_InputInstance> SubnetworkNodeInputs;
+	std::unordered_map<HAPI_ParmId, HEMAX_InputInstance> InputNodeMap;
 
 	void RemakeIntParameterFromCustAttrib(HEMAX_Parameter Parameter);
 	void RemakeStringParameterFromCustAttrib(HEMAX_Parameter Parameter);
