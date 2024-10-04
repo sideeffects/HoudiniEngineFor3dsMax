@@ -98,13 +98,21 @@ HEMAX_3dsmaxHda::UpdateParameterInputNode(HEMAX_Parameter& Parm)
 void
 HEMAX_3dsmaxHda::ResetParameters()
 {
-    // TODO: this still needs to handle subnetwork inputs and parm op inputs
+    SubnetworkNodeInputs.clear();
+    InputNodeMap.clear();
+
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     auto&& Parameters = Hda.MainNode.GetParameters();
     for (auto&& Parameter : Parameters)
     {
-        HEMAX_HoudiniApi::RevertParmToDefaults(&SM.Session,
-            Hda.MainNode.Info.id, Parameter.GetName().c_str());
+        if (!(Parameter.Type >= HAPI_PARMTYPE_CONTAINER_START &&
+              Parameter.Type <= HAPI_PARMTYPE_CONTAINER_END) &&
+            !(Parameter.Type >= HAPI_PARMTYPE_NONVALUE_START &&
+              Parameter.Type <= HAPI_PARMTYPE_NONVALUE_END))
+        {
+            HEMAX_HoudiniApi::RevertParmToDefaults(&SM.Session,
+                Hda.MainNode.Info.id, Parameter.GetName().c_str());
+        }
     }
 
     ClearParameterCustomAttributes();
