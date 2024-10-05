@@ -348,13 +348,8 @@ BakeHda_cf(Value** ArgList, int Count)
 	if (Hda && Hda->Type == HEMAX_GEOMETRY_HDA)
 	{
 	    HEMAX_GeometryHda* GeometryHda = static_cast<HEMAX_GeometryHda*>(Hda);
-            
-            bool BakeDummyObj;
-            HEMAX_UserPrefs::Get().GetBoolSetting(
-                HEMAX_SETTING_BAKE_DUMMY_OBJECT, BakeDummyObj);
-
-	    std::vector<INode*> BakeResults = GeometryHda->BakeGeometryHda(
-                                                            BakeDummyObj);
+            std::vector<INode*> BakeResults; 
+	    GeometryHda->Bake(BakeResults);
 
 	    if (BakeResults.size() > 1)
 	    {

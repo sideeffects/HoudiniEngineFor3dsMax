@@ -58,7 +58,7 @@ class HEMAX_GeometryHda : public HEMAX_3dsmaxHda
 
 	void PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve);
 
-	std::vector<INode*> BakeGeometryHda(bool BakeDummyObj);
+	void Bake(std::vector<INode*>& BakeResults);
 
 	void SetPushTransformsOption(bool Option);
 	bool IsPushTransformsOptionEnabled();

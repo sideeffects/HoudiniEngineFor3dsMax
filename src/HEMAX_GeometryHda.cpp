@@ -504,11 +504,15 @@ HEMAX_GeometryHda::PushEditableNodeChanges(HEMAX_EditableCurve EditableCurve)
     }
 }
 
-std::vector<INode*>
-HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
+void
+HEMAX_GeometryHda::Bake(std::vector<INode*>& BakeResults)
 {
-    std::vector<INode*> BakeResults;
+    BakeResults.clear();
     INode* BakedParent = nullptr;
+    bool BakeDummyObj = true;
+
+    HEMAX_UserPrefs::Get().GetBoolSetting(HEMAX_SETTING_BAKE_DUMMY_OBJECT,
+        BakeDummyObj);
 
     if (BakeDummyObj)
     {
@@ -898,8 +902,6 @@ HEMAX_GeometryHda::BakeGeometryHda(bool BakeDummyObj)
             }
         }
     }
-
-    return BakeResults;
 }
 
 void

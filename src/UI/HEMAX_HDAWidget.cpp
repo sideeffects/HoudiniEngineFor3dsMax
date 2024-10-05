@@ -4,6 +4,7 @@
 
 #include "HEMAX_ParameterWidget.h"
 #include "../HEMAX_3dsmaxHda.h"
+#include "../HEMAX_GeometryHda.h"
 #include "../HEMAX_Plugin.h"
 #include "../HEMAX_SessionManager.h"
 #include "../resource.h"
@@ -163,6 +164,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
         this, SLOT(RebuildButtonClickedSlot()));
     QObject::connect(ResetParametersButton, SIGNAL(clicked()),
         this, SLOT(ResetParametersButtonClickedSlot()));
+    QObject::connect(BakeButton, SIGNAL(clicked()),
+        this, SLOT(BakeButtonClickedSlot()));
     QObject::connect(LockSelectionButton, SIGNAL(clicked()),
         this, SLOT(LockSelectionButtonClickedSlot()));
 
@@ -441,6 +444,24 @@ HEMAX_HDAWidget::ResetParametersButtonClickedSlot()
 {
     Plugin->ResetParameters(Selection);
     Update();
+}
+
+void
+HEMAX_HDAWidget::BakeButtonClickedSlot()
+{
+    if (!Selection)
+        return;
+
+    if (Selection->Type != HEMAX_GEOMETRY_HDA)
+        return;
+
+    HEMAX_GeometryHda* GeometryHda = dynamic_cast<HEMAX_GeometryHda*>(Selection);
+
+    if (!GeometryHda)
+        return;
+
+    std::vector<INode*> BakeResults;
+    GeometryHda->Bake(BakeResults);
 }
 
 void
