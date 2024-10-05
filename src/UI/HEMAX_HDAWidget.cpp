@@ -166,6 +166,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
         this, SLOT(ResetParametersButtonClickedSlot()));
     QObject::connect(BakeButton, SIGNAL(clicked()),
         this, SLOT(BakeButtonClickedSlot()));
+    QObject::connect(CloneButton, SIGNAL(clicked()),
+        this, SLOT(CloneButtonClickedSlot()));
     QObject::connect(LockSelectionButton, SIGNAL(clicked()),
         this, SLOT(LockSelectionButtonClickedSlot()));
 
@@ -462,6 +464,13 @@ HEMAX_HDAWidget::BakeButtonClickedSlot()
 
     std::vector<INode*> BakeResults;
     GeometryHda->Bake(BakeResults);
+}
+
+void
+HEMAX_HDAWidget::CloneButtonClickedSlot()
+{
+    if (Selection)
+        Plugin->CloneHda(Selection); 
 }
 
 void

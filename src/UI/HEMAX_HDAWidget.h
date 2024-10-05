@@ -115,6 +115,7 @@ private slots:
     void                            RebuildButtonClickedSlot();
     void                            ResetParametersButtonClickedSlot();
     void                            BakeButtonClickedSlot();
+    void                            CloneButtonClickedSlot();
 
     void                            LockSelectionButtonClickedSlot();
 
