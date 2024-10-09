@@ -32,10 +32,16 @@ class HEMAX_SessionManager
         bool                                StopSession();
         bool                                RestartSession();
 
+        bool                                OpenSessionSync();
+        bool                                CloseSessionSync();
+
         bool                                IsSessionValidAndInitialized();
 
         HEMAX_Events&                       GetEvents() { return Events; }
         HEMAX_Store&                        GetStore() { return Store; }
+
+        void                                SetHFSPath(const std::wstring& HFS)
+                                                { HFSPath = HFS; }
 
         HAPI_Session                        Session;
 
@@ -46,12 +52,17 @@ class HEMAX_SessionManager
         bool                                CreateNamedPipeSession();
         bool                                CreateSharedMemorySession();
 
-        bool                                ConnectSocketSession();
-        bool                                ConnectNamedPipeSession();
-        bool                                ConnectSharedMemorySession();
+        bool                                TryConnectSession(bool Required=true);
+        bool                                ConnectSocketSession(bool Required);
+        bool                                ConnectNamedPipeSession(bool Required);
+        bool                                ConnectSharedMemorySession(bool Required);
 
         void                                InitializeSession();
 
         HEMAX_Events                        Events;
         HEMAX_Store                         Store;
+
+        std::wstring                        HFSPath;
+
+        HANDLE                              HESSProcHandle = nullptr;
 };

@@ -123,6 +123,10 @@ BEGIN
     IDS_HEMAX_MENU_STOP_SESSION_DESC "Stops the current Houdini Engine session"
     IDS_HEMAX_MENU_RESTART_SESSION  "Restart Session"
     IDS_HEMAX_MENU_RESTART_SESSION_DESC "Restarts the current Houdini Engine session"
+    IDS_HEMAX_MENU_OPEN_SESSION_SYNC "Open Houdini Session Sync"
+    IDS_HEMAX_MENU_OPEN_SESSION_SYNC_DESC "Opens Houdini with SessionSync enabled and connects to it"
+    IDS_HEMAX_MENU_CLOSE_SESSION_SYNC "Close Houdini SessionSync"
+    IDS_HEMAX_MENU_CLOSE_SESSION_SYNC_DESC "Close the currently active Houdini Engine SessionSync"
  //TEX_TYPE
 END
 

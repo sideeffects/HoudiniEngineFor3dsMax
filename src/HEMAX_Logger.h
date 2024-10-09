@@ -56,6 +56,9 @@ class HEMAX_Logger
 	void ShowDialog(std::string Title, std::string Message, HEMAX_LogLevel LogLevel);
 	void ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel LogLevel);
 
+        void SetHAPILoggingEnabled(bool Enabled) { HAPILoggingEnabled = Enabled; }
+        void LogHAPIFailure(const char* Log);
+
         const std::vector<HEMAX_LogEntry>& GetEntries() { return Entries; }
 
 	void ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print);
@@ -76,6 +79,8 @@ class HEMAX_Logger
 	bool PrintErrorLogs;
 	bool PrintWarnLogs;
 	bool PrintInfoLogs;
+
+        bool HAPILoggingEnabled = true;
 
         std::vector<HEMAX_LogEntry> Entries;
 

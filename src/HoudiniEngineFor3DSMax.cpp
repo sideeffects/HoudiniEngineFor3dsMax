@@ -41,6 +41,9 @@ MaxSDK::MaxGuid HoudiniEngineCreateSessionActionGuid("224bced3-74e9-4947-9563-eb
 MaxSDK::MaxGuid HoudiniEngineConnectSessionActionGuid("78594593-ea24-46b0-b5ad-d94586b26775");
 MaxSDK::MaxGuid HoudiniEngineStopSessionActionGuid("3703d5dc-8abb-4e9b-ad2c-b7174a2d1d64");
 MaxSDK::MaxGuid HoudiniEngineRestartSessionActionGuid("f45c52b5-27ed-4c4c-bd97-52afbe1d303c");
+MaxSDK::MaxGuid HoudiniEngineOpenSessionSyncActionGuid("1d9a595c-807d-4736-8feb-3f7253ba96d8");
+MaxSDK::MaxGuid HoudiniEngineCloseSessionSyncActionGuid("4cf22fd8-b04e-43f4-b66b-d638dc97412b");
+
 MaxSDK::MaxGuid HoudiniEngineOptionsActionGuid("204aca3d-98e7-4505-a43a-0b64c2ecb760");
 MaxSDK::MaxGuid HoudiniEngineVersionActionGuid("5076703e-a2d5-4103-9c4b-b6e008e0a396");
 
@@ -55,8 +58,10 @@ MaxSDK::MaxGuid HoudiniEngineSeparator3Guid("fece40fa-60d3-4edc-949e-3b7c6f3f0db
 #define CONNECT_SESSION_HEMAX_ACTION    4
 #define STOP_SESSION_HEMAX_ACTION       5
 #define RESTART_SESSION_HEMAX_ACTION    6
-#define OPTIONS_HEMAX_ACTION            7
-#define VERSION_HEMAX_ACTION            8
+#define OPEN_SESSION_SYNC_HEMAX_ACTION  7
+#define CLOSE_SESSION_SYNC_HEMAX_ACTION 8
+#define OPTIONS_HEMAX_ACTION            9
+#define VERSION_HEMAX_ACTION            10
 
 const wchar_t* const LIB_HAPIL_NAME = L"libHAPIL.dll";
 const wchar_t* const LIB_HAPIL_SUBDIRECTORY = L"bin";
@@ -95,6 +100,16 @@ static ActionDescription MenuActions[] = {
     RESTART_SESSION_HEMAX_ACTION,
     IDS_HEMAX_MENU_RESTART_SESSION,
     IDS_HEMAX_MENU_RESTART_SESSION_DESC,
+    IDS_CATEGORY,
+
+    OPEN_SESSION_SYNC_HEMAX_ACTION,
+    IDS_HEMAX_MENU_OPEN_SESSION_SYNC,
+    IDS_HEMAX_MENU_OPEN_SESSION_SYNC_DESC,
+    IDS_CATEGORY,
+
+    CLOSE_SESSION_SYNC_HEMAX_ACTION,
+    IDS_HEMAX_MENU_CLOSE_SESSION_SYNC,
+    IDS_HEMAX_MENU_CLOSE_SESSION_SYNC_DESC,
     IDS_CATEGORY,
 
     OPTIONS_HEMAX_ACTION,
@@ -342,6 +357,8 @@ HEMAXLauncher::SetHoudiniDirectories(const std::wstring& HFS)
 
     std::string HFS_String(HFS.begin(), HFS.end());
     HEMAX_Path::HEMAX_PathPrefix_HFS_Resolved = HFS_String;
+
+    HEMAX_SessionManager::GetSessionManager().SetHFSPath(HFSDirectory);
 }
 
 void
@@ -515,6 +532,13 @@ HEMAXLauncher::OnCUIMenusPreSaved(void* param, NotifyInfo* Info)
 void
 HEMAXLauncher::InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager)
 {
+    for (int i = 0; i < 100; ++i)
+    {
+        MaxSDK::MaxGuid tempguid = MaxSDK::MaxGuid::CreateMaxGuid();
+        MSTR tempguid_str = tempguid.ToString();
+        DebugPrint(tempguid_str);
+    }
+
     if (!MenuManager)
         return;
 
@@ -549,6 +573,12 @@ HEMAXLauncher::InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager)
     PluginMenu->CreateAction(HoudiniEngineRestartSessionActionGuid,
         HEMAX_Actions_Id, RESTART_SESSION_HEMAX_ACTION,
         RESTART_SESSION_HEMAX_MENU_STRING);
+    PluginMenu->CreateAction(HoudiniEngineOpenSessionSyncActionGuid,
+        HEMAX_Actions_Id, OPEN_SESSION_SYNC_HEMAX_ACTION,
+        OPEN_SESSION_SYNC_HEMAX_MENU_STRING);
+    PluginMenu->CreateAction(HoudiniEngineCloseSessionSyncActionGuid,
+        HEMAX_Actions_Id, CLOSE_SESSION_SYNC_HEMAX_ACTION,
+        CLOSE_SESSION_SYNC_HEMAX_MENU_STRING);
     PluginMenu->CreateSeparator(HoudiniEngineSeparator2Guid);
     PluginMenu->CreateAction(HoudiniEngineOptionsActionGuid, HEMAX_Actions_Id,
         OPTIONS_HEMAX_ACTION, OPTIONS_HEMAX_MENU_STRING);
@@ -650,6 +680,22 @@ HEMAXLauncher::InstallMenu(IMenuManager* MenuManager)
     RestartSessionSub->SetTitle(RESTART_SESSION_HEMAX_MENU_STRING);
     HEMAXMenu->AddItem(RestartSessionSub);
 
+    IMenuItem* OpenSessionSyncSub = GetIMenuItem();
+    ActionItem* OpenSessionSyncAction =
+        HEMAXActionTable->GetAction(OPEN_SESSION_SYNC_HEMAX_ACTION);
+    OpenSessionSyncSub->SetActionItem(OpenSessionSyncAction);
+    OpenSessionSyncSub->SetUseCustomTitle(true);
+    OpenSessionSyncSub->SetTitle(OPEN_SESSION_SYNC_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(OpenSessionSyncSub);
+
+    IMenuItem* CloseSessionSyncSub = GetIMenuItem();
+    ActionItem* CloseSessionSyncAction =
+        HEMAXActionTable->GetAction(CLOSE_SESSION_SYNC_HEMAX_ACTION);
+    CloseSessionSyncSub->SetActionItem(CloseSessionSyncAction);
+    CloseSessionSyncSub->SetUseCustomTitle(true);
+    CloseSessionSyncSub->SetTitle(CLOSE_SESSION_SYNC_HEMAX_MENU_STRING);
+    HEMAXMenu->AddItem(CloseSessionSyncSub);
+
     IMenuItem* Separator2 = GetIMenuItem();
     Separator2->ActAsSeparator();
     HEMAXMenu->AddItem(Separator2);
@@ -743,6 +789,16 @@ HEMAXLauncher::ExecuteAction(int ID)
         case RESTART_SESSION_HEMAX_ACTION:
         {
             HEMAX_SessionManager::GetSessionManager().RestartSession();
+            return true;
+        }
+        case OPEN_SESSION_SYNC_HEMAX_ACTION:
+        {
+            HEMAX_SessionManager::GetSessionManager().OpenSessionSync();
+            return true;
+        }
+        case CLOSE_SESSION_SYNC_HEMAX_ACTION:
+        {
+            HEMAX_SessionManager::GetSessionManager().CloseSessionSync();
             return true;
         }
         case OPTIONS_HEMAX_ACTION:

@@ -21,14 +21,16 @@
 
 #define HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME "InstallPath"
 
-const TCHAR* const OPEN_HEMAX_MENU_STRING =             _T("Open");
-const TCHAR* const HIDE_HEMAX_MENU_STRING =             _T("Hide");
-const TCHAR* const CREATE_SESSION_HEMAX_MENU_STRING =   _T("Create Session");
-const TCHAR* const CONNECT_SESSION_HEMAX_MENU_STRING =  _T("Connect Session");
-const TCHAR* const STOP_SESSION_HEMAX_MENU_STRING =     _T("Stop Session");
-const TCHAR* const RESTART_SESSION_HEMAX_MENU_STRING =  _T("Restart Session");
-const TCHAR* const OPTIONS_HEMAX_MENU_STRING =          _T("Options");
-const TCHAR* const VERSION_HEMAX_MENU_STRING =          _T("Version Information");
+const TCHAR* const OPEN_HEMAX_MENU_STRING =                 _T("Open");
+const TCHAR* const HIDE_HEMAX_MENU_STRING =                 _T("Hide");
+const TCHAR* const CREATE_SESSION_HEMAX_MENU_STRING =       _T("Create Session");
+const TCHAR* const CONNECT_SESSION_HEMAX_MENU_STRING =      _T("Connect Session");
+const TCHAR* const STOP_SESSION_HEMAX_MENU_STRING =         _T("Stop Session");
+const TCHAR* const RESTART_SESSION_HEMAX_MENU_STRING =      _T("Restart Session");
+const TCHAR* const OPEN_SESSION_SYNC_HEMAX_MENU_STRING =    _T("Open Houdini SessionSync");
+const TCHAR* const CLOSE_SESSION_SYNC_HEMAX_MENU_STRING =   _T("Close Houdini SessionSync");
+const TCHAR* const OPTIONS_HEMAX_MENU_STRING =              _T("Options");
+const TCHAR* const VERSION_HEMAX_MENU_STRING =              _T("Version Information");
 
 const ActionTableId HEMAX_Actions_Id = 0x33fa7596;
 const ActionContextId HEMAX_Context_Id = 0x626b4e5c;

@@ -2233,9 +2233,9 @@ HEMAX_HoudiniApi::HandleHAPIResult(const HAPI_Session* session, HAPI_Result Resu
 
         if (HEMAX_HoudiniApi::IsSessionValid(session) != HAPI_RESULT_SUCCESS)
         {
-            HEMAX_Logger::Instance().AddEntry("Could not get the status string "
+            HEMAX_Logger::Instance().LogHAPIFailure("Could not get the status string "
                 "for failed HAPI call because the session is no longer valid. "
-                "Houdini Engine may have crashed.", HEMAX_LOG_LEVEL_ERROR);
+                "Houdini Engine may have crashed.");
 
             return Result;
         }
@@ -2248,7 +2248,7 @@ HEMAX_HoudiniApi::HandleHAPIResult(const HAPI_Session* session, HAPI_Result Resu
             char* StatusString = new char[StrBufLen];
             HEMAX_HoudiniApi::GetStatusString(session, HAPI_STATUS_CALL_RESULT,
                 StatusString, StrBufLen);
-            HEMAX_Logger::Instance().AddEntry(StatusString, HEMAX_LOG_LEVEL_ERROR);
+            HEMAX_Logger::Instance().LogHAPIFailure(StatusString);
             delete [] StatusString;
             return Result;
         }

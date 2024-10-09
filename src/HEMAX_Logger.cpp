@@ -101,6 +101,13 @@ HEMAX_Logger::ShowDialog(const char* Title, const char* Message, HEMAX_LogLevel 
 }
 
 void
+HEMAX_Logger::LogHAPIFailure(const char* Log)
+{
+    if (HAPILoggingEnabled)
+       AddEntry(Log, HEMAX_LOG_LEVEL_ERROR); 
+}
+
+void
 HEMAX_Logger::ConfigurePrintLevels(HEMAX_LogLevel LogLevel, bool Print)
 {
     switch (LogLevel)
