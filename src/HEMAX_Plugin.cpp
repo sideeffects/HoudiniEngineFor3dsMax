@@ -1533,9 +1533,9 @@ HEMAX_Plugin::UpdateDirtiedInputNodes(HEMAX_3dsmaxHda* Hda)
 
             if (Hda->Type == HEMAX_MODIFIER_HDA)
             {
-                HEMAX_ModifierHda* ModifierHda =
-                    static_cast<HEMAX_ModifierHda*>(Hda);
-                INode* ModifierNode = ModifierHda->ContainerNode;
+                //HEMAX_ModifierHda* ModifierHda =
+                //    static_cast<HEMAX_ModifierHda*>(Hda);
+                //INode* ModifierNode = ModifierHda->ContainerNode;
                 
                 // TODO: update transform
             }

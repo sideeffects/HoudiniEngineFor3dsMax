@@ -179,7 +179,7 @@ HEMAX_InputInstance::RemoveInput(HEMAX_3dsMaxInput* Input)
             continue;
 
         HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
-        HAPI_NodeId InputMergeNode = -1;
+        //HAPI_NodeId InputMergeNode = -1;
 
         HEMAX_HoudiniApi::DeleteNode(&SM.Session, InputXformNode);
 
