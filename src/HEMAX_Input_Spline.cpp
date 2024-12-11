@@ -159,7 +159,7 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
 
             int PointCount = (int)PointsArray.size()/3;
 
-            AddNewPart(HAPI_PARTTYPE_CURVE, 1, PointCount, PointCount);
+            AddNewPart(HAPI_PARTTYPE_CURVE, CurveCount, PointCount, PointCount);
 
             HAPI_CurveInfo CurveInfo;
             CurveInfo.curveCount = CurveCount;

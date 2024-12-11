@@ -204,7 +204,7 @@ HEMAX_Input::SetInputMetadataAttributes(int PrimCount)
     HEMAX_HoudiniApi::SetAttributeStringUniqueData(
             &HEMAX_SessionManager::GetSessionManager().Session,
             Node->Info.id, 0, InputNodeNameAttrName, &InputNodeNameAttr,
-            CharBuf, static_cast<int>(strlen(InputNodeNameAttrName)),
+            CharBuf, static_cast<int>(strlen(CharBuf)),
             0, InputNodeNameAttr.count);
 }
 
