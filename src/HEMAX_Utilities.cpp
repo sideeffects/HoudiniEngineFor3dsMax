@@ -138,15 +138,15 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
 
     Point3 Translation;
     Node->GetTMController()->GetPositionController()->GetValue(Time,
-            Translation, FOREVER);
+            &Translation, FOREVER);
 
     Quat Rotation;
     Node->GetTMController()->GetRotationController()->GetValue(Time,
-            Rotation, FOREVER);
+            &Rotation, FOREVER);
 
     ScaleValue Scale;
     Node->GetTMController()->GetScaleController()->GetValue(Time,
-            Scale, FOREVER);
+            &Scale, FOREVER);
 
     HEMAX_MaxTransform MaxTransform;
 
