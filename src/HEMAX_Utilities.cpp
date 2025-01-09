@@ -144,7 +144,7 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
     Node->GetTMController()->GetRotationController()->GetValue(Time,
             Rotation, FOREVER);
 
-    Point3 Scale;
+    ScaleValue Scale;
     Node->GetTMController()->GetScaleController()->GetValue(Time,
             Scale, FOREVER);
 
@@ -159,9 +159,9 @@ HEMAX_Utilities::BuildMaxTransformFromINode(INode* Node)
     MaxTransform.Quaternion[2] = Rotation.z;
     MaxTransform.Quaternion[3] = Rotation.w;
 
-    MaxTransform.Scale[0] = Scale.x;
-    MaxTransform.Scale[1] = Scale.y;
-    MaxTransform.Scale[2] = Scale.z;
+    MaxTransform.Scale[0] = Scale[0];
+    MaxTransform.Scale[1] = Scale[1];
+    MaxTransform.Scale[2] = Scale[2];
 
     return MaxTransform;
 }
