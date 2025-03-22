@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.31)
 set( CMAKE_SYSTEM_VERSION ${3DSMAX_WINDOWS_SDK_VERSION} )
 set( CMAKE_GENERATOR_TOOLSET ${3DSMAX_WINDOWS_PLATFORM_TOOLSET} )
 
@@ -20,18 +21,15 @@ set( SOURCES
     src/HEMAX_Hda.cpp
     src/HEMAX_HoudiniApi.cpp
     src/HEMAX_Input.cpp
-    src/HEMAX_InputInstance.cpp
     src/HEMAX_InputMerge.cpp
     src/HEMAX_Input_Geometry.cpp
     src/HEMAX_Input_NURBS.cpp
     src/HEMAX_Input_Spline.cpp
-    src/HEMAX_Input_Transform.cpp
     src/HEMAX_Logger.cpp
     src/HEMAX_MaterialNode.cpp
     src/HEMAX_MaxScriptInterface.cpp
     src/HEMAX_Mesh.cpp
     src/HEMAX_Modifier.cpp
-    src/HEMAX_ModifierAsset.cpp
     src/HEMAX_ModifierHda.cpp
     src/HEMAX_Node.cpp
     src/HEMAX_Object.cpp
@@ -76,13 +74,11 @@ set( HEADERS
     src/HEMAX_Input_Geometry.h
     src/HEMAX_Input_NURBS.h
     src/HEMAX_Input_Spline.h
-    src/HEMAX_Input_Transform.h
     src/HEMAX_Logger.h
     src/HEMAX_MaterialNode.h
     src/HEMAX_MaxScriptInterface.h
     src/HEMAX_Mesh.h
     src/HEMAX_Modifier.h
-    src/HEMAX_ModifierAsset.h
     src/HEMAX_ModifierHda.h
     src/HEMAX_Node.h
     src/HEMAX_Object.h
