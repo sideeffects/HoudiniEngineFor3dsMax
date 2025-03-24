@@ -134,6 +134,10 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     SessionTypeChoice->addItem("Named Pipe");
     SessionTypeChoice->addItem("Shared Memory");
 
+    SessionTimeoutLabel = new QLabel("Session Connection Timeout (s)");
+    SessionTimeout = new QLineEdit;
+    SessionTimeout->setValidator(&MyIntValidator);
+
     SessionHostnameLabel = new QLabel("Socket Hostname");
     SessionHostname = new QLineEdit();
     SessionPortLabel = new QLabel("Socket Port");
@@ -160,39 +164,56 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
     SessionAudioDsoSearchPathLabel = new QLabel("Audio DSO Search Path");
     SessionAudioDsoSearchPath = new QLineEdit;
 
-    SessionOptionsLayout->addWidget(SessionAutoStart, 0, 0, 1, 2);
-    SessionOptionsLayout->addWidget(SessionTypeLabel, 1, 0, Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionTypeChoice, 1, 1);
-    SessionOptionsLayout->addWidget(SessionHostnameLabel, 2, 0, Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionHostname, 2, 1);
-    SessionOptionsLayout->addWidget(SessionPortLabel, 3, 0, Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionPort, 3, 1);
-    SessionOptionsLayout->addWidget(SessionPipeNameLabel, 4, 0, Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionPipeName, 4, 1);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryNameLabel, 5, 0,
+    int row = 0;
+    SessionOptionsLayout->addWidget(SessionAutoStart, row, 0, 1, 2);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionTypeLabel, row, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionTypeChoice, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionTimeoutLabel, row, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionTimeout, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionHostnameLabel, row, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionHostname, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionPortLabel, row, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionPort, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionPipeNameLabel, row, 0, Qt::AlignRight);
+    SessionOptionsLayout->addWidget(SessionPipeName, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionSharedMemoryNameLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryName, 5, 1);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSizeLabel, 6, 0,
+    SessionOptionsLayout->addWidget(SessionSharedMemoryName, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSizeLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSize, 6, 1);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferTypeLabel, 7, 0,
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferSize, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferTypeLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferType, 7, 1);
-    SessionOptionsLayout->addWidget(SessionHoudiniEnvFilesLabel, 8, 0,
+    SessionOptionsLayout->addWidget(SessionSharedMemoryBufferType, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionHoudiniEnvFilesLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionHoudiniEnvFiles, 8, 1);
-    SessionOptionsLayout->addWidget(SessionOtlSearchPathLabel, 9, 0,
+    SessionOptionsLayout->addWidget(SessionHoudiniEnvFiles, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionOtlSearchPathLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionOtlSearchPath, 9, 1);
-    SessionOptionsLayout->addWidget(SessionDsoSearchPathLabel, 10, 0,
+    SessionOptionsLayout->addWidget(SessionOtlSearchPath, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionDsoSearchPathLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionDsoSearchPath, 10, 1);
-    SessionOptionsLayout->addWidget(SessionImageDsoSearchPathLabel, 11, 0,
+    SessionOptionsLayout->addWidget(SessionDsoSearchPath, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionImageDsoSearchPathLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionImageDsoSearchPath, 11, 1);
-    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPathLabel, 12, 0,
+    SessionOptionsLayout->addWidget(SessionImageDsoSearchPath, row, 1);
+    ++row;
+    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPathLabel, row, 0,
         Qt::AlignRight);
-    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPath, 12, 1);
+    SessionOptionsLayout->addWidget(SessionAudioDsoSearchPath, row, 1);
+    ++row;
 
     DefaultOptions = new QWidget;
     DefaultOptionsLayout = new QVBoxLayout;
@@ -340,6 +361,11 @@ HEMAX_OptionsDialog::HEMAX_OptionsDialog(HEMAX_Plugin* ThePlugin)
                      SIGNAL(currentIndexChanged(int)),
                      this,
                      SLOT(SlotSessionDefaultStartType(int)));
+
+    QObject::connect(SessionTimeout,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionTimeout()));
 
     QObject::connect(SessionHostname,
                      SIGNAL(editingFinished()),
@@ -508,6 +534,9 @@ HEMAX_OptionsDialog::InitializeOptions()
                 static_cast<int>(HEMAX_SessionTypePref::NamedPipe));
         }
     }
+
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, IVal))
+        SessionTimeout->setText(QString::number(IVal));
 
     if (Prefs.GetStringSetting(HEMAX_SETTING_SESSION_HOST_NAME, SVal))
         SessionHostname->setText(SVal.c_str());
@@ -684,6 +713,13 @@ HEMAX_OptionsDialog::SlotSessionDefaultStartType(int CurrentIndex)
     else if (CurrentIndex == 2)
         HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_TYPE,
             static_cast<int>(HEMAX_SessionTypePref::SharedMemory));
+}
+
+void
+HEMAX_OptionsDialog::SlotSessionTimeout()
+{
+    HEMAX_UserPrefs::Get().SetIntSetting(HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT,
+        SessionTimeout->text().toInt());
 }
 
 void

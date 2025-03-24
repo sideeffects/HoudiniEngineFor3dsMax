@@ -409,6 +409,14 @@ HEMAX_SessionManager::CreateSocketSession()
 
     HAPI_ThriftServerOptions ServerOptions =
         HEMAX_HoudiniApi::ThriftServerOptions_Create();
+
+    int TimeoutSetting = 60000;
+    if (HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, TimeoutSetting))
+    {
+        ServerOptions.timeoutMs = TimeoutSetting*1000;
+    }
+
     HAPI_ProcessId ProcessId;
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftSocketServer(
             &ServerOptions, Port, &ProcessId, nullptr);
@@ -483,6 +491,14 @@ HEMAX_SessionManager::CreateNamedPipeSession()
 
     HAPI_ThriftServerOptions ServerOptions =
         HEMAX_HoudiniApi::ThriftServerOptions_Create();
+
+    int TimeoutSetting = 60000;
+    if (HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, TimeoutSetting))
+    {
+        ServerOptions.timeoutMs = TimeoutSetting*1000;
+    }
+
     HAPI_ProcessId ProcessId;
     HAPI_Result Result = HEMAX_HoudiniApi::StartThriftNamedPipeServer(
             &ServerOptions, PipeName.c_str(), &ProcessId, nullptr);
@@ -573,6 +589,13 @@ HEMAX_SessionManager::CreateSharedMemorySession()
 
     HAPI_ThriftServerOptions ServerOptions =
         HEMAX_HoudiniApi::ThriftServerOptions_Create();
+
+    int TimeoutSetting = 60000;
+    if (HEMAX_UserPrefs::Get().GetIntSetting(
+            HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, TimeoutSetting))
+    {
+        ServerOptions.timeoutMs = TimeoutSetting*1000;
+    }
 
     if (BufferType == "Fixed")
     {

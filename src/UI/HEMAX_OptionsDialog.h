@@ -8,12 +8,14 @@
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
+#include <QtGui/qvalidator.h>
 #include <QtWidgets/qdialog.h>
 #endif
 
 #ifdef HEMAX_VERSION_2017
 #pragma warning(push, 0)
 #include <QtGui/qdialog.h>
+#include <QtGui/qvalidator.h>
 #pragma warning(pop)
 #endif
 
@@ -42,6 +44,10 @@ class HEMAX_OptionsDialog : public QDialog
     private:
 
         void InitializeOptions();
+
+        // Validators
+
+        QIntValidator MyIntValidator;
 
         QVBoxLayout* Layout;
         QTabWidget* OptionsTabs;
@@ -85,6 +91,9 @@ class HEMAX_OptionsDialog : public QDialog
         QCheckBox*      SessionAutoStart                    = nullptr;
         QLabel*         SessionTypeLabel                    = nullptr;
         QComboBox*      SessionTypeChoice                   = nullptr;
+
+        QLabel*         SessionTimeoutLabel                 = nullptr;
+        QLineEdit*      SessionTimeout                      = nullptr;
 
         QLabel*         SessionHostnameLabel                = nullptr;
         QLineEdit*      SessionHostname                     = nullptr;
@@ -176,6 +185,7 @@ class HEMAX_OptionsDialog : public QDialog
 
         void SlotSessionAutoStart(int State);
         void SlotSessionDefaultStartType(int CurrentIndex);
+        void SlotSessionTimeout();
         void SlotSessionHostname();
         void SlotSessionPort();
         void SlotSessionPipeName();
