@@ -94,4 +94,6 @@ class HEMAX_Store : public HEMAX_EventHandler
                                      bool AllowOverwrite,
                                      HAPI_AssetLibraryId& AssetLibId);
 	void DeleteMaxNode(ULONG MaxNodeHandle, std::vector<ULONG>& ScheduledDeletionList);
+
+        std::vector<std::string> HdaPaths;
 };

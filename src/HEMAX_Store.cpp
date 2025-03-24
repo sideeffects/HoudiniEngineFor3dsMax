@@ -19,6 +19,7 @@
 #include <QtCore\qdir.h>
 #pragma warning(pop)
 
+#include <istream>
 #include <sstream>
 #include <string>
 
@@ -30,6 +31,16 @@ HEMAX_Store::HEMAX_Store(HEMAX_Events& EventSystem)
             [this](HEMAX_EventData* Data) {
         this->DeleteStore();
     });
+
+    std::string HemaxHdaPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
+    if (!HemaxHdaPath.empty())
+    {
+        std::istringstream PathStream(HemaxHdaPath);
+        for (std::string Path; std::getline(PathStream, Path, ';');)
+        {
+            HdaPaths.push_back(Path);
+        }
+    }
 }
 
 std::vector<std::string>
@@ -78,8 +89,7 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
     }
 
     // Try HEMAX_HDA_PATH first
-    std::string HdaPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
-    if (!HdaPath.empty())
+    for (auto&& HdaPath : HdaPaths)
     {
         QString PathString(HdaPath.c_str());
         QFileInfo HdaFileInfo(Path.c_str());
@@ -175,8 +185,11 @@ HEMAX_Store::LoadAssetsInHdaLoadPath()
     
     LoadAllAssetsInDirectory(HdaLoadPath);
     
-    // Also load assets HEMAX_ENV_HDA_PATH environment variable (legacy)
-    LoadAllAssetsInDirectory(HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH));
+    // Also load assets HEMAX_ENV_HDA_PATH environment variable
+    for (auto&& Path : HdaPaths)
+    {
+        LoadAllAssetsInDirectory(Path);
+    }
 }
 
 void
