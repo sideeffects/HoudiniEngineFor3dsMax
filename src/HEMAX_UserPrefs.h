@@ -17,6 +17,7 @@
 #define HEMAX_SESSION_TYPE_PREF_SHARED_MEMORY       "SharedMemory"
 
 #define HEMAX_SETTING_SESSION_TYPE                  "Session\\Type"
+#define HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT    "Session\\ConnectionTimeout"
 #define HEMAX_SETTING_SESSION_HOST_NAME             "Session\\Hostname"
 #define HEMAX_SETTING_SESSION_PORT                  "Session\\Port"
 #define HEMAX_SETTING_SESSION_PIPE_NAME             "Session\\PipeName"

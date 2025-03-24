@@ -8,10 +8,12 @@
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025)
+#include <QtGui/qvalidator.h>
 #include <QtWidgets/qwidget.h>
 #endif
 
 #ifdef HEMAX_VERSION_2017
+#include <QtGui/qvalidator.h>
 #include <QtGui/qwidget.h>
 #endif
 
@@ -46,6 +48,10 @@ class HEMAX_SessionWidget : public QWidget
     private:
 
 	Q_OBJECT
+
+        // Validators
+        QIntValidator MyIntValidator;
+        /////////////
 
 	QVBoxLayout* MainLayout;
 
@@ -90,6 +96,8 @@ class HEMAX_SessionWidget : public QWidget
 	QGroupBox* SessionsConfigurationBox;
 	QGridLayout* SessionsConfigurationBoxLayout;
 
+        QLabel* SessionsTimeoutLabel;
+        QLineEdit* SessionsTimeout;
 	QLabel* SessionsHoudiniEnvFilesLabel;
 	QLineEdit* SessionsHoudiniEnvFiles;
 	QPushButton* SessionsHoudiniEnvFilesBrowse;
@@ -131,6 +139,7 @@ class HEMAX_SessionWidget : public QWidget
 	void SlotSessionsImageDsoSearchPathBrowse();
 	void SlotSessionsAudioDsoSearchPathBrowse();
 
+        void SlotSessionsTimeoutEditingFinished();
 	void SlotSessionsHoudiniEnvFileEdited();
 	void SlotSessionsOtlSearchPathEdited();
 	void SlotSessionsDsoSearchPathEdited();

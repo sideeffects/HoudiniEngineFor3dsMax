@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <json.hpp>
 
+#define HEMAX_SESSION_CONNECTION_TIMEOUT_DEFAULT    "60"
 #define HEMAX_SESSION_PIPE_NAME_DEFAULT             "hapi"
 #define HEMAX_SESSION_HOST_NAME_DEFAULT             "localhost"
 #define HEMAX_SESSION_PORT_NUM_DEFAULT              "9090"
@@ -24,6 +25,9 @@ HEMAX_UserPrefs::HEMAX_UserPrefs()
     AddUserSetting(HEMAX_SETTING_SESSION_TYPE,
         HEMAX_SETTING_TYPE_INT,
         std::to_string(static_cast<int>(HEMAX_SessionTypePref::AutoStart)));
+    AddUserSetting(HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT,
+        HEMAX_SETTING_TYPE_INT,
+        HEMAX_SESSION_CONNECTION_TIMEOUT_DEFAULT);
     AddUserSetting(HEMAX_SETTING_SESSION_HOST_NAME,
                    HEMAX_SETTING_TYPE_STRING,
                    HEMAX_SESSION_HOST_NAME_DEFAULT);

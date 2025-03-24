@@ -313,8 +313,19 @@ HEMAX_SessionManager::StartThriftNamedPipeThinClient()
 
 	HAPI_ThriftServerOptions ServerOptions;
 	ServerOptions.autoClose = true;
-	ServerOptions.timeoutMs = 20000.0f;
         ServerOptions.verbosity = HAPI_STATUSVERBOSITY_ALL;
+
+        int TimeoutPref;
+        if (HEMAX_UserPrefs::Get().GetIntSetting(
+                    HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, TimeoutPref))
+        {
+            ServerOptions.timeoutMs = TimeoutPref*1000;
+        }
+        else
+        {
+            ServerOptions.timeoutMs = 60000;
+        }
+
 	HAPI_ProcessId ServerProcessId;
 
         HEMAX_HoudiniApi::ClearConnectionError();

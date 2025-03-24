@@ -96,13 +96,16 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
     SessionsConfigurationBox = new QGroupBox("Session Configuration");
     SessionsConfigurationBoxLayout = new QGridLayout;
 
+    SessionsTimeoutLabel = new QLabel("Connection Timeout (s)");
+    SessionsTimeout = new QLineEdit;
+    SessionsTimeout->setValidator(&MyIntValidator);
     SessionsHoudiniEnvFilesLabel = new QLabel("Houdini Environment Files");
     SessionsHoudiniEnvFiles = new QLineEdit;
     SessionsHoudiniEnvFilesBrowse = new QPushButton("...");
     SessionsOtlSearchPathLabel = new QLabel("otl Search Path");
     SessionsOtlSearchPath = new QLineEdit;
     SessionsOtlSearchPathBrowse = new QPushButton("...");
-    SessionsDsoSearchPathLabel = new QLabel("dso Search Path ");
+    SessionsDsoSearchPathLabel = new QLabel("dso Search Path");
     SessionsDsoSearchPath = new QLineEdit;
     SessionsDsoSearchPathBrowse = new QPushButton("...");
     SessionsImageDsoSearchPathLabel = new QLabel("Image dso Search Path");
@@ -168,36 +171,40 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
 
     SessionsBox->setLayout(SessionsBoxLayout);
 
+    SessionsConfigurationBoxLayout->addWidget(SessionsTimeoutLabel,
+                                              0, 0, Qt::AlignCenter);
+    SessionsConfigurationBoxLayout->addWidget(SessionsTimeout,
+                                              0, 1);
     SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesLabel,
-                                              0, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFiles,
                                               1, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesBrowse,
-                                              1, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathLabel,
+    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFiles,
                                               2, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPath,
+    SessionsConfigurationBoxLayout->addWidget(SessionsHoudiniEnvFilesBrowse,
+                                              2, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathLabel,
                                               3, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathBrowse,
-                                              3, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathLabel,
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPath,
                                               4, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPath,
+    SessionsConfigurationBoxLayout->addWidget(SessionsOtlSearchPathBrowse,
+                                              4, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathLabel,
                                               5, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathBrowse,
-                                              5, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathLabel,
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPath,
                                               6, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPath,
+    SessionsConfigurationBoxLayout->addWidget(SessionsDsoSearchPathBrowse,
+                                              6, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathLabel,
                                               7, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathBrowse,
-                                              7, 1);
-    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathLabel,
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPath,
                                               8, 0);
-    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPath,
+    SessionsConfigurationBoxLayout->addWidget(SessionsImageDsoSearchPathBrowse,
+                                              8, 1);
+    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathLabel,
                                               9, 0);
+    SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPath,
+                                              10, 0);
     SessionsConfigurationBoxLayout->addWidget(SessionsAudioDsoSearchPathBrowse,
-                                              9, 1);
+                                              10, 1);
 
     SessionsConfigurationBox->setLayout(SessionsConfigurationBoxLayout);
 
@@ -297,6 +304,11 @@ HEMAX_SessionWidget::HEMAX_SessionWidget(HEMAX_Plugin* ActivePlugin)
                      this,
                      SLOT(SlotSessionsAudioDsoSearchPathBrowse()));
 
+    QObject::connect(SessionsTimeout,
+                     SIGNAL(editingFinished()),
+                     this,
+                     SLOT(SlotSessionsTimeoutEditingFinished()));
+
     QObject::connect(SessionsHoudiniEnvFiles,
                      SIGNAL(editingFinished()),
                      this,
@@ -340,6 +352,8 @@ HEMAX_SessionWidget::~HEMAX_SessionWidget()
     delete SessionsHoudiniEnvFilesBrowse;
     delete SessionsHoudiniEnvFiles;
     delete SessionsHoudiniEnvFilesLabel;
+    delete SessionsTimeout;
+    delete SessionsTimeoutLabel;
 
     delete SessionsConfigurationBoxLayout;
     delete SessionsConfigurationBox;
@@ -520,6 +534,12 @@ HEMAX_SessionWidget::InitFieldsFromPrefs()
             SessionsSharedMemoryBufferType->setCurrentIndex(0);
         else if (SharedMemType == "RING")
             SessionsSharedMemoryBufferType->setCurrentIndex(1);
+    }
+
+    int Timeout;
+    if (Prefs.GetIntSetting(HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, Timeout))
+    {
+        SessionsTimeout->setText(QString::number(Timeout));
     }
 
     std::string HoudiniEnvFilePath;
@@ -829,6 +849,14 @@ HEMAX_SessionWidget::SlotSessionsAudioDsoSearchPathBrowse()
     HEMAX_UserPrefs::Get().SetStringSetting(
         HEMAX_SETTING_SESSION_AUDIO_DSO_SEARCH,
         SessionsAudioDsoSearchPath->text().toStdString());
+}
+
+void
+HEMAX_SessionWidget::SlotSessionsTimeoutEditingFinished()
+{
+    HEMAX_UserPrefs::Get().SetIntSetting(
+            HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT,
+            SessionsTimeout->text().toInt());
 }
 
 void
