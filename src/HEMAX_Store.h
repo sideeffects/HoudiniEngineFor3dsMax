@@ -4,7 +4,9 @@
 #include "HEMAX_Asset.h"
 
 #include <list>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 #pragma warning(push, 0)
 #include <simpmod.h>
@@ -20,7 +22,7 @@ const char* const HEMAX_ENV_HDA_PATH = "HEMAX_HDA_PATH";
 class HEMAX_Store
 {
     public:
-        HEMAX_Store() = default;
+        HEMAX_Store();
 	~HEMAX_Store() = default;
 
 	std::vector<std::string> GetListOfLoadedAssets();
@@ -32,6 +34,9 @@ class HEMAX_Store
 	void LoadAllAssetsInDirectory(std::string Directory);
 
 	bool IsAssetLoaded(std::string Path);
+
+        const std::vector<std::string>& GetHemaxHdaPaths() const
+            { return HdaPaths; }
 
 	void EmptyOutStore();
 	void DeleteAll3dsMaxInputs();
@@ -81,4 +86,6 @@ class HEMAX_Store
 	std::unordered_map<ULONG, std::list<HEMAX_ModifierHda*>> ModifierHdaStore;
 
 	void DeleteMaxNode(ULONG MaxNodeHandle, std::vector<ULONG>& ScheduledDeletionList);
+
+        std::vector<std::string> HdaPaths;
 };

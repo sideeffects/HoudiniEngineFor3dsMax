@@ -5,6 +5,7 @@
 #include "HEMAX_GeometryHda.h"
 #include "HEMAX_Modifier.h"
 #include "HEMAX_ModifierHda.h"
+#include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
 #include <icustattribcontainer.h>
@@ -12,6 +13,21 @@
 
 #include <QtCore\qfileinfo.h>
 #include <QtCore\qdir.h>
+
+#include <sstream>
+
+HEMAX_Store::HEMAX_Store()
+{
+    std::string HemaxHdaPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
+    if (!HemaxHdaPath.empty())
+    {
+        std::istringstream PathStream(HemaxHdaPath);
+        for (std::string Path; std::getline(PathStream, Path, ';');)
+        {
+            HdaPaths.push_back(Path);
+        }
+    }
+}
 
 std::vector<std::string>
 HEMAX_Store::GetListOfLoadedAssets()
@@ -58,27 +74,25 @@ HEMAX_Store::LoadNewAsset(std::string Path, bool& Success)
     if (AssetLoadStatus != HEMAX_ASSET_ALREADY_LOADED)
     {
 	// Try HEMAX_HDA_PATH first
-	std::string HdaPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
+        for (auto&& HdaPath : HdaPaths)
+        {
+            QString PathString(HdaPath.c_str());
+            QFileInfo HdaFileInfo(Path.c_str());
+            QString HdaFile = HdaFileInfo.fileName();
 
-	if (!HdaPath.empty())
-	{
-	    QString PathString(HdaPath.c_str());
-	    QFileInfo HdaFileInfo(Path.c_str());
-	    QString HdaFile = HdaFileInfo.fileName();
+            QString NewHdaFilePath = PathString.append("/") + HdaFile;
 
-	    QString NewHdaFilePath = PathString.append("/") + HdaFile;
+            NewAsset.Path = NewHdaFilePath.toStdString();
+            HEMAX_AssetLoadStatus LoadSt = NewAsset.LoadAsset();
 
-	    NewAsset.Path = NewHdaFilePath.toStdString();
-	    HEMAX_AssetLoadStatus LoadSt = NewAsset.LoadAsset();
-
-	    if (LoadSt == HEMAX_ASSET_NO_STATUS)
-	    {
-		std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
-		LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
-		Success = true;
-		return NewHdaFilePath.toStdString();
-	    }
-	}
+            if (LoadSt == HEMAX_ASSET_NO_STATUS)
+            {
+                std::replace(NewAsset.Path.begin(), NewAsset.Path.end(), '\\', '/');
+                LoadedAssetLibraries.insert({ NewAsset.Path, NewAsset });
+                Success = true;
+                return NewHdaFilePath.toStdString();
+            }
+        }
 
 	// If it was not found, next try the user's HDA repository directory
 	if (!UserHdaRepository.empty() && AssetLoadStatus != HEMAX_ASSET_ALREADY_LOADED)

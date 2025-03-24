@@ -2191,11 +2191,10 @@ HEMAX_Plugin::TraverseHdaLoadPaths()
         AutoLoadHdaDir);
     PluginStore->LoadAllAssetsInDirectory(AutoLoadHdaDir);
 
-    std::string HdaLoadPath = HEMAX_Utilities::GetEnvVar(HEMAX_ENV_HDA_PATH);
-
-    if (!HdaLoadPath.empty())
+    auto&& HdaLoadPaths = PluginStore->GetHemaxHdaPaths();
+    for (auto&& Path : HdaLoadPaths)
     {
-	PluginStore->LoadAllAssetsInDirectory(HdaLoadPath);
+        PluginStore->LoadAllAssetsInDirectory(Path);
     }
 }
 
