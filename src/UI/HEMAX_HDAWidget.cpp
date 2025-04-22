@@ -13,7 +13,8 @@
     defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
 #include <QtWidgets\qapplication.h>
 #include <QtWidgets\qfiledialog.h>
 #include <QtWidgets\qmenu.h>

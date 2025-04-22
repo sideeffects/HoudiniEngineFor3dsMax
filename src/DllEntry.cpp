@@ -87,7 +87,8 @@ LibVersion()
 __declspec( dllexport ) int
 LibInitialize(void)
 {
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
     RegisterNotification(&HEMAXLauncher::OnCUIRegisterMenus,
         HEMAXLauncher::GetInstance(), NOTIFY_CUI_REGISTER_MENUS); 
 #endif
@@ -100,7 +101,8 @@ LibInitialize(void)
 __declspec( dllexport ) int
 LibShutdown(void)
 {
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
     UnRegisterNotification(&HEMAXLauncher::OnCUIRegisterMenus,
         HEMAXLauncher::GetInstance(), NOTIFY_CUI_REGISTER_MENUS);
 #endif

@@ -319,7 +319,7 @@ HEMAX_SessionManager::StartThriftNamedPipeThinClient()
         if (HEMAX_UserPrefs::Get().GetIntSetting(
                     HEMAX_SETTING_SESSION_CONNECTION_TIMEOUT, TimeoutPref))
         {
-            ServerOptions.timeoutMs = TimeoutPref*1000;
+            ServerOptions.timeoutMs = TimeoutPref*1000.0f;
         }
         else
         {

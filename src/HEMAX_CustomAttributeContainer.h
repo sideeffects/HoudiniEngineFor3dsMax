@@ -83,7 +83,8 @@ class HEMAX_ParameterAttrib : public CustAttrib
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* GetName(bool Localized = false) override;
 #else
         const TCHAR* GetName() override;
@@ -132,7 +133,8 @@ class HEMAX_IntegerParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -167,7 +169,8 @@ class HEMAX_StringParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -199,7 +202,8 @@ class HEMAX_FloatParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -231,7 +235,8 @@ class HEMAX_ToggleParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -254,7 +259,8 @@ class HEMAX_NodeParameterAttrib : public HEMAX_ParameterAttrib
 	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
 #if defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         void RefDeletedUndoRedo(RefMakerHandle oldOwner) override;
 #else
 	void RefDeletedUndoRedo() override;
@@ -278,7 +284,8 @@ class HEMAX_NodeParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -301,7 +308,8 @@ class HEMAX_NodeListParameterAttrib : public HEMAX_ParameterAttrib
 	RefResult NotifyRefChanged(const Interval& ChangeInt, RefTargetHandle hTarget, PartID& PartID, RefMessage Message, BOOL Propagate);
 
 #if defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         void RefDeletedUndoRedo(RefMakerHandle oldOwner) override;
 #else
 	void RefDeletedUndoRedo() override;
@@ -325,7 +333,8 @@ class HEMAX_NodeListParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
@@ -356,7 +365,8 @@ class HEMAX_MultiParameterAttrib_ClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         const TCHAR* NonLocalizedClassName();
 #endif
 	const TCHAR* ClassName();
