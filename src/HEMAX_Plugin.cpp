@@ -604,7 +604,8 @@ HEMAX_Plugin::HandleModifierPostAdd(HEMAX_ModifierEvent* ModEvent)
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
     std::wstring ModifierName(ModEvent->mod->GetName(false).data());
 #else
     std::wstring ModifierName(ModEvent->mod->GetName());
@@ -915,7 +916,8 @@ HEMAX_Plugin::ReengageModifierHda(
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
     TSTR AssetPathAttribName(AssetPathAttrib->GetName(false));
 #else
     TSTR AssetPathAttribName(AssetPathAttrib->GetName());
@@ -1008,7 +1010,8 @@ HEMAX_Plugin::ReengageGeometryHda(
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
     TSTR AssetPathAttribName(AssetPathAttrib->GetName(false));
 #else
     TSTR AssetPathAttribName(AssetPathAttrib->GetName());
@@ -1833,7 +1836,8 @@ HEMAX_Plugin::ReloadAssetDefinition(HEMAX_Node *Node)
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
                 std::wstring ModName = ModifierHda->DisplayGeometry->GetName(false).data();
 #else
                 std::wstring ModName = ModifierHda->DisplayGeometry->GetName().data();

@@ -641,9 +641,10 @@ HEMAX_Store::Find3dsmaxHdaViaChildGeometry(ULONG NodeHandle)
     {
         CustAttrib* StampLookup = CustomAttributes->GetCustAttrib(HEMAX_MAX_GEO_STAMP_INDEX);
 #if defined(HEMAX_VERSION_2022) || \
-defined(HEMAX_VERSION_2023) || \
-defined(HEMAX_VERSION_2024) || \
-defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2023) || \
+    defined(HEMAX_VERSION_2024) || \
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         TSTR CustAttribName = StampLookup->GetName(false);
 #else
         TSTR CustAttribName = StampLookup->GetName();

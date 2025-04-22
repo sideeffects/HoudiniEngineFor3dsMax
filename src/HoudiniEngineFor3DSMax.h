@@ -10,7 +10,10 @@
 #include <maxtypes.h>
 #include <utilapi.h>
 #include <actiontable.h>
+#if !defined(HEMAX_VERSION_2025) && \
+    !defined(HEMAX_VERSION_2026)
 #include <imenuman.h>
+#endif
 #include <guplib.h>
 #include <notify.h>
 #pragma warning(pop)
@@ -38,7 +41,8 @@ const ActionContextId HEMAX_Context_Id = 0x626b4e5c;
 extern TCHAR *GetString( int id );
 extern HINSTANCE hInstance;
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
 namespace MaxSDK::CUI
 {
 class ICuiMenuManager;
@@ -70,7 +74,8 @@ class HEMAXLauncher : public GUP, ActionCallback
 	virtual DWORD_PTR Control(DWORD parameter);
 	virtual void      DeleteThis();
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         void InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager);
 #else
 	void InstallMenu(IMenuManager* MenuManager);
@@ -91,7 +96,8 @@ class HEMAXLauncher : public GUP, ActionCallback
 
         void UpdateOptionsDialog();
 
-#ifdef HEMAX_VERSION_2025
+#if defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         static void OnCUIRegisterMenus(void* Param, NotifyInfo* Info);
 #else
         static void OnCUIMenusLoaded(void* param, NotifyInfo* info);
@@ -131,7 +137,8 @@ class HEMAXLauncherClassDesc : public ClassDesc2
 #if defined(HEMAX_VERSION_2022) || \
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
-    defined(HEMAX_VERSION_2025)
+    defined(HEMAX_VERSION_2025) || \
+    defined(HEMAX_VERSION_2026)
         virtual const TCHAR* NonLocalizedClassName() override
             { return GetString(IDS_CLASS_NAME); }
 #endif
