@@ -17,6 +17,7 @@ class HEMAX_Node;
 class HEMAX_ParameterWidget;
 class HEMAX_Plugin;
 
+class QCheckBox;
 class QFrame;
 class QHBoxLayout;
 class QImage;
@@ -55,6 +56,7 @@ private:
 
     void                            UpdateSessionStatusWidget();
     void                            UpdateSelectionWidget();
+    void                            UpdateAssetOptionsWidget();
 
     bool                            LoadHoudiniEngineLogo();
 
@@ -97,7 +99,16 @@ private:
     QWidget*                        CloneControlsCollapsibleWidget  = nullptr;
     QHBoxLayout*                    CloneControlsContentLayout      = nullptr;
     QPushButton*                    CloneButton                     = nullptr;
+    // TODO: this needs to be implemented in the source file
     QPushButton*                    CopyToObjectButton              = nullptr;
+
+    QWidget*                        AssetOptionsWidget              = nullptr;
+    QVBoxLayout*                    AssetOptionsWidgetLayout        = nullptr;
+    QToolButton*                    AssetOptionsHeader              = nullptr;
+    QWidget*                        AssetOptionsCollapsibleWidget   = nullptr;
+    QVBoxLayout*                    AssetOptionsContentLayout       = nullptr;
+    QCheckBox*                      AssetOptions_AutoRecook         = nullptr;
+    QCheckBox*                      AssetOptions_SliderDragCook     = nullptr;
 
     QWidget*                        ParametersWidget                = nullptr;
     QVBoxLayout*                    ParametersWidgetLayout          = nullptr;
@@ -109,6 +120,7 @@ private slots:
     void                            CookControlsHeaderClickedSlot();
     void                            BakeControlsHeaderClickedSlot();
     void                            CloneControlsHeaderClickedSlot();
+    void                            AssetOptionsHeaderClickedSlot();
     void                            ParametersHeaderClickedSlot();
 
     void                            RecookButtonClickedSlot();
@@ -116,6 +128,9 @@ private slots:
     void                            ResetParametersButtonClickedSlot();
     void                            BakeButtonClickedSlot();
     void                            CloneButtonClickedSlot();
+
+    void                            AssetOptions_AutoRecook_Toggled(int State);
+    void                            AssetOptions_SliderDragCook_Toggled(int State);
 
     void                            LockSelectionButtonClickedSlot();
 

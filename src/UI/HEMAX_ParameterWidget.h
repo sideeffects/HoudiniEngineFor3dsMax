@@ -100,12 +100,6 @@ class HEMAX_ParameterWidget : public QWidget
 	QGroupBox* NodeInputBox;
 	QGridLayout* NodeInputBoxLayout;
 
-	QGroupBox* NodeOptionsBox;
-	QGridLayout* NodeOptionsBoxLayout;
-	QCheckBox* NodeOptions_AutoRecook;
-	QCheckBox* NodeOptions_RealtimeRecook;
-	QCheckBox* NodeOptions_InputUpdate;
-
 	QWidget* ParametersDetailBox;
 	QGridLayout* ParametersDetailGridLayout;
 	std::vector<QHBoxLayout*> ParametersDetailRows;
@@ -123,10 +117,6 @@ class HEMAX_ParameterWidget : public QWidget
 	int CurrentRow;
 
     private slots:
-
-	void Slot_NodeOptions_AutoRecook_StateChanged(int State);
-	void Slot_NodeOptions_RealtimeRecook_StateChanged(int State);
-	void Slot_NodeOptions_InputUpdate_StateChanged(int State);
 
 	void Slot_PWINTEGER_EditingFinished();
 	void Slot_PWINTEGER_SliderDone();

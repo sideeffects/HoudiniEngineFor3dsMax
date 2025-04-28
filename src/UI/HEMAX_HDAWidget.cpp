@@ -12,6 +12,7 @@
 #ifdef HEMAX_VERSION_2017
 #pragma warning(push, 0)
 #include <QtGui/qboxlayout.h>
+#include <QtGui/qcheckbox.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qlabel.h>
 #include <QtGui/qmessagebox.h>
@@ -23,6 +24,7 @@
 #include <QtGui/qimage.h>
 #include <QtGui/qpixmap.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
@@ -109,6 +111,25 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
     CloneControlsWidgetLayout->addWidget(CloneControlsCollapsibleWidget);
     CloneControlsWidget->setLayout(CloneControlsWidgetLayout);
 
+    AssetOptionsWidget = new QWidget;
+    AssetOptionsWidgetLayout = new QVBoxLayout;
+    AssetOptionsWidgetLayout->setSpacing(0);
+    AssetOptionsWidgetLayout->setContentsMargins(0, 0, 0, 0);
+    AssetOptionsHeader = new QToolButton;
+    AssetOptionsHeader->setText("Asset Options");
+    AssetOptionsHeader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    AssetOptionsHeader->setArrowType(Qt::DownArrow);
+    AssetOptionsWidgetLayout->addWidget(AssetOptionsHeader);
+    AssetOptionsCollapsibleWidget = new QWidget;
+    AssetOptionsContentLayout = new QVBoxLayout;
+    AssetOptionsCollapsibleWidget->setLayout(AssetOptionsContentLayout);
+    AssetOptions_AutoRecook = new QCheckBox("Enable Automatic Recooking");
+    AssetOptionsContentLayout->addWidget(AssetOptions_AutoRecook);
+    AssetOptions_SliderDragCook = new QCheckBox("Cook While Dragging Parameter Slider");
+    AssetOptionsContentLayout->addWidget(AssetOptions_SliderDragCook);
+    AssetOptionsWidgetLayout->addWidget(AssetOptionsCollapsibleWidget);
+    AssetOptionsWidget->setLayout(AssetOptionsWidgetLayout);
+
     ParametersWidget = new QWidget;
     ParametersWidgetLayout = new QVBoxLayout;
     ParametersHeader = new QToolButton;
@@ -135,6 +156,7 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
     HDAWidgetLayout->addWidget(CookControlsWidget);
     HDAWidgetLayout->addWidget(BakeControlsWidget);
     HDAWidgetLayout->addWidget(CloneControlsWidget);
+    HDAWidgetLayout->addWidget(AssetOptionsWidget);
     HDAWidgetLayout->addWidget(ParametersWidget);
 
     CookControlsHeader->setStyleSheet(
@@ -142,6 +164,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
     BakeControlsHeader->setStyleSheet(
         "border: none; text-align: left");
     CloneControlsHeader->setStyleSheet(
+        "border: none; text-align: left");
+    AssetOptionsHeader->setStyleSheet(
         "border: none; text-align: left");
     ParametersHeader->setStyleSheet(
         "border: none; text-align: left");
@@ -156,6 +180,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
         this, SLOT(BakeControlsHeaderClickedSlot()));
     QObject::connect(CloneControlsHeader, SIGNAL(clicked()),
         this, SLOT(CloneControlsHeaderClickedSlot()));
+    QObject::connect(AssetOptionsHeader, SIGNAL(clicked()),
+        this, SLOT(AssetOptionsHeaderClickedSlot()));
     QObject::connect(ParametersHeader, SIGNAL(clicked()),
         this, SLOT(ParametersHeaderClickedSlot()));
     QObject::connect(RecookButton, SIGNAL(clicked()),
@@ -168,6 +194,10 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
         this, SLOT(BakeButtonClickedSlot()));
     QObject::connect(CloneButton, SIGNAL(clicked()),
         this, SLOT(CloneButtonClickedSlot()));
+    QObject::connect(AssetOptions_AutoRecook, SIGNAL(stateChanged(int)),
+        this, SLOT(AssetOptions_AutoRecook_Toggled(int)));
+    QObject::connect(AssetOptions_SliderDragCook, SIGNAL(stateChanged(int)),
+        this, SLOT(AssetOptions_SliderDragCook_Toggled(int)));
     QObject::connect(LockSelectionButton, SIGNAL(clicked()),
         this, SLOT(LockSelectionButtonClickedSlot()));
 
@@ -214,6 +244,7 @@ HEMAX_HDAWidget::Update()
 {
     UpdateSessionStatusWidget();
     UpdateSelectionWidget();
+    UpdateAssetOptionsWidget();
     ParametersContentWidget->RefreshUI(false);
 }
 
@@ -278,6 +309,24 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
     else
     {
         LockSelectionButton->setText("Lock Selection");
+    }
+}
+
+void
+HEMAX_HDAWidget::UpdateAssetOptionsWidget()
+{
+    if (Selection)
+    {
+        AssetOptionsCollapsibleWidget->setEnabled(true);
+
+        AssetOptions_AutoRecook->setChecked(
+                Selection->Hda.MainNode.AutoRecookOnParameterUpdate);
+        AssetOptions_SliderDragCook->setChecked(
+                Selection->Hda.MainNode.RealtimeRecookEnabled);
+    }
+    else
+    {
+        AssetOptionsCollapsibleWidget->setEnabled(false);
     }
 }
 
@@ -386,6 +435,24 @@ HEMAX_HDAWidget::CloneControlsHeaderClickedSlot()
     }
 }
 
+
+void
+HEMAX_HDAWidget::AssetOptionsHeaderClickedSlot()
+{
+    static int MaxHeight = AssetOptionsCollapsibleWidget->maximumHeight();
+
+    if (AssetOptionsCollapsibleWidget->maximumHeight() > 0)
+    {
+        AssetOptionsCollapsibleWidget->setMaximumHeight(0);
+        AssetOptionsHeader->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        AssetOptionsCollapsibleWidget->setMaximumHeight(MaxHeight);
+        AssetOptionsHeader->setArrowType(Qt::DownArrow);
+    }
+}
+
 void
 HEMAX_HDAWidget::ParametersHeaderClickedSlot()
 {
@@ -471,6 +538,20 @@ HEMAX_HDAWidget::CloneButtonClickedSlot()
 {
     if (Selection)
         Plugin->CloneHda(Selection); 
+}
+
+void
+HEMAX_HDAWidget::AssetOptions_AutoRecook_Toggled(int State)
+{
+    if (Selection)
+        Selection->Hda.MainNode.AutoRecookOnParameterUpdate = State;
+}
+
+void
+HEMAX_HDAWidget::AssetOptions_SliderDragCook_Toggled(int State)
+{
+    if (Selection)
+        Selection->Hda.MainNode.RealtimeRecookEnabled = State;    
 }
 
 void

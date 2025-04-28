@@ -42,13 +42,6 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
     MainBox = new QWidget(this);
     MainBoxLayout = new QVBoxLayout;
 
-    NodeOptionsBox = new QGroupBox("Node Options");
-    NodeOptionsBoxLayout = new QGridLayout;
-    NodeOptions_AutoRecook = new QCheckBox(NodeOptionAutoRecookLabel);
-    NodeOptions_RealtimeRecook = new QCheckBox(NodeOptionSliderCookLabel);
-    NodeOptions_InputUpdate =
-	new QCheckBox("Automatically cook when an input node changes");
-
     NodeInputBox = new QGroupBox("Node Inputs");
     NodeInputBoxLayout = new QGridLayout;
 
@@ -56,19 +49,9 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
     ParametersDetailGridLayout = new QGridLayout;
 
     MainBoxLayout->setAlignment(Qt::AlignTop);
-    NodeOptionsBox->setAlignment(Qt::AlignTop);
-    NodeOptionsBoxLayout->setAlignment(Qt::AlignTop);
     NodeInputBox->setAlignment(Qt::AlignTop);
     NodeInputBoxLayout->setAlignment(Qt::AlignTop);
     ParametersDetailGridLayout->setAlignment(Qt::AlignTop);
-
-    NodeOptionsBoxLayout->addWidget(NodeOptions_AutoRecook, 0, 0);
-    NodeOptionsBoxLayout->addWidget(NodeOptions_RealtimeRecook, 1, 0);
-    // NodeOptionsBoxLayout->addWidget(NodeOptions_InputUpdate, 2, 0);
-
-    NodeOptionsBox->setLayout(NodeOptionsBoxLayout);
-
-    MainBoxLayout->addWidget(NodeOptionsBox);
 
     NodeInputBox->setLayout(NodeInputBoxLayout);
     MainBoxLayout->addWidget(NodeInputBox);
@@ -86,17 +69,8 @@ HEMAX_ParameterWidget::HEMAX_ParameterWidget()
     SelectedHda = nullptr;
     SelectionLocked = false;
 
-    NodeOptionsBox->setVisible(false);
     NodeInputBox->setVisible(false);
     ParametersDetailBox->setVisible(false);
-
-    QObject::connect(NodeOptions_AutoRecook, SIGNAL(stateChanged(int)), this,
-	    SLOT(Slot_NodeOptions_AutoRecook_StateChanged(int)));
-    QObject::connect(NodeOptions_RealtimeRecook, SIGNAL(stateChanged(int)),
-	    this,
-	    SLOT(Slot_NodeOptions_RealtimeRecook_StateChanged(int)));
-    QObject::connect(NodeOptions_InputUpdate, SIGNAL(stateChanged(int)), this,
-	    SLOT(Slot_NodeOptions_InputUpdate_StateChanged(int)));
 }
 
 void
@@ -138,7 +112,6 @@ void
 HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 {
     OpParmWidgets.clear();
-    NodeOptionsBox->setVisible(false);
     NodeInputBox->setVisible(false);
     ParametersDetailBox->setVisible(false);
 
@@ -776,23 +749,11 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 	    HorizontalJoinNextParam = CurrentParameter->Info.joinNext;
 	}
 
-	NodeOptionsBox->setVisible(true);
 	if (CurrentNode->Type == HAPI_NODETYPE_SOP && CurrentNode->Info.inputCount > 0)
 	{
 	    NodeInputBox->setVisible(true);
 	}
 	ParametersDetailBox->setVisible(true);
-	NodeOptions_AutoRecook->setChecked(
-		CurrentNode->AutoRecookOnParameterUpdate);
-	NodeOptions_RealtimeRecook->setChecked(
-		CurrentNode->RealtimeRecookEnabled);
-	NodeOptions_InputUpdate->setChecked(
-		CurrentNode->AutoRecookOnInputChange);
-
-	if (!CurrentNode->AutoRecookOnParameterUpdate)
-	{
-	    NodeOptions_RealtimeRecook->setEnabled(false);
-	}
     }
 
     this->update();
@@ -849,38 +810,6 @@ HEMAX_ParameterWidget::CreateParameterWidget_Color(HEMAX_Parameter& Parameter, s
     else
     {
 	return new HEMAX_ParameterWidget_Parameter(-1);
-    }
-}
-
-void
-HEMAX_ParameterWidget::Slot_NodeOptions_AutoRecook_StateChanged(int State)
-{
-    HEMAX_Node* CurrentNode = GetCurrentNode();
-    if (CurrentNode)
-    {
-	CurrentNode->AutoRecookOnParameterUpdate = State;
-    }
-
-    NodeOptions_RealtimeRecook->setEnabled(State);
-}
-
-void
-HEMAX_ParameterWidget::Slot_NodeOptions_RealtimeRecook_StateChanged(int State)
-{
-    HEMAX_Node* CurrentNode = GetCurrentNode();
-    if (CurrentNode)
-    {
-	CurrentNode->RealtimeRecookEnabled = State;
-    }
-}
-
-void
-HEMAX_ParameterWidget::Slot_NodeOptions_InputUpdate_StateChanged(int State)
-{
-    HEMAX_Node* CurrentNode = GetCurrentNode();
-    if (CurrentNode)
-    {
-	CurrentNode->AutoRecookOnInputChange = State;
     }
 }
 
