@@ -35,7 +35,9 @@ class HEMAX_AssetSelection : public QDialog
 
     public:
 	HEMAX_AssetSelection(std::vector<std::string> AssetNames);
-	HEMAX_AssetSelection(std::vector<std::string> AssetNames, std::string DialogTitle, std::string DialogSubtitle);
+	HEMAX_AssetSelection(std::vector<std::string> AssetNames,
+                std::string DialogTitle,
+                std::string DialogSubtitle);
 	~HEMAX_AssetSelection();
 
 	std::string GetSelectedAssetName();

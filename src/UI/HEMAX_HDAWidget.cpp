@@ -2,11 +2,14 @@
 
 #include "moc_HEMAX_HDAWidget.cpp"
 
+#include "HEMAX_AssetSelection.h"
 #include "HEMAX_ParameterWidget.h"
 #include "../HEMAX_3dsmaxHda.h"
 #include "../HEMAX_GeometryHda.h"
+#include "../HEMAX_ModifierHda.h"
 #include "../HEMAX_Plugin.h"
 #include "../HEMAX_SessionManager.h"
+#include "../HEMAX_Utilities.h"
 #include "../resource.h"
 
 #ifdef HEMAX_VERSION_2017
@@ -108,6 +111,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
     CloneControlsCollapsibleWidget->setLayout(CloneControlsContentLayout);
     CloneButton = new QPushButton("Clone");
     CloneControlsContentLayout->addWidget(CloneButton);
+    CopyToObjectButton = new QPushButton("Copy to Object");
+    CloneControlsContentLayout->addWidget(CopyToObjectButton);
     CloneControlsWidgetLayout->addWidget(CloneControlsCollapsibleWidget);
     CloneControlsWidget->setLayout(CloneControlsWidgetLayout);
 
@@ -194,6 +199,8 @@ HEMAX_HDAWidget::HEMAX_HDAWidget(HEMAX_Plugin* ThePlugin)
         this, SLOT(BakeButtonClickedSlot()));
     QObject::connect(CloneButton, SIGNAL(clicked()),
         this, SLOT(CloneButtonClickedSlot()));
+    QObject::connect(CopyToObjectButton, SIGNAL(clicked()),
+        this, SLOT(CopyToObjectButtonClickedSlot()));
     QObject::connect(AssetOptions_AutoRecook, SIGNAL(stateChanged(int)),
         this, SLOT(AssetOptions_AutoRecook_Toggled(int)));
     QObject::connect(AssetOptions_SliderDragCook, SIGNAL(stateChanged(int)),
@@ -521,16 +528,37 @@ HEMAX_HDAWidget::BakeButtonClickedSlot()
     if (!Selection)
         return;
 
-    if (Selection->Type != HEMAX_GEOMETRY_HDA)
-        return;
+    if (Selection->Type == HEMAX_GEOMETRY_HDA)
+    {
+        HEMAX_GeometryHda* GeometryHda = dynamic_cast<HEMAX_GeometryHda*>(Selection);
 
-    HEMAX_GeometryHda* GeometryHda = dynamic_cast<HEMAX_GeometryHda*>(Selection);
+        if (!GeometryHda)
+            return;
 
-    if (!GeometryHda)
-        return;
+        std::vector<INode*> BakeResults;
+        GeometryHda->Bake(BakeResults);
+    }
+    else if (Selection->Type == HEMAX_MODIFIER_HDA)
+    {
+        HEMAX_ModifierHda* ModifierHda = dynamic_cast<HEMAX_ModifierHda*>(Selection);
 
-    std::vector<INode*> BakeResults;
-    GeometryHda->Bake(BakeResults);
+        if (!ModifierHda)
+            return;
+
+        if (!ModifierHda->ContainerNode)
+            return;
+
+        int ModifierIndex, DerivedObjIndex;
+
+        if (!GetCOREInterface7()->FindModifier(*(ModifierHda->ContainerNode),
+                    *(ModifierHda->DisplayGeometry),
+                    ModifierIndex,
+                    DerivedObjIndex))
+            return;
+
+        GetCOREInterface()->CollapseNodeTo(ModifierHda->ContainerNode,
+                ModifierIndex);
+    }
 }
 
 void
@@ -538,6 +566,39 @@ HEMAX_HDAWidget::CloneButtonClickedSlot()
 {
     if (Selection)
         Plugin->CloneHda(Selection); 
+}
+
+void
+HEMAX_HDAWidget::CopyToObjectButtonClickedSlot()
+{
+    if (!Selection)
+        return;
+
+    std::vector<std::string> Nodes;
+    HEMAX_Utilities::GetListOfAllSceneNodes(Nodes);
+
+    std::stringstream SelectMessage;
+    SelectMessage << "Select the node where " << Selection->Hda.MainNode.AssetName
+            << " will be copied to:";
+
+    HEMAX_AssetSelection NodeSelectDialog(Nodes, "Copy to Object",
+            SelectMessage.str());
+
+    if (!NodeSelectDialog.exec())
+        return;
+
+    std::string Selected = NodeSelectDialog.GetSelectedAssetName();
+
+    if (Selected.empty())
+        return;
+
+    std::wstring SelectedW = HEMAX_Utilities::GetWideString(Selected);
+    INode* SelectedNode = GetCOREInterface()->GetINodeByName(SelectedW.c_str());
+
+    if (!SelectedNode)
+        return;
+
+    Plugin->CopyHdaToNode(Selection, SelectedNode);
 }
 
 void

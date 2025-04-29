@@ -7,7 +7,8 @@ HEMAX_AssetSelection::HEMAX_AssetSelection(std::vector<std::string> AssetNames)
 {
 }
 
-HEMAX_AssetSelection::HEMAX_AssetSelection(std::vector<std::string> AssetNames, std::string DialogTitle, std::string DialogSubtitle)
+HEMAX_AssetSelection::HEMAX_AssetSelection(std::vector<std::string> AssetNames,
+        std::string DialogTitle, std::string DialogSubtitle)
 {
     this->resize(HEMAX_AssetSelection_DefaultWidth, HEMAX_AssetSelection_DefaultHeight);
     this->setWindowFlags(Qt::WindowStaysOnTopHint);
@@ -39,8 +40,10 @@ HEMAX_AssetSelection::HEMAX_AssetSelection(std::vector<std::string> AssetNames, 
 
     AssetSelectionList->sortItems();
 
-    QObject::connect(AssetSelectionButton, SIGNAL(clicked()), this, SLOT(SlotSelectionButtonClicked()));
-    QObject::connect(AssetSelectionList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SlotListSelection(QListWidgetItem*)));
+    QObject::connect(AssetSelectionButton, SIGNAL(clicked()),
+            this, SLOT(SlotSelectionButtonClicked()));
+    QObject::connect(AssetSelectionList, SIGNAL(itemClicked(QListWidgetItem*)),
+            this, SLOT(SlotListSelection(QListWidgetItem*)));
 
     CurrentSelection = "";
 }

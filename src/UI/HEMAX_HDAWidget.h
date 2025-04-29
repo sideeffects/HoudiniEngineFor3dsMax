@@ -99,7 +99,6 @@ private:
     QWidget*                        CloneControlsCollapsibleWidget  = nullptr;
     QHBoxLayout*                    CloneControlsContentLayout      = nullptr;
     QPushButton*                    CloneButton                     = nullptr;
-    // TODO: this needs to be implemented in the source file
     QPushButton*                    CopyToObjectButton              = nullptr;
 
     QWidget*                        AssetOptionsWidget              = nullptr;
@@ -128,6 +127,7 @@ private slots:
     void                            ResetParametersButtonClickedSlot();
     void                            BakeButtonClickedSlot();
     void                            CloneButtonClickedSlot();
+    void                            CopyToObjectButtonClickedSlot();
 
     void                            AssetOptions_AutoRecook_Toggled(int State);
     void                            AssetOptions_SliderDragCook_Toggled(int State);

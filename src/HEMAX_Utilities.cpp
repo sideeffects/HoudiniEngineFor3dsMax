@@ -495,6 +495,42 @@ HEMAX_Utilities::GetListOfChildNodes(INode* Node,
     }
 }
 
+void
+HEMAX_Utilities::GetListOfAllSceneNodes(std::vector<std::string>& NodeNames)
+{
+    NodeNames.clear();
+    
+    INode* RootNode = GetCOREInterface()->GetRootNode();
+
+    if (!RootNode)
+        return;
+
+    int ChildCount = RootNode->NumberOfChildren();
+    for (int c = 0; c < ChildCount; ++c)
+    {
+        NodeNames.push_back(HEMAX_Utilities::GetUtf8String(
+                    RootNode->GetChildNode(c)->GetName()));
+        GetListOfChildNodes(RootNode->GetChildNode(c), NodeNames);
+    }
+}
+
+void
+HEMAX_Utilities::GetListOfChildNodes(INode* Node,
+        std::vector<std::string>& NodeNames)
+{
+    if (!Node)
+        return;
+
+    int ChildCount = Node->NumberOfChildren();
+    for (int c = 0; c < ChildCount; ++c)
+    {
+        NodeNames.push_back(HEMAX_Utilities::GetUtf8String(
+                    Node->GetChildNode(c)->GetName()));
+        GetListOfChildNodes(Node->GetChildNode(c), NodeNames);
+    }
+
+}
+
 std::string
 HEMAX_Utilities::GetHAPIString(HAPI_StringHandle Handle)
 {

@@ -59,7 +59,12 @@ struct HEMAX_Utilities
     static bool IsOnlyOpenSplines(LinearShape* Curve);
 
     static void GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames);
-    static void GetListOfChildNodes(INode* Node, std::vector<std::wstring>& NodeNames);
+    static void GetListOfChildNodes(INode* Node,
+            std::vector<std::wstring>& NodeNames);
+
+    static void GetListOfAllSceneNodes(std::vector<std::string>& NodeNames);
+    static void GetListOfChildNodes(INode* Node,
+            std::vector<std::string>& NodeNames);
 
     static std::string GetHAPIString(HAPI_StringHandle Handle);
     static std::string GetConnectionError();
