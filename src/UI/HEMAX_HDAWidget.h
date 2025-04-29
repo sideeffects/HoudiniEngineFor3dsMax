@@ -56,6 +56,9 @@ private:
 
     void                            UpdateSessionStatusWidget();
     void                            UpdateSelectionWidget();
+    void                            UpdateCookControlsWidget();
+    void                            UpdateBakeControlsWidget();
+    void                            UpdateCloneControlsWidget();
     void                            UpdateAssetOptionsWidget();
 
     bool                            LoadHoudiniEngineLogo();

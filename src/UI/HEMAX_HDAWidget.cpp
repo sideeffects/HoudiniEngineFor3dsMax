@@ -251,6 +251,9 @@ HEMAX_HDAWidget::Update()
 {
     UpdateSessionStatusWidget();
     UpdateSelectionWidget();
+    UpdateCookControlsWidget();
+    UpdateBakeControlsWidget();
+    UpdateCloneControlsWidget();
     UpdateAssetOptionsWidget();
     ParametersContentWidget->RefreshUI(false);
 }
@@ -303,10 +306,13 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
             << _T(")");
         CurrentSelectionLabel->setText(
             HEMAX_Utilities::GetQString(Sstream.str()));
+
+        LockSelectionButton->setEnabled(true);
     }
     else
     {
         CurrentSelectionLabel->setText("No Asset Selected");
+        LockSelectionButton->setEnabled(false);
     }
 
     if (Locked)
@@ -317,6 +323,33 @@ HEMAX_HDAWidget::UpdateSelectionWidget()
     {
         LockSelectionButton->setText("Lock Selection");
     }
+}
+
+void
+HEMAX_HDAWidget::UpdateCookControlsWidget()
+{
+    if (Selection)
+        CookControlsCollapsibleWidget->setEnabled(true);
+    else
+        CookControlsCollapsibleWidget->setEnabled(false);
+}
+
+void
+HEMAX_HDAWidget::UpdateBakeControlsWidget()
+{
+    if (Selection)
+        BakeControlsCollapsibleWidget->setEnabled(true);
+    else
+        BakeControlsCollapsibleWidget->setEnabled(false);
+}
+
+void
+HEMAX_HDAWidget::UpdateCloneControlsWidget()
+{
+    if (Selection)
+        CloneControlsCollapsibleWidget->setEnabled(true);
+    else
+        CloneControlsCollapsibleWidget->setEnabled(false);
 }
 
 void
