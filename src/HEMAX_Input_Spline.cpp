@@ -182,15 +182,15 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
                 0, (int)OrdersArray.size());
 
             HAPI_AttributeInfo PointAttributeInfo = AddNewPointAttribute(
-                PointCount, 3, HEMAX_POSITION_ATTRIBUTE);
+                PointCount, 3, HAPI_ATTRIB_POSITION);
             SendFloatAttributeData(
-                HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
+                HAPI_ATTRIB_POSITION, PointAttributeInfo,
                 &PointsArray.front(), PointCount);
 
             HAPI_AttributeInfo MatIdAttributeInfo = AddNewPointAttribute(
-                PointCount, 1, HEMAX_MATERIAL_ID_ATTRIBUTE,
+                PointCount, 1, HEMAX_ATTRIB_MATERIAL_ID,
                 HAPI_STORAGETYPE_INT);
-            SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE,
+            SendIntAttributeData(HEMAX_ATTRIB_MATERIAL_ID,
                 MatIdAttributeInfo, MatIdArray.data(), PointCount);
 
 	    INode* InputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
@@ -236,15 +236,15 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
                 (int)VerticesArray.size(), PointCount);
 
             HAPI_AttributeInfo PointAttrInfo = AddNewPointAttribute(PointCount,
-                3, HEMAX_POSITION_ATTRIBUTE);
+                3, HAPI_ATTRIB_POSITION);
             SendPointAttributeData(PointAttrInfo, PointsArray.data(),
                 VerticesArray.data(), FaceCountArray.data(), CurveCount,
                 (int)VerticesArray.size(), PointCount,
-                HEMAX_POSITION_ATTRIBUTE);
+                HAPI_ATTRIB_POSITION);
 
             HAPI_AttributeInfo MatIdAttrInfo = AddNewPointAttribute(PointCount,
-                1, HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_STORAGETYPE_INT);
-            SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE,
+                1, HEMAX_ATTRIB_MATERIAL_ID, HAPI_STORAGETYPE_INT);
+            SendIntAttributeData(HEMAX_ATTRIB_MATERIAL_ID,
                 MatIdAttrInfo, MatIdArray.data(), PointCount);
 
             INode* InputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);

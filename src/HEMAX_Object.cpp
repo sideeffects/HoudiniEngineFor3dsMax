@@ -153,7 +153,7 @@ GetInstancingInfo(HAPI_ObjectInfo& InstancerObjInfo, HEMAX_InstancingInformation
 
 	HAPI_AttributeInfo InstanceObjInfo;
         HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, GeoInfo.nodeId, 0,
-			HEMAX_INSTANCE_ATTRIBUTE, HAPI_ATTROWNER_POINT,
+			HAPI_ATTRIB_INSTANCE, HAPI_ATTROWNER_POINT,
 			&InstanceObjInfo);
 
 	if (InstanceObjInfo.exists)

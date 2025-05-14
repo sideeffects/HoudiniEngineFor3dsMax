@@ -22,11 +22,11 @@ MarshallDataInto3dsMaxLinearCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edit
 
 	HAPI_AttributeInfo PositionAttributeInfo;
         HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, EditableNode.GeoInfo.nodeId,
-                EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
+                EditableNode.Parts[PartNum].Info.id, HAPI_ATTRIB_POSITION,
                 HAPI_ATTROWNER_POINT, &PositionAttributeInfo);
         HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
-                HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo, -1,
+                HAPI_ATTRIB_POSITION, &PositionAttributeInfo, -1,
                 ShapePoints, 0, EditableCurve.CurveInfo.vertexCount);
 
         float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
@@ -112,11 +112,11 @@ MarshallDataInto3dsMaxNURBSCVCurve(HEMAX_EditableCurve& EditableCurve, HEMAX_Edi
 
 	HAPI_AttributeInfo CVAttributeInfo;
         HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, EditableNode.GeoInfo.nodeId,
-                EditableNode.Parts[PartNum].Info.id, HEMAX_POSITION_ATTRIBUTE,
+                EditableNode.Parts[PartNum].Info.id, HAPI_ATTRIB_POSITION,
                 HAPI_ATTROWNER_POINT, &CVAttributeInfo);
         HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, EditableNode.GeoInfo.nodeId,
                 EditableNode.Parts[PartNum].Info.id,
-                HEMAX_POSITION_ATTRIBUTE, &CVAttributeInfo, -1, CVPoints, 0,
+                HAPI_ATTRIB_POSITION, &CVAttributeInfo, -1, CVPoints, 0,
                 CVCount);
 
         float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();

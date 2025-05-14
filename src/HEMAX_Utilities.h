@@ -28,60 +28,99 @@ struct HEMAX_MaxTransform
 
 struct HEMAX_Utilities
 {
-    static HEMAX_MaxTransform HAPITransformToMaxTransform(HAPI_Transform& Transform);
-    static HEMAX_MaxTransform GetIdentityTransform();
-    static HAPI_Transform MaxTransformToHAPITransform(const HEMAX_MaxTransform& Transform, const HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
-    static HAPI_TransformEuler HAPITransformToHAPITransformEuler(HAPI_Transform& Transform, HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
-    static HAPI_TransformEuler MaxTransformToHAPITransformEuler(const HEMAX_MaxTransform& Transform, const HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
-    static HEMAX_MaxTransform BuildMaxTransformFromINode(INode* Node);
-    static void SetINodeTransform(INode* Node, HEMAX_MaxTransform& Transform);
-    static void ApplyTransformToINode(INode* Node, HEMAX_MaxTransform& Transform);
-    static Matrix3 MaxTransformToMatrix3(HEMAX_MaxTransform& Transform);
-    static HEMAX_MaxTransform CalculateRelativeTransformBetweenINodes(INode* OriginNode, INode* SecondaryNode);
-    static Matrix3 GetINodeTransformationMatrix(INode* Node);
-    static Matrix3 GetINodeLocalTransformationMatrix(INode* Node);
-    static void Matrix3ToFlatArray(Matrix3& In, std::vector<float>& Out);
+    static HEMAX_MaxTransform   HAPITransformToMaxTransform(
+                                        HAPI_Transform& Transform);
 
-    static float GetHoudiniToMaxScale();
-    static float GetMaxToHoudiniScale();
+    static HEMAX_MaxTransform   GetIdentityTransform();
 
-    static void ConstructPointString(float* Points, int PointCount, std::string& PointString);
-    static void ExtractPointsFromParmString(std::vector<Point3>& Points, std::string& PointString);
+    static HAPI_Transform       MaxTransformToHAPITransform(
+                                        const HEMAX_MaxTransform& Transform,
+                                        const HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
 
-    static std::string CreateHoudiniVersionString(int HoudiniMajorVersion, int HoudiniMinorVersion, int HoudiniBuildVersion, int PatchNumber);
-    static std::string GetHoudiniRegistryPath(std::string VersionString);
-    static std::string GetHoudiniSteamRegistryPath(std::string VersionString);
+    static HAPI_TransformEuler  HAPITransformToHAPITransformEuler(
+                                        HAPI_Transform& Transform,
+                                        HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
 
-    static std::string GetEnvVar(std::string Var);
-    static void SetEnvVar(std::string Var, std::string Val);
+    static HAPI_TransformEuler  MaxTransformToHAPITransformEuler(
+                                        const HEMAX_MaxTransform& Transform,
+                                        const HAPI_RSTOrder RSTOrder = HAPI_RSTORDER_DEFAULT);
 
-    static bool IsOnlyClosedSplines(LinearShape* Curve);
-    static bool IsOnlyOpenSplines(LinearShape* Curve);
+    static HEMAX_MaxTransform   BuildMaxTransformFromINode(INode* Node);
 
-    static void GetListOfAllSceneNodes(std::vector<std::wstring>& NodeNames);
-    static void GetListOfChildNodes(INode* Node,
-            std::vector<std::wstring>& NodeNames);
+    static void                 SetINodeTransform(INode* Node,
+                                        HEMAX_MaxTransform& Transform);
 
-    static void GetListOfAllSceneNodes(std::vector<std::string>& NodeNames);
-    static void GetListOfChildNodes(INode* Node,
-            std::vector<std::string>& NodeNames);
+    static void                 ApplyTransformToINode(
+                                        INode* Node,
+                                        HEMAX_MaxTransform& Transform);
 
-    static std::string GetHAPIString(HAPI_StringHandle Handle);
-    static std::string GetConnectionError();
+    static Matrix3              MaxTransformToMatrix3(
+                                        HEMAX_MaxTransform& Transform);
 
-    static bool ParmIsIntType(HAPI_ParmType Type);
-    static bool ParmIsFloatType(HAPI_ParmType Type);
-    static bool ParmIsStringType(HAPI_ParmType Type);
-    static bool ParmIsNodeType(HAPI_ParmType Type);
+    static HEMAX_MaxTransform   CalculateRelativeTransformBetweenINodes(
+                                        INode* OriginNode, INode* SecondaryNode);
 
-    static std::string  GetAssetName(HAPI_AssetLibraryId AssetId, int AssetIndex);
-    static void         GetAssetNames(HAPI_AssetLibraryId AssetId,
-                                      std::vector<std::string>& AssetNames);
+    static Matrix3              GetINodeTransformationMatrix(INode* Node);
 
-    static std::string  GetUtf8String(const M_STD_STRING& String);
-    static std::wstring GetWideString(const M_STD_STRING& String);
-    static std::wstring GetWideString(const std::string& String);
-    static QString      GetQString(const M_STD_STRING& String);
-    static TSTR         ToTSTR(const std::string& String);
-    static TSTR         ToTSTR(const std::wstring& String);
+    static Matrix3              GetINodeLocalTransformationMatrix(INode* Node);
+
+    static void                 Matrix3ToFlatArray(Matrix3& In,
+                                        std::vector<float>& Out);
+
+    static float                GetHoudiniToMaxScale();
+    static float                GetMaxToHoudiniScale();
+
+    static void                 ConstructPointString(float* Points, int PointCount,
+                                        std::string& PointString);
+    static void                 ExtractPointsFromParmString(
+                                        std::vector<Point3>& Points,
+                                        std::string& PointString);
+
+    static std::string          CreateHoudiniVersionString(
+                                        int HoudiniMajorVersion,
+                                        int HoudiniMinorVersion,
+                                        int HoudiniBuildVersion,
+                                        int PatchNumber);
+    static std::string          GetHoudiniRegistryPath(std::string VersionString);
+    static std::string          GetHoudiniSteamRegistryPath(std::string VersionString);
+
+    static std::string          GetEnvVar(std::string Var);
+    static void                 SetEnvVar(std::string Var, std::string Val);
+
+    static bool                 IsOnlyClosedSplines(LinearShape* Curve);
+    static bool                 IsOnlyOpenSplines(LinearShape* Curve);
+
+    static void                 GetListOfAllSceneNodes(
+                                        std::vector<std::wstring>& NodeNames);
+    static void                 GetListOfChildNodes(INode* Node,
+                                        std::vector<std::wstring>& NodeNames);
+
+    static void                 GetListOfAllSceneNodes(
+                                        std::vector<std::string>& NodeNames);
+    static void                 GetListOfChildNodes(INode* Node,
+                                        std::vector<std::string>& NodeNames);
+
+    static std::string          GetHAPIString(HAPI_StringHandle Handle);
+    static std::string          GetConnectionError();
+
+    static bool                 ParmIsIntType(HAPI_ParmType Type);
+    static bool                 ParmIsFloatType(HAPI_ParmType Type);
+    static bool                 ParmIsStringType(HAPI_ParmType Type);
+    static bool                 ParmIsNodeType(HAPI_ParmType Type);
+
+    static std::string          GetAssetName(HAPI_AssetLibraryId AssetId,
+                                        int AssetIndex);
+    static void                 GetAssetNames(HAPI_AssetLibraryId AssetId,
+                                        std::vector<std::string>& AssetNames);
+
+    static std::string          GetUtf8String(const M_STD_STRING& String);
+    static std::wstring         GetWideString(const M_STD_STRING& String);
+    static std::wstring         GetWideString(const std::string& String);
+    static QString              GetQString(const M_STD_STRING& String);
+    static TSTR                 ToTSTR(const std::string& String);
+    static TSTR                 ToTSTR(const std::wstring& String);
+
+    static bool                 GeoHasGroup(const HAPI_GeoInfo& Geo,
+                                        const std::string& GroupName,
+                                        const HAPI_GroupType GroupType);
 };

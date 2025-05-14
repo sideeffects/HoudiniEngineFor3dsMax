@@ -317,7 +317,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 			    Part.Build3dsmaxObject();
                             
                             if (GeoPlugin->Mesh &&
-                                GeoPlugin->Mesh->MaterialPath != "")
+                                GeoPlugin->Mesh->GetMaterialPath() != "")
                             {
                                 ApplySceneMtlToGeometryPlugin(GeoPlugin);
                             }
@@ -410,7 +410,7 @@ HEMAX_GeometryHda::UpdateGeometryHda()
 			TopNode.Parts[p].Build3dsmaxObject();
 
                         if (GeoPlugin->Mesh &&
-                            GeoPlugin->Mesh->MaterialPath != "")
+                            GeoPlugin->Mesh->GetMaterialPath() != "")
                         {
                             ApplySceneMtlToGeometryPlugin(GeoPlugin);
                         }
@@ -1129,7 +1129,7 @@ HEMAX_GeometryHda::CreateMeshPluginPart(HEMAX_Hda& Hda,
     InitGeometryPluginCustAttribContainer(PluginNode);
     GenerateBoilerplateGeometryPluginCustomAttributes(PluginNode, Part.Info.id);
 
-    if (NewPlugin->Mesh && NewPlugin->Mesh->MaterialPath != "")
+    if (NewPlugin->Mesh && NewPlugin->Mesh->GetMaterialPath() != "")
     {
         ApplySceneMtlToGeometryPlugin(NewPlugin); 
     }
@@ -1744,12 +1744,12 @@ HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
        return; 
 
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
-    HAPI_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+    const HAPI_NodeId* MatNodeIds = Mesh->GetMaterialNodeIds();
 
     if (!MatNodeIds)
         return;
 
-    if (Mesh->AreMaterialIdsSame)
+    if (Mesh->GetNumMaterials() == 1)
     {
         HAPI_NodeId MaterialNodeId = MatNodeIds[0];
         
@@ -1784,7 +1784,7 @@ HEMAX_GeometryHda::AssignMaterials(HEMAX_Hda& Hda,
     }
     else
     {
-        HAPI_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        const HAPI_NodeId* FaceMatIds = Mesh->GetMaterialNodeIds();
         std::unordered_map<HAPI_NodeId, HEMAX_MaterialMapping> MultiMap;
 
         MultiMtl* MultiMaterial = NewDefaultMultiMtl(); 
@@ -1855,7 +1855,8 @@ HEMAX_GeometryHda::ApplySceneMtlToGeometryPlugin(
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
 
     // First look up the material in the scene
-    std::wstring MatName = HEMAX_Utilities::GetWideString(Mesh->MaterialPath);
+    std::wstring MatName =
+            HEMAX_Utilities::GetWideString(Mesh->GetMaterialPath());
     WStr MatNameWStr(MatName.c_str());
     MSTR MatNameMStr = MatNameWStr.ToMSTR();
     MtlBaseLib* SceneMatLib = GetCOREInterface()->GetSceneMtls();
@@ -1915,12 +1916,12 @@ HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
         return;
 
     HEMAX_Mesh* Mesh = GeoPlugin->Mesh;
-    HAPI_NodeId* MatNodeIds = Mesh->GetMaterialIdsArray();
+    const HAPI_NodeId* MatNodeIds = Mesh->GetMaterialNodeIds();
 
     if (!MatNodeIds)
         return;
 
-    if (Mesh->AreMaterialIdsSame)
+    if (Mesh->GetNumMaterials() == 1)
     {
         HAPI_NodeId MaterialNodeId = MatNodeIds[0];
 
@@ -1955,7 +1956,7 @@ HEMAX_GeometryHda::UpdateMaterials(HEMAX_Hda& Hda,
     }
     else
     {
-        HAPI_NodeId* FaceMatIds = Mesh->GetMaterialIdsArray();
+        const HAPI_NodeId* FaceMatIds = Mesh->GetMaterialNodeIds();
         std::unordered_map<HAPI_NodeId, HEMAX_MaterialMapping> MultiMap;
 
         Mtl* PluginMat = GeoPlugin->MaxNode->GetMtl();
@@ -2046,7 +2047,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
     HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session,
                                        DisplayNode.Info.nodeId,
                                        Part.Info.id,
-                                       HEMAX_MAX_NODE_NAME_OUTPUT,
+                                       HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
                                        HAPI_ATTROWNER_DETAIL,
                                        &AttrInfo_Detail);
 
@@ -2059,7 +2060,7 @@ HEMAX_GeometryHda::SetPluginNodeName(INode* Node,
                                             &SM.Session,
                                             DisplayNode.Info.nodeId,
                                             Part.Info.id,
-                                            HEMAX_MAX_NODE_NAME_OUTPUT,
+                                            HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
                                             &AttrInfo_Detail,
                                             &NameAttrSH,
                                             0,
@@ -2093,10 +2094,10 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
 
     HAPI_AttributeInfo NameDetailInfo, NamePrimInfo;
     HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, DisplayNode.Info.nodeId,
-                    Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
+                    Part.Info.id, HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
                     HAPI_ATTROWNER_DETAIL, &NameDetailInfo);
     HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, DisplayNode.Info.nodeId,
-                    Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
+                    Part.Info.id, HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
                     HAPI_ATTROWNER_PRIM, &NamePrimInfo);
 
     std::wstring PluginLabel;
@@ -2106,7 +2107,7 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
         std::vector<HAPI_StringHandle> NameAttrSHArray(NamePrimInfo.count);
 
         HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
-            DisplayNode.Info.nodeId, Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
+            DisplayNode.Info.nodeId, Part.Info.id, HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
             &NamePrimInfo, &NameAttrSHArray.front(), 0, NamePrimInfo.count);
 
         for (int i = 0; i < NameAttrSHArray.size(); i++)
@@ -2120,7 +2121,7 @@ HEMAX_GeometryHda::GetInstancedPluginNodeNames(
     {
         HAPI_StringHandle NameAttrSH;
         HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
-            DisplayNode.Info.nodeId, Part.Info.id, HEMAX_MAX_NODE_NAME_OUTPUT,
+            DisplayNode.Info.nodeId, Part.Info.id, HEMAX_ATTRIB_MAX_NODE_NAME_OUTPUT,
             &NameDetailInfo, &NameAttrSH, 0, 1);
         std::string Label = HEMAX_Utilities::GetHAPIString(NameAttrSH);
         NodeNames.push_back(std::wstring(Label.begin(), Label.end()));

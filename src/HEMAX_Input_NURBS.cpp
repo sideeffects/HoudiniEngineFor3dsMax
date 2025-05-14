@@ -201,14 +201,14 @@ HEMAX_Input_NURBS::BuildPointCurveForInputNode(HEMAX_Node* Node, NURBSObject* Cu
 	}
 
 	HAPI_AttributeInfo PointAttributeInfo =
-            AddNewPointAttribute(NumCVs, 3, HEMAX_POSITION_ATTRIBUTE);
-	SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
+            AddNewPointAttribute(NumCVs, 3, HAPI_ATTRIB_POSITION);
+	SendFloatAttributeData(HAPI_ATTRIB_POSITION, PointAttributeInfo,
             &CVArr.front(), NumCVs);
 
         int MatId = TheCurve->MatID();
         HAPI_AttributeInfo MatIdAttrInfo = AddNewDetailIntAttribute(1, 1,
-            HEMAX_MATERIAL_ID_ATTRIBUTE);
-        SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MatIdAttrInfo,
+            HEMAX_ATTRIB_MATERIAL_ID);
+        SendIntAttributeData(HEMAX_ATTRIB_MATERIAL_ID, MatIdAttrInfo,
             &MatId, 1);
 
         INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);
@@ -293,14 +293,14 @@ HEMAX_Input_NURBS::BuildCurveForInputNode(HEMAX_Node* Node, NURBSObject* CurveOb
     }
 
     HAPI_AttributeInfo PointAttributeInfo =
-        AddNewPointAttribute(CVCount, 3, HEMAX_POSITION_ATTRIBUTE);
-    SendFloatAttributeData(HEMAX_POSITION_ATTRIBUTE, PointAttributeInfo,
+        AddNewPointAttribute(CVCount, 3, HAPI_ATTRIB_POSITION);
+    SendFloatAttributeData(HAPI_ATTRIB_POSITION, PointAttributeInfo,
         CVPoints, CVCount);
 
     int MatId = TheCurve->MatID();
     HAPI_AttributeInfo MatIdAttrInfo = AddNewDetailIntAttribute(1, 1,
-        HEMAX_MATERIAL_ID_ATTRIBUTE);
-    SendIntAttributeData(HEMAX_MATERIAL_ID_ATTRIBUTE, MatIdAttrInfo,
+        HEMAX_ATTRIB_MATERIAL_ID);
+    SendIntAttributeData(HEMAX_ATTRIB_MATERIAL_ID, MatIdAttrInfo,
         &MatId, 1);
 
     INode* MaxInputNode = GetCOREInterface()->GetINodeByHandle(MaxNodeHandle);

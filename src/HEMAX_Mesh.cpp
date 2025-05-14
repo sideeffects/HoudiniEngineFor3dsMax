@@ -1,5 +1,7 @@
 #include "HEMAX_Mesh.h"
 
+#include "HEMAX_HoudiniApi.h"
+#include "HEMAX_SessionManager.h"
 #include "HEMAX_Utilities.h"
 
 #pragma warning(push, 0)
@@ -9,75 +11,60 @@
 #pragma warning(pop)
 
 #include <unordered_map>
+#include <unordered_set>
 #include <deque>
 
-const int HEMAX_Mesh_PointTupleSize = 3;
-const int HEMAX_Mesh_VectorTupleSize = 3;
-const int HEMAX_Mesh_SingularTuple = 1;
-
-const int UvMapId = 1;
-const int CdMapId = 0;
-
-template<typename T>
-HEMAX_MeshList<T>::HEMAX_MeshList()
-{
-    List = nullptr;
-    Owner = HAPI_ATTROWNER_INVALID;
-    TupleSize = 0;
-    IsMerged = false;
-}
-
-template<typename T>
-HEMAX_MeshList<T>::~HEMAX_MeshList()
-{
-    if (List)
-    {
-	delete [] List;
-    }
-}
+const int HEMAX_MNMAP_ALPHA_ID          = -2;
+const int HEMAX_MNMAP_ILLUMINATION_ID   = -1;
+const int HEMAX_MNMAP_CD_ID             = 0;
+const int HEMAX_MNMAP_UV_ID             = 1;
 
 template<typename T>
 void
-HEMAX_MeshList<T>::Init(unsigned int _Size, unsigned int _TupleSize, HAPI_AttributeOwner _Owner)
+HEMAX_MeshList<T>::Init(std::size_t _Size, std::size_t _TupleSize,
+        HAPI_AttributeOwner _Owner)
 {
-    if (!List)
-    {
-	List = new T[_Size * _TupleSize];
-	Size = _Size;
-	TupleSize = _TupleSize;
-	Owner = _Owner;
-    }
+    List.resize(_Size * _TupleSize);
+    Size = _Size;
+    TupleSize = _TupleSize;
+    Owner = _Owner;
+    Exists = true;
 }
 
 template<typename T>
 T*
 HEMAX_MeshList<T>::Data()
 {
-    return List;
+    return List.data();
 }
 
 template<typename T>
-std::vector<T>
-HEMAX_MeshList<T>::Value(int Index)
+const T*
+HEMAX_MeshList<T>::DataConst() const
 {
-    std::vector<T> Val;
+    return List.data();
+}
+
+template<typename T>
+void
+HEMAX_MeshList<T>::Value(int Index, std::vector<T>& DataOut)
+{
+    DataOut.clear();
     for (unsigned int i = 0; i < TupleSize; i++)
     {
-	Val.push_back(List[(Index * TupleSize) + i]);
+	DataOut.push_back(List[(Index * TupleSize) + i]);
     }
-
-    return Val;
 }
 
 template<typename T>
-unsigned int
+std::size_t
 HEMAX_MeshList<T>::DataSize()
 {
     return Size;
 }
 
 template<typename T>
-unsigned int
+std::size_t
 HEMAX_MeshList<T>::DataTupleSize()
 {
     return TupleSize;
@@ -139,1324 +126,995 @@ HEMAX_MeshList<T>::MergeEqualTuples()
 }
 
 template<typename T>
-unsigned int
+const T*
+HEMAX_MeshList<T>::MergedDataConst() const
+{
+    return TupleSet.data();
+}
+
+template<typename T>
+std::size_t
 HEMAX_MeshList<T>::MergedDataSize()
 {
     return (unsigned int)TupleSet.size()/TupleSize;
 }
 
 template<typename T>
-std::vector<T>&
-HEMAX_MeshList<T>::MergedValues()
-{
-    return TupleSet;
-}
-
-template<typename T>
-unsigned int
+std::size_t
 HEMAX_MeshList<T>::GetMergedIndex(int Index)
 {
     return IndexMapping[Index];
 }
 
-HEMAX_Mesh::HEMAX_Mesh()
-    : FaceCount( 0 )
-    , VertexCount( 0 )
-    , PointCount( 0 )
-    , NormalType(HEMAX_NO_NORMAL)
-    , NormalsExist( false )
-    , HasUVs( false )
-    , UVType(HEMAX_NO_UV)
-    , ColorAttrExists(false)
-    , ColorAttrOwner(HAPI_ATTROWNER_INVALID)
-    , AlphaAttrExists(false)
-    , IlluminationAttrExists(false)
-    , SmoothingGroupsExist(false)
-    , MaterialIDsExist(false)
-    , FaceSelectionsExist(false)
-    , VertexSelectionsExist(false)
-    , EdgeSelectionsExist(false)
-    , MaxMapLayer(-1)
-    , AreMaterialIdsSame(false)
+template<typename T>
+void
+HEMAX_MeshList<T>::Clear()
 {
-}
-
-HEMAX_Mesh::HEMAX_Mesh(int FCount, int VCount, int PCount)
-    : FaceCount(FCount)
-    , VertexCount(VCount)
-    , PointCount(PCount)
-    , NormalType(HEMAX_NO_NORMAL)
-    , NormalsExist( false )
-    , HasUVs( false )
-    , UVType(HEMAX_NO_UV)
-    , ColorAttrExists(false)
-    , ColorAttrOwner(HAPI_ATTROWNER_INVALID)
-    , AlphaAttrExists(false)
-    , IlluminationAttrExists(false)
-    , SmoothingGroupsExist(false)
-    , MaterialIDsExist(false)
-    , FaceSelectionsExist(false)
-    , VertexSelectionsExist(false)
-    , EdgeSelectionsExist(false)
-    , MaxMapLayer(-1)
-    , AreMaterialIdsSame(false)
-{
-    FaceVertexCounts.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
-    VertexList.Init(VertexCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_VERTEX);
-    PointList.Init(PointCount, HEMAX_Mesh_PointTupleSize, HAPI_ATTROWNER_POINT);
+    List.clear();
+    Owner = HAPI_ATTROWNER_INVALID;
+    Size = 0;
+    TupleSize = 0;
+    TupleSet.clear();
+    IndexMapping.clear();
+    Exists = false;
+    IsMerged = false;
 }
 
 void
-HEMAX_Mesh::AllocatePointNormalArray()
+HEMAX_Mesh::Clear()
 {
-    NormalType = HEMAX_POINT_NORMAL;
-    Normals.Init(PointCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_POINT);
+    MyNumPoints = 0;
+    MyNumVertices = 0;
+    MyNumFaces = 0;
+
+    MyMaxMapLayer = -1;
+
+    MyPositions.Clear();
+    MyFaceCounts.clear();
+    MyVertices.clear();
+    MyNormals.Clear();
+    MyPrimaryUVs.Clear();
+    MyColors.Clear();
+    MyAlpha.Clear();
+    MyIllumination.Clear();
+    MySmoothingGroups.Clear();
+    MyMaterialIds.Clear();
+    MyMaterialNodeIds.Clear();
+
+    MyFaceSelections.clear();
+    MyVertexSelections.clear();
+    MyEdgeSelections.clear();
+
+    MySecondaryUVs.clear();
+
+    MyMaterialPath = "";
+    MyNumMaterials = 0;
+
+    MyIntMetadata.clear();
+    MyFloatMetadata.clear();
+    MyStringMetadata.clear();
 }
 
 void
-HEMAX_Mesh::AllocateVertexNormalArray()
+HEMAX_Mesh::InitFromPart(const HAPI_NodeId Node, const HAPI_PartInfo& PartInfo)
 {
-    NormalType = HEMAX_VERTEX_NORMAL;
-    Normals.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, HAPI_ATTROWNER_VERTEX);
-}
+    SetPointCount(PartInfo.pointCount);
+    SetVertexCount(PartInfo.vertexCount);
+    SetFaceCount(PartInfo.faceCount);
 
-void
-HEMAX_Mesh::AllocateMaterialIdsArray()
-{
-    FaceMaterialIds.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
-}
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
 
-void
-HEMAX_Mesh::AllocatePointUVArray(int TupleSize)
-{
-    UVList.Init(PointCount, TupleSize, HAPI_ATTROWNER_POINT);
-    HasUVs = true;
-    UVType = HEMAX_POINT_UV;
+    HAPI_AttributeInfo AttrInfo;
 
-    if (MaxMapLayer < UvMapId)
-        MaxMapLayer = UvMapId;
-}
+    HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_POSITION, HAPI_ATTROWNER_POINT, &AttrInfo);
+    MyPositions.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+    HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_POSITION, &AttrInfo, -1, MyPositions.Data(),
+            0, MyPositions.DataSize());
 
-void
-HEMAX_Mesh::AllocateVertexUVArray(int TupleSize)
-{
-    UVList.Init(VertexCount, TupleSize, HAPI_ATTROWNER_VERTEX);
-    HasUVs = true;
-    UVType = HEMAX_VERTEX_UV;
+    HEMAX_HoudiniApi::GetFaceCounts(&SM.Session, Node, PartInfo.id,
+            MyFaceCounts.data(), 0, PartInfo.faceCount);
+    HEMAX_HoudiniApi::GetVertexList(&SM.Session, Node, PartInfo.id,
+            MyVertices.data(), 0, PartInfo.vertexCount);
 
-    if (MaxMapLayer < UvMapId)
-        MaxMapLayer = UvMapId;
-}
-
-void
-HEMAX_Mesh::AllocatePointCdArray(int TupleSize)
-{
-    CdList.Init(PointCount, TupleSize, HAPI_ATTROWNER_POINT);
-    ColorAttrExists = true;
-    ColorAttrOwner = HAPI_ATTROWNER_POINT;
-
-    if (MaxMapLayer < CdMapId)
-        MaxMapLayer = CdMapId;
-}
-
-void
-HEMAX_Mesh::AllocateVertexCdArray(int TupleSize)
-{
-    CdList.Init(VertexCount, TupleSize, HAPI_ATTROWNER_VERTEX);
-    ColorAttrExists = true;
-    ColorAttrOwner = HAPI_ATTROWNER_VERTEX;
-
-    if (MaxMapLayer < CdMapId)
-        MaxMapLayer = CdMapId;
-}
-
-void
-HEMAX_Mesh::AllocateAlphaArray(HAPI_AttributeOwner Owner)
-{
-    if (Owner == HAPI_ATTROWNER_POINT)
+    // Attribute: N
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_NORMAL, HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
     {
-	AlphaList.Init(PointCount, HEMAX_Mesh_SingularTuple, Owner);
-	AlphaAttrExists = true;
-	AlphaAttrOwner = Owner;
+        MyNormals.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_NORMAL, &AttrInfo, -1, MyNormals.Data(),
+            0, MyNormals.DataSize());
     }
-    else if (Owner == HAPI_ATTROWNER_VERTEX)
+    else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_NORMAL, HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
     {
-	AlphaList.Init(VertexCount, HEMAX_Mesh_SingularTuple, Owner);
-	AlphaAttrExists = true;
-	AlphaAttrOwner = Owner;
-    }
-}
-
-void
-HEMAX_Mesh::AllocateIlluminationArray(HAPI_AttributeOwner Owner)
-{
-    if (Owner == HAPI_ATTROWNER_POINT)
-    {
-	IlluminationList.Init(PointCount, HEMAX_Mesh_VectorTupleSize, Owner);
-	IlluminationAttrExists = true;
-	IlluminationAttrOwner = Owner;
-    }
-    else if (Owner == HAPI_ATTROWNER_VERTEX)
-    {
-	IlluminationList.Init(VertexCount, HEMAX_Mesh_VectorTupleSize, Owner);
-	IlluminationAttrExists = true;
-	IlluminationAttrOwner = Owner;
-    }
-}
-
-void
-HEMAX_Mesh::AllocateSmoothingGroupsArray()
-{
-    SmoothingGroupList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
-    SmoothingGroupsExist = true;
-}
-
-void
-HEMAX_Mesh::AllocateMaterialIDArray()
-{
-    MaterialIDList.Init(FaceCount, HEMAX_Mesh_SingularTuple, HAPI_ATTROWNER_PRIM);
-    MaterialIDsExist = true;
-}
-
-void
-HEMAX_Mesh::AllocateFaceSelectionsArray()
-{
-    FaceSelectionsList.Init(FaceCount, HEMAX_Mesh_SingularTuple,
-        HAPI_ATTROWNER_PRIM);
-    FaceSelectionsExist = true;
-}
-
-void
-HEMAX_Mesh::AllocateVertexSelectionsArray()
-{
-    VertexSelectionsList.Init(PointCount, HEMAX_Mesh_SingularTuple,
-        HAPI_ATTROWNER_POINT);
-    VertexSelectionsExist = true;
-}
-
-void
-HEMAX_Mesh::AllocateEdgeSelectionsArray(int EdgeCount)
-{
-    EdgeSelectionsList.Init(EdgeCount*2, HEMAX_Mesh_SingularTuple,
-        HAPI_ATTROWNER_POINT);
-    EdgeSelectionsExist = true;
-}
-
-HEMAX_Mesh::~HEMAX_Mesh()
-{
-}
-
-int
-HEMAX_Mesh::GetFaceCount()
-{
-    return FaceCount;
-}
-
-int
-HEMAX_Mesh::GetVertexCount()
-{
-    return VertexCount;
-}
-
-int
-HEMAX_Mesh::GetPointCount()
-{
-    return PointCount;
-}
-
-int
-HEMAX_Mesh::GetPointUVCount()
-{
-    return PointCount;
-}
-
-int
-HEMAX_Mesh::GetVertexUVCount()
-{
-    return VertexCount;
-}
-
-int
-HEMAX_Mesh::GetNumMaterials()
-{
-    std::unordered_map<HAPI_NodeId, bool> SeenMaterials;
-    int NumMaterials = 0;
-
-    for (int f = 0; f < FaceCount; f++)
-    {
-	HAPI_NodeId MatId = FaceMaterialIds.Data()[f];
-	auto Search = SeenMaterials.find(MatId);
-	if (Search == SeenMaterials.end())
-	{
-	    NumMaterials++;
-	    SeenMaterials.insert({ MatId, true });
-	}
+        MyNormals.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_VERTEX);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_NORMAL, &AttrInfo, -1, MyNormals.Data(),
+            0, MyNormals.DataSize());
     }
 
-    return NumMaterials;
-}
-
-int*
-HEMAX_Mesh::GetFaceVertexCountsArray()
-{
-    return FaceVertexCounts.Data();
-}
-
-int*
-HEMAX_Mesh::GetVertexListArray()
-{
-    return VertexList.Data();
-}
-
-float*
-HEMAX_Mesh::GetPointListArray()
-{
-    return PointList.Data();
-}
-
-float*
-HEMAX_Mesh::GetPointNormalsListArray()
-{
-    return Normals.Data();
-}
-
-float*
-HEMAX_Mesh::GetVertexNormalsListArray()
-{
-    return Normals.Data();
-}
-
-HAPI_NodeId*
-HEMAX_Mesh::GetMaterialIdsArray()
-{
-    return FaceMaterialIds.Data();
-}
-
-float*
-HEMAX_Mesh::GetPointUVArray()
-{
-    return UVList.Data();
-}
-
-float*
-HEMAX_Mesh::GetVertexUVArray()
-{
-    return UVList.Data();
-}
-
-float*
-HEMAX_Mesh::GetSecondaryPointUVArray(int Layer)
-{
-    auto&& Search = SecondaryPointUVs.find(Layer);
-    if (Search != SecondaryPointUVs.end())
-        return Search->second.Data();
-
-    return nullptr;
-}
-
-float*
-HEMAX_Mesh::GetSecondaryVertexUVArray(int Layer)
-{
-    auto&& Search = SecondaryVertexUVs.find(Layer);
-    if (Search != SecondaryVertexUVs.end())
-        return Search->second.Data();
-
-    return nullptr;
-}
-
-float*
-HEMAX_Mesh::GetPointCdArray()
-{
-    return CdList.Data();
-}
-
-float*
-HEMAX_Mesh::GetVertexCdArray()
-{
-    return CdList.Data();
-}
-
-float*
-HEMAX_Mesh::GetAlphaArray()
-{
-    return AlphaList.Data();
-}
-
-float*
-HEMAX_Mesh::GetIlluminationArray()
-{
-    return IlluminationList.Data();
-}
-
-int*
-HEMAX_Mesh::GetSmoothingGroupArray()
-{
-    return SmoothingGroupList.Data();
-}
-
-int*
-HEMAX_Mesh::GetMaterialIDArray()
-{
-    return MaterialIDList.Data();
-}
-
-int*
-HEMAX_Mesh::GetFaceSelectionsArray()
-{
-    return FaceSelectionsList.Data();
-}
-
-int*
-HEMAX_Mesh::GetVertexSelectionsArray()
-{
-    return VertexSelectionsList.Data();
-}
-
-int*
-HEMAX_Mesh::GetEdgeSelectionsArray()
-{
-    return EdgeSelectionsList.Data();
-}
-
-int
-HEMAX_Mesh::GetFaceVertexCount(int Index)
-{
-    std::vector<int> Count = FaceVertexCounts.Value(Index);
-    if (Count.size() > 0)
+    // Attribute: uv
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_UV, HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
     {
-	return Count[0];
+        MyPrimaryUVs.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_UV, &AttrInfo, -1, MyPrimaryUVs.Data(),
+            0, MyPrimaryUVs.DataSize());
+
+        if (MyMaxMapLayer < HEMAX_MNMAP_UV_ID)
+            MyMaxMapLayer = HEMAX_MNMAP_UV_ID;
     }
-    else
+    else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_UV, HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
     {
-	return 0;
-    }
-}
+        MyPrimaryUVs.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_VERTEX);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_UV, &AttrInfo, -1, MyPrimaryUVs.Data(),
+            0, MyPrimaryUVs.DataSize());
 
-void
-HEMAX_Mesh::GetPointAtIndex( int Index, float* Point )
-{
-    std::vector<float> Points = PointList.Value(Index);
-    for ( int i = 0; i < Points.size(); ++i )
-    {
-	Point[ i ] = Points[i];
+        if (MyMaxMapLayer < HEMAX_MNMAP_UV_ID)
+            MyMaxMapLayer = HEMAX_MNMAP_UV_ID;
     }
-}
 
-void
-HEMAX_Mesh::GetPointNormalAtIndex(int Index, float* Normal)
-{
-    std::vector<float> NormalVals = Normals.Value(Index);
-    for (int i = 0; i < NormalVals.size(); i++)
+    for (std::size_t l = 2; l < MAX_MESHMAPS; ++l)
     {
-	Normal[i] = NormalVals[i];
-    }
-}
+        std::string AttribName = std::string(HAPI_ATTRIB_UV) + std::to_string(l);
 
-void 
-HEMAX_Mesh::GetVertexNormalAtIndex(int Index, float* Normal)
-{
-    std::vector<float> NormalVals = Normals.Value(Index);
-    for (int i = 0; i < NormalVals.size(); i++)
-    {
-	Normal[i] = NormalVals[i];
-    }
-}
+        if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+                AttribName.c_str(), HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+                && AttrInfo.exists)
+        {
+            MySecondaryUVs[l].Init(AttrInfo.count, AttrInfo.tupleSize,
+                    HAPI_ATTROWNER_POINT);
+            HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node,
+                    PartInfo.id, AttribName.c_str(), &AttrInfo, -1,
+                    MySecondaryUVs[l].Data(), 0, MySecondaryUVs[l].DataSize());
 
-int
-HEMAX_Mesh::GetVertex( int Index )
-{
-    std::vector<int> Vertex = VertexList.Value(Index);
-    if (Vertex.size() > 0)
-    {
-	return Vertex[0];
+            if (MyMaxMapLayer < l)
+                MyMaxMapLayer = l;
+        }
+        else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+                    AttribName.c_str(), HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+                    && AttrInfo.exists)
+        {
+            MySecondaryUVs[l].Init(AttrInfo.count, AttrInfo.tupleSize,
+                    HAPI_ATTROWNER_VERTEX);
+            HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node,
+                    PartInfo.id, AttribName.c_str(), &AttrInfo, -1,
+                    MySecondaryUVs[l].Data(), 0, MySecondaryUVs[l].DataSize());
+
+            if (MyMaxMapLayer < l)
+                MyMaxMapLayer = l;
+        }
     }
-    else
+
+    // Attribute: Cd
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_COLOR, HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
     {
-	return 0;
+        MyColors.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_COLOR, &AttrInfo, -1, MyColors.Data(),
+            0, MyColors.DataSize());
+
+        if (MyMaxMapLayer < HEMAX_MNMAP_CD_ID)
+            MyMaxMapLayer = HEMAX_MNMAP_CD_ID;
+    }
+    else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_COLOR, HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyColors.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_VERTEX);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HAPI_ATTRIB_COLOR, &AttrInfo, -1, MyColors.Data(),
+            0, MyColors.DataSize());
+
+        if (MyMaxMapLayer < HEMAX_MNMAP_CD_ID)
+            MyMaxMapLayer = HEMAX_MNMAP_CD_ID;
+    }
+
+    // Attribute: Alpha
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ALPHA, HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyAlpha.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ALPHA, &AttrInfo, -1, MyAlpha.Data(),
+            0, MyAlpha.DataSize());
+    }
+    else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ALPHA, HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyAlpha.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_VERTEX);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ALPHA, &AttrInfo, -1, MyAlpha.Data(),
+            0, MyAlpha.DataSize());
+    }
+
+    // Attribute: illumination
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ILLUMINATION, HAPI_ATTROWNER_POINT, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyIllumination.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_POINT);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ILLUMINATION, &AttrInfo, -1, MyIllumination.Data(),
+            0, MyIllumination.DataSize());
+    }
+    else if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ILLUMINATION, HAPI_ATTROWNER_VERTEX, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyIllumination.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_VERTEX);
+        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_ILLUMINATION, &AttrInfo, -1, MyIllumination.Data(),
+            0, MyIllumination.DataSize());
+    }
+
+    // Attribute: hemax_sg
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_SMOOTHING_GROUP, HAPI_ATTROWNER_PRIM, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MySmoothingGroups.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_PRIM);
+        HEMAX_HoudiniApi::GetAttributeIntData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_SMOOTHING_GROUP, &AttrInfo, -1, MySmoothingGroups.Data(),
+            0, MySmoothingGroups.DataSize());
+    }
+
+    // Attribute: Material Node Ids (shop_materialpath)
+    MyMaterialNodeIds.Init(PartInfo.faceCount, 1, HAPI_ATTROWNER_PRIM);
+    bool SameMaterials;
+    if (HEMAX_HoudiniApi::GetMaterialNodeIdsOnFaces(&SM.Session, Node,
+            PartInfo.id, &SameMaterials, MyMaterialNodeIds.Data(),
+            0, PartInfo.faceCount) == HAPI_RESULT_SUCCESS)
+    {
+        std::unordered_set<HAPI_NodeId> SeenMatNodes;
+        for (std::size_t i = 0; i < MyMaterialNodeIds.DataSize(); ++i)
+        {
+            if (SeenMatNodes.count(MyMaterialNodeIds.Data()[i]) == 0)
+            {
+                SeenMatNodes.insert(MyMaterialNodeIds.Data()[i]);
+                ++MyNumMaterials;
+            }
+        }
+    }
+
+    // Attribute: hemax_matid
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_MATERIAL_ID, HAPI_ATTROWNER_PRIM, &AttrInfo) == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        MyMaterialIds.Init(AttrInfo.count, AttrInfo.tupleSize, HAPI_ATTROWNER_PRIM);
+        HEMAX_HoudiniApi::GetAttributeIntData(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_MATERIAL_ID, &AttrInfo, -1, MyMaterialIds.Data(),
+            0, MyMaterialIds.DataSize());
+    }
+
+    // Attribute: hemax_material
+    if (HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, Node, PartInfo.id,
+            HEMAX_ATTRIB_MATERIAL_PATH, HAPI_ATTROWNER_DETAIL, &AttrInfo)  == HAPI_RESULT_SUCCESS
+            && AttrInfo.exists)
+    {
+        HAPI_StringHandle MatPathSH;
+        HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session, Node, PartInfo.id,
+                HEMAX_ATTRIB_MATERIAL_PATH, &AttrInfo, &MatPathSH, 0, 1);
+        MyMaterialPath = HEMAX_Utilities::GetHAPIString(MatPathSH);
+    }
+
+    HAPI_GeoInfo GeoInfo;
+    HEMAX_HoudiniApi::GetGeometryInfo(&SM.Session, Node, &GeoInfo);
+
+    // Group: hemax_face_selection
+    if (HEMAX_Utilities::GeoHasGroup(GeoInfo, HEMAX_SELECTION_FACE, HAPI_GROUPTYPE_PRIM))
+    {
+        int ElemCount = HEMAX_HoudiniApi::PartInfo_GetElementCountByGroupType(
+                const_cast<HAPI_PartInfo*>(&PartInfo),
+                HAPI_GROUPTYPE_PRIM);
+        MyFaceSelections.resize(ElemCount);
+
+        HAPI_Bool MembershipAllEqual;
+        HEMAX_HoudiniApi::GetGroupMembership(&SM.Session, Node, PartInfo.id,
+                HAPI_GROUPTYPE_PRIM, HEMAX_SELECTION_FACE, &MembershipAllEqual,
+                MyFaceSelections.data(), 0, ElemCount);
+    }
+    
+    // Group: hemax_vertex_selection
+    if (HEMAX_Utilities::GeoHasGroup(GeoInfo, HEMAX_SELECTION_VERTEX, HAPI_GROUPTYPE_POINT))
+    {
+        int ElemCount = HEMAX_HoudiniApi::PartInfo_GetElementCountByGroupType(
+                const_cast<HAPI_PartInfo*>(&PartInfo),
+                HAPI_GROUPTYPE_POINT);
+        MyVertexSelections.resize(ElemCount);
+
+        HAPI_Bool MembershipAllEqual;
+        HEMAX_HoudiniApi::GetGroupMembership(&SM.Session, Node, PartInfo.id,
+                HAPI_GROUPTYPE_POINT, HEMAX_SELECTION_VERTEX, &MembershipAllEqual,
+                MyVertexSelections.data(), 0, ElemCount);
+    }
+    
+    // Group: hemax_edge_selection
+    if (HEMAX_Utilities::GeoHasGroup(GeoInfo, HEMAX_SELECTION_EDGE, HAPI_GROUPTYPE_EDGE))
+    {
+        int ElemCount = 0;
+        HEMAX_HoudiniApi::GetEdgeCountOfEdgeGroup(&SM.Session, Node, PartInfo.id,
+                HEMAX_SELECTION_EDGE, &ElemCount);
+
+        if (ElemCount > 0)
+        {
+            MyEdgeSelections.resize(ElemCount*2);
+            HAPI_Bool MembershipAllEqual;
+            HEMAX_HoudiniApi::GetGroupMembership(&SM.Session, Node, PartInfo.id,
+                    HAPI_GROUPTYPE_EDGE, HEMAX_SELECTION_EDGE,
+                    &MembershipAllEqual, MyEdgeSelections.data(),
+                    0, MyEdgeSelections.size());
+        }
+    }
+
+    // Detail metadata attributes
+    if (PartInfo.attributeCounts[HAPI_ATTROWNER_DETAIL] > 0)
+    {
+        std::vector<HAPI_StringHandle> Handles;
+        Handles.resize(PartInfo.attributeCounts[HAPI_ATTROWNER_DETAIL]); 
+
+        HEMAX_HoudiniApi::GetAttributeNames(&SM.Session, Node, PartInfo.id,
+                HAPI_ATTROWNER_DETAIL, Handles.data(), Handles.size());
+
+        std::string MetadataPrefix(HEMAX_ATTRIBPREFIX_METADATA);
+        for (std::size_t i = 0; i < Handles.size(); ++i)
+        {
+            std::string AttribName = HEMAX_Utilities::GetHAPIString(Handles[i]);
+
+            if (AttribName.compare(0, MetadataPrefix.size(), MetadataPrefix) != 0)
+                continue;
+
+            HAPI_AttributeInfo AttrInfo;
+            HAPI_Result Result = HEMAX_HoudiniApi::GetAttributeInfo(
+                    &SM.Session, Node, PartInfo.id,
+                    AttribName.c_str(), HAPI_ATTROWNER_DETAIL, &AttrInfo);
+            
+            if (Result != HAPI_RESULT_SUCCESS)
+                continue;
+
+            switch (AttrInfo.storage)
+            {
+                case HAPI_STORAGETYPE_FLOAT:
+                    if (AddMetadata(MetadataType::FLOAT, AttribName, AttrInfo))
+                    {
+                        HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session,
+                            Node, PartInfo.id, AttribName.c_str(), &AttrInfo,
+                            -1, MyFloatMetadata[AttribName].Data(),
+                            0, AttrInfo.count); 
+                    }
+                    break;
+                case HAPI_STORAGETYPE_INT:
+                    if (AddMetadata(MetadataType::INT, AttribName, AttrInfo))
+                    {
+                        HEMAX_HoudiniApi::GetAttributeIntData(&SM.Session,
+                            Node, PartInfo.id, AttribName.c_str(), &AttrInfo,
+                            -1, MyIntMetadata[AttribName].Data(),
+                            0, AttrInfo.count);
+                    }
+                    break;
+                case HAPI_STORAGETYPE_STRING:
+                    if (AddMetadata(MetadataType::STRING, AttribName, AttrInfo))
+                    {
+                        std::vector<HAPI_StringHandle> Handles;
+                        Handles.resize(MyStringMetadata[AttribName].DataSize(),
+                                MyStringMetadata[AttribName].DataTupleSize());
+                        HEMAX_HoudiniApi::GetAttributeStringData(&SM.Session,
+                            Node, PartInfo.id, AttribName.c_str(), &AttrInfo,
+                            Handles.data(), 0, AttrInfo.count);
+
+                        for (std::size_t t = 0; t < Handles.size(); ++t)
+                        {
+                            HEMAX_MeshList<std::string>& StringList =
+                                MyStringMetadata[AttribName];
+                            StringList.Data()[t] =
+                                HEMAX_Utilities::GetHAPIString(Handles[t]);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 
 void
-HEMAX_Mesh::GetPointUVAtIndex(int Index, float* UVVals)
-{
-    std::vector<float> UV = UVList.Value(Index);
-    for (int i = 0; i < UV.size(); ++i)
-    {
-	UVVals[i] = UV[i];
-    }
-}
-
-void
-HEMAX_Mesh::GetPointCdAtIndex(int Index, float* CdVals)
-{
-    std::vector<float> Cd = CdList.Value(Index);
-    for (int i = 0; i < Cd.size(); i++)
-    {
-	CdVals[i] = Cd[i];
-    }
-}
-
-void
-HEMAX_Mesh::GetVertexCdAtIndex(int Index, float* CdVals)
-{
-    std::vector<float> Cd = CdList.Value(Index);
-    for (int i = 0; i < Cd.size(); i++)
-    {
-	CdVals[i] = Cd[i];
-    }
-}
-
-float
-HEMAX_Mesh::GetAlphaAtIndex(int Index)
-{
-    std::vector<float> Alpha = AlphaList.Value(Index);
-    if (Alpha.size() > 0)
-    {
-	return Alpha[0];
-    }
-    else
-    {
-	return 0;
-    }
-}
-
-void
-HEMAX_Mesh::GetIlluminationAtIndex(int Index, float* IlluminationVals)
-{
-    std::vector<float> Illumination = IlluminationList.Value(Index);
-    for (int i = 0; i < Illumination.size(); i++)
-    {
-	IlluminationVals[i] = Illumination[i];
-    }
-}
-
-void
-HEMAX_Mesh::SetNormalsExist(bool Exist)
-{
-    NormalsExist = Exist;
-}
-
-bool
-HEMAX_Mesh::DoNormalsExist()
-{
-    return NormalsExist;
-}
-
-HEMAX_NormalType
-HEMAX_Mesh::GetNormalType()
-{
-    return NormalType;
-}
-
-HEMAX_UVType
-HEMAX_Mesh::GetUVType()
-{
-    return UVType;
-}
-
-bool
-HEMAX_Mesh::DoUVsExist()
-{
-    return HasUVs;
-}
-
-bool
-HEMAX_Mesh::DoesCdAttrExist()
-{
-    return ColorAttrExists;
-}
-
-HAPI_AttributeOwner
-HEMAX_Mesh::GetCdAttrOwner()
-{
-    return ColorAttrOwner;
-}
-
-bool
-HEMAX_Mesh::DoesAlphaAttrExist()
-{
-    return AlphaAttrExists;
-}
-
-HAPI_AttributeOwner
-HEMAX_Mesh::GetAlphaAttrOwner()
-{
-    return AlphaAttrOwner;
-}
-
-bool
-HEMAX_Mesh::DoesIlluminationAttrExist()
-{
-    return IlluminationAttrExists;
-}
-
-HAPI_AttributeOwner
-HEMAX_Mesh::GetIlluminationOwner()
-{
-    return IlluminationAttrOwner;
-}
-
-bool
-HEMAX_Mesh::DoesSmoothingGroupAttrExist()
-{
-    return SmoothingGroupsExist;
-}
-
-bool
-HEMAX_Mesh::DoesMaterialIDAttrExist()
-{
-    return MaterialIDsExist;
-}
-
-bool
-HEMAX_Mesh::HasFaceSelections() const
-{
-    return FaceSelectionsExist;
-}
-
-bool
-HEMAX_Mesh::HasVertexSelections() const
-{
-    return VertexSelectionsExist;
-}
-
-bool
-HEMAX_Mesh::HasEdgeSelections() const
-{
-    return EdgeSelectionsExist;
-}
-
-int
-HEMAX_Mesh::GetPostTriangulationFaceCount()
-{
-    int TotalFaceCount = 0;
-
-    for (int i = 0; i < GetFaceCount(); i++)
-    {
-	TotalFaceCount += (GetFaceVertexCount(i) - 2);
-    }
-
-    return TotalFaceCount;
-}
-
-void
-HEMAX_Mesh::CreateSecondaryUVLayer(int Layer, const HAPI_AttributeInfo& Attr)
-{
-    if (Attr.owner == HAPI_ATTROWNER_POINT)
-    {
-        auto&& Item = SecondaryPointUVs.emplace(Layer, HEMAX_MeshList<float>()); 
-        Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
-        if (Layer > MaxMapLayer)
-            MaxMapLayer = Layer;
-    }
-    else if (Attr.owner == HAPI_ATTROWNER_VERTEX)
-    {
-        auto&& Item = SecondaryVertexUVs.emplace(Layer, HEMAX_MeshList<float>());
-        Item.first->second.Init(Attr.count, Attr.tupleSize, Attr.owner);
-        if (Layer > MaxMapLayer)
-            MaxMapLayer = Layer;
-    } 
-}
-
-HEMAX_MeshList<float>*
-HEMAX_Mesh::GetSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer)
-{
-    if (Owner == HAPI_ATTROWNER_POINT)
-    {
-        auto&& Search = SecondaryPointUVs.find(Layer);
-        if (Search != SecondaryPointUVs.end())
-            return &Search->second;
-    }
-    else if (Owner == HAPI_ATTROWNER_VERTEX)
-    {
-        auto&& Search = SecondaryVertexUVs.find(Layer);
-        if (Search != SecondaryVertexUVs.end())
-            return &Search->second;
-    }
-
-    return nullptr;
-}
-
-bool
-HEMAX_Mesh::DoesSecondaryUVLayerExist(HAPI_AttributeOwner Owner, int Layer)
-{
-    if (Owner == HAPI_ATTROWNER_POINT)
-    {
-	auto Search = SecondaryPointUVs.find(Layer);
-
-	if (Search != SecondaryPointUVs.end())
-	{
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-    else if (Owner == HAPI_ATTROWNER_VERTEX)
-    {
-	auto Search = SecondaryVertexUVs.find(Layer);
-
-	if (Search != SecondaryVertexUVs.end())
-	{
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-
-    return false;
-}
-
-void
-HEMAX_Mesh::AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HAPI_AttributeOwner Owner)
-{
-    switch (Type)
-    {
-	case HEMAX_MESH_INT_METADATA:
-	{
-	    IntMetadata[Name] = HEMAX_MeshList<int>();
-	    IntMetadata[Name].Init(Size, TupleSize, Owner);
-	} break;
-	case HEMAX_MESH_FLOAT_METADATA:
-	{
-	    FloatMetadata[Name] = HEMAX_MeshList<float>();
-	    FloatMetadata[Name].Init(Size, TupleSize, Owner);
-	} break;
-	case HEMAX_MESH_STRING_METADATA:
-	{
-	    StringMetadata[Name] = HEMAX_MeshList<std::string>();
-	    StringMetadata[Name].Init(Size, TupleSize, Owner);
-	} break;
-	default:
-	{
-
-	} break;
-    }
-}
-
-HEMAX_MeshList<int>&
-HEMAX_Mesh::GetIntMetadata(std::string Name)
-{
-    return IntMetadata.find(Name)->second;
-}
-
-HEMAX_MeshList<float>&
-HEMAX_Mesh::GetFloatMetadata(std::string Name)
-{
-    return FloatMetadata.find(Name)->second;
-}
-
-HEMAX_MeshList<std::string>&
-HEMAX_Mesh::GetStringMetadata(std::string Name)
-{
-    return StringMetadata.find(Name)->second;
-}
-
-void
-HEMAX_Mesh::ApplyDetailMetadata(INode* Node)
-{
-    for (auto It = IntMetadata.begin(); It != IntMetadata.end(); It++)
-    {
-	HEMAX_MeshList<int> &MeshList = It->second;
-	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
-	{
-	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
-	    {
-		std::wstring WideName(It->first.begin(), It->first.end());
-		Node->SetUserPropInt(WideName.c_str(), MeshList.Data()[0]);
-	    }
-	}
-    }
-
-    for (auto It = FloatMetadata.begin(); It != FloatMetadata.end(); It++)
-    {
-	HEMAX_MeshList<float> &MeshList = It->second;
-	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
-	{
-	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
-	    {
-		std::wstring WideName(It->first.begin(), It->first.end());
-		Node->SetUserPropFloat(WideName.c_str(), MeshList.Data()[0]);
-	    }
-	}
-    }
-
-    for (auto It = StringMetadata.begin(); It != StringMetadata.end(); It++)
-    {
-	HEMAX_MeshList<std::string> &MeshList = It->second;
-	if (MeshList.DataOwner() == HAPI_ATTROWNER_DETAIL)
-	{
-	    if (MeshList.DataSize() == 1 && MeshList.DataTupleSize() == 1)
-	    {
-		std::wstring WideName(It->first.begin(), It->first.end());
-		std::wstring WideVal(MeshList.Data()[0].begin(), MeshList.Data()[0].end());
-		Node->SetUserPropString(WideName.c_str(), WideVal.c_str());
-	    }
-	}
-    }
-}
-
-void
-HEMAX_Mesh::MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh)
+HEMAX_Mesh::BuildMNMesh(MNMesh& MaxMesh)
 {
     MaxMesh.ClearAndFree();
 
     float ScaleConversion = HEMAX_Utilities::GetHoudiniToMaxScale();
-    float Point[3];
 
-    MaxMesh.setNumVerts(GetPointCount());
-    MaxMesh.setNumFaces(GetFaceCount());
+    MaxMesh.setNumVerts(MyNumPoints);
+    MaxMesh.setNumFaces(MyNumFaces);
+    MaxMesh.SetMapNum(MyMaxMapLayer + 1);
 
-    for (int p = 0; p < PointCount; p++)
+    MNNormalSpec* NormalSpec = nullptr;
+    MNMap *UvMap = nullptr,
+          *CdMap = nullptr,
+          *AlphaMap = nullptr,
+          *IlluminationMap = nullptr;
+
+    if (MyNormals.DataExists())
     {
-	GetPointAtIndex(p, Point);
-        MaxMesh.v[p].p = Point3(
-                            Point[0] * ScaleConversion,
-                            -Point[2] * ScaleConversion,
-                            Point[1] * ScaleConversion);
+        if (MyNormals.DataOwner() == HAPI_ATTROWNER_VERTEX)
+        {
+            MaxMesh.SpecifyNormals();
+            NormalSpec = MaxMesh.GetSpecifiedNormals();
+
+            if (NormalSpec)
+            {
+                NormalSpec->ClearNormals();
+                NormalSpec->SetNumFaces(MyNumFaces);
+            }
+        }
     }
 
-    int CurrentIndex = 0;
-
-    BitArray FaceSelections;
-    if (HasFaceSelections())
+    if (MyPrimaryUVs.DataExists())
     {
-        FaceSelections.SetSize(GetFaceCount());
+        UvMap = MaxMesh.M(HEMAX_MNMAP_UV_ID);
+
+        if (!UvMap)
+        {
+            MaxMesh.InitMap(HEMAX_MNMAP_UV_ID);
+            UvMap = MaxMesh.M(HEMAX_MNMAP_UV_ID);
+        }
+
+        if (UvMap)
+        {
+            UvMap->ClearAllFlags();
+
+            if (MyPrimaryUVs.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                UvMap->setNumFaces(MyNumFaces);
+                UvMap->setNumVerts(MyNumPoints);
+            }
+            else if (MyPrimaryUVs.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                MyPrimaryUVs.MergeEqualTuples();
+                UvMap->setNumFaces(MyNumFaces);
+                UvMap->setNumVerts(MyNumVertices);
+                
+                std::size_t TupleSize = MyPrimaryUVs.DataTupleSize();
+                for (std::size_t t = 0; t < MyPrimaryUVs.MergedDataSize(); ++t)
+                {
+                    UvMap->v[t].x = MyPrimaryUVs.MergedDataConst()[t*TupleSize];
+
+                    if (TupleSize > 1)
+                        UvMap->v[t].y = MyPrimaryUVs.MergedDataConst()[t*TupleSize+1];
+                    else
+                        UvMap->v[t].y = 0.0f;
+
+                    if (TupleSize > 2)
+                        UvMap->v[t].z = MyPrimaryUVs.MergedDataConst()[t*TupleSize+2];
+                    else
+                        UvMap->v[t].z = 0.0f;
+                }
+            }
+            else
+            {
+                // TODO: handle error case here?
+                ;
+            }
+        }
+    }
+
+    for (auto&& it = MySecondaryUVs.begin(); it != MySecondaryUVs.end(); ++it)
+    {
+        std::size_t UvLayer = it->first;
+
+        MNMap* Map = MaxMesh.M(UvLayer);
+
+        if (!Map)
+        {
+            MaxMesh.InitMap(UvLayer);
+            Map = MaxMesh.M(UvLayer);
+        }
+
+        if (Map)
+        {
+            Map->ClearAllFlags();
+
+            HEMAX_MeshList<float>& UvList = it->second;
+
+            if (UvList.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                Map->setNumFaces(MyNumFaces);
+                Map->setNumVerts(MyNumPoints);
+            }
+            else if (UvList.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                UvList.MergeEqualTuples();
+                Map->setNumFaces(MyNumFaces);
+                Map->setNumVerts(MyNumVertices);
+
+                std::size_t TupleSize = UvList.DataTupleSize();
+                for (std::size_t t = 0; t < UvList.MergedDataSize(); ++t)
+                {
+                    Map->v[t].x = UvList.MergedDataConst()[t*TupleSize];
+
+                    if (TupleSize > 1)
+                        Map->v[t].y = UvList.MergedDataConst()[t*TupleSize+1];
+                    else
+                        Map->v[t].y = 0.0f;
+
+                    if (TupleSize > 2)
+                        Map->v[t].z = UvList.MergedDataConst()[t*TupleSize+2];
+                    else
+                        Map->v[t].z = 0.0f;
+                }
+            }
+        }
+    }
+
+    if (MyColors.DataExists())
+    {
+        CdMap = MaxMesh.M(HEMAX_MNMAP_CD_ID);
+
+        if (!CdMap)
+        {
+            MaxMesh.InitMap(HEMAX_MNMAP_CD_ID);
+            CdMap = MaxMesh.M(HEMAX_MNMAP_CD_ID);
+        }
+
+        if (CdMap)
+        {
+            CdMap->ClearAllFlags();
+
+            if (MyColors.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                CdMap->setNumFaces(MyNumFaces);
+                CdMap->setNumVerts(MyNumPoints);
+            }
+            else if (MyColors.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                CdMap->setNumFaces(MyNumFaces);
+                CdMap->setNumVerts(MyNumVertices);
+            }
+            else
+            {
+                // TODO: logging this error state?
+                ;
+            }
+        }
+    }
+
+    if (MyAlpha.DataExists())
+    {
+        AlphaMap = MaxMesh.M(HEMAX_MNMAP_ALPHA_ID);
+
+        if (!AlphaMap)
+        {
+            MaxMesh.InitMap(HEMAX_MNMAP_ALPHA_ID);
+            AlphaMap = MaxMesh.M(HEMAX_MNMAP_ALPHA_ID);
+        }
+
+        if (AlphaMap)
+        {
+            AlphaMap->ClearAllFlags();
+
+            if (MyAlpha.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                AlphaMap->setNumFaces(MyNumFaces);
+                AlphaMap->setNumVerts(MyNumPoints);
+            }
+            else if (MyAlpha.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                AlphaMap->setNumFaces(MyNumFaces);
+                AlphaMap->setNumVerts(MyNumVertices);
+            }
+            else
+            {
+                // TOOD: logging this error state?
+                ;
+            }
+        }
+    }
+
+    if (MyIllumination.DataExists())
+    {
+        IlluminationMap = MaxMesh.M(HEMAX_MNMAP_ILLUMINATION_ID);
+
+        if (!IlluminationMap)
+        {
+            MaxMesh.InitMap(HEMAX_MNMAP_ILLUMINATION_ID);
+            IlluminationMap = MaxMesh.M(HEMAX_MNMAP_ILLUMINATION_ID);
+        }
+
+        if (IlluminationMap)
+        {
+            IlluminationMap->ClearAllFlags();
+
+            if (MyIllumination.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                IlluminationMap->setNumFaces(MyNumFaces);
+                IlluminationMap->setNumVerts(MyNumPoints);
+            }
+            else if (MyIllumination.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                IlluminationMap->setNumFaces(MyNumFaces);
+                IlluminationMap->setNumVerts(MyNumVertices);
+            }
+            else
+            {
+                // TODO: logging this error state?
+                ;
+            }
+        }
     }
 
     BitArray VertexSelections;
-    if (HasVertexSelections())
+
+    if (MyVertexSelections.size() > 0)
+        VertexSelections.SetSize(MyVertexSelections.size());
+
+    for (std::size_t p = 0; p < MyNumPoints; ++p)
     {
-        VertexSelections.SetSize(GetPointCount());
+        float* Pos = MyPositions.Data()+(p*MyPositions.DataTupleSize());
+        MaxMesh.v[p].p =
+            Point3(Pos[0]*ScaleConversion,
+                   -Pos[2]*ScaleConversion,
+                   Pos[1]*ScaleConversion);
+
+        if (MyVertexSelections.size() > 0)
+            VertexSelections.Set(p, MyVertexSelections[p]);
+
+        if (UvMap && MyPrimaryUVs.DataOwner() == HAPI_ATTROWNER_POINT)
+        {
+            std::size_t TupleSize = MyPrimaryUVs.DataTupleSize();
+            UvMap->v[p].x = MyPrimaryUVs.DataConst()[p*TupleSize];
+
+            if (TupleSize > 1)
+                UvMap->v[p].y = MyPrimaryUVs.DataConst()[p*TupleSize+1];
+            else
+                UvMap->v[p].y = 0.0f;
+
+            if (TupleSize > 2)
+                UvMap->v[p].z = MyPrimaryUVs.DataConst()[p*TupleSize+2];
+            else
+                UvMap->v[p].z = 0.0f;
+        }
+
+        if (CdMap && MyColors.DataOwner() == HAPI_ATTROWNER_POINT)
+        {
+            CdMap->v[p].x = MyColors.Data()[p*3];
+            CdMap->v[p].y = MyColors.Data()[p*3+1];
+            CdMap->v[p].z = MyColors.Data()[p*3+2];
+        }
+
+        if (AlphaMap && MyAlpha.DataOwner() == HAPI_ATTROWNER_POINT)
+        {
+            AlphaMap->v[p].x = MyAlpha.Data()[p];
+            AlphaMap->v[p].y = MyAlpha.Data()[p];
+            AlphaMap->v[p].z = MyAlpha.Data()[p];
+        }
+
+        if (IlluminationMap && MyIllumination.DataOwner() == HAPI_ATTROWNER_POINT)
+        {
+            IlluminationMap->v[p].x = MyIllumination.Data()[p*3];
+            IlluminationMap->v[p].y = MyIllumination.Data()[p*3+1];
+            IlluminationMap->v[p].z = MyIllumination.Data()[p*3+2];
+        }
     }
-    
-    for (int f = 0; f < GetFaceCount(); f++)
+
+    if (MySecondaryUVs.size() > 0)
     {
-	MaxMesh.F(f)->SetDeg(GetFaceVertexCount(f));
-	for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-	{
-	    MaxMesh.F(f)->vtx[v] = GetVertex(CurrentIndex++);
+        for (auto&& it = MySecondaryUVs.begin(); it != MySecondaryUVs.end(); ++it)
+        {
+            HEMAX_MeshList<float>& UvList = it->second;
 
-	    if (DoesSmoothingGroupAttrExist())
-	    {
-		MaxMesh.F(f)->smGroup = GetSmoothingGroupArray()[f];
-	    }
-	    else
-	    {
-		MaxMesh.F(f)->smGroup = 1;
-	    }
+            if (UvList.DataOwner() != HAPI_ATTROWNER_POINT)
+                continue;
 
-	    if (DoesMaterialIDAttrExist())
-	    {
-		MaxMesh.F(f)->material = GetMaterialIDArray()[f];
-	    }
+            MNMap* Map = MaxMesh.M(it->first);
 
-            if (HasFaceSelections())
+            if (!Map)
+                continue;
+
+            for (std::size_t p = 0; p < MyNumPoints; ++p)
             {
-                FaceSelections.Set(f, GetFaceSelectionsArray()[f]);
+                std::size_t TupleSize = UvList.DataTupleSize();
+
+                Map->v[p].x = UvList.DataConst()[p*TupleSize];
+
+                if (TupleSize > 1)
+                    Map->v[p].y = UvList.DataConst()[p*TupleSize+1];
+                else
+                    Map->v[p].y = 0.0f;
+
+                if (TupleSize > 2)
+                    Map->v[p].z = UvList.DataConst()[p*TupleSize+2];
+                else
+                    Map->v[p].z = 0.0f;
             }
-	}
-
-	if (GetFaceVertexCount(f) > 4)
-	{
-	    MaxMesh.RetriangulateFace(f);
-	}
-    }
-
-    MaxMesh.buildNormals();
-    float NormalVals[3];
-    MNNormalSpec* SpecNormals = nullptr;
-
-    if (DoNormalsExist() && GetNormalType() == HEMAX_VERTEX_NORMAL)
-    {
-	MaxMesh.SpecifyNormals();
-
-	SpecNormals = MaxMesh.GetSpecifiedNormals();
-	SpecNormals->BuildNormals();
-	SpecNormals->ComputeNormals();
-
-	if (SpecNormals)
-	{
-	    SpecNormals->SetNumFaces(GetFaceCount());
-
-	    CurrentIndex = 0;
-
-	    for (int f = 0; f < GetFaceCount(); f++)
-	    {
-		for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-		{
-		    GetVertexNormalAtIndex(CurrentIndex, NormalVals);
-                    Point3 NormalVec = Point3(
-                                            NormalVals[0],
-                                            -NormalVals[2],
-                                            NormalVals[1]);
-		    SpecNormals->SetNormal(f, v, NormalVec);
-		    CurrentIndex++;
-		}
-	    }
-
-	    SpecNormals->SetAllExplicit();
-	    SpecNormals->NShrink();
-	}
-    }
-
-    // MNMesh requires we outright declare the number of maps
-    // It has to be set to the highest UV layer, otherwise it won't initialize
-    // the map, even if inbetween maps are empty.
-    MaxMesh.SetMapNum(MaxMapLayer+1);
-
-    MNMap* UVMap = nullptr;
-    MNMap* CdMap = nullptr;
-    MNMap* AlphaMap = nullptr;
-    MNMap* IlluminationMap = nullptr;
-
-    if (DoUVsExist())
-    {
-	UVMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_UVW);
-
-	if (!UVMap)
-	{
-	    MaxMesh.InitMap(HEMAX_MAPPING_CHANNEL_UVW);
-	    UVMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_UVW);
-	}
-
-	if (UVMap)
-	{
-	    UVMap->ClearAllFlags();
-
-	    if (GetUVType() == HEMAX_POINT_UV)
-	    {
-		UVMap->setNumFaces(GetFaceCount());
-		UVMap->setNumVerts(GetPointCount());
-	    }
-	    else if (GetUVType() == HEMAX_VERTEX_UV)
-	    {
-		UVList.MergeEqualTuples();
-
-		UVMap->setNumFaces(GetFaceCount());
-		UVMap->setNumVerts(GetVertexCount());
-
-		std::vector<float> UVSet = UVList.MergedValues();
-
-		for (unsigned int z = 0; z < UVList.MergedDataSize(); z++)
-		{
-		    UVMap->v[z].x = UVSet[z * UVList.DataTupleSize()];
-
-                    if (UVList.DataTupleSize() >= 2)
-		        UVMap->v[z].y = UVSet[z * UVList.DataTupleSize()+1];
-                    else
-                        UVMap->v[z].y = 0.0f;
-
-                    if (UVList.DataTupleSize() >= 3)
-		        UVMap->v[z].z = UVSet[z * UVList.DataTupleSize()+2];
-                    else
-                        UVMap->v[z].z = 0.0f;
-
-		}
-	    }
-	}
-    }
-    if (DoesCdAttrExist())
-    {
-	CdMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_COLOR);
-
-	if (!CdMap)
-	{
-	    MaxMesh.InitMap(HEMAX_MAPPING_CHANNEL_COLOR);
-	    CdMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_COLOR);
-	}
-
-	if (CdMap)
-	{
-	    CdMap->ClearAllFlags();
-
-	    if (GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
-	    {
-		CdMap->setNumFaces(GetFaceCount());
-		CdMap->setNumVerts(GetPointCount());
-	    }
-	    else if (GetCdAttrOwner() == HAPI_ATTROWNER_VERTEX)
-	    {
-		CdMap->setNumFaces(GetFaceCount());
-		CdMap->setNumVerts(GetVertexCount());
-	    }
-	}
-    }
-
-    if (DoesAlphaAttrExist())
-    {
-	AlphaMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ALPHA);
-
-	if (!AlphaMap)
-	{
-	    MaxMesh.InitMap(HEMAX_MAPPING_CHANNEL_ALPHA);
-	    AlphaMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ALPHA);
-	}
-
-	if (AlphaMap)
-	{
-	    AlphaMap->ClearAllFlags();
-
-	    if (GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
-	    {
-		AlphaMap->setNumFaces(GetFaceCount());
-		AlphaMap->setNumVerts(GetPointCount());
-	    }
-	    else if (GetAlphaAttrOwner() == HAPI_ATTROWNER_VERTEX)
-	    {
-		AlphaMap->setNumFaces(GetFaceCount());
-		AlphaMap->setNumVerts(GetVertexCount());
-	    }
-	}
-    }
-
-    if (DoesIlluminationAttrExist())
-    {
-	IlluminationMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ILLUMINATION);
-
-	if (!IlluminationMap)
-	{
-	    MaxMesh.InitMap(HEMAX_MAPPING_CHANNEL_ILLUMINATION);
-	    IlluminationMap = MaxMesh.M(HEMAX_MAPPING_CHANNEL_ILLUMINATION);
-	}
-
-	if (IlluminationMap)
-	{
-	    IlluminationMap->ClearAllFlags();
-
-	    if (GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
-	    {
-		IlluminationMap->setNumFaces(GetFaceCount());
-		IlluminationMap->setNumVerts(GetPointCount());
-	    }
-	    else if (GetIlluminationOwner() == HAPI_ATTROWNER_VERTEX)
-	    {
-		IlluminationMap->setNumFaces(GetFaceCount());
-		IlluminationMap->setNumVerts(GetVertexCount());
-	    }
-	}
-    }
-
-    std::vector<float> UVVals(UVList.DataTupleSize());
-
-    float AlphaVal;
-    float IlluminationVals[3];
-
-    for (int p = 0; p < GetPointCount(); p++)
-    {
-	if (UVMap && DoUVsExist() && GetUVType() == HEMAX_POINT_UV)
-	{
-	    GetPointUVAtIndex(p, UVVals.data());
-
-	    UVMap->v[p].x = UVVals[0];
-
-            if (UVVals.size() >= 2)
-	        UVMap->v[p].y = UVVals[1];
-            else
-                UVMap->v[p].y = 0.0f;
-
-            if (UVVals.size() >= 3)
-	        UVMap->v[p].z = UVVals[2];
-            else
-                UVMap->v[p].z = 0.0f;
-	}
-	if (CdMap &&
-            DoesCdAttrExist() &&
-            GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
-	{
-            std::vector<float> CdVals(CdList.DataTupleSize());
-	    GetPointCdAtIndex(p, CdVals.data());
-	    CdMap->v[p].x = CdVals[0];
-	    CdMap->v[p].y = CdVals[1];
-	    CdMap->v[p].z = CdVals[2];
-	}
-	if (AlphaMap &&
-            DoesAlphaAttrExist() &&
-            GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
-	{
-	    AlphaVal = GetAlphaAtIndex(p);
-	    AlphaMap->v[p].x = AlphaVal;
-	    AlphaMap->v[p].y = AlphaVal;
-	    AlphaMap->v[p].z = AlphaVal;
-	}
-	if (IlluminationMap &&
-            DoesIlluminationAttrExist() &&
-            GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
-	{
-	    GetIlluminationAtIndex(p, IlluminationVals);
-	    IlluminationMap->v[p].x = IlluminationVals[0];
-	    IlluminationMap->v[p].y = IlluminationVals[1];
-	    IlluminationMap->v[p].z = IlluminationVals[2];
-	}
-
-        if (HasVertexSelections())
-        {
-            VertexSelections.Set(p, GetVertexSelectionsArray()[p]);
         }
     }
 
-    int VertexIndex = 0;
-    
-    for (int f = 0; f < GetFaceCount(); f++)
+    BitArray FaceSelections;
+
+    if (MyFaceSelections.size() > 0)
+        FaceSelections.SetSize(MyFaceSelections.size());
+
+    std::size_t VertIdx = 0;
+    for (std::size_t f = 0; f < MyNumFaces; ++f)
     {
-	if (UVMap && DoUVsExist())
-	{
-	    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
-	}
-	if (CdMap && DoesCdAttrExist())
-	{
-	    CdMap->F(f)->SetSize(GetFaceVertexCount(f));
-	}
-	if (AlphaMap && DoesAlphaAttrExist())
-	{
-	    AlphaMap->F(f)->SetSize(GetFaceVertexCount(f));
-	}
-	if (IlluminationMap && DoesIlluminationAttrExist())
-	{
-	    IlluminationMap->F(f)->SetSize(GetFaceVertexCount(f));
-	}
+        MaxMesh.F(f)->SetDeg(MyFaceCounts[f]);
 
-	for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-	{
-	    if (UVMap && DoUVsExist())
-	    {
-		if (GetUVType() == HEMAX_POINT_UV)
-		{
-		    UVMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-		}
-		else if (GetUVType() == HEMAX_VERTEX_UV)
-		{
-		    UVMap->F(f)->tv[v] = UVList.GetMergedIndex(VertexIndex);
-		}
-	    }
-	    if (CdMap && DoesCdAttrExist())
-	    {
-		if (GetCdAttrOwner() == HAPI_ATTROWNER_POINT)
-		{
-		    CdMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-		}
-		else if (GetCdAttrOwner() == HAPI_ATTROWNER_VERTEX)
-		{
-                    std::vector<float> CdVals(CdList.DataTupleSize());
-		    GetVertexCdAtIndex(VertexIndex, CdVals.data());
-		    CdMap->v[VertexIndex].x = CdVals[0];
-		    CdMap->v[VertexIndex].y = CdVals[1];
-		    CdMap->v[VertexIndex].z = CdVals[2];
+        if (MyFaceSelections.size() > 0)
+            FaceSelections.Set(f, MyFaceSelections[f]);
 
-		    CdMap->F(f)->tv[v] = VertexIndex;
-		}
-	    }
-	    if (AlphaMap && DoesAlphaAttrExist())
-	    {
-		if (GetAlphaAttrOwner() == HAPI_ATTROWNER_POINT)
-		{
-		    AlphaMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-		}
-		else if (GetAlphaAttrOwner() == HAPI_ATTROWNER_VERTEX)
-		{
-		    AlphaVal = GetAlphaAtIndex(VertexIndex);
-		    AlphaMap->v[VertexIndex].x = AlphaVal;
-		    AlphaMap->v[VertexIndex].y = AlphaVal;
-		    AlphaMap->v[VertexIndex].z = AlphaVal;
+        if (UvMap)
+            UvMap->F(f)->SetSize(MyFaceCounts[f]);
+        if (CdMap)
+            CdMap->F(f)->SetSize(MyFaceCounts[f]);
+        if (AlphaMap)
+            AlphaMap->F(f)->SetSize(MyFaceCounts[f]);
+        if (IlluminationMap)
+            IlluminationMap->F(f)->SetSize(MyFaceCounts[f]);
 
-		    AlphaMap->F(f)->tv[v] = VertexIndex;
-		}
-	    }
-	    if (IlluminationMap && DoesIlluminationAttrExist())
-	    {
-		if (GetIlluminationOwner() == HAPI_ATTROWNER_POINT)
-		{
-		    IlluminationMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-		}
-		else if (GetIlluminationOwner() == HAPI_ATTROWNER_VERTEX)
-		{
-		    GetIlluminationAtIndex(VertexIndex, IlluminationVals);
-		    IlluminationMap->v[VertexIndex].x = IlluminationVals[0];
-		    IlluminationMap->v[VertexIndex].y = IlluminationVals[1];
-		    IlluminationMap->v[VertexIndex].z = IlluminationVals[2];
-
-		    IlluminationMap->F(f)->tv[v] = VertexIndex;
-		}
-	    }
-	    VertexIndex++;
-	}
-    }
-
-    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
-    {
-	if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_POINT, Layer))
-	{
-	    MNMap* UVMap = MaxMesh.M(Layer);
-
-	    if (!UVMap)
-	    {
-		MaxMesh.InitMap(Layer);
-		UVMap = MaxMesh.M(Layer);
-	    }
-
-	    if (UVMap)
-	    {
-                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
-                    HAPI_ATTROWNER_POINT, Layer);
-
-                if (!UVValues)
-                    continue;
-
-                UVMap->ClearAllFlags();
-		UVMap->setNumFaces(GetFaceCount());
-		UVMap->setNumVerts(GetPointCount());
-
-		for (int p = 0; p < GetPointCount(); p++)
-		{
-                    std::vector<float> UV = UVValues->Value(p);
-                    UVMap->v[p].x = UV[0];
-
-                    if (UVValues->DataTupleSize() >= 2)
-                        UVMap->v[p].y = UV[1];
-                    else
-                        UVMap->v[p].y = 0.0f;
-
-                    if (UVValues->DataTupleSize() >= 3)
-                        UVMap->v[p].z = UV[2];
-                    else
-                        UVMap->v[p].z = 0.0f;
-		}
-
-                for (int f = 0; f < GetFaceCount(); f++)
-                {
-                    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
-
-                    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-                    {
-                        UVMap->F(f)->tv[v] = MaxMesh.F(f)->vtx[v];
-                    }
-                }
-	    }
-	}
-	else if (DoesSecondaryUVLayerExist(HAPI_ATTROWNER_VERTEX, Layer))
-	{
-	    MNMap* UVMap = MaxMesh.M(Layer);
-
-	    if (!UVMap)
-	    {
-		MaxMesh.InitMap(Layer);
-		UVMap = MaxMesh.M(Layer);
-	    }
-
-	    if (UVMap)
-	    {
-                HEMAX_MeshList<float>* UVValues = GetSecondaryUVLayer(
-                        HAPI_ATTROWNER_VERTEX, Layer);
-
-                if (!UVValues)
-                    continue;
-
-                UVValues->MergeEqualTuples();
-
-		UVMap->ClearAllFlags();
-                UVMap->setNumFaces(GetFaceCount());
-                UVMap->setNumVerts(GetVertexCount());
-
-                std::vector<float> UVSet = UVValues->MergedValues();
-
-                for (unsigned int z = 0; z < UVValues->MergedDataSize(); z++)
-                {
-                    UVMap->v[z].x = UVSet[z * UVValues->DataTupleSize()];
-
-                    if (UVValues->DataTupleSize() >= 2)
-                        UVMap->v[z].y = UVSet[z * UVValues->DataTupleSize()+1];
-                    else
-                        UVMap->v[z].y = 0.0f;
-
-                    if (UVValues->DataTupleSize() >= 3)
-                        UVMap->v[z].z = UVSet[z * UVValues->DataTupleSize()+2];
-                    else
-                        UVMap->v[z].z = 0.0f;
-                }
-
-                int VIndex = 0;
-
-                for (int f = 0; f < GetFaceCount(); f++)
-                {
-                    UVMap->F(f)->SetSize(GetFaceVertexCount(f));
-
-                    for (int v = GetFaceVertexCount(f) - 1; v >= 0; v--)
-                    {
-                        UVMap->F(f)->tv[v] = UVValues->GetMergedIndex(VIndex);
-                        ++VIndex;
-                    }
-                }
-	    }
-	}
+        if (MySmoothingGroups.DataExists())
+            MaxMesh.F(f)->smGroup = MySmoothingGroups.DataConst()[f];
         else
+            MaxMesh.F(f)->smGroup = 1;
+
+        if (MyMaterialIds.DataExists())
+            MaxMesh.F(f)->material = MyMaterialIds.DataConst()[f];
+
+        for (int v=0, done=0; done < MyFaceCounts[f]; ++done)
         {
-            MaxMesh.ClearMap(Layer);
+            MaxMesh.F(f)->vtx[v] = MyVertices[VertIdx];
+
+            if (NormalSpec && MyNormals.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                Point3 Normal = Point3(MyNormals.Data()[VertIdx*3],
+                                       -MyNormals.Data()[VertIdx*3+2],
+                                       MyNormals.Data()[VertIdx*3+1]);
+                NormalSpec->SetNormal(f, v, Normal);
+            }
+            else if (NormalSpec && MyNormals.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                int Point = MyVertices[VertIdx];
+                Point3 Normal = Point3(MyNormals.Data()[Point*3],
+                                       -MyNormals.Data()[Point*3+2],
+                                       MyNormals.Data()[Point*3+1]);
+                NormalSpec->SetNormal(f, v, Normal);
+            }
+
+            if (UvMap && MyPrimaryUVs.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                UvMap->F(f)->tv[v] = MyPrimaryUVs.GetMergedIndex(VertIdx);
+            }
+            else if (UvMap && MyPrimaryUVs.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                UvMap->F(f)->tv[v] = MyVertices[VertIdx];
+            }
+
+            if (CdMap && MyColors.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                CdMap->v[VertIdx].x = MyColors.Data()[VertIdx*3];
+                CdMap->v[VertIdx].y = MyColors.Data()[VertIdx*3+1];
+                CdMap->v[VertIdx].z = MyColors.Data()[VertIdx*3+2];
+                CdMap->F(f)->tv[v] = VertIdx;
+            }
+            else if (CdMap && MyColors.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                CdMap->F(f)->tv[v] = MyVertices[VertIdx];
+            }
+
+            if (AlphaMap && MyAlpha.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                AlphaMap->v[VertIdx].x = MyAlpha.Data()[VertIdx];
+                AlphaMap->v[VertIdx].y = MyAlpha.Data()[VertIdx];
+                AlphaMap->v[VertIdx].z = MyAlpha.Data()[VertIdx];
+                AlphaMap->F(f)->tv[v] = VertIdx;
+            }
+            else if (AlphaMap && MyAlpha.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                AlphaMap->F(f)->tv[v] = MyVertices[VertIdx];
+            }
+
+            if (IlluminationMap && MyIllumination.DataOwner() == HAPI_ATTROWNER_VERTEX)
+            {
+                IlluminationMap->v[VertIdx].x = MyIllumination.Data()[VertIdx*3];
+                IlluminationMap->v[VertIdx].y = MyIllumination.Data()[VertIdx*3+1];
+                IlluminationMap->v[VertIdx].z = MyIllumination.Data()[VertIdx*3+2];
+                IlluminationMap->F(f)->tv[v] = VertIdx;
+            }
+            else if (IlluminationMap && MyIllumination.DataOwner() == HAPI_ATTROWNER_POINT)
+            {
+                IlluminationMap->F(f)->tv[v] = MyVertices[VertIdx];
+            }
+
+            v = v==0 ? v+MyFaceCounts[f]-1 : v-1;
+            ++VertIdx;
         }
+
+        if (MyFaceCounts[f] > 4)
+            MaxMesh.RetriangulateFace(f);
+    }
+
+    for (auto it = MySecondaryUVs.begin(); it != MySecondaryUVs.end(); ++it)
+    {
+        HEMAX_MeshList<float>& UvList = it->second;
+
+        MNMap* Map = MaxMesh.M(it->first);
+
+        if (!Map)
+            continue;
+
+        VertIdx = 0;
+        for (std::size_t f = 0; f < MyNumFaces; ++f)
+        {
+            Map->F(f)->SetSize(MyFaceCounts[f]); 
+            for (int v = 0, done = 0; done < MyFaceCounts[f]; ++done)
+            {
+                if (UvList.DataOwner() == HAPI_ATTROWNER_VERTEX)
+                    Map->F(f)->tv[v] = UvList.GetMergedIndex(VertIdx);
+                else if (UvList.DataOwner() == HAPI_ATTROWNER_POINT)
+                    Map->F(f)->tv[v] = MyVertices[VertIdx];
+
+                v = v==0 ? v+MyFaceCounts[f]-1 : v-1;
+                ++VertIdx;
+            }
+        }
+    }
+
+    if (NormalSpec)
+    {
+        NormalSpec->SetAllExplicit();
+        NormalSpec->BuildNormals();
+        NormalSpec->NShrink();
     }
 
     MaxMesh.InvalidateGeomCache();
     MaxMesh.InvalidateTopoCache();
-
-    if (!DoesAlphaAttrExist())
-    {
-        MaxMesh.freeMap(-2);
-        MaxMesh.ClearMap(-2);
-    }
-
-    if (!DoesIlluminationAttrExist())
-    {
-        MaxMesh.freeMap(-1);
-        MaxMesh.ClearMap(-1);
-    }
-
-    if (!DoesCdAttrExist())
-    {
-        MaxMesh.freeMap(0);
-        MaxMesh.ClearMap(0);
-    }
-
-    if (!DoUVsExist())
-    {
-        MaxMesh.freeMap(1);
-        MaxMesh.ClearMap(1);
-    }
-
-    for (int Layer = 2; Layer <= MaxMapLayer; Layer++)
-    {
-        if (!DoesSecondaryUVLayerExist(HAPI_ATTROWNER_POINT, Layer) &&
-            !DoesSecondaryUVLayerExist(HAPI_ATTROWNER_VERTEX, Layer))
-        {
-            MaxMesh.ClearMap(Layer);
-        }
-    }
-
     MaxMesh.FillInMesh();
 
-    if (HasEdgeSelections() && MaxMesh.ENum() > 0)
+    MaxMesh.FaceSelect(FaceSelections);
+    MaxMesh.VertexSelect(VertexSelections);
+
+    if (MyEdgeSelections.size() > 0)
     {
         BitArray EdgeSelections;
         EdgeSelections.SetSize(MaxMesh.ENum());
         EdgeSelections.ClearAll();
 
-        for (long long int e = 0; e < static_cast<int>(EdgeSelectionsList.DataSize()) - 1; e += 2)
+        for (std::size_t e = 0; e < MyEdgeSelections.size() - 1; e += 2)
         {
-            int EdgeToSelect = MaxMesh.FindEdgeFromVertToVert(
-                EdgeSelectionsList.Data()[e], EdgeSelectionsList.Data()[e+1]);
-            if (EdgeToSelect > -1)
-            {
-                EdgeSelections.Set(EdgeToSelect, 1);
-            }
-        } 
+            int EdgeNum = MaxMesh.FindEdgeFromVertToVert(
+                    MyEdgeSelections[e], MyEdgeSelections[e+1]);
+            if (EdgeNum > -1)
+                EdgeSelections.Set(EdgeNum, 1);
+        }
 
         MaxMesh.EdgeSelect(EdgeSelections);
     }
 
-    // Set selections
-    MaxMesh.FaceSelect(FaceSelections);
-    MaxMesh.VertexSelect(VertexSelections);
-
     MaxMesh.CollapseDeadStructs();
+}
+
+std::size_t
+HEMAX_Mesh::GetFaceCount() const
+{
+    return MyNumFaces;
+}
+
+const std::string&
+HEMAX_Mesh::GetMaterialPath() const
+{
+    return MyMaterialPath;
+}
+    
+std::size_t
+HEMAX_Mesh::GetNumMaterials() const
+{
+    return MyNumMaterials;
+}
+
+const HAPI_NodeId*
+HEMAX_Mesh::GetMaterialNodeIds() const
+{
+    return MyMaterialNodeIds.DataConst();
+}
+
+void
+HEMAX_Mesh::ApplyMetadataToINode(INode& Node) const
+{
+    for (auto&& It = MyIntMetadata.cbegin(); It != MyIntMetadata.cend(); It++)
+    {
+        const std::string& Name = It->first;
+        const HEMAX_MeshList<int>& List = It->second;
+
+        std::wstring WideName = HEMAX_Utilities::GetWideString(Name);
+        Node.SetUserPropInt(WideName.c_str(), List.DataConst()[0]);
+    }
+
+    for (auto&& It = MyFloatMetadata.cbegin(); It != MyFloatMetadata.cend(); It++)
+    {
+        const std::string& Name = It->first;
+        const HEMAX_MeshList<float>& List = It->second;
+
+        std::wstring WideName = HEMAX_Utilities::GetWideString(Name);
+        Node.SetUserPropFloat(WideName.c_str(), List.DataConst()[0]);
+    }
+
+    for (auto&& It = MyStringMetadata.cbegin(); It != MyStringMetadata.cend(); It++)
+    {
+        const std::string& Name = It->first;
+        const HEMAX_MeshList<std::string>& List = It->second;
+
+        std::wstring WideName = HEMAX_Utilities::GetWideString(Name);
+        std::wstring WideValue = HEMAX_Utilities::GetWideString(List.DataConst()[0]);
+
+        Node.SetUserPropString(WideName.c_str(), WideValue.c_str());
+    }
+}
+
+void
+HEMAX_Mesh::SetPointCount(std::size_t Count)
+{
+    MyNumPoints = Count;
+}
+
+void        
+HEMAX_Mesh::SetVertexCount(std::size_t Count)
+{
+    MyNumVertices = Count;
+    MyVertices.resize(MyNumVertices);
+}
+
+void
+HEMAX_Mesh::SetFaceCount(std::size_t Count)
+{
+    MyNumFaces = Count;
+    MyFaceCounts.resize(MyNumFaces);
+}
+
+bool
+HEMAX_Mesh::AddMetadata(HEMAX_Mesh::MetadataType Type,
+        const std::string& AttribName, const HAPI_AttributeInfo& AttribInfo)
+{
+    switch (Type)
+    {
+        case HEMAX_Mesh::MetadataType::INT:
+            if (AttribInfo.count != 1 || AttribInfo.tupleSize != 1)
+                return false;
+
+            MyIntMetadata[AttribName].Init(AttribInfo.count,
+                    AttribInfo.tupleSize, HAPI_ATTROWNER_DETAIL);
+
+            return true;
+        case HEMAX_Mesh::MetadataType::FLOAT:
+            if (AttribInfo.count != 1 || AttribInfo.tupleSize != 1)
+                return false;
+
+            MyFloatMetadata[AttribName].Init(AttribInfo.count,
+                    AttribInfo.tupleSize, HAPI_ATTROWNER_DETAIL);
+
+            return true;
+        case HEMAX_Mesh::MetadataType::STRING:
+            if (AttribInfo.count != 1 || AttribInfo.tupleSize != 1)
+
+            MyStringMetadata[AttribName].Init(AttribInfo.count,
+                    AttribInfo.tupleSize, HAPI_ATTROWNER_DETAIL);
+
+            return true;
+        default:
+            return false;
+    }
 }

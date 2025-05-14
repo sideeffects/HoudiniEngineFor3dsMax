@@ -47,7 +47,7 @@ HEMAX_GeometryPlugin::BuildMesh(TimeValue Time)
 {
     if (Mesh)
     {
-	Mesh->MarshallDataInto3dsMaxMNMesh(polyMesh);
+        Mesh->BuildMNMesh(polyMesh);
     }
     else
     {

@@ -71,28 +71,36 @@ HEMAX_Input::AddNodeTransformAttributes(INode* MaxNode)
     HAPI_TransformEuler EulerTM = HEMAX_Utilities::MaxTransformToHAPITransformEuler(NodeTM);
     Matrix3 RawNodeTM = HEMAX_Utilities::GetINodeTransformationMatrix(MaxNode);
 
-    HAPI_AttributeInfo TranslateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_TRANSLATE_ATTR);
-    HAPI_AttributeInfo RotateAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_ROTATE_ATTR);
-    HAPI_AttributeInfo ScaleAttrInfo = AddNewDetailFloatAttribute(1, 3, HEMAX_SCALE_ATTR);
-    HAPI_AttributeInfo QuatAttrInfo = AddNewDetailFloatAttribute(1, 4, HEMAX_QUATERNION_ATTR);
-    HAPI_AttributeInfo WorldSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_WORLD);
-    HAPI_AttributeInfo LocalSpaceAttrInfo = AddNewDetailFloatAttribute(1, 12, HEMAX_MAX_RAW_TM_LOCAL);
+    HAPI_AttributeInfo TranslateAttrInfo =
+        AddNewDetailFloatAttribute(1, 3, HEMAX_ATTRIB_TRANSLATE);
+    HAPI_AttributeInfo RotateAttrInfo =
+        AddNewDetailFloatAttribute(1, 3, HEMAX_ATTRIB_ROTATE);
+    HAPI_AttributeInfo ScaleAttrInfo =
+        AddNewDetailFloatAttribute(1, 3, HEMAX_ATTRIB_SCALE);
+    HAPI_AttributeInfo QuatAttrInfo =
+        AddNewDetailFloatAttribute(1, 4, HEMAX_ATTRIB_QUATERNION);
+    HAPI_AttributeInfo WorldSpaceAttrInfo =
+        AddNewDetailFloatAttribute(1, 12, HEMAX_ATTRIB_MAX_RAW_TM_WORLD);
+    HAPI_AttributeInfo LocalSpaceAttrInfo =
+        AddNewDetailFloatAttribute(1, 12, HEMAX_ATTRIB_MAX_RAW_TM_LOCAL);
 
-    SendFloatAttributeData(HEMAX_TRANSLATE_ATTR, TranslateAttrInfo, EulerTM.position, 1);
-    SendFloatAttributeData(HEMAX_ROTATE_ATTR, RotateAttrInfo, EulerTM.rotationEuler, 1);
-    SendFloatAttributeData(HEMAX_SCALE_ATTR, ScaleAttrInfo, EulerTM.scale, 1);
-    SendFloatAttributeData(HEMAX_QUATERNION_ATTR, QuatAttrInfo, HAPITM.rotationQuaternion, 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_TRANSLATE, TranslateAttrInfo, EulerTM.position, 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_ROTATE, RotateAttrInfo, EulerTM.rotationEuler, 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_SCALE, ScaleAttrInfo, EulerTM.scale, 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_QUATERNION, QuatAttrInfo, HAPITM.rotationQuaternion, 1);
 
     std::vector<float> WorldSpaceTM;
     HEMAX_Utilities::Matrix3ToFlatArray(RawNodeTM, WorldSpaceTM);
 
-    SendFloatAttributeData(HEMAX_MAX_RAW_TM_WORLD, WorldSpaceAttrInfo, &WorldSpaceTM.front(), 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_MAX_RAW_TM_WORLD, WorldSpaceAttrInfo,
+            &WorldSpaceTM.front(), 1);
 
     Matrix3 NodeLocalTM = HEMAX_Utilities::GetINodeLocalTransformationMatrix(MaxNode);
     std::vector<float> LocalSpaceTM;
     HEMAX_Utilities::Matrix3ToFlatArray(NodeLocalTM, LocalSpaceTM);
 
-    SendFloatAttributeData(HEMAX_MAX_RAW_TM_LOCAL, LocalSpaceAttrInfo, &LocalSpaceTM.front(), 1);
+    SendFloatAttributeData(HEMAX_ATTRIB_MAX_RAW_TM_LOCAL, LocalSpaceAttrInfo,
+            &LocalSpaceTM.front(), 1);
 }
 
 HEMAX_Input::~HEMAX_Input()
@@ -194,13 +202,13 @@ HEMAX_Input::SetInputMetadataAttributes(int PrimCount)
     const char* CharBuf = NodeName.c_str();
 
     HAPI_AttributeInfo NodeNameAttr = AddNewDetailStringAttribute(
-            1, 1, HEMAX_MAX_NODE_NAME);
-    SendStringAttributeData(HEMAX_MAX_NODE_NAME, NodeNameAttr,
+            1, 1, HEMAX_ATTRIB_MAX_NODE_NAME);
+    SendStringAttributeData(HEMAX_ATTRIB_MAX_NODE_NAME, NodeNameAttr,
             &CharBuf, 1);
 
-    const char* InputNodeNameAttrName = HEMAX_INPUT_NODE_NAME;
+    const char* InputNodeNameAttrName = HEMAX_ATTRIB_INPUT_NODE_NAME;
     HAPI_AttributeInfo InputNodeNameAttr = AddNewPrimitiveStringAttribute(
-            PrimCount, 1, HEMAX_INPUT_NODE_NAME);
+            PrimCount, 1, HEMAX_ATTRIB_INPUT_NODE_NAME);
 
     HEMAX_HoudiniApi::SetAttributeStringUniqueData(
             &HEMAX_SessionManager::GetSessionManager().Session,

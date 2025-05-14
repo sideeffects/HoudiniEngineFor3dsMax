@@ -749,3 +749,37 @@ HEMAX_Utilities::ToTSTR(const std::wstring& String)
 
     return ConvertedString;
 }
+
+bool
+HEMAX_Utilities::GeoHasGroup(
+        const HAPI_GeoInfo& Geo,
+        const std::string& GroupName,
+        const HAPI_GroupType GroupType)
+{
+    std::vector<HAPI_StringHandle> Handles;
+
+    if (GroupType == HAPI_GROUPTYPE_PRIM)
+        Handles.resize(Geo.primitiveGroupCount);
+    else if (GroupType == HAPI_GROUPTYPE_POINT)
+        Handles.resize(Geo.pointGroupCount);
+    else if (GroupType == HAPI_GROUPTYPE_EDGE)
+        Handles.resize(Geo.edgeGroupCount);
+
+    if (Handles.size() <= 0)
+        return false;
+
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    HAPI_Result Result = HEMAX_HoudiniApi::GetGroupNames(&SM.Session,
+            Geo.nodeId, GroupType, Handles.data(), Handles.size());
+
+    if (Result != HAPI_RESULT_SUCCESS)
+        return false;
+
+    for (std::size_t g = 0; g < Handles.size(); ++g)
+    {
+        if (GetHAPIString(Handles[g]) == GroupName)
+            return true;
+    }
+
+    return false;
+}

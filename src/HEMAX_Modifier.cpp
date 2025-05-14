@@ -255,7 +255,7 @@ HEMAX_Modifier::ModifyObject(TimeValue t, ModContext& mc, ObjectState* os, INode
 		    {
 			if (MaxPolyObject)
 			{
-			    TheMesh->MarshallDataInto3dsMaxMNMesh(MaxPolyObject->GetMesh());
+                            TheMesh->BuildMNMesh(MaxPolyObject->GetMesh());
 
 			    if (MaxObject != MaxPolyObject)
 			    {
@@ -307,10 +307,10 @@ HEMAX_Modifier::ApplyMaterialsToNode()
 	    HEMAX_Mesh* TheMesh = DisplayNode.Parts[0].GetMesh();
 	    if (MaxNode && TheMesh)
 	    {
-		if (!(TheMesh->MaterialPath.empty()))
+		if (!(TheMesh->GetMaterialPath().empty()))
 		{
                     std::wstring WideMatName = HEMAX_Utilities::GetWideString(
-                        TheMesh->MaterialPath);
+                        TheMesh->GetMaterialPath());
                     WStr WideMatNameWStr(WideMatName.c_str());
                     MSTR WideMatNameMStr = WideMatNameWStr.ToMSTR();
 		    MtlBaseLib* SceneMatLib = GetCOREInterface()->GetSceneMtls();

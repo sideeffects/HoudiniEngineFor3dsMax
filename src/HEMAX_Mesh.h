@@ -2,6 +2,8 @@
 
 #include "HEMAX_Types.h"
 #include "HEMAX_MaterialNode.h"
+
+#include <HAPI.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -11,204 +13,123 @@
 #include <mnmesh.h>
 #pragma warning(pop)
 
-enum HEMAX_Mesh_MetadataType
-{
-    HEMAX_MESH_INT_METADATA,
-    HEMAX_MESH_FLOAT_METADATA,
-    HEMAX_MESH_STRING_METADATA
-};
-
 template<typename T>
 class HEMAX_MeshList
 {
-    public:
-	HEMAX_MeshList();
-	~HEMAX_MeshList();
+public:
+                                    HEMAX_MeshList() = default;
+                                    ~HEMAX_MeshList() = default;
 
-	void                        Init(unsigned int _Size, unsigned int _TupleSize, HAPI_AttributeOwner _Owner);
-	T*                          Data();
-	std::vector<T>              Value(int Index);
-	unsigned int                DataSize();
-	unsigned int                DataTupleSize();
-	HAPI_AttributeOwner         DataOwner();
+    void                            Init(std::size_t _Size,
+                                            std::size_t _TupleSize,
+                                            HAPI_AttributeOwner _Owner);
+    T*                              Data();
+    const T*                        DataConst() const;
+    void                            Value(int Index, std::vector<T>& DataOut);
+    std::size_t                     DataSize();
+    std::size_t                     DataTupleSize();
+    HAPI_AttributeOwner             DataOwner();
+    bool                            DataExists() const { return Exists; }
 
-	void			    MergeEqualTuples();
+    void			        MergeEqualTuples();
 
-	unsigned int		    MergedDataSize();
-	std::vector<T>&		    MergedValues();
-	unsigned int		    GetMergedIndex(int Index);	
+    const T*                        MergedDataConst() const;
+    std::size_t                     MergedDataSize();
+    std::size_t                     GetMergedIndex(int Index);	
 
-    private:
-	T*                          List;
-	HAPI_AttributeOwner        Owner;
-	unsigned int                Size;
-	unsigned int                TupleSize;
+    void                            Clear();
 
-	std::vector<T>		    TupleSet;
-	std::vector<unsigned int>   IndexMapping;
+private:
+    std::vector<T>                  List;
+    HAPI_AttributeOwner             Owner           = HAPI_ATTROWNER_INVALID;
+    std::size_t                     Size            = 0;
+    std::size_t                     TupleSize       = 0;
 
-        bool                        IsMerged;
+    std::vector<T>		    TupleSet;
+    std::vector<std::size_t>        IndexMapping;
+
+    bool                            Exists          = false;
+    bool                            IsMerged        = false;
 };
 
 class HEMAX_Mesh
 {
-    public:
+public:
 
-	HEMAX_Mesh();
-	HEMAX_Mesh( int FCount, int VCount, int PCount );
-	~HEMAX_Mesh();
+    enum MetadataType
+    {
+        INT,
+        FLOAT,
+        STRING
+    };
 
-	int GetFaceCount();
-	int GetVertexCount();
-	int GetPointCount();
-	int GetPointUVCount();
-	int GetVertexUVCount();
-	int GetNumMaterials();
+public:
 
-	int* GetFaceVertexCountsArray();
-	int* GetVertexListArray();
-	float* GetPointListArray();
-	float* GetPointNormalsListArray();
-	float* GetVertexNormalsListArray();
-	HAPI_NodeId* GetMaterialIdsArray();
-	float* GetPointUVArray();
-	float* GetVertexUVArray();
-        float* GetSecondaryPointUVArray(int Layer);
-        float* GetSecondaryVertexUVArray(int Layer);
-	float* GetPointCdArray();
-	float* GetVertexCdArray();
-	float* GetAlphaArray();
-	float* GetIlluminationArray();
-	int* GetSmoothingGroupArray();
-	int* GetMaterialIDArray();
-        int* GetFaceSelectionsArray();
-        int* GetVertexSelectionsArray();
-        int* GetEdgeSelectionsArray();
+                                        HEMAX_Mesh() = default;
+                                        ~HEMAX_Mesh() = default;
 
-	int GetFaceVertexCount(int Index);
-	void GetPointAtIndex( int Index, float* Point );
-	void GetPointNormalAtIndex(int Index, float* Normal);
-	void GetVertexNormalAtIndex(int Index, float* Normal);
-	int GetVertex( int Index );
-	void GetPointUVAtIndex(int Index, float* UVVals);
+    void                                Clear();
+    void                                InitFromPart(const HAPI_NodeId Node,
+                                                const HAPI_PartInfo& PartInfo);
+    void                                BuildMNMesh(MNMesh& MaxMesh);
 
-	void GetPointCdAtIndex(int Index, float* CdVals);
-	void GetVertexCdAtIndex(int Index, float* CdVals);
+    std::size_t                         GetFaceCount() const;
 
-	float GetAlphaAtIndex(int Index);
+    const std::string&                  GetMaterialPath() const;
+    std::size_t                         GetNumMaterials() const;
+    const HAPI_NodeId*                  GetMaterialNodeIds() const;
 
-	void GetIlluminationAtIndex(int Index, float* IlluminationVals);
+    void                                ApplyMetadataToINode(INode& Node) const;
 
-	void SetNormalsExist(bool Exist);
-	bool DoNormalsExist();
+private:
 
-	void AllocatePointNormalArray();
-	void AllocateVertexNormalArray();
-	void AllocateMaterialIdsArray();
-	void AllocatePointUVArray(int TupleSize);
-	void AllocateVertexUVArray(int TupleSize);
+    void                                SetPointCount(const std::size_t Count);
+    void                                SetVertexCount(const std::size_t Count);
+    void                                SetFaceCount(const std::size_t Count);
 
-	void AllocatePointCdArray(int TupleSize);
-	void AllocateVertexCdArray(int TupleSize);
+    bool                                AddMetadata(
+                                            MetadataType Type,
+                                            const std::string& AttribName,
+                                            const HAPI_AttributeInfo& AttribInfo);
 
-	void AllocateAlphaArray(HAPI_AttributeOwner Owner);
-	void AllocateIlluminationArray(HAPI_AttributeOwner Owner);
+private:
+    
+    std::size_t                         MyNumPoints                     = 0;
+    std::size_t                         MyNumVertices                   = 0;
+    std::size_t                         MyNumFaces                      = 0;
 
-	void AllocateSmoothingGroupsArray();
-	void AllocateMaterialIDArray();
-        void AllocateFaceSelectionsArray();
-        void AllocateVertexSelectionsArray();
-        void AllocateEdgeSelectionsArray(int EdgeCount);
+    int                                 MyMaxMapLayer                   = -1;
 
-	HEMAX_NormalType GetNormalType();
-	HEMAX_UVType GetUVType();
+    HEMAX_MeshList<float>               MyPositions;
+    std::vector<int>                    MyFaceCounts;
+    std::vector<int>                    MyVertices;
+    HEMAX_MeshList<float>               MyNormals;
+    HEMAX_MeshList<float>               MyPrimaryUVs;
+    HEMAX_MeshList<float>               MyColors;
+    HEMAX_MeshList<float>               MyAlpha;
+    HEMAX_MeshList<float>               MyIllumination;
+    HEMAX_MeshList<int>                 MySmoothingGroups;
+    HEMAX_MeshList<int>                 MyMaterialIds;
+    HEMAX_MeshList<HAPI_NodeId>         MyMaterialNodeIds;
 
-	bool DoesCdAttrExist();
-	HAPI_AttributeOwner GetCdAttrOwner();
+    std::vector<int>                    MyFaceSelections;
+    std::vector<int>                    MyVertexSelections;
+    std::vector<int>                    MyEdgeSelections;
 
-	bool DoesAlphaAttrExist();
-	HAPI_AttributeOwner GetAlphaAttrOwner();
+    std::unordered_map<
+        std::size_t,
+        HEMAX_MeshList<float>>          MySecondaryUVs;
 
-	bool DoesIlluminationAttrExist();
-	HAPI_AttributeOwner GetIlluminationOwner();
+    std::string                         MyMaterialPath;
+    std::size_t                         MyNumMaterials                  = 0;
 
-	bool DoesSmoothingGroupAttrExist();
-	bool DoesMaterialIDAttrExist();
-
-	bool DoUVsExist();
-
-        bool HasFaceSelections() const;
-        bool HasVertexSelections() const;
-        bool HasEdgeSelections() const;
-
-	int GetPostTriangulationFaceCount();
-
-        void CreateSecondaryUVLayer(int Layer, const HAPI_AttributeInfo& Attr);
-        HEMAX_MeshList<float>* GetSecondaryUVLayer(HAPI_AttributeOwner Owner, int Layer);
-	bool DoesSecondaryUVLayerExist(HAPI_AttributeOwner Owner, int Layer);
-
-	void AddMetadata(std::string Name, HEMAX_Mesh_MetadataType Type, unsigned int Size, unsigned int TupleSize, HAPI_AttributeOwner Owner);
-
-	HEMAX_MeshList<int>& GetIntMetadata(std::string Name);
-	HEMAX_MeshList<float>& GetFloatMetadata(std::string Name);
-	HEMAX_MeshList<std::string>& GetStringMetadata(std::string Name);
-
-	void ApplyDetailMetadata(INode* Node);
-
-	void MarshallDataInto3dsMaxMNMesh(MNMesh& MaxMesh);
-
-	std::string MaterialPath;
-
-	bool AreMaterialIdsSame;
-
-    private:
-
-	bool NormalsExist;
-	HEMAX_NormalType NormalType;
-
-	int FaceCount;
-	int VertexCount;
-	int PointCount;
-
-	HEMAX_MeshList<HAPI_NodeId> FaceMaterialIds;
-	HEMAX_MeshList<int> FaceVertexCounts;
-	HEMAX_MeshList<int> VertexList;
-	HEMAX_MeshList<float> PointList;
-	HEMAX_MeshList<float> Normals;
-	HEMAX_MeshList<float> UVList;
-	HEMAX_MeshList<float> CdList;
-	HEMAX_MeshList<float> AlphaList;
-	HEMAX_MeshList<float> IlluminationList;
-	HEMAX_MeshList<int> SmoothingGroupList;
-	HEMAX_MeshList<int> MaterialIDList;
-        HEMAX_MeshList<int> FaceSelectionsList;
-        HEMAX_MeshList<int> VertexSelectionsList;
-        HEMAX_MeshList<int> EdgeSelectionsList;
-
-	std::unordered_map<std::string, HEMAX_MeshList<int>> IntMetadata;
-	std::unordered_map<std::string, HEMAX_MeshList<float>> FloatMetadata;
-	std::unordered_map<std::string, HEMAX_MeshList<std::string>> StringMetadata;
-
-	bool HasUVs;
-	HEMAX_UVType UVType;
-
-	bool ColorAttrExists;
-	HAPI_AttributeOwner ColorAttrOwner;
-
-	bool AlphaAttrExists;
-	HAPI_AttributeOwner AlphaAttrOwner;
-
-	bool IlluminationAttrExists;
-	HAPI_AttributeOwner IlluminationAttrOwner;
-
-	bool SmoothingGroupsExist;
-	bool MaterialIDsExist;
-        bool FaceSelectionsExist;
-        bool VertexSelectionsExist;
-        bool EdgeSelectionsExist;
-
-        std::unordered_map<int, HEMAX_MeshList<float>> SecondaryVertexUVs;
-        std::unordered_map<int, HEMAX_MeshList<float>> SecondaryPointUVs;
-
-        int MaxMapLayer;
+    std::unordered_map<
+        std::string,
+        HEMAX_MeshList<int>>            MyIntMetadata;
+    std::unordered_map<
+        std::string,
+        HEMAX_MeshList<float>>          MyFloatMetadata;
+    std::unordered_map<
+        std::string,
+        HEMAX_MeshList<std::string>>    MyStringMetadata;
 };

@@ -97,21 +97,21 @@ HEMAX_CurvePlugin::BuildLinearShape()
 
 	HAPI_AttributeInfo PositionAttributeInfo;
         HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, NodeId, PartId,
-			HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
+			HAPI_ATTRIB_POSITION, HAPI_ATTROWNER_POINT,
 			&PositionAttributeInfo);
 
         HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, NodeId, PartId,
-            HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
+            HAPI_ATTRIB_POSITION, &PositionAttributeInfo,
             -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
         HAPI_AttributeInfo MatIdAttrInfo;
         HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, NodeId, PartId,
-            HEMAX_MATERIAL_ID_ATTRIBUTE, HAPI_ATTROWNER_POINT,
+            HEMAX_ATTRIB_MATERIAL_ID, HAPI_ATTROWNER_POINT,
             &MatIdAttrInfo);
         if (MatIdAttrInfo.exists)
         {
             HEMAX_HoudiniApi::GetAttributeIntData(&SM.Session, NodeId, PartId,
-                HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, MatIds.data(), 0,
+                HEMAX_ATTRIB_MATERIAL_ID, &MatIdAttrInfo, -1, MatIds.data(), 0,
                 CurveInfo.vertexCount);
         }
 
@@ -180,22 +180,22 @@ HEMAX_CurvePlugin::BuildNURBSObject()
 
     HAPI_AttributeInfo PositionAttributeInfo;
     HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, NodeId, PartId,
-	HEMAX_POSITION_ATTRIBUTE, HAPI_ATTROWNER_POINT,
+	HAPI_ATTRIB_POSITION, HAPI_ATTROWNER_POINT,
         &PositionAttributeInfo);
 
     HEMAX_HoudiniApi::GetAttributeFloatData(&SM.Session, NodeId, PartId,
-		    HEMAX_POSITION_ATTRIBUTE, &PositionAttributeInfo,
+		    HAPI_ATTRIB_POSITION, &PositionAttributeInfo,
 		    -1, CurvePoints.data(), 0, CurveInfo.vertexCount);
 
     HAPI_AttributeInfo MatIdAttrInfo;
     HEMAX_HoudiniApi::GetAttributeInfo(&SM.Session, NodeId, PartId,
-        HEMAX_MATERIAL_ID_ATTRIBUTE,
+        HEMAX_ATTRIB_MATERIAL_ID,
         HAPI_ATTROWNER_DETAIL, &MatIdAttrInfo);
     int MatId = -1;
     if (MatIdAttrInfo.exists)
     {
         HEMAX_HoudiniApi::GetAttributeIntData(&SM.Session, NodeId, PartId,
-            HEMAX_MATERIAL_ID_ATTRIBUTE, &MatIdAttrInfo, -1, &MatId, 0, 1);
+            HEMAX_ATTRIB_MATERIAL_ID, &MatIdAttrInfo, -1, &MatId, 0, 1);
     }
 
     std::vector<int> CurvesCVCount(CurveInfo.curveCount);
