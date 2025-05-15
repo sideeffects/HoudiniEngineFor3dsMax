@@ -1109,6 +1109,7 @@ HEMAX_Mesh::AddMetadata(HEMAX_Mesh::MetadataType Type,
             return true;
         case HEMAX_Mesh::MetadataType::STRING:
             if (AttribInfo.count != 1 || AttribInfo.tupleSize != 1)
+                return false;
 
             MyStringMetadata[AttribName].Init(AttribInfo.count,
                     AttribInfo.tupleSize, HAPI_ATTROWNER_DETAIL);
