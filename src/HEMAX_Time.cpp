@@ -13,13 +13,13 @@ namespace HEMAX_Time
 {
 
 HAPI_TimelineOptions HEMAX_GlobalTimeOptions;
-float CurrentHAPITime;
+double CurrentHAPITime;
 bool HasTimeChanged;
 
 void
 PushTimelineSettings()
 {
-    HEMAX_GlobalTimeOptions.fps = (float)GetFrameRate();
+    HEMAX_GlobalTimeOptions.fps = (double)GetFrameRate();
 
     Interval TickInterval = GetCOREInterface()->GetAnimRange();
 
@@ -29,8 +29,8 @@ PushTimelineSettings()
     int StartFrame = Start / GetTicksPerFrame();
     int EndFrame = End / GetTicksPerFrame();
 
-    float StartSeconds = (float)StartFrame / (float)GetFrameRate();
-    float EndSeconds = (float)EndFrame / (float)GetFrameRate();
+    double StartSeconds = (double)StartFrame / (double)GetFrameRate();
+    double EndSeconds = (double)EndFrame / (double)GetFrameRate();
 
     HEMAX_GlobalTimeOptions.startTime = StartSeconds;
     HEMAX_GlobalTimeOptions.endTime = EndSeconds;
@@ -47,7 +47,7 @@ PushCurrentTime(TimeValue Time)
 {
     int Frame = Time / GetTicksPerFrame();
     int FPS = GetFrameRate();
-    float Seconds = (float)Frame / (float)FPS;
+    double Seconds = (double)Frame / (double)FPS;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HEMAX_HoudiniApi::SetTime(&SM.Session, Seconds);
@@ -59,7 +59,7 @@ void
 PushCurrentFrame(int Frame)
 {
     int FPS = GetFrameRate();
-    float Seconds = (float)Frame/(float)FPS;
+    double Seconds = (double)Frame/(double)FPS;
 
     HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
     HEMAX_HoudiniApi::SetTime(&SM.Session, Seconds);

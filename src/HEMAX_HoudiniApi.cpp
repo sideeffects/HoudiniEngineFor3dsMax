@@ -1,5 +1,5 @@
 /*
- * Copyright (c) <2024> Side Effects Software Inc. *
+ * Copyright (c) <2025> Side Effects Software Inc. *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -127,6 +127,9 @@ HEMAX_HoudiniApi::CookPDGImpl = &HEMAX_HoudiniApi::CookPDGEmptyStub;
 
 HEMAX_HoudiniApi::CookPDGAllOutputsFuncPtr
 HEMAX_HoudiniApi::CookPDGAllOutputsImpl = &HEMAX_HoudiniApi::CookPDGAllOutputsEmptyStub;
+
+HEMAX_HoudiniApi::CreateCOPImageFuncPtr
+HEMAX_HoudiniApi::CreateCOPImageImpl = &HEMAX_HoudiniApi::CreateCOPImageEmptyStub;
 
 HEMAX_HoudiniApi::CreateCustomSessionFuncPtr
 HEMAX_HoudiniApi::CreateCustomSessionImpl = &HEMAX_HoudiniApi::CreateCustomSessionEmptyStub;
@@ -935,6 +938,9 @@ HEMAX_HoudiniApi::RemoveParmExpressionImpl = &HEMAX_HoudiniApi::RemoveParmExpres
 HEMAX_HoudiniApi::RenameNodeFuncPtr
 HEMAX_HoudiniApi::RenameNodeImpl = &HEMAX_HoudiniApi::RenameNodeEmptyStub;
 
+HEMAX_HoudiniApi::RenderCOPOutputToImageFuncPtr
+HEMAX_HoudiniApi::RenderCOPOutputToImageImpl = &HEMAX_HoudiniApi::RenderCOPOutputToImageEmptyStub;
+
 HEMAX_HoudiniApi::RenderCOPToImageFuncPtr
 HEMAX_HoudiniApi::RenderCOPToImageImpl = &HEMAX_HoudiniApi::RenderCOPToImageEmptyStub;
 
@@ -1372,6 +1378,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::CookOptions_Init = (CookOptions_InitFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CookOptions_Init");
     HEMAX_HoudiniApi::CookPDGImpl = (CookPDGFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CookPDG");
     HEMAX_HoudiniApi::CookPDGAllOutputsImpl = (CookPDGAllOutputsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CookPDGAllOutputs");
+    HEMAX_HoudiniApi::CreateCOPImageImpl = (CreateCOPImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateCOPImage");
     HEMAX_HoudiniApi::CreateCustomSessionImpl = (CreateCustomSessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateCustomSession");
     HEMAX_HoudiniApi::CreateHeightFieldInputImpl = (CreateHeightFieldInputFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateHeightFieldInput");
     HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNodeImpl = (CreateHeightfieldInputVolumeNodeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateHeightfieldInputVolumeNode");
@@ -1641,6 +1648,7 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl = (RemoveMultiparmInstanceFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RemoveMultiparmInstance");
     HEMAX_HoudiniApi::RemoveParmExpressionImpl = (RemoveParmExpressionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RemoveParmExpression");
     HEMAX_HoudiniApi::RenameNodeImpl = (RenameNodeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenameNode");
+    HEMAX_HoudiniApi::RenderCOPOutputToImageImpl = (RenderCOPOutputToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderCOPOutputToImage");
     HEMAX_HoudiniApi::RenderCOPToImageImpl = (RenderCOPToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderCOPToImage");
     HEMAX_HoudiniApi::RenderTextureToImageImpl = (RenderTextureToImageFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_RenderTextureToImage");
     HEMAX_HoudiniApi::ResetSimulationImpl = (ResetSimulationFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_ResetSimulation");
@@ -1812,6 +1820,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::CookOptions_Init = &HEMAX_HoudiniApi::CookOptions_InitEmptyStub;
     HEMAX_HoudiniApi::CookPDGImpl = &HEMAX_HoudiniApi::CookPDGEmptyStub;
     HEMAX_HoudiniApi::CookPDGAllOutputsImpl = &HEMAX_HoudiniApi::CookPDGAllOutputsEmptyStub;
+    HEMAX_HoudiniApi::CreateCOPImageImpl = &HEMAX_HoudiniApi::CreateCOPImageEmptyStub;
     HEMAX_HoudiniApi::CreateCustomSessionImpl = &HEMAX_HoudiniApi::CreateCustomSessionEmptyStub;
     HEMAX_HoudiniApi::CreateHeightFieldInputImpl = &HEMAX_HoudiniApi::CreateHeightFieldInputEmptyStub;
     HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNodeImpl = &HEMAX_HoudiniApi::CreateHeightfieldInputVolumeNodeEmptyStub;
@@ -2081,6 +2090,7 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::RemoveMultiparmInstanceImpl = &HEMAX_HoudiniApi::RemoveMultiparmInstanceEmptyStub;
     HEMAX_HoudiniApi::RemoveParmExpressionImpl = &HEMAX_HoudiniApi::RemoveParmExpressionEmptyStub;
     HEMAX_HoudiniApi::RenameNodeImpl = &HEMAX_HoudiniApi::RenameNodeEmptyStub;
+    HEMAX_HoudiniApi::RenderCOPOutputToImageImpl = &HEMAX_HoudiniApi::RenderCOPOutputToImageEmptyStub;
     HEMAX_HoudiniApi::RenderCOPToImageImpl = &HEMAX_HoudiniApi::RenderCOPToImageEmptyStub;
     HEMAX_HoudiniApi::RenderTextureToImageImpl = &HEMAX_HoudiniApi::RenderTextureToImageEmptyStub;
     HEMAX_HoudiniApi::ResetSimulationImpl = &HEMAX_HoudiniApi::ResetSimulationEmptyStub;
@@ -2470,6 +2480,13 @@ HAPI_Result
 HEMAX_HoudiniApi::CookPDGAllOutputs(const HAPI_Session* session, HAPI_NodeId cook_node_id, int generate_only, int blocking)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CookPDGAllOutputsImpl(session, cook_node_id, generate_only, blocking);
+    return HandleHAPIResult(session, Result);
+}
+
+HAPI_Result
+HEMAX_HoudiniApi::CreateCOPImage(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateCOPImageImpl(session, parent_node_id, width, height, packing, flip_x, flip_y, data_array, start, length);
     return HandleHAPIResult(session, Result);
 }
 
@@ -3624,9 +3641,9 @@ HEMAX_HoudiniApi::GetPresetCount(const HAPI_Session * session, const char * buff
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::GetPresetNames(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int count)
+HEMAX_HoudiniApi::GetPresetNames(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int preset_names_count)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::GetPresetNamesImpl(session, buffer, buffer_length, preset_names_array, count);
+    HAPI_Result Result = HEMAX_HoudiniApi::GetPresetNamesImpl(session, buffer, buffer_length, preset_names_array, preset_names_count);
     return HandleHAPIResult(session, Result);
 }
 
@@ -3743,7 +3760,7 @@ HEMAX_HoudiniApi::GetSupportedImageFileFormats(const HAPI_Session * session, HAP
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::GetTime(const HAPI_Session * session, float * time)
+HEMAX_HoudiniApi::GetTime(const HAPI_Session * session, double * time)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetTimeImpl(session, time);
     return HandleHAPIResult(session, Result);
@@ -4312,6 +4329,13 @@ HAPI_Result
 HEMAX_HoudiniApi::RenameNode(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::RenameNodeImpl(session, node_id, new_name);
+    return HandleHAPIResult(session, Result);
+}
+
+HAPI_Result
+HEMAX_HoudiniApi::RenderCOPOutputToImage(const HAPI_Session * session, HAPI_NodeId cop_node_id, const char * cop_output_name)
+{
+    HAPI_Result Result = HEMAX_HoudiniApi::RenderCOPOutputToImageImpl(session, cop_node_id, cop_output_name);
     return HandleHAPIResult(session, Result);
 }
 
@@ -4992,7 +5016,7 @@ HEMAX_HoudiniApi::SetSessionSyncInfo(const HAPI_Session * session, const HAPI_Se
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::SetTime(const HAPI_Session * session, float time)
+HEMAX_HoudiniApi::SetTime(const HAPI_Session * session, double time)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::SetTimeImpl(session, time);
     return HandleHAPIResult(session, Result);
@@ -5386,6 +5410,13 @@ HEMAX_HoudiniApi::CookPDGEmptyStub(const HAPI_Session * session, HAPI_NodeId coo
 
 HAPI_Result
 HEMAX_HoudiniApi::CookPDGAllOutputsEmptyStub(const HAPI_Session* session, HAPI_NodeId cook_node_id, int generate_only, int blocking)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::CreateCOPImageEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -6512,7 +6543,7 @@ HEMAX_HoudiniApi::GetPresetCountEmptyStub(const HAPI_Session * session, const ch
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetPresetNamesEmptyStub(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int count)
+HEMAX_HoudiniApi::GetPresetNamesEmptyStub(const HAPI_Session * session, const char * buffer, int buffer_length, HAPI_StringHandle * preset_names_array, int preset_names_count)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -6631,7 +6662,7 @@ HEMAX_HoudiniApi::GetSupportedImageFileFormatsEmptyStub(const HAPI_Session * ses
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetTimeEmptyStub(const HAPI_Session * session, float * time)
+HEMAX_HoudiniApi::GetTimeEmptyStub(const HAPI_Session * session, double * time)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -6982,6 +7013,13 @@ HEMAX_HoudiniApi::RemoveParmExpressionEmptyStub(const HAPI_Session * session, HA
 
 HAPI_Result
 HEMAX_HoudiniApi::RenameNodeEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, const char * new_name)
+{
+    return HAPI_RESULT_FAILURE;
+}
+
+
+HAPI_Result
+HEMAX_HoudiniApi::RenderCOPOutputToImageEmptyStub(const HAPI_Session * session, HAPI_NodeId cop_node_id, const char * cop_output_name)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -7646,7 +7684,7 @@ HEMAX_HoudiniApi::SetSessionSyncInfoEmptyStub(const HAPI_Session * session, cons
 
 
 HAPI_Result
-HEMAX_HoudiniApi::SetTimeEmptyStub(const HAPI_Session * session, float time)
+HEMAX_HoudiniApi::SetTimeEmptyStub(const HAPI_Session * session, double time)
 {
     return HAPI_RESULT_FAILURE;
 }
