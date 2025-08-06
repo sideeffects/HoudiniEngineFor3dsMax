@@ -10,6 +10,7 @@
 #include <MNNormalSpec.h>
 #pragma warning(pop)
 
+#include <cassert>
 #include <unordered_map>
 #include <unordered_set>
 #include <deque>
@@ -608,8 +609,8 @@ HEMAX_Mesh::BuildMNMesh(MNMesh& MaxMesh)
             }
             else
             {
-                // TODO: handle error case here?
-                ;
+                // It should be impossible to end up here.
+                assert(false);
             }
         }
     }
@@ -688,8 +689,8 @@ HEMAX_Mesh::BuildMNMesh(MNMesh& MaxMesh)
             }
             else
             {
-                // TODO: logging this error state?
-                ;
+                // It should be impossible to end up here
+                assert(false);
             }
         }
     }
@@ -720,8 +721,8 @@ HEMAX_Mesh::BuildMNMesh(MNMesh& MaxMesh)
             }
             else
             {
-                // TOOD: logging this error state?
-                ;
+                // It should be impossible to end up here
+                assert(false);
             }
         }
     }
@@ -752,8 +753,8 @@ HEMAX_Mesh::BuildMNMesh(MNMesh& MaxMesh)
             }
             else
             {
-                // TODO: logging this error state?
-                ;
+                // It should be impossible to end up here
+                assert(false);
             }
         }
     }
