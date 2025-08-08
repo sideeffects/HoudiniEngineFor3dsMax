@@ -82,8 +82,6 @@ class HEMAX_UserPrefs
     public:
         static HEMAX_UserPrefs& Get();
 
-	~HEMAX_UserPrefs();
-
 	bool GetStringSetting(std::string Key, std::string& Out);
 	bool GetBoolSetting(std::string Key, bool& Out);
         bool GetIntSetting(std::string Key, int& Out);

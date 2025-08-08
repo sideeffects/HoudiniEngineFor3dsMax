@@ -150,11 +150,6 @@ HEMAX_UserPrefs::HEMAX_UserPrefs()
     }
 }
 
-HEMAX_UserPrefs::~HEMAX_UserPrefs()
-{
-    WriteAllSettings();
-}
-
 bool
 HEMAX_UserPrefs::GetStringSetting(std::string Key, std::string& Out)
 {
@@ -234,6 +229,7 @@ HEMAX_UserPrefs::SetStringSetting(std::string Key,
 	}
 
 	Search->second.SettingValue = In;
+        WriteAllSettings();
     }
     else
     {
@@ -267,6 +263,7 @@ HEMAX_UserPrefs::SetBoolSetting(std::string Key, bool In)
 	}
 
 	Search->second.SettingValue = Value;
+        WriteAllSettings();
     }
     else
     {
@@ -289,6 +286,7 @@ HEMAX_UserPrefs::SetIntSetting(std::string Key, int In)
 
         std::string Value = std::to_string(In);
         Search->second.SettingValue = Value;
+        WriteAllSettings();
     }
     else
     {
