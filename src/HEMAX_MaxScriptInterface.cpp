@@ -23,6 +23,7 @@
 #include "HEMAX_Plugin.h"
 #include "HEMAX_SessionManager.h"
 #include "HEMAX_UserPrefs.h"
+#include "HEMAX_HoudiniApi.h"
 #include "UI/HEMAX_UI.h"
 
 #include <sstream>
@@ -59,6 +60,7 @@ def_visible_primitive(GetHdaParameterValue, "GetHdaParameterValue");
 def_visible_primitive(GetHoudiniEngineOption, "GetHoudiniEngineOption");
 def_visible_primitive(SetHoudiniEngineOption, "SetHoudiniEngineOption");
 def_visible_primitive(GetHoudiniVersion, "GetHoudiniVersion");
+def_visible_primitive(SaveHIPFile, "SaveHIPFile");
 
 Value*
 CreateSession_cf(Value** ArgList, int Count)
@@ -1280,6 +1282,32 @@ GetHoudiniVersion_cf(Value** ArgList, int Count)
 
 
     return VersionNums;
+}
+
+Value*
+SaveHIPFile_cf(Value** ArgList, int Count)
+{
+    check_arg_count(SaveHIPFile, 2, Count);
+    type_check(ArgList[0], String, _M("HIP File Path"));
+    type_check(ArgList[1], Boolean, _M("Lock Nodes"));
+
+    std::wstring WFilePath(ArgList[0]->to_string());
+    std::string FilePath = HEMAX_Utilities::GetUtf8String(WFilePath);
+
+    bool LockNodes = ArgList[1]->to_bool();
+
+    HEMAX_SessionManager& SM = HEMAX_SessionManager::GetSessionManager();
+    
+    if (!SM.IsSessionValidAndInitialized())
+        throw RuntimeError(L"There is no active Houdini session.");
+
+    HAPI_Result result = HEMAX_HoudiniApi::SaveHIPFile(&SM.Session,
+            FilePath.c_str(), LockNodes);
+
+    if (result != HAPI_RESULT_SUCCESS)
+        throw RuntimeError(L"Failed to save HIP file.");
+
+    return &true_value;
 }
 
 HEMAX_3dsmaxHda*
