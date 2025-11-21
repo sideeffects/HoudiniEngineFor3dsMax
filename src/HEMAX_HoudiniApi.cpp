@@ -74,9 +74,6 @@ HEMAX_HoudiniApi::CommitGeoImpl = &HEMAX_HoudiniApi::CommitGeoEmptyStub;
 HEMAX_HoudiniApi::CommitWorkItemsFuncPtr
 HEMAX_HoudiniApi::CommitWorkItemsImpl = &HEMAX_HoudiniApi::CommitWorkItemsEmptyStub;
 
-HEMAX_HoudiniApi::CommitWorkitemsFuncPtr
-HEMAX_HoudiniApi::CommitWorkitemsImpl = &HEMAX_HoudiniApi::CommitWorkitemsEmptyStub;
-
 HEMAX_HoudiniApi::ComposeChildNodeListFuncPtr
 HEMAX_HoudiniApi::ComposeChildNodeListImpl = &HEMAX_HoudiniApi::ComposeChildNodeListEmptyStub;
 
@@ -163,9 +160,6 @@ HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = &HEMAX_HoudiniApi::CreateThrif
 
 HEMAX_HoudiniApi::CreateWorkItemFuncPtr
 HEMAX_HoudiniApi::CreateWorkItemImpl = &HEMAX_HoudiniApi::CreateWorkItemEmptyStub;
-
-HEMAX_HoudiniApi::CreateWorkitemFuncPtr
-HEMAX_HoudiniApi::CreateWorkitemImpl = &HEMAX_HoudiniApi::CreateWorkitemEmptyStub;
 
 HEMAX_HoudiniApi::CurveInfo_CreateFuncPtr
 HEMAX_HoudiniApi::CurveInfo_Create = &HEMAX_HoudiniApi::CurveInfo_CreateEmptyStub;
@@ -530,9 +524,6 @@ HEMAX_HoudiniApi::GetNodePathImpl = &HEMAX_HoudiniApi::GetNodePathEmptyStub;
 HEMAX_HoudiniApi::GetNumWorkItemsFuncPtr
 HEMAX_HoudiniApi::GetNumWorkItemsImpl = &HEMAX_HoudiniApi::GetNumWorkItemsEmptyStub;
 
-HEMAX_HoudiniApi::GetNumWorkitemsFuncPtr
-HEMAX_HoudiniApi::GetNumWorkitemsImpl = &HEMAX_HoudiniApi::GetNumWorkitemsEmptyStub;
-
 HEMAX_HoudiniApi::GetObjectInfoFuncPtr
 HEMAX_HoudiniApi::GetObjectInfoImpl = &HEMAX_HoudiniApi::GetObjectInfoEmptyStub;
 
@@ -736,27 +727,6 @@ HEMAX_HoudiniApi::GetWorkItemStringAttributeImpl = &HEMAX_HoudiniApi::GetWorkIte
 
 HEMAX_HoudiniApi::GetWorkItemsFuncPtr
 HEMAX_HoudiniApi::GetWorkItemsImpl = &HEMAX_HoudiniApi::GetWorkItemsEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemDataLengthFuncPtr
-HEMAX_HoudiniApi::GetWorkitemDataLengthImpl = &HEMAX_HoudiniApi::GetWorkitemDataLengthEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemFloatDataFuncPtr
-HEMAX_HoudiniApi::GetWorkitemFloatDataImpl = &HEMAX_HoudiniApi::GetWorkitemFloatDataEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemInfoFuncPtr
-HEMAX_HoudiniApi::GetWorkitemInfoImpl = &HEMAX_HoudiniApi::GetWorkitemInfoEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemIntDataFuncPtr
-HEMAX_HoudiniApi::GetWorkitemIntDataImpl = &HEMAX_HoudiniApi::GetWorkitemIntDataEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemResultInfoFuncPtr
-HEMAX_HoudiniApi::GetWorkitemResultInfoImpl = &HEMAX_HoudiniApi::GetWorkitemResultInfoEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemStringDataFuncPtr
-HEMAX_HoudiniApi::GetWorkitemStringDataImpl = &HEMAX_HoudiniApi::GetWorkitemStringDataEmptyStub;
-
-HEMAX_HoudiniApi::GetWorkitemsFuncPtr
-HEMAX_HoudiniApi::GetWorkitemsImpl = &HEMAX_HoudiniApi::GetWorkitemsEmptyStub;
 
 HEMAX_HoudiniApi::HandleBindingInfo_CreateFuncPtr
 HEMAX_HoudiniApi::HandleBindingInfo_Create = &HEMAX_HoudiniApi::HandleBindingInfo_CreateEmptyStub;
@@ -1274,15 +1244,6 @@ HEMAX_HoudiniApi::SetWorkItemIntAttributeImpl = &HEMAX_HoudiniApi::SetWorkItemIn
 HEMAX_HoudiniApi::SetWorkItemStringAttributeFuncPtr
 HEMAX_HoudiniApi::SetWorkItemStringAttributeImpl = &HEMAX_HoudiniApi::SetWorkItemStringAttributeEmptyStub;
 
-HEMAX_HoudiniApi::SetWorkitemFloatDataFuncPtr
-HEMAX_HoudiniApi::SetWorkitemFloatDataImpl = &HEMAX_HoudiniApi::SetWorkitemFloatDataEmptyStub;
-
-HEMAX_HoudiniApi::SetWorkitemIntDataFuncPtr
-HEMAX_HoudiniApi::SetWorkitemIntDataImpl = &HEMAX_HoudiniApi::SetWorkitemIntDataEmptyStub;
-
-HEMAX_HoudiniApi::SetWorkitemStringDataFuncPtr
-HEMAX_HoudiniApi::SetWorkitemStringDataImpl = &HEMAX_HoudiniApi::SetWorkitemStringDataEmptyStub;
-
 HEMAX_HoudiniApi::ShutdownFuncPtr
 HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
 
@@ -1360,7 +1321,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::CloseSessionImpl = (CloseSessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CloseSession");
     HEMAX_HoudiniApi::CommitGeoImpl = (CommitGeoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CommitGeo");
     HEMAX_HoudiniApi::CommitWorkItemsImpl = (CommitWorkItemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CommitWorkItems");
-    HEMAX_HoudiniApi::CommitWorkitemsImpl = (CommitWorkitemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CommitWorkitems");
     HEMAX_HoudiniApi::ComposeChildNodeListImpl = (ComposeChildNodeListFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_ComposeChildNodeList");
     HEMAX_HoudiniApi::ComposeNodeCookResultImpl = (ComposeNodeCookResultFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_ComposeNodeCookResult");
     HEMAX_HoudiniApi::ComposeObjectListImpl = (ComposeObjectListFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_ComposeObjectList");
@@ -1390,7 +1350,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl = (CreateThriftSharedMemorySessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateThriftSharedMemorySession");
     HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = (CreateThriftSocketSessionFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateThriftSocketSession");
     HEMAX_HoudiniApi::CreateWorkItemImpl = (CreateWorkItemFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateWorkItem");
-    HEMAX_HoudiniApi::CreateWorkitemImpl = (CreateWorkitemFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CreateWorkitem");
     HEMAX_HoudiniApi::CurveInfo_Create = (CurveInfo_CreateFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CurveInfo_Create");
     HEMAX_HoudiniApi::CurveInfo_Init = (CurveInfo_InitFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_CurveInfo_Init");
     HEMAX_HoudiniApi::DeleteAttributeImpl = (DeleteAttributeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_DeleteAttribute");
@@ -1512,7 +1471,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetNodeOutputNameImpl = (GetNodeOutputNameFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodeOutputName");
     HEMAX_HoudiniApi::GetNodePathImpl = (GetNodePathFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNodePath");
     HEMAX_HoudiniApi::GetNumWorkItemsImpl = (GetNumWorkItemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNumWorkItems");
-    HEMAX_HoudiniApi::GetNumWorkitemsImpl = (GetNumWorkitemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetNumWorkitems");
     HEMAX_HoudiniApi::GetObjectInfoImpl = (GetObjectInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetObjectInfo");
     HEMAX_HoudiniApi::GetObjectTransformImpl = (GetObjectTransformFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetObjectTransform");
     HEMAX_HoudiniApi::GetOutputGeoCountImpl = (GetOutputGeoCountFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetOutputGeoCount");
@@ -1581,13 +1539,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::GetWorkItemOutputFilesImpl = (GetWorkItemOutputFilesFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkItemOutputFiles");
     HEMAX_HoudiniApi::GetWorkItemStringAttributeImpl = (GetWorkItemStringAttributeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkItemStringAttribute");
     HEMAX_HoudiniApi::GetWorkItemsImpl = (GetWorkItemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkItems");
-    HEMAX_HoudiniApi::GetWorkitemDataLengthImpl = (GetWorkitemDataLengthFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemDataLength");
-    HEMAX_HoudiniApi::GetWorkitemFloatDataImpl = (GetWorkitemFloatDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemFloatData");
-    HEMAX_HoudiniApi::GetWorkitemInfoImpl = (GetWorkitemInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemInfo");
-    HEMAX_HoudiniApi::GetWorkitemIntDataImpl = (GetWorkitemIntDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemIntData");
-    HEMAX_HoudiniApi::GetWorkitemResultInfoImpl = (GetWorkitemResultInfoFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemResultInfo");
-    HEMAX_HoudiniApi::GetWorkitemStringDataImpl = (GetWorkitemStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitemStringData");
-    HEMAX_HoudiniApi::GetWorkitemsImpl = (GetWorkitemsFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_GetWorkitems");
     HEMAX_HoudiniApi::HandleBindingInfo_Create = (HandleBindingInfo_CreateFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_HandleBindingInfo_Create");
     HEMAX_HoudiniApi::HandleBindingInfo_Init = (HandleBindingInfo_InitFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_HandleBindingInfo_Init");
     HEMAX_HoudiniApi::HandleInfo_Create = (HandleInfo_CreateFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_HandleInfo_Create");
@@ -1760,9 +1711,6 @@ HEMAX_HoudiniApi::InitializeHAPI(void* LibraryHandle)
     HEMAX_HoudiniApi::SetWorkItemFloatAttributeImpl = (SetWorkItemFloatAttributeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkItemFloatAttribute");
     HEMAX_HoudiniApi::SetWorkItemIntAttributeImpl = (SetWorkItemIntAttributeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkItemIntAttribute");
     HEMAX_HoudiniApi::SetWorkItemStringAttributeImpl = (SetWorkItemStringAttributeFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkItemStringAttribute");
-    HEMAX_HoudiniApi::SetWorkitemFloatDataImpl = (SetWorkitemFloatDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemFloatData");
-    HEMAX_HoudiniApi::SetWorkitemIntDataImpl = (SetWorkitemIntDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemIntData");
-    HEMAX_HoudiniApi::SetWorkitemStringDataImpl = (SetWorkitemStringDataFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_SetWorkitemStringData");
     HEMAX_HoudiniApi::ShutdownImpl = (ShutdownFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_Shutdown");
     HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl = (StartPerformanceMonitorProfileFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartPerformanceMonitorProfile");
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = (StartThriftNamedPipeServerFuncPtr) HEMAX_Platform::GetDllExport(LibraryHandle, "HAPI_StartThriftNamedPipeServer");
@@ -1802,7 +1750,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::CloseSessionImpl = &HEMAX_HoudiniApi::CloseSessionEmptyStub;
     HEMAX_HoudiniApi::CommitGeoImpl = &HEMAX_HoudiniApi::CommitGeoEmptyStub;
     HEMAX_HoudiniApi::CommitWorkItemsImpl = &HEMAX_HoudiniApi::CommitWorkItemsEmptyStub;
-    HEMAX_HoudiniApi::CommitWorkitemsImpl = &HEMAX_HoudiniApi::CommitWorkitemsEmptyStub;
     HEMAX_HoudiniApi::ComposeChildNodeListImpl = &HEMAX_HoudiniApi::ComposeChildNodeListEmptyStub;
     HEMAX_HoudiniApi::ComposeNodeCookResultImpl = &HEMAX_HoudiniApi::ComposeNodeCookResultEmptyStub;
     HEMAX_HoudiniApi::ComposeObjectListImpl = &HEMAX_HoudiniApi::ComposeObjectListEmptyStub;
@@ -1832,7 +1779,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::CreateThriftSharedMemorySessionImpl = &HEMAX_HoudiniApi::CreateThriftSharedMemorySessionEmptyStub;
     HEMAX_HoudiniApi::CreateThriftSocketSessionImpl = &HEMAX_HoudiniApi::CreateThriftSocketSessionEmptyStub;
     HEMAX_HoudiniApi::CreateWorkItemImpl = &HEMAX_HoudiniApi::CreateWorkItemEmptyStub;
-    HEMAX_HoudiniApi::CreateWorkitemImpl = &HEMAX_HoudiniApi::CreateWorkitemEmptyStub;
     HEMAX_HoudiniApi::CurveInfo_Create = &HEMAX_HoudiniApi::CurveInfo_CreateEmptyStub;
     HEMAX_HoudiniApi::CurveInfo_Init = &HEMAX_HoudiniApi::CurveInfo_InitEmptyStub;
     HEMAX_HoudiniApi::DeleteAttributeImpl = &HEMAX_HoudiniApi::DeleteAttributeEmptyStub;
@@ -1954,7 +1900,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetNodeOutputNameImpl = &HEMAX_HoudiniApi::GetNodeOutputNameEmptyStub;
     HEMAX_HoudiniApi::GetNodePathImpl = &HEMAX_HoudiniApi::GetNodePathEmptyStub;
     HEMAX_HoudiniApi::GetNumWorkItemsImpl = &HEMAX_HoudiniApi::GetNumWorkItemsEmptyStub;
-    HEMAX_HoudiniApi::GetNumWorkitemsImpl = &HEMAX_HoudiniApi::GetNumWorkitemsEmptyStub;
     HEMAX_HoudiniApi::GetObjectInfoImpl = &HEMAX_HoudiniApi::GetObjectInfoEmptyStub;
     HEMAX_HoudiniApi::GetObjectTransformImpl = &HEMAX_HoudiniApi::GetObjectTransformEmptyStub;
     HEMAX_HoudiniApi::GetOutputGeoCountImpl = &HEMAX_HoudiniApi::GetOutputGeoCountEmptyStub;
@@ -2023,13 +1968,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::GetWorkItemOutputFilesImpl = &HEMAX_HoudiniApi::GetWorkItemOutputFilesEmptyStub;
     HEMAX_HoudiniApi::GetWorkItemStringAttributeImpl = &HEMAX_HoudiniApi::GetWorkItemStringAttributeEmptyStub;
     HEMAX_HoudiniApi::GetWorkItemsImpl = &HEMAX_HoudiniApi::GetWorkItemsEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemDataLengthImpl = &HEMAX_HoudiniApi::GetWorkitemDataLengthEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemFloatDataImpl = &HEMAX_HoudiniApi::GetWorkitemFloatDataEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemInfoImpl = &HEMAX_HoudiniApi::GetWorkitemInfoEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemIntDataImpl = &HEMAX_HoudiniApi::GetWorkitemIntDataEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemResultInfoImpl = &HEMAX_HoudiniApi::GetWorkitemResultInfoEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemStringDataImpl = &HEMAX_HoudiniApi::GetWorkitemStringDataEmptyStub;
-    HEMAX_HoudiniApi::GetWorkitemsImpl = &HEMAX_HoudiniApi::GetWorkitemsEmptyStub;
     HEMAX_HoudiniApi::HandleBindingInfo_Create = &HEMAX_HoudiniApi::HandleBindingInfo_CreateEmptyStub;
     HEMAX_HoudiniApi::HandleBindingInfo_Init = &HEMAX_HoudiniApi::HandleBindingInfo_InitEmptyStub;
     HEMAX_HoudiniApi::HandleInfo_Create = &HEMAX_HoudiniApi::HandleInfo_CreateEmptyStub;
@@ -2202,9 +2140,6 @@ HEMAX_HoudiniApi::FinalizeHAPI()
     HEMAX_HoudiniApi::SetWorkItemFloatAttributeImpl = &HEMAX_HoudiniApi::SetWorkItemFloatAttributeEmptyStub;
     HEMAX_HoudiniApi::SetWorkItemIntAttributeImpl = &HEMAX_HoudiniApi::SetWorkItemIntAttributeEmptyStub;
     HEMAX_HoudiniApi::SetWorkItemStringAttributeImpl = &HEMAX_HoudiniApi::SetWorkItemStringAttributeEmptyStub;
-    HEMAX_HoudiniApi::SetWorkitemFloatDataImpl = &HEMAX_HoudiniApi::SetWorkitemFloatDataEmptyStub;
-    HEMAX_HoudiniApi::SetWorkitemIntDataImpl = &HEMAX_HoudiniApi::SetWorkitemIntDataEmptyStub;
-    HEMAX_HoudiniApi::SetWorkitemStringDataImpl = &HEMAX_HoudiniApi::SetWorkitemStringDataEmptyStub;
     HEMAX_HoudiniApi::ShutdownImpl = &HEMAX_HoudiniApi::ShutdownEmptyStub;
     HEMAX_HoudiniApi::StartPerformanceMonitorProfileImpl = &HEMAX_HoudiniApi::StartPerformanceMonitorProfileEmptyStub;
     HEMAX_HoudiniApi::StartThriftNamedPipeServerImpl = &HEMAX_HoudiniApi::StartThriftNamedPipeServerEmptyStub;
@@ -2363,13 +2298,6 @@ HEMAX_HoudiniApi::CommitWorkItems(const HAPI_Session * session, HAPI_NodeId node
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::CommitWorkitems(const HAPI_Session * session, HAPI_NodeId node_id)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::CommitWorkitemsImpl(session, node_id);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
 HEMAX_HoudiniApi::ComposeChildNodeList(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ComposeChildNodeListImpl(session, parent_node_id, node_type_filter, node_flags_filter, recursive, count);
@@ -2484,9 +2412,9 @@ HEMAX_HoudiniApi::CookPDGAllOutputs(const HAPI_Session* session, HAPI_NodeId coo
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::CreateCOPImage(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length)
+HEMAX_HoudiniApi::CreateCOPImage(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length, HAPI_NodeId * new_node_id)
 {
-    HAPI_Result Result = HEMAX_HoudiniApi::CreateCOPImageImpl(session, parent_node_id, width, height, packing, flip_x, flip_y, data_array, start, length);
+    HAPI_Result Result = HEMAX_HoudiniApi::CreateCOPImageImpl(session, parent_node_id, width, height, packing, flip_x, flip_y, data_array, start, length, new_node_id);
     return HandleHAPIResult(session, Result);
 }
 
@@ -2564,13 +2492,6 @@ HAPI_Result
 HEMAX_HoudiniApi::CreateWorkItem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * work_item_id, const char * name, int index)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::CreateWorkItemImpl(session, node_id, work_item_id, name, index);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::CreateWorkitem(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * workitem_id, const char * name, int index)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::CreateWorkitemImpl(session, node_id, workitem_id, name, index);
     return HandleHAPIResult(session, Result);
 }
 
@@ -3417,13 +3338,6 @@ HEMAX_HoudiniApi::GetNumWorkItems(const HAPI_Session * session, HAPI_NodeId node
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::GetNumWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * num)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetNumWorkitemsImpl(session, node_id, num);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
 HEMAX_HoudiniApi::GetObjectInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ObjectInfo * object_info)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetObjectInfoImpl(session, node_id, object_info);
@@ -3896,55 +3810,6 @@ HAPI_Result
 HEMAX_HoudiniApi::GetWorkItems(const HAPI_Session * session, HAPI_NodeId node_id, int * work_item_ids_array, int length)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::GetWorkItemsImpl(session, node_id, work_item_ids_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemDataLength(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemDataLengthImpl(session, node_id, workitem_id, data_name, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, float * data_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemInfo(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemInfo * workitem_info)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemInfoImpl(session, graph_context_id, workitem_id, workitem_info);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * data_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemResultInfo(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemResultInfoImpl(session, node_id, workitem_id, resultinfo_array, resultinfo_count);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, HAPI_StringHandle * data_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitems(const HAPI_Session * session, HAPI_NodeId node_id, int * workitem_ids_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::GetWorkitemsImpl(session, node_id, workitem_ids_array, length);
     return HandleHAPIResult(session, Result);
 }
 
@@ -5114,27 +4979,6 @@ HEMAX_HoudiniApi::SetWorkItemStringAttribute(const HAPI_Session * session, HAPI_
 }
 
 HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemFloatData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const float * values_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemFloatDataImpl(session, node_id, workitem_id, data_name, values_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemIntData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const int * values_array, int length)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemIntDataImpl(session, node_id, workitem_id, data_name, values_array, length);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemStringData(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int data_index, const char * value)
-{
-    HAPI_Result Result = HEMAX_HoudiniApi::SetWorkitemStringDataImpl(session, node_id, workitem_id, data_name, data_index, value);
-    return HandleHAPIResult(session, Result);
-}
-
-HAPI_Result
 HEMAX_HoudiniApi::Shutdown(const HAPI_Session * session)
 {
     HAPI_Result Result = HEMAX_HoudiniApi::ShutdownImpl(session);
@@ -5325,13 +5169,6 @@ HEMAX_HoudiniApi::CommitWorkItemsEmptyStub(const HAPI_Session * session, HAPI_No
 
 
 HAPI_Result
-HEMAX_HoudiniApi::CommitWorkitemsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
 HEMAX_HoudiniApi::ComposeChildNodeListEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, HAPI_NodeTypeBits node_type_filter, HAPI_NodeFlagsBits node_flags_filter, HAPI_Bool recursive, int * count)
 {
     return HAPI_RESULT_FAILURE;
@@ -5416,7 +5253,7 @@ HEMAX_HoudiniApi::CookPDGAllOutputsEmptyStub(const HAPI_Session* session, HAPI_N
 
 
 HAPI_Result
-HEMAX_HoudiniApi::CreateCOPImageEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length)
+HEMAX_HoudiniApi::CreateCOPImageEmptyStub(const HAPI_Session * session, HAPI_NodeId parent_node_id, const int width, const int height, const HAPI_ImagePacking packing, HAPI_Bool flip_x, HAPI_Bool flip_y, const float * data_array, int start, int length, HAPI_NodeId * new_node_id)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -5494,13 +5331,6 @@ HEMAX_HoudiniApi::CreateThriftSocketSessionEmptyStub(HAPI_Session * session, con
 
 HAPI_Result
 HEMAX_HoudiniApi::CreateWorkItemEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * work_item_id, const char * name, int index)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::CreateWorkitemEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId * workitem_id, const char * name, int index)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -6319,13 +6149,6 @@ HEMAX_HoudiniApi::GetNumWorkItemsEmptyStub(const HAPI_Session * session, HAPI_No
 
 
 HAPI_Result
-HEMAX_HoudiniApi::GetNumWorkitemsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, int * num)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
 HEMAX_HoudiniApi::GetObjectInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_ObjectInfo * object_info)
 {
     return HAPI_RESULT_FAILURE;
@@ -6796,55 +6619,6 @@ HEMAX_HoudiniApi::GetWorkItemStringAttributeEmptyStub(const HAPI_Session * sessi
 
 HAPI_Result
 HEMAX_HoudiniApi::GetWorkItemsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, int * work_item_ids_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemDataLengthEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemFloatDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, float * data_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemInfoEmptyStub(const HAPI_Session * session, HAPI_PDG_GraphContextId graph_context_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemInfo * workitem_info)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemIntDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int * data_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemResultInfoEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, HAPI_PDG_WorkItemOutputFile * resultinfo_array, int resultinfo_count)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemStringDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, HAPI_StringHandle * data_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::GetWorkitemsEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, int * workitem_ids_array, int length)
 {
     return HAPI_RESULT_FAILURE;
 }
@@ -7776,27 +7550,6 @@ HEMAX_HoudiniApi::SetWorkItemIntAttributeEmptyStub(const HAPI_Session * session,
 
 HAPI_Result
 HEMAX_HoudiniApi::SetWorkItemStringAttributeEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId work_item_id, const char * attribute_name, int data_index, const char * value)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemFloatDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const float * values_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemIntDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, const int * values_array, int length)
-{
-    return HAPI_RESULT_FAILURE;
-}
-
-
-HAPI_Result
-HEMAX_HoudiniApi::SetWorkitemStringDataEmptyStub(const HAPI_Session * session, HAPI_NodeId node_id, HAPI_PDG_WorkItemId workitem_id, const char * data_name, int data_index, const char * value)
 {
     return HAPI_RESULT_FAILURE;
 }
