@@ -644,7 +644,8 @@ HEMAX_Store::Find3dsmaxHdaViaChildGeometry(ULONG NodeHandle)
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
         TSTR CustAttribName = StampLookup->GetName(false);
 #else
         TSTR CustAttribName = StampLookup->GetName();

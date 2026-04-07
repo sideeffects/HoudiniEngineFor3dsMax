@@ -15,7 +15,8 @@
 #if defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 #include <geom/VertexNormal.h>
 #else
 #include <VertexNormal.h>
@@ -141,7 +142,8 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	    if (MeshMat->NumSubMtls() > 0)
 	    {
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
                 MultiMaterialName = MeshMat->GetName().ToCStr().data();
 #else
                 MultiMaterialName = MeshMat->GetName().ToCStr();
@@ -154,7 +156,8 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 		    if (SubMat)
 		    {
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
                         SubMatNames.insert({m, SubMat->GetName().ToCStr().data()});
 #else
 			SubMatNames.insert({m, SubMat->GetName().ToCStr()});
@@ -166,7 +169,8 @@ HEMAX_Input_Geometry::BuildPolyGeometryForInputNode(HEMAX_Node* Node,
 	    {
 		SingleMaterial = true;
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
                 SingleMaterialName = MeshMat->GetName().ToCStr().data();
 #else
 		SingleMaterialName = MeshMat->GetName().ToCStr();

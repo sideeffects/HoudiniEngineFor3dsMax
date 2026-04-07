@@ -26,7 +26,8 @@
 #pragma warning(pop)
 
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 #pragma warning(push, 0)
 #pragma warning(disable : 4265 4700 4715 4717 4263 4266 4390 4407)
 #include <CUI/ICuiMenuManager.h>
@@ -35,7 +36,8 @@
 #endif
 
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 MaxSDK::MaxGuid HoudiniEngineMenuGuid("47dec1b8-78b6-44e3-ad16-f690946856d2");
 MaxSDK::MaxGuid HoudiniEngineOpenActionGuid("01a24d08-9f84-48ed-8b58-476d88f6b470");
 MaxSDK::MaxGuid HoudiniEngineHideActionGuid("f1e8ae17-aca1-4fc6-84fe-82ea0a964582");
@@ -439,7 +441,8 @@ HEMAXLauncher::Start()
     }
 
 #if !defined(HEMAX_VERSION_2025) && \
-    !defined(HEMAX_VERSION_2026)
+    !defined(HEMAX_VERSION_2026) && \
+    !defined(HEMAX_VERSION_2027)
     RegisterNotification(&HEMAXLauncher::OnCUIMenusLoaded, this, NOTIFY_CUI_MENUS_POST_LOAD);
     RegisterNotification(&HEMAXLauncher::OnCUIMenusPreSaved, this, NOTIFY_CUI_MENUS_PRE_SAVE);
     RegisterNotification(&HEMAXLauncher::OnCUIMenusPostSaved, this, NOTIFY_CUI_MENUS_POST_SAVE);
@@ -453,7 +456,8 @@ void
 HEMAXLauncher::Stop()
 {
 #if !defined(HEMAX_VERSION_2025) && \
-    !defined(HEMAX_VERSION_2026)
+    !defined(HEMAX_VERSION_2026) && \
+    !defined(HEMAX_VERSION_2027)
     UnRegisterNotification(&HEMAXLauncher::OnCUIMenusLoaded, this, NOTIFY_CUI_MENUS_POST_LOAD);
     UnRegisterNotification(&HEMAXLauncher::OnCUIMenusPreSaved, this, NOTIFY_CUI_MENUS_PRE_SAVE);
     UnRegisterNotification(&HEMAXLauncher::OnCUIMenusPostSaved, this, NOTIFY_CUI_MENUS_POST_SAVE);
@@ -486,7 +490,8 @@ HEMAXLauncher::UpdateOptionsDialog()
 }
 
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 void
 HEMAXLauncher::OnCUIRegisterMenus(void* Param, NotifyInfo* Info)
 {
@@ -499,7 +504,8 @@ HEMAXLauncher::OnCUIRegisterMenus(void* Param, NotifyInfo* Info)
 #endif
 
 #if !defined(HEMAX_VERSION_2025) && \
-    !defined(HEMAX_VERSION_2026)
+    !defined(HEMAX_VERSION_2026) && \
+    !defined(HEMAX_VERSION_2027)
 void
 HEMAXLauncher::OnCUIMenusLoaded(void* param, NotifyInfo* Info)
 {
@@ -535,7 +541,8 @@ HEMAXLauncher::OnCUIMenusPreSaved(void* param, NotifyInfo* Info)
 #endif
 
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 void
 HEMAXLauncher::InstallMenu(MaxSDK::CUI::ICuiMenuManager* MenuManager)
 {
@@ -741,7 +748,8 @@ HEMAXLauncher::RemoveMenu()
     if (WasHAPIDLLFound())
     {
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 #else
 	Interface* ip = GetCOREInterface();
 	IMenuManager* MenuManager = ip->GetMenuManager();

@@ -150,8 +150,7 @@ HEMAX_Modifier::ChannelsUsed()
 ChannelMask
 HEMAX_Modifier::ChannelsChanged()
 {
-    // Be more specific later to avoid bad performance.
-    return PART_ALL;
+    return ALL_CHANNELS;
 }
 
 void
@@ -502,7 +501,8 @@ HEMAX_ModifierClassDesc::Create(BOOL Loading)
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 const TCHAR*
 HEMAX_ModifierClassDesc::NonLocalizedClassName()
 {

@@ -44,7 +44,8 @@ class HEMAX_GeometryPluginClassDesc : public ClassDesc2
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
         virtual const TCHAR* NonLocalizedClassName() override
             { return L"HDA"; }
 #endif
