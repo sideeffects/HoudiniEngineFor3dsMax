@@ -121,7 +121,8 @@ HEMAX_Input_Spline::BuildLinearCurveForInputNode(HEMAX_Node* Node,
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
     int CurveCount = TheShape->NumberOfCurves(GetCOREInterface()->GetTime());
 #endif
 #ifdef HEMAX_VERSION_2017
@@ -275,7 +276,8 @@ HEMAX_Input_Spline::BuildLinearCurveForEditableNode(HEMAX_Node* Node,
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
     int CurveCount = TheShape->NumberOfCurves(HEMAX_FRAME_ZERO);
 #endif
 #ifdef HEMAX_VERSION_2017

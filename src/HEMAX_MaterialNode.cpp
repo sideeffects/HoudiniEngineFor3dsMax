@@ -348,7 +348,8 @@ HEMAX_MaterialNode::Update3dsmaxMaterial()
 	MaterialBitMapTex = NewDefaultBitmapTex();
 
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
         std::wstring FinalPath(
             IPathConfigMgr::GetPathConfigMgr()->GetDir(APP_IMAGE_DIR).data());
 #else

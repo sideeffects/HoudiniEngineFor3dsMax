@@ -8,7 +8,8 @@
     defined(HEMAX_VERSION_2023) || \
     defined(HEMAX_VERSION_2024) || \
     defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qbuttongroup.h>

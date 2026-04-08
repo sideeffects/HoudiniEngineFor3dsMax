@@ -315,7 +315,8 @@ std::string
 HEMAX_UserPrefs::GetPluginConfigFolder()
 {
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
     return HEMAX_Utilities::GetUtf8String(
         GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY).data());
 #else
@@ -328,7 +329,8 @@ std::wstring
 HEMAX_UserPrefs::GetConfigFilePath()
 {
 #if defined(HEMAX_VERSION_2025) || \
-    defined(HEMAX_VERSION_2026)
+    defined(HEMAX_VERSION_2026) || \
+    defined(HEMAX_VERSION_2027)
     std::wstring CfgDir(
         GetCOREInterface()->GetDir(HEMAX_SETTINGS_FILE_DIRECTORY).data());
 #else
