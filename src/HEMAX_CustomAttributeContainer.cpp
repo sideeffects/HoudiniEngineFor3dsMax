@@ -126,7 +126,10 @@ GetIntParameterAttrib(ICustAttribContainer* CustomAttributeContainer,
         return nullptr;
 
     ParamType2 ParamType = ParmAttrib->PBlock->GetParameterType(0);
-    if (ParamType == TYPE_INT)
+    // Cast to avoid compiler errors in our build system. Examining the 3ds Max
+    // header files, it is valid to compare a ParamType and a ParamType2, because
+    // ParamType2 extends from ParamType.
+    if (static_cast<int>(ParamType) == static_cast<int>(TYPE_INT))
         return dynamic_cast<HEMAX_IntegerParameterAttrib*>(Attrib);
 
     return nullptr;
