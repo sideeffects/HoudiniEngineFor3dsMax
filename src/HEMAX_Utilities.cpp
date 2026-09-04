@@ -348,7 +348,7 @@ std::string
 HEMAX_Utilities::CreateHoudiniVersionString(int HoudiniMajorVersion,
         int HoudiniMinorVersion, int HoudiniBuildVersion, int PatchNumber)
 {
-    std::string VersionString = "Houdini " +
+    std::string VersionString = 
         std::to_string(HoudiniMajorVersion) + "." +
         std::to_string(HoudiniMinorVersion) + "." +
         std::to_string(HoudiniBuildVersion);
@@ -364,13 +364,20 @@ HEMAX_Utilities::CreateHoudiniVersionString(int HoudiniMajorVersion,
 std::string
 HEMAX_Utilities::GetHoudiniRegistryPath(std::string VersionString)
 {
-    return std::string(HEMAX_HOUDINI_REGISTRY_KEY_PREFIX + VersionString);
+    return std::string(HEMAX_HOUDINI_REGISTRY_KEY_PREFIX) + "Houdini " + VersionString;
 }
+
+std::string
+HEMAX_Utilities::GetHoudiniLauncherRegistryPath()
+{
+    return std::string(HEMAX_HOUDINI_REGISTRY_KEY_PREFIX) + "Houdini";
+}
+
 
 std::string
 HEMAX_Utilities::GetHoudiniSteamRegistryPath(std::string VersionString)
 {
-    return std::string(HEMAX_HOUDINI_STEAM_REGISTRY_KEY_PREFIX + VersionString);
+    return std::string(HEMAX_HOUDINI_STEAM_REGISTRY_KEY_PREFIX) + "Houdini " + VersionString;
 }
 
 std::string

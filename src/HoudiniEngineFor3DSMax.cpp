@@ -215,7 +215,7 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 {
     // This is the process of tracking down HFS
     
-    // Option 1: Check for HFS Override
+    // Option 1: Check for HFS Override in the settings
     std::string HFSOverride;
     if (HEMAX_UserPrefs::Get().GetStringSetting(HEMAX_SETTING_OVERRIDE_HFS, HFSOverride))
     {
@@ -229,7 +229,7 @@ HEMAXLauncher::FindHoudiniEngineLibs()
     }
 
     // Option 2: Find HFS in the Registry
-
+    // ie: HKEY_LOCAL_MACHINE\SOFTWARE\Side Effects Software\Houdini XX.Y.ZZZ\InstallPath
     std::string HoudiniVersionString =
         HEMAX_Utilities::CreateHoudiniVersionString(HoudiniMajorVersion,
                                                     HoudiniMinorVersion,
@@ -248,28 +248,69 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
     if (Result == ERROR_SUCCESS)
     {
-	WCHAR StringValue[2048];
-	DWORD BufferSize = sizeof(StringValue);
-	Result = RegQueryValueEx(Key,
-                                 _T(HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME),
+		WCHAR StringValue[2048];
+		DWORD BufferSize = sizeof(StringValue);
+		Result = RegQueryValueEx(Key,
+								 _T(HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME),
+								 nullptr,
+								 nullptr,
+								 (LPBYTE)(StringValue),
+								 &BufferSize);
+
+		if (Result == ERROR_SUCCESS)
+		{
+			HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
+			if (libHAPILModule)
+			{
+				SetHoudiniDirectories(StringValue);
+				return libHAPILModule;
+			}
+		}
+    }
+
+    // Option 3: Find HFS in the Launcher Registry location
+    // ie: HKEY_LOCAL_MACHINE\SOFTWARE\Side Effects Software\Houdini\XX.Y.0.ZZZ
+    std::string HoudiniLauncherRegPath =
+        HEMAX_Utilities::GetHoudiniLauncherRegistryPath();
+
+    Result = RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                           HoudiniLauncherRegPath.c_str(),
+                           0,
+                           KEY_READ,
+                           &Key);
+
+    if (Result == ERROR_SUCCESS)
+    {
+        // For reasons unknown, launcher registry has an added .0 
+        // ie, XX.Y.0.ZZZ
+        std::string HoudiniLauncherVersionString =
+            HEMAX_Utilities::CreateHoudiniVersionString(HoudiniMajorVersion,
+                                                        HoudiniMinorVersion,
+                                                        HoudiniPatchNumber,
+                                                        HoudiniBuildVersion);
+        std::wstring wLauncherVersionString = std::wstring(HoudiniLauncherVersionString.begin(), HoudiniLauncherVersionString.end());
+
+        WCHAR StringValue[2048];
+        DWORD BufferSize = sizeof(StringValue);
+        Result = RegQueryValueEx(Key,
+                                 wLauncherVersionString.c_str(),
                                  nullptr,
                                  nullptr,
                                  (LPBYTE)(StringValue),
                                  &BufferSize);
 
-	if (Result == ERROR_SUCCESS)
-	{
-	    HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
-	    if (libHAPILModule)
-	    {
-                SetHoudiniDirectories(StringValue);
-		return libHAPILModule;
-	    }
-	}
+		if (Result == ERROR_SUCCESS)
+		{
+			HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
+			if (libHAPILModule)
+			{
+				SetHoudiniDirectories(StringValue);
+				return libHAPILModule;
+			}
+		}
     }
-
-    // Option 3: Find HFS in the Steam Registry location
-
+	
+	// Option 4: Find HFS in the Steam Registry location
     std::string HoudiniSteamRegPath =
         HEMAX_Utilities::GetHoudiniSteamRegistryPath(HoudiniVersionString);
 
@@ -281,28 +322,27 @@ HEMAXLauncher::FindHoudiniEngineLibs()
 
     if (Result == ERROR_SUCCESS)
     {
-	WCHAR StringValue[2048];
-	DWORD BufferSize = sizeof(StringValue);
-	Result = RegQueryValueEx(Key,
+		WCHAR StringValue[2048];
+		DWORD BufferSize = sizeof(StringValue);
+		Result = RegQueryValueEx(Key,
                                  _T(HEMAX_HOUDINI_REGISTRY_INSTALL_PATH_NAME),
                                  nullptr,
                                  nullptr,
                                  (LPBYTE)(StringValue),
                                  &BufferSize);
 
-	if (Result == ERROR_SUCCESS)
-	{
-	    HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
-	    if (libHAPILModule)
-	    {
-                SetHoudiniDirectories(StringValue);
-		return libHAPILModule;
-	    }
-	}
+		if (Result == ERROR_SUCCESS)
+		{
+			HMODULE libHAPILModule = LoadLibHAPIL(StringValue);
+			if (libHAPILModule)
+			{
+				SetHoudiniDirectories(StringValue);
+				return libHAPILModule;
+			}
+		}
     }
 
-    // Option 4: Use the path stored in the HFS environment variable if it exists
-
+    // Option 5: Use the path stored in the HFS environment variable if it exists
     wchar_t HFSEnvVal[4096];
     int Count = GetEnvironmentVariable(HOUDINI_HFS_ENV_VAR, HFSEnvVal, 4096);
 
@@ -331,9 +371,11 @@ HEMAXLauncher::FindHoudiniEngineLibs()
     }
 
     // Option 5: As a worst case, try looking where Houdini usually is
+    // Try looking for "Houdini X.Y.X" and "HoudiniX.Y.X" (no space)
 
+    // with space
     std::wstring DefaultHoudiniLocation =
-        L"C:\\Program Files\\Side Effects Software\\" +
+        L"C:\\Program Files\\Side Effects Software\\Houdini " +
         std::wstring(HoudiniVersionString.begin(), HoudiniVersionString.end());
     HMODULE libHAPILModule = LoadLibHAPIL(DefaultHoudiniLocation);
     if (libHAPILModule)
@@ -342,8 +384,18 @@ HEMAXLauncher::FindHoudiniEngineLibs()
         return libHAPILModule;
     }
 
-    // If we are here, it means that we couldn't find the .dlls
+    // no space
+    DefaultHoudiniLocation =
+        L"C:\\Program Files\\Side Effects Software\\Houdini" +
+        std::wstring(HoudiniVersionString.begin(), HoudiniVersionString.end());
+    libHAPILModule = LoadLibHAPIL(DefaultHoudiniLocation);
+    if (libHAPILModule)
+    {
+        SetHoudiniDirectories(DefaultHoudiniLocation);
+        return libHAPILModule;
+    }
 
+    // If we are here, it means that we couldn't find the .dlls
     HEMAX_Logger::Instance().ShowDialog("Houdini Engine Not Found",
 	    "Houdini Engine could not be found. "
             "Please refer to the documentation for help.",
@@ -377,8 +429,8 @@ HEMAXLauncher::DeleteThis()
     }
     if (ThePlugin)
     {
-	delete ThePlugin;
-	ThePlugin = nullptr;
+        delete ThePlugin;
+        ThePlugin = nullptr;
     }
 }
 
@@ -416,9 +468,9 @@ HEMAXLauncher::Start()
             }
         }
 
-	Interface* TheInterface = GetCOREInterface();
+        Interface* TheInterface = GetCOREInterface();
 
-	ThePlugin = new HEMAX_Plugin(TheInterface, HAPIL);
+        ThePlugin = new HEMAX_Plugin(TheInterface, HAPIL);
 
 #ifdef HEMAX_VERSION_2017
         PluginUserInterface = new HEMAX_UI(nullptr, ThePlugin);
@@ -436,8 +488,8 @@ HEMAXLauncher::Start()
         OptionsDialog = new HEMAX_OptionsDialog(ThePlugin);
         OptionsDialog->hide();
 
-	VersionDialog = new HEMAX_VersionDialog();
-	VersionDialog->hide();
+        VersionDialog = new HEMAX_VersionDialog();
+        VersionDialog->hide();
     }
 
 #if !defined(HEMAX_VERSION_2025) && \

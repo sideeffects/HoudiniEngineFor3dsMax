@@ -82,6 +82,7 @@ struct HEMAX_Utilities
                                         int HoudiniBuildVersion,
                                         int PatchNumber);
     static std::string          GetHoudiniRegistryPath(std::string VersionString);
+	static std::string			GetHoudiniLauncherRegistryPath();
     static std::string          GetHoudiniSteamRegistryPath(std::string VersionString);
 
     static std::string          GetEnvVar(std::string Var);
