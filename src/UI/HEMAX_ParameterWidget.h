@@ -81,8 +81,6 @@ class HEMAX_ParameterWidget : public QWidget
 
 	bool SelectionLocked;
 
-	void DisableSubnetworkInputUI(int Subnetwork);
-
 	std::vector<QWidget*> SubnetworkInputs;
 	std::vector<QWidget*> ParameterWidgets;
 

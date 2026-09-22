@@ -91,15 +91,6 @@ HEMAX_ParameterWidget::RefreshUI(bool DeleteLater)
     UpdateParameterUI(DeleteLater);
 }
 
-void
-HEMAX_ParameterWidget::DisableSubnetworkInputUI(int Subnetwork)
-{
-    if (SubnetworkInputs.size() >= Subnetwork)
-    {
-	SubnetworkInputs[Subnetwork]->setDisabled(true);
-    }
-}
-
 HEMAX_Node*
 HEMAX_ParameterWidget::GetCurrentNode()
 {
@@ -173,7 +164,19 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		std::string WidgetLabel = CurrentNode->InputLabels[s];
                 std::string WidgetValue;
 
-                if (SelectedHda->HasSubnetworkInput(s))
+                // The first input of a modifier HDA is reserved for the
+                // modifier stack input, so it is always fed by the object
+                // that the modifier is applied to. It is displayed for
+                // reference only and cannot be assigned by the user.
+                bool IsModifierStackInput =
+                    (SelectedHda->Type == HEMAX_MODIFIER_HDA && s == 0);
+
+                if (IsModifierStackInput)
+                {
+                    WidgetValue = HEMAX_Utilities::GetUtf8String(
+                        SelectedHda->Get3dsMaxContainerName());
+                }
+                else if (SelectedHda->HasSubnetworkInput(s))
                 {
                     HEMAX_InputInstance* InputInstance =
                         SelectedHda->GetSubnetworkInput(s);
@@ -195,7 +198,7 @@ HEMAX_ParameterWidget::UpdateParameterUI(bool ScheduleDeleteLater)
 		SubnetworkInputs.push_back(new HEMAX_ParameterWidget_Node(
                     -1, WidgetLabel, WidgetValue));
 
-                if (SelectedHda->Type == HEMAX_MODIFIER_HDA)
+                if (IsModifierStackInput)
                     SubnetworkInputs[s]->setDisabled(true);
 
 		NodeInputBoxLayout->addWidget(SubnetworkInputs[s], s, 0);
